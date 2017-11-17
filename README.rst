@@ -3,6 +3,8 @@ Overview
 This package provides utilities for retrieving files from the data storage service for the Human Cell Atlas, and for
 submitting an analysis bundle to the Human Cell Atlas Data Coordination Platform.
 
+It also contains functions for interacting with Google Cloud Storage.
+
 The steps in the submission process are as follows:
 
 * Create analysis.json
@@ -10,6 +12,37 @@ The steps in the submission process are as follows:
 * Get URN needed to stage files
 * Stage files
 * Confirm submission
+
+
+Installing
+==========
+
+Install it like this::
+
+    pip install git+git://github.com/HumanCellAtlas/pipeline-tools.git
+
+You can use the cloud storage functions like this::
+
+    import pipeline_tools
+    from pipeline_tools import gcs_utils
+    bucket, object = gcs_utils.parse_bucket_blob_from_gs_link('gs://my-bucket/path/to/object')
+
+The rest of the package consists of scripts that are meant to be invoked from the command line as described below.
+
+
+Running unit tests
+==================
+
+To run unit tests, first create a virtual environment with the requirements::
+
+    virtualenv test-env
+    source test-env/bin/activate
+    pip install -r requirements.txt -r test-requirements.txt
+
+Then, run unit tests from the root of the pipeline-tools repo like this::
+
+    python -m unittest discover -v
+
 
 create_analysis_json.py
 =======================
