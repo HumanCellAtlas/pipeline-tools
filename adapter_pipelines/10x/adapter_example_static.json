@@ -1,0 +1,44 @@
+{
+  "Adapter10xCount.sample_def": "gs://broad-dsde-mint-dev-teststorage/10x/demo/json/sample_def.json",
+  "Adapter10xCount.reads_per_file": 5000000,
+  "Adapter10xCount.primers": [
+    {
+      "name": "P5",
+      "seq": "AATGATACGGCGACCACCGAGATCT"
+    },
+    {
+      "name": "P7",
+      "seq": "CAAGCAGAAGACGGCATACGAGAT"
+    },
+    {
+      "name": "R1",
+      "seq": "ACACTCTTTCCCTACACGACG"
+    },
+    {
+      "name": "R2",
+      "seq": "GTGACTGGAGTTCAGACGTGTG"
+    },
+    {
+      "name": "switch_oligo",
+      "seq": "AAGCAGTGGTATCAACGCAGAGTACATGGG"
+    },
+    {
+      "name": "polyA",
+      "seq": "AAAAAAAAAAAAAAAAAAAA"
+    }
+  ],
+  "Adapter10xCount.subsample_rate": 1,
+  "Adapter10xCount.align": "{\"aligner\": \"star\", \"high_conf_mapq\": null}",
+  "Adapter10xCount.reference_path": "gs://broad-dsde-mint-dev-teststorage/reference/hg19_chr21_10x_reference.tar",
+  "Adapter10xCount.umi_min_qual_threshold": 10,
+  "Adapter10xCount.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
+  "Adapter10xCount.format_map": "gs://broad-dsde-mint-dev-teststorage/format_map_example.json",
+  "Adapter10xCount.submit_url": "http://api.ingest.staging.data.humancellatlas.org/",
+  "Adapter10xCount.dss_url": "https://dss.staging.data.humancellatlas.org/v1",
+  "Adapter10xCount.method": "10xCount",
+  "Adapter10xCount.schema_version": "v3",
+  "Adapter10xCount.run_type": "run",
+  "Adapter10xCount.retry_seconds": 10,
+  "Adapter10xCount.timeout_seconds": 600,
+  "Adapter10xCount.runtime_environment": "dev"
+}

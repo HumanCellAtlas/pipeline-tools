@@ -1,0 +1,18 @@
+{
+  "AdapterSs2RsemSingleSample.gtf": "gs://broad-dsde-mint-dev-teststorage/demo/gencodev19_chr21.gtf",
+  "AdapterSs2RsemSingleSample.ref_fasta": "gs://broad-dsde-mint-dev-teststorage/demo/chr21.fa",
+  "AdapterSs2RsemSingleSample.ref_flat": "gs://broad-dsde-mint-dev-teststorage/demo/refFlat.chr21.txt",
+  "AdapterSs2RsemSingleSample.rrna_interval": "gs://broad-dsde-mint-dev-teststorage/demo/hg19.chr21.rRNA.interval_list",
+  "AdapterSs2RsemSingleSample.star_genome": "gs://broad-dsde-mint-dev-teststorage/demo/star.tar",
+  "AdapterSs2RsemSingleSample.rsem_genome": "gs://broad-dsde-mint-dev-teststorage/demo/rsem.tar",
+  "AdapterSs2RsemSingleSample.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
+  "AdapterSs2RsemSingleSample.format_map": "gs://broad-dsde-mint-dev-teststorage/format_map_example.json",
+  "AdapterSs2RsemSingleSample.submit_url": "http://api.ingest.staging.data.humancellatlas.org/",
+  "AdapterSs2RsemSingleSample.dss_url": "https://dss.staging.data.humancellatlas.org/v1",
+  "AdapterSs2RsemSingleSample.method": "Ss2RsemSingleSample",
+  "AdapterSs2RsemSingleSample.schema_version": "v3",
+  "AdapterSs2RsemSingleSample.run_type": "run",
+  "AdapterSs2RsemSingleSample.retry_seconds": 10,
+  "AdapterSs2RsemSingleSample.timeout_seconds": 600,
+  "AdapterSs2RsemSingleSample.runtime_environment": "dev"
+}
