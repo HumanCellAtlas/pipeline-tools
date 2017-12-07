@@ -63,6 +63,7 @@ workflow AdapterOptimus {
   File tar_star_reference  # star reference
   File annotations_gtf  # gtf containing annotations for gene tagging
   File ref_genome_fasta  # genome fasta file
+  String fastq_suffix = ".gz"  # add this suffix to fastq files for picard
 
   # Submission
   File format_map
@@ -94,55 +95,9 @@ workflow AdapterOptimus {
       whitelist = whitelist,
       tar_star_reference = tar_star_reference,
       annotations_gtf = annotations_gtf,
-      ref_genome_fasta = ref_genome_fasta
-  }
+      ref_genome_fasta = ref_genome_fasta,
+      fastq_suffix = fastq_suffix
 
-  call submit_wdl.submit {
-    input:
-      inputs = [
-        {
-          "name": "fastq_inputs",
-          "value": prep.fastq_inputs
-        },
-        {
-          "name": "sample_id",
-          "value": prep.inputs.sample_id
-        },
-        {
-          "name": "whitelist",
-          "value": whitelist
-        },
-        {
-          "name": "tar_star_reference",
-          "value": tar_star_reference
-        },
-        {
-          "name": "annotations_gtf",
-          "value": annotations_gtf
-        },
-        {
-          "name": "ref_genome_fasta",
-          "value": ref_genome_fasta
-        }
-      ],
-      outputs = [
-        analysis.bam,
-        analysis.matrix,
-        analysis.matrix_summary,
-        analysis.tag_gene_exon_log,
-        analysis.umi_metrics,
-        analysis.duplicate_metrics,
-        analysis.picard_metrics
-      ],
-      format_map = format_map,
-      submit_url = submit_url,
-      input_bundle_uuid = bundle_uuid,
-      reference_bundle = reference_bundle,
-      run_type = run_type,
-      schema_version = schema_version,
-      method = method,
-      retry_seconds = retry_seconds,
-      timeout_seconds = timeout_seconds,
-      runtime_environment = runtime_environment
+  # call submit here.
   }
 }
