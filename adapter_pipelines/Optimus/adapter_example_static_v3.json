@@ -1,0 +1,16 @@
+{
+  "AdapterOptimus.whitelist": "gs://broad-dsde-mint-dev-teststorage/10x/whitelist/737K-august-2016.txt",
+  "AdapterOptimus.tar_star_reference": "gs://broad-dsde-mint-dev-teststorage/reference/Hg19_kco/star_hg19_gencode_v19.tar.gz",
+  "AdapterOptimus.annotations_gtf": "gs://broad-dsde-mint-dev-teststorage/reference/Hg19_kco/Gencode_v19/Gencode_v19.gtf",
+  "AdapterOptimus.ref_genome_fasta": "gs://broad-dsde-mint-dev-teststorage/reference/Hg19_kco/Hg19.fa",
+  "AdapterOptimus.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
+  "AdapterOptimus.format_map": "gs://broad-dsde-mint-dev-teststorage/format_map_example.json",
+  "AdapterOptimus.submit_url": "http://api.ingest.staging.data.humancellatlas.org/",
+  "AdapterOptimus.dss_url": "https://dss.staging.data.humancellatlas.org/v1",
+  "AdapterOptimus.method": "Optimus",
+  "AdapterOptimus.schema_version": "v3",
+  "AdapterOptimus.run_type": "run",
+  "AdapterOptimus.retry_seconds": 10,
+  "AdapterOptimus.timeout_seconds": 600,
+  "AdapterOptimus.runtime_environment": "dev"
+}
