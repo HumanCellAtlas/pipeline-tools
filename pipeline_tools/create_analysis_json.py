@@ -144,14 +144,6 @@ def create_core(type, schema_version):
     return core
 
 
-def create_analysis_bundle(analysis_content):
-    analysis_bundle = {
-        'content': analysis_content,
-        'core': create_core(type='analysis_bundle', schema_version=analysis_content['metadata_schema'])
-    }
-    return analysis_bundle
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--analysis_id', required=True, help='Cromwell workflow id')
@@ -170,10 +162,8 @@ def main():
         args.reference_bundle, args.run_type, args.method, args.schema_version,
         args.inputs_file, args.outputs_file, args.format_map)
 
-    analysis_bundle = create_analysis_bundle(analysis)
-
     with open('analysis.json', 'w') as f:
-        json.dump(analysis_bundle, f, indent=2, sort_keys=True)
+        json.dump(analysis, f, indent=2, sort_keys=True)
 
 
 if __name__ == '__main__':

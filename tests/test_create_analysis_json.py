@@ -100,20 +100,6 @@ class TestCreateAnalysisJson(unittest.TestCase):
         except HTTPError:
             pass
 
-    @requests_mock.mock()
-    def test_create_analysis_bundle(self, mock):
-        fake_analysis_content = {
-            'metadata_schema': 'good_version'
-        }
-        schema_version = 'good_version'
-        schema_url = 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis_bundle.json'.format(schema_version)
-
-        mock.head(schema_url, status_code=200)
-
-        analysis_bundle = analysis_json.create_analysis_bundle(fake_analysis_content)
-        self.assertEquals(analysis_bundle.get('content'), fake_analysis_content)
-        self.assertEquals(analysis_bundle.get('core').get('schema_version'), 'good_version')
-
     def data_file(self, file_name):
         return os.path.split(__file__)[0] + '/data/'  + file_name
 

@@ -83,7 +83,7 @@ def get_input_bundle_uuid(analysis_json):
     try:  # v3 metadata schema
         bundle = analysis_json['input_bundles'][0]
     except KeyError:  # v4 metadata schema
-        bundle = analysis_json['content']['input_bundles'][0]
+        bundle = analysis_json['input_bundles'][0]
 
     uuid = bundle
     print('Input bundle uuid {0}'.format(uuid))
@@ -94,7 +94,7 @@ def get_output_files(analysis_json):
     try:  # v3 metadata schema
         outputs = analysis_json['outputs']
     except KeyError:  # v4 metadata schema
-        outputs = analysis_json['content']['outputs']
+        outputs = analysis_json['outputs']
     output_refs = []
     for o in outputs:
         output_ref = {}
