@@ -11,7 +11,7 @@ task GetInputs {
 
   command <<<
     python <<CODE
-    from pipeline_tools import utils
+    from pipeline_tools import dcp_utils
 
     # Get bundle manifest
     uuid = '${bundle_uuid}'
@@ -20,15 +20,15 @@ task GetInputs {
     retry_seconds = ${retry_seconds}
     timeout_seconds = ${timeout_seconds}
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
-    manifest_files = utils.get_manifest_files(uuid, version, dss_url, timeout_seconds, retry_seconds)
+    manifest_files = dcp_utils.get_manifest_files(uuid, version, dss_url, timeout_seconds, retry_seconds)
 
     print('Downloading assay.json')
     assay_json_uuid = manifest_files['name_to_meta']['assay.json']['uuid']
-    assay_json = utils.get_file_by_uuid(assay_json_uuid, dss_url)
+    assay_json = dcp_utils.get_file_by_uuid(assay_json_uuid, dss_url)
 
-    sample_id = assay_json['sample_id']
-    fastq_1_name = assay_json['seq']['lanes'][0]['r1']
-    fastq_2_name = assay_json['seq']['lanes'][0]['r2']
+    sample_id = assay_json['has_input']
+    fastq_1_name = assay_json[content]['seq']['lanes'][0]['r1']
+    fastq_2_name = assay_json[content]['seq']['lanes'][0]['r2']
     fastq_1_url = manifest_files['name_to_meta'][fastq_1_name]['url']
     fastq_2_url = manifest_files['name_to_meta'][fastq_2_name]['url']
 
