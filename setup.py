@@ -10,7 +10,11 @@ setup(name='pipeline-tools',
       packages=['pipeline_tools', 'tests'],
       install_requires=[
           'requests',
-          'boto3'
+          'boto3',
+          'mock',
+          'google-cloud-storage',
+          'requests-mock'
+
       ],
       entry_points={
           "console_scripts": [

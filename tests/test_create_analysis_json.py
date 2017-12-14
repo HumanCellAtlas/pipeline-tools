@@ -1,6 +1,8 @@
 import unittest
 import os
 import json
+import requests_mock
+from requests.exceptions import HTTPError
 
 import pipeline_tools.create_analysis_json as analysis_json
 
@@ -70,8 +72,51 @@ class TestCreateAnalysisJson(unittest.TestCase):
         self.assertEqual(analysis_json.get_format('asdf.bam', {'.bam': 'bam', '_metrics': 'metrics'}), 'bam')
         self.assertEqual(analysis_json.get_format('asdf.foo_metrics', {'.bam': 'bam', '_metrics': 'metrics'}), 'metrics')
 
+    @requests_mock.mock()
+    def test_create_core_success(self, mock):
+        type = 'analysis'
+        schema_version = 'good_version'
+        schema_url = 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version)
+
+        mock.head(schema_url, status_code=200)
+        core = analysis_json.create_core(type=type, schema_version=schema_version)
+        expected_core = {
+            'type': type,
+            'schema_url': schema_url,
+            'schema_version': schema_version
+        }
+        self.assertEquals(core, expected_core)
+
+    @requests_mock.mock()
+    def test_create_core_failure(self, mock):
+        type = 'analysis'
+        schema_version = 'bad_version'
+        schema_url = 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version)
+
+        mock.head(schema_url, status_code=404)
+
+        try:
+            core = analysis_json.create_core(type=type, schema_version=schema_version)
+        except HTTPError:
+            pass
+
+    @requests_mock.mock()
+    def test_create_analysis_bundle(self, mock):
+        fake_analysis_content = {
+            'metadata_schema': 'good_version'
+        }
+        schema_version = 'good_version'
+        schema_url = 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis_bundle.json'.format(schema_version)
+
+        mock.head(schema_url, status_code=200)
+
+        analysis_bundle = analysis_json.create_analysis_bundle(fake_analysis_content)
+        self.assertEquals(analysis_bundle.get('content'), fake_analysis_content)
+        self.assertEquals(analysis_bundle.get('core').get('schema_version'), 'good_version')
+
     def data_file(self, file_name):
         return os.path.split(__file__)[0] + '/data/'  + file_name
+
 
 if __name__ == '__main__':
     unittest.main()

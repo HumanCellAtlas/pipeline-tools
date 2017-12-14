@@ -2,6 +2,8 @@
 
 import json
 import argparse
+import requests
+
 
 def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_bundle,
         run_type, method, schema_version, inputs_file, outputs_file, format_map):
@@ -28,10 +30,12 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         'metadata_schema': schema_version,
         'tasks': tasks,
         'inputs': inputs,
-        'outputs': outputs
+        'outputs': outputs,
+        'core': create_core(type='analysis', schema_version=schema_version)
     }
 
     return analysis
+
 
 def create_inputs(inputs_file):
     inputs = []
@@ -53,6 +57,7 @@ def create_inputs(inputs_file):
             inputs.append(input)
     return inputs
 
+
 def create_outputs(outputs_file, format_map):
     with open(format_map) as f:
         extension_to_format = json.load(f)
@@ -69,6 +74,7 @@ def create_outputs(outputs_file, format_map):
             outputs.append(d)
     return outputs
 
+
 def get_format(path, extension_to_format):
     for ext in extension_to_format:
         if path.endswith(ext):
@@ -78,16 +84,19 @@ def get_format(path, extension_to_format):
     print('Warning: no known format matches file {}'.format(path))
     return 'unknown'
 
+
 def get_input_bundles(input_bundles_string):
     input_bundles = input_bundles_string.split(',')
     print(input_bundles)
     return input_bundles
+
 
 def get_start_end(metadata):
     start = metadata['start']
     end = metadata['end']
     print(start, end)
     return start, end
+
 
 def get_tasks(metadata):
     calls = metadata['calls']
@@ -114,6 +123,35 @@ def get_tasks(metadata):
     sorted_out_tasks = sorted(out_tasks, key=lambda k: k['name'])
     return sorted_out_tasks
 
+
+def create_core(type, schema_version):
+    analysis_core_enum = {
+        'analysis': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version),
+        'analysis_bundle': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis_bundle.json'.format(schema_version)
+    }
+
+    schema_url = analysis_core_enum.get(type)
+
+    # Check if the schema ref exists
+    response = requests.head(schema_url)
+    response.raise_for_status()
+
+    core = {
+        'type': type,
+        'schema_url': schema_url,
+        'schema_version': schema_version
+    }
+    return core
+
+
+def create_analysis_bundle(analysis_content):
+    analysis_bundle = {
+        'content': analysis_content,
+        'core': create_core(type='analysis_bundle', schema_version=analysis_content['metadata_schema'])
+    }
+    return analysis_bundle
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--analysis_id', required=True, help='Cromwell workflow id')
@@ -127,11 +165,16 @@ def main():
     parser.add_argument('--outputs_file', required=True, help='Path to json file containing info about outputs')
     parser.add_argument('--format_map', required=True, help='JSON file providing map of file extensions to formats')
     args = parser.parse_args()
+
     analysis = create_analysis(args.analysis_id, args.metadata_json, args.input_bundles,
         args.reference_bundle, args.run_type, args.method, args.schema_version,
         args.inputs_file, args.outputs_file, args.format_map)
+
+    analysis_bundle = create_analysis_bundle(analysis)
+
     with open('analysis.json', 'w') as f:
-        json.dump(analysis, f, indent=2, sort_keys=True)
+        json.dump(analysis_bundle, f, indent=2, sort_keys=True)
+
 
 if __name__ == '__main__':
     main()
