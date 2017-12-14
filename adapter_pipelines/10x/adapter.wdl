@@ -27,7 +27,7 @@ task GetInputs {
 
     # Parse inputs from assay_json and write to inputs.tsv file
     sample_id = assay_json['has_input']
-    lanes = assay_json[content]['seq']['lanes']
+    lanes = assay_json['content']['seq']['lanes']
     r1 = [manifest_files['name_to_meta'][lane['r1']]['url'] for lane in lanes]
     r2 = [manifest_files['name_to_meta'][lane['r2']]['url'] for lane in lanes]
     i1 = [manifest_files['name_to_meta'][lane['i1']]['url'] for lane in lanes]

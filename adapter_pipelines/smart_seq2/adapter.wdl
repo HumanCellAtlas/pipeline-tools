@@ -27,8 +27,8 @@ task GetInputs {
     assay_json = dcp_utils.get_file_by_uuid(assay_json_uuid, dss_url)
 
     sample_id = assay_json['has_input']
-    fastq_1_name = assay_json[content]['seq']['lanes'][0]['r1']
-    fastq_2_name = assay_json[content]['seq']['lanes'][0]['r2']
+    fastq_1_name = assay_json['content']['seq']['lanes'][0]['r1']
+    fastq_2_name = assay_json['content']['seq']['lanes'][0]['r2']
     fastq_1_url = manifest_files['name_to_meta'][fastq_1_name]['url']
     fastq_2_url = manifest_files['name_to_meta'][fastq_2_name]['url']
 
