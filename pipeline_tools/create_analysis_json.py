@@ -15,7 +15,7 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         tasks = get_tasks(metadata)
 
     inputs = create_inputs(inputs_file)
-    outputs = create_outputs(outputs_file, format_map)
+    outputs = create_outputs(outputs_file, format_map, schema_version)
 
     input_bundles = get_input_bundles(input_bundles_string)
 
@@ -58,7 +58,7 @@ def create_inputs(inputs_file):
     return inputs
 
 
-def create_outputs(outputs_file, format_map):
+def create_outputs(outputs_file, format_map, schema_version):
     with open(format_map) as f:
         extension_to_format = json.load(f)
 
@@ -69,7 +69,8 @@ def create_outputs(outputs_file, format_map):
             d = {
               'file_path': path,
               'name': path.split('/')[-1],
-              'format': get_format(path, extension_to_format)
+              'format': get_format(path, extension_to_format),
+              'core': create_core(type='file', schema_version=schema_version)
             }
             outputs.append(d)
     return outputs
@@ -127,7 +128,7 @@ def get_tasks(metadata):
 def create_core(type, schema_version):
     analysis_core_enum = {
         'analysis': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version),
-        'analysis_bundle': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis_bundle.json'.format(schema_version)
+        'file': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/file.json'.format(schema_version)
     }
 
     schema_url = analysis_core_enum.get(type)
