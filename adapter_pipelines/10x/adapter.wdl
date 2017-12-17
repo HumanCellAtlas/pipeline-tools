@@ -63,7 +63,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "humancellatlas/pipeline-tools:0.1.4"
+    docker: "humancellatlas/pipeline-tools:0.1.5"
   }
   output {
     Array[File] r1 = read_lines("r1.tsv")
@@ -97,7 +97,7 @@ task rename_files {
     CODE
   >>>
   runtime {
-    docker: "humancellatlas/pipeline-tools:0.1.4"
+    docker: "humancellatlas/pipeline-tools:0.1.5"
   }
   output {
     File r1_new = "${r1_name}"
@@ -183,7 +183,7 @@ task inputs_for_submit {
     CODE
   >>>
   runtime {
-    docker: "humancellatlas/pipeline-tools:0.1.4"
+    docker: "humancellatlas/pipeline-tools:0.1.5"
   }
   output {
     File inputs = "inputs.tsv"
