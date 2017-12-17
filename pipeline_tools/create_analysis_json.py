@@ -15,7 +15,7 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         tasks = get_tasks(metadata)
 
     inputs = create_inputs(inputs_file)
-    outputs = create_outputs(outputs_file, format_map, schema_version)
+    outputs = create_outputs(outputs_file, format_map)
 
     input_bundles = get_input_bundles(input_bundles_string)
 
@@ -33,6 +33,10 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         'outputs': outputs,
         'core': create_core(type='analysis', schema_version=schema_version)
     }
+
+    # Add logging
+    print('The content of analysis.json: ')
+    print(analysis)
 
     return analysis
 
@@ -58,7 +62,7 @@ def create_inputs(inputs_file):
     return inputs
 
 
-def create_outputs(outputs_file, format_map, schema_version):
+def create_outputs(outputs_file, format_map):
     with open(format_map) as f:
         extension_to_format = json.load(f)
 
@@ -69,10 +73,14 @@ def create_outputs(outputs_file, format_map, schema_version):
             d = {
               'file_path': path,
               'name': path.split('/')[-1],
-              'format': get_format(path, extension_to_format),
-              'core': create_core(type='file', schema_version=schema_version)
+              'format': get_format(path, extension_to_format)
             }
             outputs.append(d)
+
+    # Add logging
+    print('The content of outputs: ')
+    print(outputs)
+
     return outputs
 
 
@@ -82,7 +90,7 @@ def get_format(path, extension_to_format):
             format = extension_to_format[ext]
             print(format)
             return format
-    print('Warning: no known format matches file {}'.format(path))
+    print('Warning: no known format in the format_map matches file {}'.format(path))
     return 'unknown'
 
 

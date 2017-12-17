@@ -3,6 +3,7 @@
 import requests
 import json
 import argparse
+from create_analysis_json import create_core
 
 
 def run(submit_url, analysis_json_path):
@@ -80,10 +81,7 @@ def get_entity_url(js, entity):
 
 
 def get_input_bundle_uuid(analysis_json):
-    try:  # v3 metadata schema
-        bundle = analysis_json['input_bundles'][0]
-    except KeyError:  # v4 metadata schema
-        bundle = analysis_json['input_bundles'][0]
+    bundle = analysis_json['input_bundles'][0]
 
     uuid = bundle
     print('Input bundle uuid {0}'.format(uuid))
@@ -91,18 +89,18 @@ def get_input_bundle_uuid(analysis_json):
 
 
 def get_output_files(analysis_json):
-    try:  # v3 metadata schema
-        outputs = analysis_json['outputs']
-    except KeyError:  # v4 metadata schema
-        outputs = analysis_json['outputs']
+    outputs = analysis_json['outputs']
+    schema_version = analysis_json['metadata_schema']
     output_refs = []
-    for o in outputs:
+
+    for out in outputs:
         output_ref = {}
-        file_name = o['file_path'].split('/')[-1] 
+        file_name = out['file_path'].split('/')[-1]
         output_ref['fileName'] = file_name
         output_ref['content'] = {
-            'name': file_name,
-            'format': o['format']
+            'filename': file_name,
+            'file_format': out['format'],
+            'core': create_core(type='file', schema_version=schema_version)
         }
         output_refs.append(output_ref)
     return output_refs
