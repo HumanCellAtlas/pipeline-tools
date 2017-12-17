@@ -36,7 +36,7 @@
   "Adapter10xCount.submit_url": "http://api.ingest.staging.data.humancellatlas.org/",
   "Adapter10xCount.dss_url": "https://dss.staging.data.humancellatlas.org/v1",
   "Adapter10xCount.method": "10xCount",
-  "Adapter10xCount.schema_version": "4.5.0",
+  "Adapter10xCount.schema_version": "4.6.1",
   "Adapter10xCount.run_type": "run",
   "Adapter10xCount.retry_seconds": 10,
   "Adapter10xCount.timeout_seconds": 600,

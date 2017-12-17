@@ -10,7 +10,7 @@
   "AdapterSs2RsemSingleSample.submit_url": "http://api.ingest.staging.data.humancellatlas.org/",
   "AdapterSs2RsemSingleSample.dss_url": "https://dss.staging.data.humancellatlas.org/v1",
   "AdapterSs2RsemSingleSample.method": "Ss2RsemSingleSample",
-  "AdapterSs2RsemSingleSample.schema_version": "4.5.0",
+  "AdapterSs2RsemSingleSample.schema_version": "4.6.1",
   "AdapterSs2RsemSingleSample.run_type": "run",
   "AdapterSs2RsemSingleSample.retry_seconds": 10,
   "AdapterSs2RsemSingleSample.timeout_seconds": 120,
