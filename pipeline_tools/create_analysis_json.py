@@ -91,28 +91,30 @@ def get_start_end(metadata):
 
 def get_tasks(metadata):
     calls = metadata['calls']
-
-    out_tasks = []
+    output_tasks = []
     for long_task_name in calls:
         task_name = long_task_name.split('.')[-1]
         task = calls[long_task_name][0]
-        runtime = task['runtimeAttributes']
+        if task.get('subWorkflowMetadata'):
+            output_tasks.extend(get_tasks(task['subWorkflowMetadata']))
+        else:
+            runtime = task['runtimeAttributes']
+            out_task = {
+                'name': task_name,
+                'cpus': int(runtime['cpu']),
+                'memory': runtime['memory'],
+                'disk_size': runtime['disks'],
+                'docker_image': runtime['docker'],
+                'zone': runtime['zones'],
+                'start_time': task['start'],
+                'stop_time': task['end'],
+                'log_out': task['stdout'],
+                'log_err': task['stderr']
+            }
+            output_tasks.append(out_task)
+    sorted_output_tasks = sorted(output_tasks, key=lambda k: k['name'])
+    return sorted_output_tasks
 
-        out_task = {
-            'name': task_name,
-            'cpus': int(runtime['cpu']),
-            'memory': runtime['memory'],
-            'disk_size': runtime['disks'],
-            'docker_image': runtime['docker'],
-            'zone': runtime['zones'],
-            'start_time': task['start'],
-            'stop_time': task['end'],
-            'log_out': task['stdout'],
-            'log_err': task['stderr']
-        }
-        out_tasks.append(out_task)
-    sorted_out_tasks = sorted(out_tasks, key=lambda k: k['name'])
-    return sorted_out_tasks
 
 def main():
     parser = argparse.ArgumentParser()
