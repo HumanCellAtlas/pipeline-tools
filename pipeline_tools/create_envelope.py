@@ -3,6 +3,8 @@
 import requests
 import json
 import argparse
+from create_analysis_json import create_core
+
 
 def run(submit_url, analysis_json_path):
     # 1. Get envelope url
@@ -48,6 +50,7 @@ def run(submit_url, analysis_json_path):
         response = requests.put(file_refs_url, headers=json_header, data=json.dumps(file_ref))
         check_status(response.status_code, response.text)
 
+
 def check_status(status, response_text, expected='2xx'):
     """Check that status is in range 200-299 or the specified range, if given.
     Raises a ValueError and prints response_text if status is not in the expected range. Otherwise,
@@ -70,30 +73,38 @@ def check_status(status, response_text, expected='2xx'):
         message = 'HTTP status code {0} is not in expected range {1}. Response: {2}'.format(status, expected, response_text)
         raise ValueError(message)
 
+
 def get_entity_url(js, entity):
     entity_url = js['_links'][entity]['href'].split('{')[0]
     print('Got url for {0}: {1}'.format(entity, entity_url))
     return entity_url
 
+
 def get_input_bundle_uuid(analysis_json):
     bundle = analysis_json['input_bundles'][0]
+
     uuid = bundle
     print('Input bundle uuid {0}'.format(uuid))
     return uuid
 
+
 def get_output_files(analysis_json):
     outputs = analysis_json['outputs']
+    schema_version = analysis_json['metadata_schema']
     output_refs = []
-    for o in outputs:
+
+    for out in outputs:
         output_ref = {}
-        file_name = o['file_path'].split('/')[-1] 
+        file_name = out['file_path'].split('/')[-1]
         output_ref['fileName'] = file_name
         output_ref['content'] = {
-            'name': file_name,
-            'format': o['format']
+            'filename': file_name,
+            'file_format': out['format'],
+            'core': create_core(type='file', schema_version=schema_version)
         }
         output_refs.append(output_ref)
     return output_refs
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -101,6 +112,7 @@ def main():
     parser.add_argument('--analysis_json_path', required=True)
     args = parser.parse_args()
     run(args.submit_url, args.analysis_json_path)
+
 
 if __name__ == '__main__':
     main()

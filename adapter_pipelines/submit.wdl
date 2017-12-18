@@ -21,7 +21,7 @@ task get_metadata {
     creds=/cromwell-metadata/cromwell_credentials.txt
     curl -u $(cut -f1 $creds):$(cut -f2 $creds) \
       --compressed \
-      "https://cromwell.mint-${runtime_environment}.broadinstitute.org/api/workflows/v1/$(cat workflow_id.txt)/metadata" > metadata.json
+      "https://cromwell.mint-${runtime_environment}.broadinstitute.org/api/workflows/v1/$(cat workflow_id.txt)/metadata?expandSubWorkflows=true" > metadata.json
   >>>
   runtime {
     docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:0.1.1"
@@ -69,7 +69,7 @@ task create_submission {
   >>>
 
   runtime {
-    docker: "humancellatlas/pipeline-tools:0.1.4"
+    docker: "humancellatlas/pipeline-tools:0.1.5"
   }
   output {
     File analysis_json = "analysis.json"
@@ -117,7 +117,7 @@ task stage_and_confirm {
   >>>
 
   runtime {
-    docker: "humancellatlas/pipeline-tools:0.1.4"
+    docker: "humancellatlas/pipeline-tools:0.1.5"
   }
 }
 

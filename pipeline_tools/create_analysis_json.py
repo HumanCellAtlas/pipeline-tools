@@ -2,6 +2,8 @@
 
 import json
 import argparse
+import requests
+
 
 def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_bundle,
         run_type, method, schema_version, inputs_file, outputs_file, format_map):
@@ -28,10 +30,16 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         'metadata_schema': schema_version,
         'tasks': tasks,
         'inputs': inputs,
-        'outputs': outputs
+        'outputs': outputs,
+        'core': create_core(type='analysis', schema_version=schema_version)
     }
 
+    # Add logging
+    print('The content of analysis.json: ')
+    print(analysis)
+
     return analysis
+
 
 def create_inputs(inputs_file):
     inputs = []
@@ -53,6 +61,7 @@ def create_inputs(inputs_file):
             inputs.append(input)
     return inputs
 
+
 def create_outputs(outputs_file, format_map):
     with open(format_map) as f:
         extension_to_format = json.load(f)
@@ -67,7 +76,13 @@ def create_outputs(outputs_file, format_map):
               'format': get_format(path, extension_to_format)
             }
             outputs.append(d)
+
+    # Add logging
+    print('The content of outputs: ')
+    print(outputs)
+
     return outputs
+
 
 def get_format(path, extension_to_format):
     for ext in extension_to_format:
@@ -75,13 +90,15 @@ def get_format(path, extension_to_format):
             format = extension_to_format[ext]
             print(format)
             return format
-    print('Warning: no known format matches file {}'.format(path))
+    print('Warning: no known format in the format_map matches file {}'.format(path))
     return 'unknown'
+
 
 def get_input_bundles(input_bundles_string):
     input_bundles = input_bundles_string.split(',')
     print(input_bundles)
     return input_bundles
+
 
 def get_start_end(metadata):
     start = metadata['start']
@@ -89,30 +106,56 @@ def get_start_end(metadata):
     print(start, end)
     return start, end
 
+
 def get_tasks(metadata):
     calls = metadata['calls']
 
-    out_tasks = []
+    output_tasks = []
     for long_task_name in calls:
         task_name = long_task_name.split('.')[-1]
         task = calls[long_task_name][0]
-        runtime = task['runtimeAttributes']
 
-        out_task = {
-            'name': task_name,
-            'cpus': int(runtime['cpu']),
-            'memory': runtime['memory'],
-            'disk_size': runtime['disks'],
-            'docker_image': runtime['docker'],
-            'zone': runtime['zones'],
-            'start_time': task['start'],
-            'stop_time': task['end'],
-            'log_out': task['stdout'],
-            'log_err': task['stderr']
-        }
-        out_tasks.append(out_task)
-    sorted_out_tasks = sorted(out_tasks, key=lambda k: k['name'])
-    return sorted_out_tasks
+        if task.get('subWorkflowMetadata'):
+            output_tasks.extend(get_tasks(task['subWorkflowMetadata']))
+        else:
+            runtime = task['runtimeAttributes']
+            out_task = {
+                'name': task_name,
+                'cpus': int(runtime['cpu']),
+                'memory': runtime['memory'],
+                'disk_size': runtime['disks'],
+                'docker_image': runtime['docker'],
+                'zone': runtime['zones'],
+                'start_time': task['start'],
+                'stop_time': task['end'],
+                'log_out': task['stdout'],
+                'log_err': task['stderr']
+            }
+            output_tasks.append(out_task)
+    sorted_output_tasks = sorted(output_tasks, key=lambda k: k['name'])
+    return sorted_output_tasks
+
+
+def create_core(type, schema_version):
+    analysis_core_enum = {
+        'analysis': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version),
+        'file': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/file.json'.format(schema_version)
+    }
+
+    schema_url = analysis_core_enum.get(type)
+
+    # Check if the schema ref exists
+    print('Checking schema_url {0}'.format(schema_url))
+    response = requests.head(schema_url)
+    response.raise_for_status()
+
+    core = {
+        'type': type,
+        'schema_url': schema_url,
+        'schema_version': schema_version
+    }
+    return core
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -127,11 +170,14 @@ def main():
     parser.add_argument('--outputs_file', required=True, help='Path to json file containing info about outputs')
     parser.add_argument('--format_map', required=True, help='JSON file providing map of file extensions to formats')
     args = parser.parse_args()
+
     analysis = create_analysis(args.analysis_id, args.metadata_json, args.input_bundles,
         args.reference_bundle, args.run_type, args.method, args.schema_version,
         args.inputs_file, args.outputs_file, args.format_map)
+
     with open('analysis.json', 'w') as f:
         json.dump(analysis, f, indent=2, sort_keys=True)
+
 
 if __name__ == '__main__':
     main()

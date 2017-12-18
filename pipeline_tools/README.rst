@@ -46,7 +46,7 @@ Then, run unit tests from the root of the pipeline-tools repo like this::
 
 create_analysis_json.py
 =======================
-Creates analysis.json file.
+Creates analysis.json file, which is following the v4 metadata schema.
 
 Invoke it like this::
 
