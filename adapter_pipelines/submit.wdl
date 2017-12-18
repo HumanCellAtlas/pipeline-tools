@@ -21,7 +21,7 @@ task get_metadata {
     creds=/cromwell-metadata/cromwell_credentials.txt
     curl -u $(cut -f1 $creds):$(cut -f2 $creds) \
       --compressed \
-      "https://cromwell.mint-${runtime_environment}.broadinstitute.org/api/workflows/v1/$(cat workflow_id.txt)/metadata" > metadata.json
+      "https://cromwell.mint-${runtime_environment}.broadinstitute.org/api/workflows/v1/$(cat workflow_id.txt)/metadata?expandSubWorkflows=true" > metadata.json
   >>>
   runtime {
     docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:0.1.1"
