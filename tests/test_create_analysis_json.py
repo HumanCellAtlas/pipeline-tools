@@ -6,6 +6,7 @@ from requests.exceptions import HTTPError
 
 import pipeline_tools.create_analysis_json as analysis_json
 
+
 class TestCreateAnalysisJson(unittest.TestCase):
 
     def test_create_inputs(self):
@@ -95,10 +96,12 @@ class TestCreateAnalysisJson(unittest.TestCase):
 
         mock.head(schema_url, status_code=404)
 
+        core = None
         try:
             core = analysis_json.create_core(type=type, schema_version=schema_version)
         except HTTPError:
             pass
+        self.assertIsNone(core)
 
     def data_file(self, file_name):
         return os.path.split(__file__)[0] + '/data/'  + file_name

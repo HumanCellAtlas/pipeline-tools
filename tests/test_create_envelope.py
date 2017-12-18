@@ -1,8 +1,10 @@
 import unittest
 import os
 import json
+import requests_mock
 
 import pipeline_tools.create_envelope as submit
+
 
 class TestCreateEnvelope(unittest.TestCase):
 
@@ -17,14 +19,19 @@ class TestCreateEnvelope(unittest.TestCase):
             js = json.load(f)
             self.assertEqual(submit.get_input_bundle_uuid(js), '75a7f618-9adc-48af-a249-0010305160f6')
 
-    def test_get_output_files(self):
+    @requests_mock.mock()
+    def test_get_output_files(self, mock):
+        schema_version = 'version_232'
+        schema_url = 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/file.json'.format(schema_version)
+        mock.head(schema_url, status_code=200)
+
         with open(self.data_file('analysis.json')) as f:
             js = json.load(f)
             outputs = submit.get_output_files(js)
             self.assertEqual(len(outputs), 3)
             self.assertEqual(outputs[0]['fileName'], 'sample.bam')
-            self.assertEqual(outputs[0]['content']['name'], 'sample.bam')
-            self.assertEqual(outputs[0]['content']['format'], 'bam')
+            self.assertEqual(outputs[0]['content']['filename'], 'sample.bam')
+            self.assertEqual(outputs[0]['content']['file_format'], 'bam')
 
     def test_check_status_bad_codes(self):
         with self.assertRaises(ValueError):
