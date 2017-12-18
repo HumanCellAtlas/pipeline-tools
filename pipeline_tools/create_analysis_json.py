@@ -145,6 +145,7 @@ def create_core(type, schema_version):
     schema_url = analysis_core_enum.get(type)
 
     # Check if the schema ref exists
+    print('Checking schema_url {0}'.format(schema_url))
     response = requests.head(schema_url)
     response.raise_for_status()
 
