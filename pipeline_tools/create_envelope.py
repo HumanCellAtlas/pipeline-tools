@@ -4,9 +4,16 @@ import requests
 import json
 import argparse
 from create_analysis_json import create_core
+from dcp_utils import get_auth_token, make_auth_header
 
 
 def run(submit_url, analysis_json_path):
+    # 0. Get Auth token and make auth headers
+    print('Fetching auth token from Auth0')
+    auth_token = get_auth_token()
+    print('Making auth headers')
+    auth_headers = make_auth_header(auth_token)
+
     # 1. Get envelope url
     print('Getting envelope url from {}'.format(submit_url))
     response = requests.get(submit_url)
@@ -15,7 +22,8 @@ def run(submit_url, analysis_json_path):
 
     # 2. Create envelope, get analysis and submission urls
     print('Creating submission envelope at {0}'.format(envelope_url))
-    response = requests.post(envelope_url, '{}')
+    requests.post()
+    response = requests.post(envelope_url, '{}', headers=auth_headers)
     check_status(response.status_code, response.text)
     envelope_js = response.json()
     analyses_url = get_entity_url(envelope_js, 'analyses')
