@@ -84,8 +84,8 @@ def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
     payload = {
         "client_id": client_id,
         "client_secret": client_secret,
-        "audience":audience,
-        "grant_type":grant_type
+        "audience": audience,
+        "grant_type": grant_type
     }
     response = requests.post(url=url, headers=headers, json=payload)
     response.raise_for_status()
