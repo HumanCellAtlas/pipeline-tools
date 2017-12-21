@@ -3,7 +3,7 @@
 import requests
 import json
 import argparse
-from create_analysis_json import create_core
+from .create_analysis_json import create_core
 
 
 def run(submit_url, analysis_json_path):
