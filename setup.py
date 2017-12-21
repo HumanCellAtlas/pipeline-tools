@@ -7,7 +7,7 @@ setup(name='pipeline-tools',
       author='Human Cell Atlas Data Coordination Platform Mint Team',
       author_email='mintteam@broadinstitute.org',
       license='BSD 3-clause "New" or "Revised" License',
-      packages=['pipeline_tools', 'tests'],
+      packages=['pipeline_tools'],
       install_requires=[
           'requests',
           'boto3',
