@@ -22,7 +22,6 @@ def run(submit_url, analysis_json_path):
 
     # 2. Create envelope, get analysis and submission urls
     print('Creating submission envelope at {0}'.format(envelope_url))
-    requests.post()
     response = requests.post(envelope_url, '{}', headers=auth_headers)
     check_status(response.status_code, response.text)
     envelope_js = response.json()
