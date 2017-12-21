@@ -84,8 +84,8 @@ class TestDCPUtils(unittest.TestCase):
 
     def test_make_auth_header(self):
         expect_header = {
-            "content-type": "application/json",
-            "authorization": "{token_type} {access_token}".format(token_type=self.AUTH_TOKEN['token_type'],
+            "Content-type": "application/json",
+            "Authorization": "{token_type} {access_token}".format(token_type=self.AUTH_TOKEN['token_type'],
                                                                   access_token=self.AUTH_TOKEN['access_token'])
         }
         headers = dcp_utils.make_auth_header(self.AUTH_TOKEN)

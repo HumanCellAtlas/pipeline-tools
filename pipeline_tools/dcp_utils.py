@@ -104,7 +104,7 @@ def make_auth_header(auth_token):
     access_token = auth_token['access_token']
 
     headers = {
-        "content-type": "application/json",
-        "authorization": "{token_type} {access_token}".format(token_type=token_type, access_token=access_token)
+        "Content-type": "application/json",
+        "Authorization": "{token_type} {access_token}".format(token_type=token_type, access_token=access_token)
     }
     return headers
