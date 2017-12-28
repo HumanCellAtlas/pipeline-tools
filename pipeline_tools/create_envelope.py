@@ -3,8 +3,8 @@
 import requests
 import json
 import argparse
-from create_analysis_json import create_core
-from dcp_utils import get_auth_token, make_auth_header
+from .dcp_utils import get_auth_token, make_auth_header
+from .create_analysis_json import create_core
 
 
 def run(submit_url, analysis_json_path):
