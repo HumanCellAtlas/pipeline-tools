@@ -3,19 +3,26 @@
 import requests
 import json
 import argparse
+from .dcp_utils import get_auth_token, make_auth_header
 from .create_analysis_json import create_core
 
 
 def run(submit_url, analysis_json_path):
+    # 0. Get Auth token and make auth headers
+    print('Fetching auth token from Auth0')
+    auth_token = get_auth_token()
+    print('Making auth headers')
+    auth_headers = make_auth_header(auth_token)
+
     # 1. Get envelope url
     print('Getting envelope url from {}'.format(submit_url))
-    response = requests.get(submit_url)
+    response = requests.get(submit_url, headers=auth_headers)
     check_status(response.status_code, response.text)
     envelope_url = get_entity_url(response.json(), 'submissionEnvelopes')
 
     # 2. Create envelope, get analysis and submission urls
     print('Creating submission envelope at {0}'.format(envelope_url))
-    response = requests.post(envelope_url, '{}')
+    response = requests.post(envelope_url, '{}', headers=auth_headers)
     check_status(response.status_code, response.text)
     envelope_js = response.json()
     analyses_url = get_entity_url(envelope_js, 'analyses')
@@ -25,10 +32,9 @@ def run(submit_url, analysis_json_path):
         f.write(submission_url)
 
     # 3. Create analysis, get input bundles url, file refs url
-    json_header = {'Content-type': 'application/json'}
     with open(analysis_json_path) as f:
         analysis_json_contents = json.load(f)
-    response = requests.post(analyses_url, headers=json_header, data=json.dumps(analysis_json_contents))
+    response = requests.post(analyses_url, headers=auth_headers, data=json.dumps(analysis_json_contents))
     check_status(response.status_code, response.text)
     analysis_js = response.json()
     input_bundles_url = get_entity_url(analysis_js, 'add-input-bundles')
@@ -39,7 +45,7 @@ def run(submit_url, analysis_json_path):
     input_bundle_uuid = get_input_bundle_uuid(analysis_json_contents)
     bundle_refs_js = json.dumps({"bundleUuids": [input_bundle_uuid]}, indent=2)
     print(bundle_refs_js)
-    response = requests.put(input_bundles_url, headers=json_header, data=bundle_refs_js)
+    response = requests.put(input_bundles_url, headers=auth_headers, data=bundle_refs_js)
     check_status(response.status_code, response.text)
 
     # 5. Add file references
@@ -47,7 +53,7 @@ def run(submit_url, analysis_json_path):
     output_files = get_output_files(analysis_json_contents)
     for file_ref in output_files:
         print('Adding file: {}'.format(file_ref['fileName']))
-        response = requests.put(file_refs_url, headers=json_header, data=json.dumps(file_ref))
+        response = requests.put(file_refs_url, headers=auth_headers, data=json.dumps(file_ref))
         check_status(response.status_code, response.text)
 
 

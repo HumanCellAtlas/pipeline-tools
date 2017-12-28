@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import io
 import unittest
 try:
@@ -16,7 +15,7 @@ def _make_credentials():
     return mock.Mock(spec=google.auth.credentials.Credentials)
 
 
-class TestUtils(unittest.TestCase):
+class TestGCSUtils(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.PROJECT = 'PROJECT'
