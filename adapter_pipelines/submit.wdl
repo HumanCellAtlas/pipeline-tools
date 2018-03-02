@@ -2,14 +2,16 @@
 task get_metadata {
   String analysis_output_path
   String runtime_environment
+  Boolean use_caas
 
   command <<<
     get-analysis-metadata \
       --analysis_output_path ${analysis_output_path} \
-      --runtime_environment ${runtime_environment}
+      --runtime_environment ${runtime_environment} \
+      --use_caas ${use_caas}
   >>>
   runtime {
-    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:0.1.4"
+    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:0.1.5"
   }
   output {
     File metadata = "metadata.json"
@@ -55,7 +57,7 @@ task create_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.15.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.16.0"
   }
   output {
     File analysis_json = "analysis.json"
@@ -103,7 +105,7 @@ task stage_and_confirm {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.15.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.16.0"
   }
 }
 
@@ -120,11 +122,13 @@ workflow submit {
   String runtime_environment
   Int retry_seconds
   Int timeout_seconds
+  Boolean use_caas
 
   call get_metadata {
     input:
       analysis_output_path = outputs[0],
-      runtime_environment = runtime_environment
+      runtime_environment = runtime_environment,
+      use_caas=use_caas
   }
 
   call create_submission {

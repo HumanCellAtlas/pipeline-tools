@@ -14,7 +14,9 @@ class TestGetAnalysisMetadata(unittest.TestCase):
         self.workflow_id = 'id'
         self.runtime_environment = 'dev'
         base_url = 'https://cromwell.mint-{}.broadinstitute.org/api/workflows/v1'.format(self.runtime_environment)
+        caas_base_url = 'https://cromwell.caas-dev.broadinstitute.org/api/workflows/v1'
         self.cromwell_url = '{}/{}/metadata?expandSubWorkflows=true'.format(base_url, self.workflow_id)
+        self.caas_url = '{}/{}/metadata?expandSubWorkflows=true'.format(caas_base_url, self.workflow_id)
 
     @unittest.skip('Skipping until get_worflow_id correctly parses the analysis subworkflow id')
     def test_get_workflow_id(self):
@@ -39,7 +41,20 @@ class TestGetAnalysisMetadata(unittest.TestCase):
             }
         mock_auth.return_value = HTTPBasicAuth('user', 'password')
         mock_request.get(self.cromwell_url, json=_request_callback)
-        get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id)
+        get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, use_caas=False)
+        self.assertEqual(mock_request.call_count, 1)
+
+    @requests_mock.mock()
+    @mock.patch('pipeline_tools.get_analysis_metadata.cromwell_tools.generate_auth_header_from_key_file')
+    def test_get_metadata_using_caas(self, mock_request, mock_header):
+        def _request_callback(request, context):
+            context.status_code = 200
+            return {
+                'workflowName': 'TestWorkflow'
+            }
+        mock_header.return_value = {'Authorization': 'bearer 12345'}
+        mock_request.get(self.caas_url, json=_request_callback)
+        get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, use_caas=True)
         self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
@@ -56,7 +71,7 @@ class TestGetAnalysisMetadata(unittest.TestCase):
         mock_request.get(self.cromwell_url, json=_request_callback)
 
         with self.assertRaises(requests.HTTPError):
-            get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id)
+            get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, use_caas=False)
             self.assertNotEqual(mock_request.call_count, 1)
 
         # Reset decorator default
