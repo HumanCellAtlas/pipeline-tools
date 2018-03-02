@@ -10,7 +10,7 @@ import pipeline_tools.create_analysis_json as analysis_json
 class TestCreateAnalysisJson(unittest.TestCase):
 
     def test_create_inputs(self):
-        inputs_file = self.data_file('inputs.tsv') 
+        inputs_file = self.data_file('inputs.tsv')
         inputs = analysis_json.create_inputs(inputs_file)
         self.assertEqual(inputs[0]['name'], 'fastq_read1')
         self.assertEqual(inputs[0]['value'], 'gs://broad-dsde-mint-dev-teststorage/path/read1.fastq.gz')
@@ -73,38 +73,22 @@ class TestCreateAnalysisJson(unittest.TestCase):
         self.assertEqual(analysis_json.get_format('asdf.bam', {'.bam': 'bam', '_metrics': 'metrics'}), 'bam')
         self.assertEqual(analysis_json.get_format('asdf.foo_metrics', {'.bam': 'bam', '_metrics': 'metrics'}), 'metrics')
 
-    @requests_mock.mock()
-    def test_create_core_success(self, mock):
+    def test_create_core_success(self):
         type = 'analysis'
         schema_version = 'good_version'
         schema_url = 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version)
 
-        mock.head(schema_url, status_code=200)
         core = analysis_json.create_core(type=type, schema_version=schema_version)
         expected_core = {
             'type': type,
             'schema_url': schema_url,
             'schema_version': schema_version
         }
-        self.assertEquals(core, expected_core)
+        self.assertEqual(core, expected_core)
 
-    @requests_mock.mock()
-    def test_create_core_failure(self, mock):
-        type = 'analysis'
-        schema_version = 'bad_version'
-        schema_url = 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version)
-
-        mock.head(schema_url, status_code=404)
-
-        core = None
-        try:
-            core = analysis_json.create_core(type=type, schema_version=schema_version)
-        except HTTPError:
-            pass
-        self.assertIsNone(core)
-
-    def data_file(self, file_name):
-        return os.path.split(__file__)[0] + '/data/'  + file_name
+    @staticmethod
+    def data_file(file_name):
+        return os.path.split(__file__)[0] + '/data/' + file_name
 
 
 if __name__ == '__main__':

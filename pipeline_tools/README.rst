@@ -10,7 +10,7 @@ The steps in the submission process are as follows:
 * Create analysis.json
 * Create submission envelope and upload metadata
 * Get URN needed to stage files
-* Stage files
+* Stage files by using the [hca-cli](https://github.com/HumanCellAtlas/dcp-cli)
 * Confirm submission
 
 
@@ -82,7 +82,7 @@ Obtains URN needed for staging files. Queries ingest API until URN is available.
 The URN (Uniform Resource Name) is a long string that looks like this:
 hca:sta:aws:staging:{short hash}:{long hash}
 
-It gets decoded by stage.py to extract the staging location and credentials
+It gets decoded by the [hca-cli](https://github.com/HumanCellAtlas/dcp-cli) to extract the staging location and credentials
 needed to stage files.
 
 Invoke it like this::
@@ -93,16 +93,6 @@ Invoke it like this::
       --timeout_seconds ${timeout_seconds} > submission_urn.txt
 
 envelope_url is required
-
-stage.py
-========
-Uploads files to staging area.
-
-Invoke it like this::
-
-    stage $local_file_path $submission_urn
-
-Both arguments are required
 
 confirm_submission.py
 =====================

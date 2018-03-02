@@ -21,7 +21,6 @@ setup(name='pipeline-tools',
               'create-analysis-json=pipeline_tools.create_analysis_json:main',
               'create-envelope=pipeline_tools.create_envelope:main',
               'get-staging-urn=pipeline_tools.get_staging_urn:main',
-              'stage=pipeline_tools.stage:run',
               'confirm-submission=pipeline_tools.confirm_submission:main'
           ]
       },
