@@ -120,7 +120,6 @@ workflow submit {
   String schema_version
   String method
   String runtime_environment
-  Boolean use_caas
   Int retry_seconds
   Int timeout_seconds
   Boolean use_caas
