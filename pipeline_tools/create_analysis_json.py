@@ -137,17 +137,13 @@ def get_tasks(metadata):
 
 
 def create_core(type, schema_version):
+    # TODO: Update dict to enum type after deprecating py2
     analysis_core_enum = {
         'analysis': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version),
         'file': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/file.json'.format(schema_version)
     }
 
     schema_url = analysis_core_enum.get(type)
-
-    # Check if the schema ref exists
-    print('Checking schema_url {0}'.format(schema_url))
-    response = requests.head(schema_url)
-    response.raise_for_status()
 
     core = {
         'type': type,
