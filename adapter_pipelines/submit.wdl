@@ -69,7 +69,7 @@ task create_submission {
   >>>
 
   runtime {
-    docker: "humancellatlas/pipeline-tools:0.1.5"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
   }
   output {
     File analysis_json = "analysis.json"
@@ -117,7 +117,7 @@ task stage_and_confirm {
   >>>
 
   runtime {
-    docker: "humancellatlas/pipeline-tools:0.1.5"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
   }
 }
 
