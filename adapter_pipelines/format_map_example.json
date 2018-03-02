@@ -1,4 +1,12 @@
 {
   ".bam": "bam",
-  "_metrics": "metrics"
+  "_metrics": "metrics",
+  ".txt":"txt",
+  ".log":"log",
+  ".pdf":"pdf",
+  ".results":"results",
+  ".theta":"theta",
+  ".cnt":"cnt",
+  ".time":"time",
+  ".model":"model"
 }

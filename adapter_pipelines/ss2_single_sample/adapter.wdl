@@ -40,7 +40,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "humancellatlas/pipeline-tools:0.1.5"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
   }
   output {
     Object inputs = read_object("inputs.tsv")
