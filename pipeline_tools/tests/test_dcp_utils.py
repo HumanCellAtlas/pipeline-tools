@@ -1,11 +1,16 @@
 import unittest
 import requests_mock
+import os
+import json
 from pipeline_tools import dcp_utils
 
 
 class TestDCPUtils(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        with open(cls.data_file('metadata/v4/ss2_manifest.json')) as f:
+            cls.ss2_manifest_json_v4 = json.load(f)
+            cls.ss2_manifest_files_v4 = dcp_utils.get_manifest_file_dicts(cls.ss2_manifest_json_v4)
         cls.DSS_URL = "https://dss.mock.org/v0"
         cls.FILE_ID = "test_id"
         cls.BUNDLE_UUID = "test_uuid"
@@ -34,39 +39,26 @@ class TestDCPUtils(unittest.TestCase):
 
         self.assertEquals(json_response['file'], expect_file['file'])
 
-    @requests_mock.mock()
-    def test_get_manifest_files(self, mock_request):
-        expect_manifest = {
-            'name_to_meta': {
-                'test_name1': {'name': 'test_name1', 'url': 'test_url1'},
-                'test_name2': {'name': 'test_name2', 'url': 'test_url2'}
-            },
-            'url_to_name': {
-                'test_url1': 'test_name1',
-                'test_url2': 'test_name2'
-            }
-        }
-        url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls=true'.format(
-            dss_url=self.DSS_URL, bundle_uuid=self.BUNDLE_UUID, bundle_version=self.BUNDLE_VERSION)
+    def test_get_manifest_file_dicts(self):
+        result = dcp_utils.get_manifest_file_dicts(self.ss2_manifest_json_v4)
 
-        def _request_callback(request, context):
-            context.status_code = 200
-            return {
-                'bundle': {
-                    'files': [
-                        {'name': 'test_name1', 'url': 'test_url1'},
-                        {'name': 'test_name2', 'url': 'test_url2'}
-                    ]
+        name_to_meta = result['name_to_meta']
+        url_to_name = result['url_to_name']
+        self.assertEquals(len(name_to_meta), 5)
+        self.assertEquals(len(url_to_name), 5)
+        self.assertEquals(name_to_meta['R2.fastq.gz']['url'], 'gs://org-humancellatlas-dss-staging/blobs/foo.bar')
+        self.assertEquals(url_to_name['gs://org-humancellatlas-dss-staging/blobs/foo.bar'], 'R2.fastq.gz')
 
-                }
-            }
 
-        mock_request.get(url, json=_request_callback)
+    def test_get_file_uuid(self):
+        uuid = dcp_utils.get_file_uuid(self.ss2_manifest_files_v4, 'assay.json')
+        self.assertEqual(uuid, 'e56638c7-f026-42d0-9be8-24b71a7d6e86')
 
-        result = dcp_utils.get_manifest_files(self.BUNDLE_UUID, self.BUNDLE_VERSION, self.DSS_URL,
-                                              self.TIMEOUT_SECONDS, self.RETRY_SECONDS)
 
-        self.assertEquals(result, expect_manifest)
+    def test_get_file_url(self):
+        url = dcp_utils.get_file_url(self.ss2_manifest_files_v4, 'R2.fastq.gz')
+        self.assertEqual(url, 'gs://org-humancellatlas-dss-staging/blobs/foo.bar')
+
 
     @requests_mock.mock()
     def test_auth_token(self, mock_request):
@@ -91,3 +83,8 @@ class TestDCPUtils(unittest.TestCase):
         headers = dcp_utils.make_auth_header(self.AUTH_TOKEN)
 
         self.assertEquals(headers, expect_header)
+
+
+    @staticmethod
+    def data_file(file_name):
+        return os.path.split(__file__)[0] + '/data/' + file_name

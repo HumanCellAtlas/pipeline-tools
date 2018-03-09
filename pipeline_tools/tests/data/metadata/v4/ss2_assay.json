@@ -1,0 +1,49 @@
+{
+    "content": {
+        "single_cell": {
+            "cell_handling": "FACS"
+        }, 
+        "core": {
+            "type": "assay", 
+            "schema_url": "https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/4.6.1/json_schema/assay.json", 
+            "schema_version": "4.6.1"
+        }, 
+        "rna": {
+            "end_bias": "five_prime_end", 
+            "strand": "both", 
+            "library_construction": "smart-seq2"
+        }, 
+        "assay_id": "assay_1", 
+        "seq": {
+            "instrument_platform": "Illumina", 
+            "molecule": "polyA RNA", 
+            "paired_ends": true, 
+            "lanes": [
+                {
+                    "number": 1, 
+                    "r2": "R2.fastq.gz", 
+                    "r1": "R1.fastq.gz"
+                }
+            ], 
+            "instrument_model": "HiSeq 2500"
+        }
+    }, 
+    "core": {
+        "type": "assay_bundle", 
+        "schema_url": "https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/4.6.1/json_schema/assay_bundle.json", 
+        "schema_version": "4.6.1"
+    }, 
+    "has_output": [
+        "851d312b-9d16-49d4-a0de-4d7def69d126", 
+        "b641c6b5-507b-4585-a6d5-856b276f284c"
+    ], 
+    "hca_ingest": {
+        "accession": "", 
+        "submissionDate": "2018-01-08T22:16:08.832Z", 
+        "lastModifiedUser": "anonymousUser", 
+        "updateDate": "2018-01-08T22:16:20.921Z", 
+        "document_id": "dc535737-6576-409e-9906-eafadbbfc56a", 
+        "user": "anonymousUser"
+    }, 
+    "has_input": "b0c57b9c-860b-4bbf-84aa-5f845508101d"
+}

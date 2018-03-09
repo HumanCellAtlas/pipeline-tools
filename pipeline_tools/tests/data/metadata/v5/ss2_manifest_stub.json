@@ -1,0 +1,22 @@
+{
+  "bundle": {
+    "creator_uid": 8008,
+    "files": [
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "4ef74578",
+        "indexed": false,
+        "name": "files.json",
+        "s3_etag": "c7bbee4c46bbf29432862e05830c8f39",
+        "sha1": "17f8b4be0cc6e8281a402bb365b1283b458906a3",
+        "sha256": "fe6d4fdfea2ff1df97500dcfe7085ac3abfb760026bff75a34c20fb97a4b2b29",
+        "size": 125191,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/bar.baz",
+        "uuid": "851d312b-9d16-49d4-a0de-4d7def69d126",
+        "version": "2018-01-08T221733.036535Z"
+      }
+    ],
+    "uuid": "d0686b4d-a4b7-45e2-89b7-ac0ebdb4a6b7",
+    "version": "2018-01-08T221736.018244Z"
+  }
+}

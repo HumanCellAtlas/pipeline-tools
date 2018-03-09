@@ -19,7 +19,7 @@ def get_file_by_uuid(file_id, dss_url):
     return response.json()
 
 
-def get_manifest_files(bundle_uuid, bundle_version, dss_url, timeout_seconds, retry_seconds):
+def get_manifest(bundle_uuid, bundle_version, dss_url, timeout_seconds, retry_seconds):
     """
     Retrieve manifest.json file for a given bundle uuid and version.
     :param str bundle_uuid: Bundle unique id
@@ -48,17 +48,28 @@ def get_manifest_files(bundle_uuid, bundle_version, dss_url, timeout_seconds, re
         current = time.time()
     manifest = response.json()
 
+    return manifest
+
+
+def get_manifest_file_dicts(manifest):
     bundle = manifest['bundle']
     name_to_meta = {}
     url_to_name = {}
     for f in bundle['files']:
         name_to_meta[f['name']] = f
         url_to_name[f['url']] = f['name']
-
     return {
         'name_to_meta': name_to_meta,
         'url_to_name': url_to_name
     }
+
+
+def get_file_uuid(manifest_file_dicts, file_name):
+    return manifest_file_dicts['name_to_meta'][file_name]['uuid']
+
+
+def get_file_url(manifest_file_dicts, file_name):
+    return manifest_file_dicts['name_to_meta'][file_name]['url']
 
 
 def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
