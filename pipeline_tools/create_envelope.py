@@ -4,7 +4,6 @@ import requests
 import json
 import argparse
 from .dcp_utils import get_auth_token, make_auth_header
-from .create_analysis_json import create_core
 
 
 def run(submit_url, analysis_json_path):
@@ -25,7 +24,7 @@ def run(submit_url, analysis_json_path):
     response = requests.post(envelope_url, '{}', headers=auth_headers)
     check_status(response.status_code, response.text)
     envelope_js = response.json()
-    analyses_url = get_entity_url(envelope_js, 'analyses')
+    analyses_url = get_entity_url(envelope_js, 'processes')
     print('Creating analysis at {0}'.format(analyses_url))
     submission_url = get_entity_url(envelope_js, 'submissionEnvelope')
     with open('submission_url.txt', 'w') as f:
@@ -101,12 +100,16 @@ def get_output_files(analysis_json):
 
     for out in outputs:
         output_ref = {}
-        file_name = out['file_path'].split('/')[-1]
+        file_name = out['file_core']['file_name']
         output_ref['fileName'] = file_name
         output_ref['content'] = {
-            'filename': file_name,
-            'file_format': out['format'],
-            'core': create_core(type='file', schema_version=schema_version)
+            'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version),
+            'schema_type': 'file',
+            'file_core': {
+                'describedBy': 'https://schema.humancellatlas.org/core/file/{}/file_core'.format(schema_version),
+                'file_name': file_name,
+                'file_format': out['file_core']['file_format']
+            }
         }
         output_refs.append(output_ref)
     return output_refs
