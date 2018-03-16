@@ -1,0 +1,31 @@
+{
+    "links": [
+        {
+            "source_id": "e454ec67-f9f0-48fb-b2ba-482acd439a87", 
+            "source_type": "biomaterial", 
+            "destination_id": "01d2bb8d-7171-4a69-94be-3002e3a4ae08", 
+            "destination_type": "biomaterial"
+        }, 
+        {
+            "source_id": "438e10e4-dc3e-499c-a8d5-a9a21d83f68c", 
+            "source_type": "biomaterial", 
+            "destination_id": "b684764d-25c0-4efb-b275-c118e627403b", 
+            "destination_type": "biomaterial"
+        }, 
+        {
+            "source_id": "01d2bb8d-7171-4a69-94be-3002e3a4ae08", 
+            "source_type": "biomaterial", 
+            "destination_id": "bf8442e6-bfb5-4861-b2c3-47037b351086", 
+            "destination_type": "file"
+        }, 
+        {
+            "source_id": "01d2bb8d-7171-4a69-94be-3002e3a4ae08", 
+            "source_type": "biomaterial", 
+            "destination_id": "f28d68e7-6d2f-4deb-a535-22590aaa8077", 
+            "destination_type": "file"
+        }
+    ], 
+    "describedBy": "https://schema.humancellatlas.org/bundle/1.0.0/links", 
+    "schema_version": "1.0.0", 
+    "schema_type": "link_bundle"
+}
