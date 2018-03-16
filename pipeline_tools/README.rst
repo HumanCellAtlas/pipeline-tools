@@ -41,8 +41,12 @@ To run unit tests, first create a virtual environment with the requirements::
 
 Then, run unit tests from the root of the pipeline-tools repo like this::
 
-    python -m unittest discover -v
+    bash test.sh
 
+To run schema integration tests, do::
+
+    export TEST_SUITE="latest_schema"
+    bash test.sh
 
 create_analysis_json.py
 =======================

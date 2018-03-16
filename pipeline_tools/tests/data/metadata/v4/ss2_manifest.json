@@ -1,0 +1,74 @@
+{
+  "bundle": {
+    "creator_uid": 8008,
+    "files": [
+      {
+        "content-type": "application/json; dcp-type=\"metadata/project\"",
+        "crc32c": "9fb3c416",
+        "indexed": true,
+        "name": "project.json",
+        "s3_etag": "50285c9f791bf9f076b7d85f44bbe1c6",
+        "sha1": "43ae0c1cd697acf3ff8a86eced2c9adc3ca9c7b4",
+        "sha256": "be4cc7bc352eb3cef3e939c0e77bdc20a4a2a26bd4509cc30f85d1efd5c12ae5",
+        "size": 4010,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/be4cc7bc352eb3cef3e939c0e77bdc20a4a2a26bd4509cc30f85d1efd5c12ae5.43ae0c1cd697acf3ff8a86eced2c9adc3ca9c7b4.50285c9f791bf9f076b7d85f44bbe1c6.9fb3c416",
+        "uuid": "ba4fd3fe-dc58-4195-a5b8-fe1433214152",
+        "version": "2018-01-08T221730.119294Z"
+      },
+      {
+        "content-type": "application/json; dcp-type=\"metadata/sample\"",
+        "crc32c": "d58f2fd2",
+        "indexed": true,
+        "name": "sample.json",
+        "s3_etag": "56910e47ccbba082f3db1d713869aded",
+        "sha1": "5fc2c929c3393c9d64ec57a14fdf57109b7def14",
+        "sha256": "8f3b76ee4c5e20ec81ad3db2b9f4cba3e17c9eb462921c8b3e1bfa3b556b250b",
+        "size": 3187,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/8f3b76ee4c5e20ec81ad3db2b9f4cba3e17c9eb462921c8b3e1bfa3b556b250b.5fc2c929c3393c9d64ec57a14fdf57109b7def14.56910e47ccbba082f3db1d713869aded.d58f2fd2",
+        "uuid": "359ad90d-5d80-44d9-86b0-120db115bc69",
+        "version": "2018-01-08T221731.879032Z"
+      },
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "4ef74578",
+        "indexed": false,
+        "name": "R1.fastq.gz",
+        "s3_etag": "c7bbee4c46bbf29432862e05830c8f39",
+        "sha1": "17f8b4be0cc6e8281a402bb365b1283b458906a3",
+        "sha256": "fe6d4fdfea2ff1df97500dcfe7085ac3abfb760026bff75a34c20fb97a4b2b29",
+        "size": 125191,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/bar.baz",
+        "uuid": "851d312b-9d16-49d4-a0de-4d7def69d126",
+        "version": "2018-01-08T221733.036535Z"
+      },
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "69987b3e",
+        "indexed": false,
+        "name": "R2.fastq.gz",
+        "s3_etag": "a3a9f23d07cfc5e40a4c3a8adf3903ae",
+        "sha1": "f166b6952e30a41e1409e7fb0cb0fb1ad93f3f21",
+        "sha256": "c305bee37b3c3735585e11306272b6ab085f04cd22ea8703957b4503488cfeba",
+        "size": 130024,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/foo.bar",
+        "uuid": "b641c6b5-507b-4585-a6d5-856b276f284c",
+        "version": "2018-01-08T221733.922146Z"
+      },
+      {
+        "content-type": "application/json; dcp-type=\"metadata/assay\"",
+        "crc32c": "844dfa3e",
+        "indexed": true,
+        "name": "assay.json",
+        "s3_etag": "9db78e31d6b25589720ca378a20571cc",
+        "sha1": "24729fcb63a5522999f395c82150fc9d4c22b93d",
+        "sha256": "93f8a3d9345fba71bf87c863949d6eff207f2289a671445f3eb3243cacc7487b",
+        "size": 1588,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/93f8a3d9345fba71bf87c863949d6eff207f2289a671445f3eb3243cacc7487b.24729fcb63a5522999f395c82150fc9d4c22b93d.9db78e31d6b25589720ca378a20571cc.844dfa3e",
+        "uuid": "e56638c7-f026-42d0-9be8-24b71a7d6e86",
+        "version": "2018-01-08T221734.839225Z"
+      }
+    ],
+    "uuid": "d0686b4d-a4b7-45e2-89b7-ac0ebdb4a6b7",
+    "version": "2018-01-08T221736.018244Z"
+  }
+}

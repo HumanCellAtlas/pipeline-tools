@@ -12,6 +12,7 @@ task GetInputs {
   command <<<
     python <<CODE
     from pipeline_tools import dcp_utils
+    from pipeline_tools import input_utils
 
     # Get bundle manifest
     uuid = "${bundle_uuid}"
@@ -20,17 +21,16 @@ task GetInputs {
     retry_seconds = ${retry_seconds}
     timeout_seconds = ${timeout_seconds}
     print("Getting bundle manifest for id {0}, version {1}".format(uuid, version))
-    manifest_files = dcp_utils.get_manifest_files(uuid, version, dss_url, timeout_seconds, retry_seconds)
+    manifest = dcp_utils.get_manifest(uuid, version, dss_url, timeout_seconds, retry_seconds)
+    manifest_files = dcp_utils.get_manifest_file_dicts(manifest)
 
-    print("Downloading assay.json")
-    assay_json_uuid = manifest_files["name_to_meta"]["assay.json"]["uuid"]
-    assay_json = dcp_utils.get_file_by_uuid(assay_json_uuid, dss_url)
+    inputs_metadata_file_uuid = input_utils.get_input_metadata_file_uuid(manifest_files)
+    inputs_metadata_json = dcp_utils.get_file_by_uuid(inputs_metadata_file_uuid, dss_url)
 
-    sample_id = assay_json["has_input"]
-    fastq_1_name = assay_json["content"]["seq"]["lanes"][0]["r1"]
-    fastq_2_name = assay_json["content"]["seq"]["lanes"][0]["r2"]
-    fastq_1_url = manifest_files["name_to_meta"][fastq_1_name]["url"]
-    fastq_2_url = manifest_files["name_to_meta"][fastq_2_name]["url"]
+    sample_id = input_utils.get_sample_id(inputs_metadata_json)
+    fastq_1_name, fastq_2_name = input_utils.get_smart_seq_2_fastq_names(inputs_metadata_json)
+    fastq_1_url = dcp_utils.get_file_url(manifest_files, fastq_1_name)
+    fastq_2_url = dcp_utils.get_file_url(manifest_files, fastq_2_name)
 
     print("Creating input map")
     with open("inputs.tsv", "w") as f:
@@ -40,7 +40,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.11"
   }
   output {
     Object inputs = read_object("inputs.tsv")

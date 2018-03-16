@@ -1,0 +1,126 @@
+{
+  "bundle": {
+    "creator_uid": 8008,
+    "files": [
+      {
+        "content-type": "application/json; dcp-type=\"metadata/project\"",
+        "crc32c": "c4094a0d",
+        "indexed": true,
+        "name": "project.json",
+        "s3_etag": "cea24b9a97cf6bb012db6eb0c9be8ff9",
+        "sha1": "e0f2604cb5afffabe3102b4c43a8a6b106fac4de",
+        "sha256": "76af9a2e20cd09cc35f519bf0f4ef943bfaeff03f9da4e5464b4e5bdddac64c1",
+        "size": 1803,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/76af9a2e20cd09cc35f519bf0f4ef943bfaeff03f9da4e5464b4e5bdddac64c1.e0f2604cb5afffabe3102b4c43a8a6b106fac4de.cea24b9a97cf6bb012db6eb0c9be8ff9.c4094a0d",
+        "uuid": "a5687913-f4a8-475d-8233-3dde25c1b973",
+        "version": "2018-01-16T163033.305694Z"
+      },
+      {
+        "content-type": "application/json; dcp-type=\"metadata/sample\"",
+        "crc32c": "06370f5f",
+        "indexed": true,
+        "name": "sample.json",
+        "s3_etag": "e29ca3705beeb5099435f0c77f0629d7",
+        "sha1": "c9e694d347574497c4c43ddf73543c1bd75bca06",
+        "sha256": "83d400d66c7f95168c0d611a2ecf05359c287f35ea5eb2443b222e458af3baaf",
+        "size": 4206,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/83d400d66c7f95168c0d611a2ecf05359c287f35ea5eb2443b222e458af3baaf.c9e694d347574497c4c43ddf73543c1bd75bca06.e29ca3705beeb5099435f0c77f0629d7.06370f5f",
+        "uuid": "d6e3fa37-78d6-41a2-ab39-4ddfc46eb936",
+        "version": "2018-01-16T163035.085120Z"
+      },
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "c0df5d83",
+        "indexed": false,
+        "name": "pbmc8k_S1_L007_R1_001.fastq.gz",
+        "s3_etag": "b9e913c2541c78e1d3d97ba2e454dbd4",
+        "sha1": "142b148727007dd08e7c9673c1aecd4f9d47e332",
+        "sha256": "48dbfa31eb65b0892d21961fbd3bea4307a87490ba497807d0d0694a4178188a",
+        "size": 215640,
+        "url": "gs://foo/L7_R1.fastq.gz",
+        "uuid": "9a4a1656-faab-448e-9717-3fb16843a314",
+        "version": "2018-01-16T163036.863838Z"
+      },
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "cd965118",
+        "indexed": false,
+        "name": "pbmc8k_S1_L007_R2_001.fastq.gz",
+        "s3_etag": "a276a07b3a8f92b44e2d2fc697397029",
+        "sha1": "fbb43f8954afc122b49822048fb1b190b5f6ab51",
+        "sha256": "9e8437502e642ac5e285a5bb767143fd5a32fdcb2c7776d2ef1b3dd684e20d9a",
+        "size": 758632,
+        "url": "gs://foo/L7_R2.fastq.gz",
+        "uuid": "072461ba-e1da-40e2-aa5d-626eedad7fef",
+        "version": "2018-01-16T163038.065174Z"
+      },
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "2145fec1",
+        "indexed": false,
+        "name": "pbmc8k_S1_L007_I1_001.fastq.gz",
+        "s3_etag": "ccc460a58ce1ed4070d678e84b46a370",
+        "sha1": "7f5a26af32e36db2960767304cb79b901306597a",
+        "sha256": "231c9108a264ab8eb9ca42c40d8696234d5bd2fec72a79da5a96fe964cb21768",
+        "size": 62760,
+        "url": "gs://foo/L7_I1.fastq.gz",
+        "uuid": "58ea2f4b-c4af-4b1b-8b6a-484d46d37de5",
+        "version": "2018-01-16T163039.186523Z"
+      },
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "e5d6dc51",
+        "indexed": false,
+        "name": "pbmc8k_S1_L008_R1_001.fastq.gz",
+        "s3_etag": "b720df1c197045e50b6ef1c6e92b043f",
+        "sha1": "c1ac97f4b1f28843f8f35658e8ce3925fa38be5d",
+        "sha256": "e77c8208c02607d6907f79122d2aa01354b41ddfac0185d38421c17e4eeecff4",
+        "size": 212357,
+        "url": "gs://foo/L8_R1.fastq.gz",
+        "uuid": "c34f9bda-1621-4596-b93f-797552368282",
+        "version": "2018-01-16T163040.206564Z"
+      },
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "cc0e2da1",
+        "indexed": false,
+        "name": "pbmc8k_S1_L008_R2_001.fastq.gz",
+        "s3_etag": "49f82219d250741d2c13587ed0c3f1ca",
+        "sha1": "1a8c74f0d9ca021e9f85369e871b409b4ee03e9d",
+        "sha256": "086b40b559454dab11b059a7ea4208371b277fb1638d92ebf61ed98162ee9a41",
+        "size": 733086,
+        "url": "gs://foo/L8_R2.fastq.gz",
+        "uuid": "ed7d5ab4-8589-4e50-bb6c-5d4b459b183c",
+        "version": "2018-01-16T163041.246123Z"
+      },
+      {
+        "content-type": "application/gzip; dcp-type=data",
+        "crc32c": "6e23a64d",
+        "indexed": false,
+        "name": "pbmc8k_S1_L008_I1_001.fastq.gz",
+        "s3_etag": "1ae154756b80f759ee9db368877053d6",
+        "sha1": "83585aab4be7181820e276e70aa66e6bddb4d39c",
+        "sha256": "a36fe9ce4956eaeddd00040d0d6f4e92c6f2113c06d0761ccf8b8cc1e828fc36",
+        "size": 62579,
+        "url": "gs://foo/L8_I1.fastq.gz",
+        "uuid": "b7e2cfc0-8d3f-40b4-adf2-3c44112259dc",
+        "version": "2018-01-16T163042.240894Z"
+      },
+      {
+        "content-type": "application/json; dcp-type=\"metadata/assay\"",
+        "crc32c": "a98a29ad",
+        "indexed": true,
+        "name": "assay.json",
+        "s3_etag": "e54d19b92605efeb5e12c7aac32d9293",
+        "sha1": "2eb73693c07e1b28f3c13aed522a2401c155b841",
+        "sha256": "b62209866e45e46d2d4e347abe5973aed1d10af92e727c57e6822ae7fcf8ea5a",
+        "size": 2575,
+        "url": "gs://org-humancellatlas-dss-staging/blobs/b62209866e45e46d2d4e347abe5973aed1d10af92e727c57e6822ae7fcf8ea5a.2eb73693c07e1b28f3c13aed522a2401c155b841.e54d19b92605efeb5e12c7aac32d9293.a98a29ad",
+        "uuid": "89634b69-ea40-43ed-9361-546bbdadef7c",
+        "version": "2018-01-16T163043.443898Z"
+      }
+    ],
+    "uuid": "9e9956b0-f731-4bc1-a000-2b73b5e735b3",
+    "version": "2018-01-16T163044.805931Z"
+  }
+}
