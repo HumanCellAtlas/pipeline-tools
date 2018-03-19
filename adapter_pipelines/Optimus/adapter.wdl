@@ -11,43 +11,19 @@ task GetInputs {
 
   command <<<
     python <<CODE
-    from pipeline_tools import dcp_utils
     from pipeline_tools import input_utils
 
-    # Get bundle manifest
-    uuid = '${bundle_uuid}'
-    version = '${bundle_version}'
-    dss_url = '${dss_url}'
-    retry_seconds = ${retry_seconds}
-    timeout_seconds = ${timeout_seconds}
-    print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
-    manifest = dcp_utils.get_manifest(uuid, version, dss_url, timeout_seconds, retry_seconds)
-    manifest_files = dcp_utils.get_manifest_file_dicts(manifest)
+    input_utils.create_optimus_input_tsv(
+                    "${bundle_manifest}",
+                    "${bundle_version}",
+                    "${dss_url}",
+                    ${retry_seconds},
+                    ${timeout_seconds})
 
-    input_metadata_file_uuid = input_utils.get_input_metadata_file_uuid(manifest_files)
-    input_metadata_json = dcp_utils.get_file_by_uuid(input_metadata_file_uuid, dss_url)
-
-    # Parse inputs from metadata and write to fastq_inputs
-    print('Writing fastq inputs to fastq_inputs.tsv')
-    sample_id = input_utils.get_sample_id(input_metadata_json)
-    lanes = input_utils.get_optimus_lanes(input_metadata_json)
-    r1, r2, i1 = input_utils.get_optimus_inputs(lanes, manifest_files)
-    fastq_inputs = [list(i) for i in zip(r1, r2, i1)]
-    print(fastq_inputs)
-
-    with open('fastq_inputs.tsv', 'w') as f:
-        for line in fastq_inputs:
-            f.write('\t'.join(line) +'\n')
-
-    print('Writing sample ID to inputs.tsv')
-    sample_id = input_utils.get_sample_id(input_metadata_json)
-    with open('inputs.tsv', 'w') as f:
-        f.write('{0}'.format(sample_id))
-    print('Wrote input map')
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.11"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.12.0"
   }
   output {
     String sample_id = read_string("inputs.tsv")
@@ -88,7 +64,7 @@ task inputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.11"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.12.0"
     }
 
     output {
@@ -127,7 +103,7 @@ task outputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.11"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.12.0"
     }
 
     output {

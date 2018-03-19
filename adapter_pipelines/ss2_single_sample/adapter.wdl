@@ -11,36 +11,19 @@ task GetInputs {
 
   command <<<
     python <<CODE
-    from pipeline_tools import dcp_utils
     from pipeline_tools import input_utils
 
-    # Get bundle manifest
-    uuid = "${bundle_uuid}"
-    version = "${bundle_version}"
-    dss_url = "${dss_url}"
-    retry_seconds = ${retry_seconds}
-    timeout_seconds = ${timeout_seconds}
-    print("Getting bundle manifest for id {0}, version {1}".format(uuid, version))
-    manifest = dcp_utils.get_manifest(uuid, version, dss_url, timeout_seconds, retry_seconds)
-    manifest_files = dcp_utils.get_manifest_file_dicts(manifest)
+    input_utils.create_ss2_input_tsv(
+                    "${bundle_uuid}",
+                    "${bundle_version}",
+                    "${dss_url}",
+                    ${retry_seconds},
+                    ${timeout_seconds})
 
-    inputs_metadata_file_uuid = input_utils.get_input_metadata_file_uuid(manifest_files)
-    inputs_metadata_json = dcp_utils.get_file_by_uuid(inputs_metadata_file_uuid, dss_url)
-
-    sample_id = input_utils.get_sample_id(inputs_metadata_json)
-    fastq_1_name, fastq_2_name = input_utils.get_smart_seq_2_fastq_names(inputs_metadata_json)
-    fastq_1_url = dcp_utils.get_file_url(manifest_files, fastq_1_name)
-    fastq_2_url = dcp_utils.get_file_url(manifest_files, fastq_2_name)
-
-    print("Creating input map")
-    with open("inputs.tsv", "w") as f:
-        f.write("fastq_1\tfastq_2\tsample_id\n")
-        f.write("{0}\t{1}\t{2}\n".format(fastq_1_url, fastq_2_url, sample_id))
-    print("Wrote input map")
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.11"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.12.0"
   }
   output {
     Object inputs = read_object("inputs.tsv")

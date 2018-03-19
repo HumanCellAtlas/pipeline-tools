@@ -37,17 +37,17 @@ class TestDCPUtils(unittest.TestCase):
 
         json_response = dcp_utils.get_file_by_uuid(self.FILE_ID, self.DSS_URL)
 
-        self.assertEquals(json_response['file'], expect_file['file'])
+        self.assertEqual(json_response['file'], expect_file['file'])
 
     def test_get_manifest_file_dicts(self):
         result = dcp_utils.get_manifest_file_dicts(self.ss2_manifest_json_v4)
 
         name_to_meta = result['name_to_meta']
         url_to_name = result['url_to_name']
-        self.assertEquals(len(name_to_meta), 5)
-        self.assertEquals(len(url_to_name), 5)
-        self.assertEquals(name_to_meta['R2.fastq.gz']['url'], 'gs://org-humancellatlas-dss-staging/blobs/foo.bar')
-        self.assertEquals(url_to_name['gs://org-humancellatlas-dss-staging/blobs/foo.bar'], 'R2.fastq.gz')
+        self.assertEqual(len(name_to_meta), 5)
+        self.assertEqual(len(url_to_name), 5)
+        self.assertEqual(name_to_meta['R2.fastq.gz']['url'], 'gs://org-humancellatlas-dss-staging/blobs/foo.bar')
+        self.assertEqual(url_to_name['gs://org-humancellatlas-dss-staging/blobs/foo.bar'], 'R2.fastq.gz')
 
 
     def test_get_file_uuid(self):
@@ -72,7 +72,7 @@ class TestDCPUtils(unittest.TestCase):
 
         token = dcp_utils.get_auth_token(url)
 
-        self.assertEquals(token, self.AUTH_TOKEN)
+        self.assertEqual(token, self.AUTH_TOKEN)
 
     def test_make_auth_header(self):
         expect_header = {
@@ -82,7 +82,7 @@ class TestDCPUtils(unittest.TestCase):
         }
         headers = dcp_utils.make_auth_header(self.AUTH_TOKEN)
 
-        self.assertEquals(headers, expect_header)
+        self.assertEqual(headers, expect_header)
 
 
     @staticmethod

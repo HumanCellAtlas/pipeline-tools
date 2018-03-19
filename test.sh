@@ -20,15 +20,15 @@ fi
 # For integration tests, copy down latest metadata file(s) to test against.
 if [ "$TEST_SUITE" = "latest_schema" ]; then
   PYTEST_SUITE="latest_schema"
-  if [ ! -d pipeline_tools/tests/data/metadata/latest ]; then
-    mkdir pipeline_tools/tests/data/metadata/latest
+  if [ ! -d pipeline_tools/tests/data/metadata/latest/ss2 ]; then
+    mkdir -p pipeline_tools/tests/data/metadata/latest/ss2
   fi
   git clone https://github.com/HumanCellAtlas/metadata-schema.git pipeline_tools/tests/data/metadata-schema
   cd pipeline_tools/tests/data/metadata-schema
   git checkout develop
   cd -
   LATEST=$(python pipeline_tools/tests/get_latest_schema_example_version.py -d pipeline_tools/tests/data/metadata-schema/examples/bundles)
-  cp pipeline_tools/tests/data/metadata-schema/examples/bundles/$LATEST/Q4DemoSS2/files.json pipeline_tools/tests/data/metadata/latest/ss2_files.json
+  cp pipeline_tools/tests/data/metadata-schema/examples/bundles/$LATEST/Q4DemoSS2/*.json pipeline_tools/tests/data/metadata/latest/ss2
 elif [ "$TEST_SUITE" = "unit" ]; then
   # Define unit tests to be anything not marked as "latest_schema"
   PYTEST_SUITE="not latest_schema"
