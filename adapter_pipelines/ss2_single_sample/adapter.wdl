@@ -1,4 +1,4 @@
-import "ss2_single_sample.wdl" as ss2
+import "SmartSeq2SingleSample.wdl" as ss2
 import "submit.wdl" as submit_wdl
 
 
@@ -162,8 +162,8 @@ workflow AdapterSmartSeq2SingleCell{
         analysis.gc_bias_summary_metrics,
         analysis.insert_size_hist,
         analysis.insert_size_metrics,
-        analysis.hisat2_logfile,
-        analysis.hisat2_metfile,
+        analysis.hisat2_log_file,
+        analysis.hisat2_met_file,
         analysis.pre_adapter_details_metrics,
         analysis.quality_by_cycle_metrics,
         analysis.quality_by_cycle_pdf,
@@ -172,8 +172,8 @@ workflow AdapterSmartSeq2SingleCell{
         analysis.rna_coverage,
         analysis.rna_metrics,
         analysis.aligned_trans_bam,
-        analysis.hisat2tran_logfile,
-        analysis.hisat2tran_metfile,
+        analysis.hisat2trans_log_file,
+        analysis.hisat2trans_met_file,
         analysis.rsem_cnt_log,
         analysis.rsem_gene_results,
         analysis.rsem_isoform_results,
