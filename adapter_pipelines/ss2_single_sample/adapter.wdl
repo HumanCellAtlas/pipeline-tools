@@ -1,4 +1,4 @@
-import "ss2_single_sample.wdl" as ss2
+import "SmartSeq2SingleSample.wdl" as ss2
 import "submit.wdl" as submit_wdl
 
 
