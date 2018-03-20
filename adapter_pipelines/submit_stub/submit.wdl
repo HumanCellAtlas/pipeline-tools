@@ -22,6 +22,4 @@ workflow submit {
   Int timeout_seconds
 
   call submit_stub
-
-  output
 }
