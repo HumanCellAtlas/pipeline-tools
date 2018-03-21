@@ -196,7 +196,7 @@ def create_optimus_input_tsv(uuid, version, dss_url, retry_seconds, timeout_seco
     # Parse inputs from metadata and write to fastq_inputs
     print('Writing fastq inputs to fastq_inputs.tsv')
     sample_id = get_sample_id(sample_id_file_json, schema_version)
-    lanes = get_optimus_lanes(input_metadata_json, schema_version)
+    lanes = get_optimus_lanes(inputs_metadata_json, schema_version)
     r1, r2, i1 = get_optimus_inputs(lanes, manifest_files)
     fastq_inputs = [list(i) for i in zip(r1, r2, i1)]
     print(fastq_inputs)
