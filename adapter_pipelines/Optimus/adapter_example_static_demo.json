@@ -5,8 +5,6 @@
   "AdapterOptimus.ref_genome_fasta": "gs://hca-dcp-mint-test-data/reference/demo/chr21.fa",
   "AdapterOptimus.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
   "AdapterOptimus.format_map": "gs://hca-dcp-mint-test-data/adapters/file_format_map.json",
-  "AdapterOptimus.submit_url": "http://api.ingest.staging.data.humancellatlas.org/",
-  "AdapterOptimus.dss_url": "https://dss.staging.data.humancellatlas.org/v1",
   "AdapterOptimus.method": "Optimus",
   "AdapterOptimus.schema_version": "4.6.1",
   "AdapterOptimus.run_type": "run",
