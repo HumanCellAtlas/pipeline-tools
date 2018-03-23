@@ -27,7 +27,6 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         'input_bundles': input_bundles,
         'timestamp_start_utc': start,
         'timestamp_stop_utc': end,
-        'metadata_schema': schema_version,
         'tasks': tasks,
         'inputs': inputs,
         'outputs': outputs,
