@@ -65,7 +65,8 @@ task create_submission {
     # Now create the submission object
     create-envelope \
       --submit_url ${submit_url} \
-      --analysis_json_path analysis.json
+      --analysis_json_path analysis.json \
+      --schema_version ${schema_version}
   >>>
 
   runtime {

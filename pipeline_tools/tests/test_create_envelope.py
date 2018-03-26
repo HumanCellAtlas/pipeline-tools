@@ -24,7 +24,7 @@ class TestCreateEnvelope(unittest.TestCase):
 
         with open(self.data_file('analysis.json')) as f:
             js = json.load(f)
-            outputs = submit.get_output_files(js)
+            outputs = submit.get_output_files(js, schema_version)
             self.assertEqual(len(outputs), 3)
             self.assertEqual(outputs[0]['fileName'], 'aligned_bam')
             self.assertEqual(outputs[0]['content']['schema_type'], 'file')

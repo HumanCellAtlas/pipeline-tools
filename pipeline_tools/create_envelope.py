@@ -6,7 +6,7 @@ import argparse
 from .dcp_utils import get_auth_token, make_auth_header
 
 
-def run(submit_url, analysis_json_path):
+def run(submit_url, analysis_json_path, schema_version):
     # 0. Get Auth token and make auth headers
     print('Fetching auth token from Auth0')
     auth_token = get_auth_token()
@@ -49,7 +49,7 @@ def run(submit_url, analysis_json_path):
 
     # 5. Add file references
     print('Adding file references at {0}'.format(file_refs_url))
-    output_files = get_output_files(analysis_json_contents)
+    output_files = get_output_files(analysis_json_contents, schema_version)
     for file_ref in output_files:
         print('Adding file: {}'.format(file_ref['fileName']))
         response = requests.put(file_refs_url, headers=auth_headers, data=json.dumps(file_ref))
@@ -93,9 +93,8 @@ def get_input_bundle_uuid(analysis_json):
     return uuid
 
 
-def get_output_files(analysis_json):
+def get_output_files(analysis_json, schema_version):
     outputs = analysis_json['outputs']
-    schema_version = analysis_json['metadata_schema']
     output_refs = []
 
     for out in outputs:
@@ -119,8 +118,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--submit_url', required=True)
     parser.add_argument('--analysis_json_path', required=True)
+    parser.add_argument('--schema_version', required=True, help='The metadata schema version that the analysis.json conforms to')
     args = parser.parse_args()
-    run(args.submit_url, args.analysis_json_path)
+    run(args.submit_url, args.analysis_json_path, args.schema_version)
 
 
 if __name__ == '__main__':

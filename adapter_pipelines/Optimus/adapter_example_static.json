@@ -6,7 +6,7 @@
   "AdapterOptimus.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
   "AdapterOptimus.format_map": "gs://hca-dcp-mint-test-data/adapters/file_format_map.json",
   "AdapterOptimus.method": "Optimus",
-  "AdapterOptimus.schema_version": "5.0.0",
+  "AdapterOptimus.schema_version": "5.1.0",
   "AdapterOptimus.run_type": "run",
   "AdapterOptimus.retry_seconds": 10,
   "AdapterOptimus.timeout_seconds": 1200
