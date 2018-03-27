@@ -4,10 +4,9 @@ import requests
 import json
 import argparse
 from .dcp_utils import get_auth_token, make_auth_header
-from .create_analysis_json import create_core
 
 
-def run(submit_url, analysis_json_path):
+def run(submit_url, analysis_json_path, schema_version):
     # 0. Get Auth token and make auth headers
     print('Fetching auth token from Auth0')
     auth_token = get_auth_token()
@@ -25,7 +24,7 @@ def run(submit_url, analysis_json_path):
     response = requests.post(envelope_url, '{}', headers=auth_headers)
     check_status(response.status_code, response.text)
     envelope_js = response.json()
-    analyses_url = get_entity_url(envelope_js, 'analyses')
+    analyses_url = get_entity_url(envelope_js, 'processes')
     print('Creating analysis at {0}'.format(analyses_url))
     submission_url = get_entity_url(envelope_js, 'submissionEnvelope')
     with open('submission_url.txt', 'w') as f:
@@ -50,7 +49,7 @@ def run(submit_url, analysis_json_path):
 
     # 5. Add file references
     print('Adding file references at {0}'.format(file_refs_url))
-    output_files = get_output_files(analysis_json_contents)
+    output_files = get_output_files(analysis_json_contents, schema_version)
     for file_ref in output_files:
         print('Adding file: {}'.format(file_ref['fileName']))
         response = requests.put(file_refs_url, headers=auth_headers, data=json.dumps(file_ref))
@@ -94,19 +93,22 @@ def get_input_bundle_uuid(analysis_json):
     return uuid
 
 
-def get_output_files(analysis_json):
+def get_output_files(analysis_json, schema_version):
     outputs = analysis_json['outputs']
-    schema_version = analysis_json['metadata_schema']
     output_refs = []
 
     for out in outputs:
         output_ref = {}
-        file_name = out['file_path'].split('/')[-1]
+        file_name = out['file_core']['file_name']
         output_ref['fileName'] = file_name
         output_ref['content'] = {
-            'filename': file_name,
-            'file_format': out['format'],
-            'core': create_core(type='file', schema_version=schema_version)
+            'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version),
+            'schema_type': 'file',
+            'file_core': {
+                'describedBy': 'https://schema.humancellatlas.org/core/file/{}/file_core'.format(schema_version),
+                'file_name': file_name,
+                'file_format': out['file_core']['file_format']
+            }
         }
         output_refs.append(output_ref)
     return output_refs
@@ -116,8 +118,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--submit_url', required=True)
     parser.add_argument('--analysis_json_path', required=True)
+    parser.add_argument('--schema_version', required=True, help='The metadata schema version that the analysis.json conforms to')
     args = parser.parse_args()
-    run(args.submit_url, args.analysis_json_path)
+    run(args.submit_url, args.analysis_json_path, args.schema_version)
 
 
 if __name__ == '__main__':

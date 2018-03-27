@@ -65,11 +65,12 @@ task create_submission {
     # Now create the submission object
     create-envelope \
       --submit_url ${submit_url} \
-      --analysis_json_path analysis.json
+      --analysis_json_path analysis.json \
+      --schema_version ${schema_version}
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.14.0"
   }
   output {
     File analysis_json = "analysis.json"
@@ -117,7 +118,7 @@ task stage_and_confirm {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.14.0"
   }
 }
 

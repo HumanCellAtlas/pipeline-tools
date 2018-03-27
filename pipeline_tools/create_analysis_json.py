@@ -15,23 +15,25 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         tasks = get_tasks(metadata)
 
     inputs = create_inputs(inputs_file)
-    outputs = create_outputs(outputs_file, format_map)
+    outputs = create_outputs(outputs_file, format_map, schema_version)
 
     input_bundles = get_input_bundles(input_bundles_string)
+    schema_url = 'https://schema.humancellatlas.org/type/process/analysis/{}/analysis_process'.format(schema_version)
 
     analysis = {
-        'analysis_id': analysis_id,
         'analysis_run_type': run_type,
         'reference_bundle': reference_bundle,
         'computational_method': method,
         'input_bundles': input_bundles,
         'timestamp_start_utc': start,
         'timestamp_stop_utc': end,
-        'metadata_schema': schema_version,
         'tasks': tasks,
         'inputs': inputs,
         'outputs': outputs,
-        'core': create_core(type='analysis', schema_version=schema_version)
+        'process_core': create_process_core(analysis_id, schema_version),
+        'process_type': create_process_type(schema_version),
+        'schema_type': 'process',
+        'describedBy': schema_url
     }
 
     # Add logging
@@ -50,8 +52,8 @@ def create_inputs(inputs_file):
             name = parts[0]
             value = parts[1]
             input = {
-                'name': name,
-                'value': value
+                'parameter_name': name,
+                'parameter_value': value
             }
             if value.startswith('gs://'):
                 # This is a placeholder for now, since the analysis json schema requires it.
@@ -62,7 +64,7 @@ def create_inputs(inputs_file):
     return inputs
 
 
-def create_outputs(outputs_file, format_map):
+def create_outputs(outputs_file, format_map, schema_version):
     with open(format_map) as f:
         extension_to_format = json.load(f)
 
@@ -71,9 +73,13 @@ def create_outputs(outputs_file, format_map):
         for line in f:
             path = line.strip()
             d = {
-              'file_path': path,
-              'name': path.split('/')[-1],
-              'format': get_format(path, extension_to_format)
+              'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version),
+              'schema_type': 'file',
+              'file_core': {
+                'describedBy': 'https://schema.humancellatlas.org/core/file/{}/file_core'.format(schema_version),
+                'file_name': path.split('/')[-1],
+                'file_format': get_format(path, extension_to_format)
+              }
             }
             outputs.append(d)
 
@@ -120,7 +126,7 @@ def get_tasks(metadata):
         else:
             runtime = task['runtimeAttributes']
             out_task = {
-                'name': task_name,
+                'task_name': task_name,
                 'cpus': int(runtime['cpu']),
                 'memory': runtime['memory'],
                 'disk_size': runtime['disks'],
@@ -132,25 +138,23 @@ def get_tasks(metadata):
                 'log_err': task['stderr']
             }
             output_tasks.append(out_task)
-    sorted_output_tasks = sorted(output_tasks, key=lambda k: k['name'])
+    sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
     return sorted_output_tasks
 
 
-def create_core(type, schema_version):
-    # TODO: Update dict to enum type after deprecating py2
-    analysis_core_enum = {
-        'analysis': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/analysis.json'.format(schema_version),
-        'file': 'https://raw.githubusercontent.com/HumanCellAtlas/metadata-schema/{0}/json_schema/file.json'.format(schema_version)
-    }
-
-    schema_url = analysis_core_enum.get(type)
-
-    core = {
-        'type': type,
-        'schema_url': schema_url,
+def create_process_core(analysis_id, schema_version):
+    return {
+        'process_id': analysis_id,
+        'describedBy': 'https://schema.humancellatlas.org/core/process/{}/process_core'.format(schema_version),
         'schema_version': schema_version
     }
-    return core
+
+
+def create_process_type(schema_version):
+    return {
+        'text': 'analysis',
+        'describedBy': 'https://schema.humancellatlas.org/module/ontology/{}/process_type_ontology'.format(schema_version)
+    }
 
 
 def main():

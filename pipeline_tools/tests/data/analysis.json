@@ -1,57 +1,76 @@
 {
-   "input_bundles" : [ "75a7f618-9adc-48af-a249-0010305160f6" ],
-   "inputs" : [
+  "describedBy": "https://schema.humancellatlas.org/type/process/analysis/5.0.0/analysis_process",
+  "schema_type": "process",
+  "process_type": {
+    "text": "analysis",
+    "describedBy": "https://schema.humancellatlas.org/module/ontology/5.0.0/process_type_ontology"
+  },
+  "process_core": {
+    "process_id": 4342342,
+    "describedBy": "https://schema.humancellatlas.org/core/process/5.0.0/process_core",
+    "schema_version": "5.0.0"
+  },
+  "input_bundles" : [ "75a7f618-9adc-48af-a249-0010305160f6" ],
+  "inputs" : [
       {
-        "name": "left_sample",
+        "parameter_name": "left_sample",
         "checksum" : "d0f7d08f1980f7980f",
-        "value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/12bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_R1.fastq.gz"
+        "parameter_value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/12bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_R1.fastq.gz"
       },
       {
-         "name" : "right_sample",
+         "parameter_name" : "right_sample",
          "checksum" : "d0f7d18f7980f7980f",
-         "value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/01bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_R2.fastq.gz"
+         "parameter_value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/01bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_R2.fastq.gz"
       },
       {
-         "name" : "index_sample",
+         "parameter_name" : "index_sample",
          "checksum" : "d0f7d18f7980f7980f",
-         "value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/01bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_I1.fastq.gz"
+         "parameter_value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/01bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_I1.fastq.gz"
       },
       {
-         "name" : "expected_cell_count",
-         "value" : "1000"
+         "parameter_name" : "expected_cell_count",
+         "parameter_value" : "1000"
       }
    ],
-   "timestamp_start_utc" : "2017-05-18T03:44:23-5:00",
-   "timestamp_stop_utc" : "2017-05-18T014:44:23-5:00",
-   "computational_method" : "https://www.dockstore.org:8443/api/ga4gh/v1/tools/quay.io%2Fhca%2Fdockstore-hca-uploader/",
-   "analysis_id" : 4342342,
-   "analysis_run_type" : "run",
-   "outputs" : [
+  "timestamp_start_utc" : "2017-05-18T03:44:23-5:00",
+  "timestamp_stop_utc" : "2017-05-18T014:44:23-5:00",
+  "computational_method" : "https://www.dockstore.org:8443/api/ga4gh/v1/tools/quay.io%2Fhca%2Fdockstore-hca-uploader/",
+  "analysis_run_type" : "run",
+  "outputs" : [
       {
-          "name": "aligned_bam",
-          "checksum" : "d0f7d08f7980f7910f",
-          "file_path" : "gs://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/sample.bam",
-          "format" : "bam"
+          "describedBy": "https://schema.humancellatlas.org/type/file/5.0.0/analysis_file",
+          "schema_type": "file",
+          "file_core": {
+            "file_name": "aligned_bam",
+            "file_format" : "bam",
+            "checksum" : "d0f7d08f7980f7910f"
+          }
       },
       {
-          "name": "counts_matrix",
-          "checksum" : "d0f7d08f7910f7980f",
-          "format" : "counts_matrix",
-          "file_path" : "gs://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/sample_counts.txt"
+        "describedBy": "https://schema.humancellatlas.org/type/file/5.0.0/analysis_file",
+        "schema_type": "file",
+        "file_core": {
+          "file_name": "counts_matrix",
+          "checksum": "d0f7d08f7910f7980f",
+          "file_format": "counts_matrix"
+        }
       },
-      {
-          "name": "report_qc",
-          "format" : "qc_matrix",
-          "file_path" : "gs://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/sample_qc.txt",
-          "checksum" : "d0f7d18f7980f7980f"
+    {
+      "describedBy": "https://schema.humancellatlas.org/type/file/5.0.0/analysis_file",
+      "schema_type": "file",
+      "file_core": {
+        "file_name": "report_qc",
+        "file_format": "qc_matrix",
+        "checksum": "d0f7d18f7980f7980f"
       }
+    }
    ],
-   "metadata_schema" : "version_232",
-   "tasks" : [
+  "metadata_schema" : "version_232",
+  "tasks" : [
       {
        "stop_time" : "2017-05-18T08:44:23-5:00",
        "start_time" : "2017-05-18T03:44:23-5:00",
-       "name" : "step_one",
+       "task_name" : "step_one",
        "log_err" : "bluebox://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/05bd7eb0-23a3-4898-b043-f7e982de281g/v1#10xv2_step_one.err",
        "log_out" : "bluebox://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/05bd7eb0-23a3-4898-b043-f7e982de281g/v1#10xv2_step_one.out",
        "disk_size" : "500GB",
@@ -63,7 +82,7 @@
       {
        "start_utc" : "2017-05-18T08:44:23-5:00",
        "stop_utc" : "2017-05-18T14:44:23-5:00",
-       "name" : "step_two",
+       "task_name" : "step_two",
        "log_err" : "bluebox://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/05bd7eb0-23a3-4898-b043-f7e982de281g/v1#10xv2_step_two.err",
        "log_out" : "bluebox://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/05bd7eb0-23a3-4898-b043-f7e982de281g/v1#10xv2_step_two.out",
        "disk_size" : "500GB",
@@ -72,6 +91,6 @@
        "memory" : "10GB",
        "zone" : "us-east4-a"
       }
-   ],
-   "reference_bundle" : "bluebox://03gh7eb0-23a3-4898-b043-f7e982de281b/v1"
+  ],
+  "reference_bundle" : "bluebox://03gh7eb0-23a3-4898-b043-f7e982de281b/v1"
 }

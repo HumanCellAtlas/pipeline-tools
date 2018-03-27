@@ -23,7 +23,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.12.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.14.0"
   }
   output {
     Object inputs = read_object("inputs.tsv")
