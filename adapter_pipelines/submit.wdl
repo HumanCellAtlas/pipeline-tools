@@ -4,31 +4,15 @@ task get_metadata {
   String runtime_environment
 
   command <<<
-
-    # Get workflow_id
-    python <<CODE > workflow_id.txt
-
-    # Extract hash given a string like gs://foo/hash/call-bar/baz.txt
-    url = '${analysis_output_path}'
-    hash_end = url.rfind("/call-")
-    hash_start = url.rfind('/', 0, hash_end) + 1
-    hash = url[hash_start:hash_end]
-    print(hash)
-
-    CODE
-
-    # Get metadata from Cromwell for this workflow id
-    creds=/cromwell-metadata/cromwell_credentials.txt
-    curl -u $(cut -f1 $creds):$(cut -f2 $creds) \
-      --compressed \
-      "https://cromwell.mint-${runtime_environment}.broadinstitute.org/api/workflows/v1/$(cat workflow_id.txt)/metadata?expandSubWorkflows=true" > metadata.json
+    get-analysis-metadata \
+    --analysis_output_path ${analysis_output_path} |
+    --runtime_environment ${runtime_environment}
   >>>
   runtime {
     docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:0.1.3"
   }
   output {
     File metadata = "metadata.json"
-    String workflow_id = read_string("workflow_id.txt")
   }
 }
 
