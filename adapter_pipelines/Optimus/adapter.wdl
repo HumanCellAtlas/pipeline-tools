@@ -211,6 +211,7 @@ workflow AdapterOptimus {
       method = method,
       retry_seconds = retry_seconds,
       timeout_seconds = timeout_seconds,
-      runtime_environment = runtime_environment
+      runtime_environment = runtime_environment,
+      use_caas = use_caas
   }
 }
