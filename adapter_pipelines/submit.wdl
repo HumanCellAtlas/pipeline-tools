@@ -5,14 +5,15 @@ task get_metadata {
 
   command <<<
     get-analysis-metadata \
-    --analysis_output_path ${analysis_output_path} |
-    --runtime_environment ${runtime_environment}
+      --analysis_output_path ${analysis_output_path} \
+      --runtime_environment ${runtime_environment}
   >>>
   runtime {
-    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:0.1.3"
+    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:0.1.4"
   }
   output {
     File metadata = "metadata.json"
+    String workflow_id = read_string("workflow_id.txt")
   }
 }
 
@@ -54,7 +55,7 @@ task create_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.14.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.15.0"
   }
   output {
     File analysis_json = "analysis.json"
@@ -102,7 +103,7 @@ task stage_and_confirm {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.14.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.15.0"
   }
 }
 

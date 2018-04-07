@@ -23,7 +23,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.14.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.15.0"
   }
   output {
     String sample_id = read_string("inputs.tsv")
@@ -64,7 +64,7 @@ task inputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.14.0"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.15.0"
     }
 
     output {
@@ -103,7 +103,7 @@ task outputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.14.0"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.15.0"
     }
 
     output {
