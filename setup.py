@@ -9,11 +9,11 @@ setup(name='pipeline-tools',
       license='BSD 3-clause "New" or "Revised" License',
       packages=['pipeline_tools'],
       install_requires=[
-          'requests',
-          'boto3',
-          'mock',
-          'google-cloud-storage',
-          'requests-mock'
+          'requests==2.18.4',
+          'boto3==1.6.6',
+          'mock==2.0.0',
+          'google-cloud-storage==1.8.0',
+          'requests-mock==1.4.0'
 
       ],
       entry_points={
