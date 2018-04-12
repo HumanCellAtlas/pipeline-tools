@@ -9,8 +9,8 @@ def get_workflow_id(analysis_output_path):
     """
     Parse the analysis workflow id from one of its output paths, and write the id to a file so that it is available
     outside of the get_analysis task.
-    :param String analysis_output_path: Path to workflow output file
-    :return: String workflow_id
+    :param str analysis_output_path: Path to workflow output file.
+    :return: str workflow_id: Cromwell UUID of the workflow.
     """
     url = analysis_output_path
     hash_end = url.rfind("/call-")
@@ -24,8 +24,8 @@ def get_workflow_id(analysis_output_path):
 def get_auth(credentials_file=None):
     """
     Parse cromwell username and password from credentials file.
-    :param credentials_file: File containing cromwell authentication credentials
-    :return: HTTPBasicAuth object
+    :param str credentials_file: Path to the file containing cromwell authentication credentials.
+    :return: requests.auth.HTTPBasicAuth: Auth object to use for cromwell requests.
     """
     credentials_file = credentials_file or '/cromwell-metadata/cromwell_credentials.txt'
     with open(credentials_file) as f:
@@ -40,8 +40,8 @@ def get_metadata(runtime_environment, workflow_id):
     """
     Get metadata for analysis workflow from Cromwell and write it to a JSON file. Retry the request with exponentially
     increasing wait times if there is an error.
-    :param runtime_environment: The cromwell environment the workflow was run in
-    :param workflow_id: The analysis workflow id
+    :param str runtime_environment: The cromwell environment the workflow was run in.
+    :param str workflow_id: The analysis workflow id.
     :return:
     """
     print('Getting metadata for workflow {}'.format(workflow_id))
