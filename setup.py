@@ -18,6 +18,7 @@ setup(name='pipeline-tools',
       ],
       entry_points={
           "console_scripts": [
+              'get-analysis-metadata=pipeline_tools.get_analysis_metadata:main',
               'create-analysis-json=pipeline_tools.create_analysis_json:main',
               'create-envelope=pipeline_tools.create_envelope:main',
               'get-staging-urn=pipeline_tools.get_staging_urn:main',

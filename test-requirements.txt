@@ -1,3 +1,4 @@
 mock==2.0.0
 requests-mock==1.4.0
 pytest==3.3.0
+tenacity==4.10.0
