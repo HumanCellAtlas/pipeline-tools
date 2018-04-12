@@ -1,2 +1,2 @@
-requests
-google-cloud-storage
+requests==2.18.4
+google-cloud-storage==1.8.0
