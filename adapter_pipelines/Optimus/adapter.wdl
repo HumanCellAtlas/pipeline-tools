@@ -131,6 +131,7 @@ workflow AdapterOptimus {
   String run_type
   Int retry_seconds
   Int timeout_seconds
+  Boolean use_caas
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -210,6 +211,7 @@ workflow AdapterOptimus {
       method = method,
       retry_seconds = retry_seconds,
       timeout_seconds = timeout_seconds,
-      runtime_environment = runtime_environment
+      runtime_environment = runtime_environment,
+      use_caas = use_caas
   }
 }

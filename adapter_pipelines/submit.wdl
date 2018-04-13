@@ -2,11 +2,13 @@
 task get_metadata {
   String analysis_output_path
   String runtime_environment
+  Boolean use_caas
 
   command <<<
     get-analysis-metadata \
       --analysis_output_path ${analysis_output_path} \
-      --runtime_environment ${runtime_environment}
+      --runtime_environment ${runtime_environment} \
+      --use_caas ${use_caas}
   >>>
   runtime {
     docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:0.1.4"
@@ -120,11 +122,13 @@ workflow submit {
   String runtime_environment
   Int retry_seconds
   Int timeout_seconds
+  Boolean use_caas
 
   call get_metadata {
     input:
       analysis_output_path = outputs[0],
-      runtime_environment = runtime_environment
+      runtime_environment = runtime_environment,
+      use_caas=use_caas
   }
 
   call create_submission {

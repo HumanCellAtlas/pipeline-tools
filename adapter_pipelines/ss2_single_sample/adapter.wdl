@@ -57,6 +57,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int retry_seconds
   Int timeout_seconds
   String reference_bundle
+  Boolean use_caas
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -190,6 +191,7 @@ workflow AdapterSmartSeq2SingleCell{
       method = method,
       retry_seconds = retry_seconds,
       timeout_seconds = timeout_seconds,
-      runtime_environment = runtime_environment
+      runtime_environment = runtime_environment,
+      use_caas = use_caas
   }
 }
