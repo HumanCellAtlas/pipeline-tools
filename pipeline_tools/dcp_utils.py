@@ -1,10 +1,14 @@
 import requests
 import logging
-import time
+from tenacity import retry, wait_exponential, stop_after_delay
 
 
+@retry(reraise=True, wait=wait_exponential(multiplier=1, max=10), stop=stop_after_delay(1200))
 def get_file_by_uuid(file_id, dss_url):
-    """Retrieve a file from the Human Cell Atlas data storage service by its id.
+    """
+    Retrieve a file from the Human Cell Atlas data storage service by its id.Retry with exponentially increasing wait
+    times between requests if there are any failures. View statistics about the retries with
+    `get_file_by_uuid.retry.statistics`.
 
     :param str file_id: The id of the file to retrieve.
     :param str dss_url: The url for the HCA data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1".
@@ -16,17 +20,19 @@ def get_file_by_uuid(file_id, dss_url):
     response = requests.get(url)
     logging.info(response.status_code)
     logging.info(response.text)
+    response.raise_for_status()
     return response.json()
 
 
-def get_manifest(bundle_uuid, bundle_version, dss_url, timeout_seconds, retry_seconds):
-    """Retrieve manifest.json file for a given bundle uuid and version.
+@retry(reraise=True, wait=wait_exponential(multiplier=1, max=10), stop=stop_after_delay(1200))
+def get_manifest(bundle_uuid, bundle_version, dss_url):
+    """
+    Retrieve manifest.json file for a given bundle uuid and version.Retry with exponentially increasing wait times
+    between requests if there are any failures. View statistics about the retries with `get_manifest.retry.statistics`.
 
     :param str bundle_uuid: Bundle unique id
     :param str bundle_version: Timestamp of bundle creation, e.g. "2017-10-23T17:50:26.894Z"
     :param str dss_url: The url for the Human Cell Atlas data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1"
-    :param int timeout_seconds: Seconds before allowing the request to timeout
-    :param int retry_seconds: Seconds between retrying the request to get the manifest file
     :return dict:
         ::
 
@@ -37,20 +43,12 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, timeout_seconds, retry_se
     """
     url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls=true'.format(
         dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version)
-    start = time.time()
-    current = start
-    # Retry in a loop because of intermittent 5xx errors from dss
-    while current - start < timeout_seconds:
-        logging.info('GET {0}'.format(url))
-        response = requests.get(url)
-        logging.info(response.status_code)
-        logging.info(response.text)
-        if 200 <= response.status_code <= 299:
-            break
-        time.sleep(retry_seconds)
-        current = time.time()
+    logging.info('GET {0}'.format(url))
+    response = requests.get(url)
+    logging.info(response.status_code)
+    logging.info(response.text)
+    response.raise_for_status()
     manifest = response.json()
-
     return manifest
 
 
