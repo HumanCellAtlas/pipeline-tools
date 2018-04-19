@@ -9,12 +9,12 @@ setup(name='pipeline-tools',
       license='BSD 3-clause "New" or "Revised" License',
       packages=['pipeline_tools'],
       install_requires=[
-          'requests==2.18.4',
-          'boto3==1.6.6',
-          'mock==2.0.0',
-          'google-cloud-storage==1.8.0',
-          'requests-mock==1.4.0'
-
+          'requests>=2.18.4',
+          'mock>=2.0.0',
+          'google-cloud-storage>=1.8.0',
+          'requests-mock>=1.4.0',
+          'tenacity>=4.10.0',
+          'cromwell-tools'
       ],
       entry_points={
           "console_scripts": [
@@ -25,5 +25,8 @@ setup(name='pipeline-tools',
               'confirm-submission=pipeline_tools.confirm_submission:main'
           ]
       },
+      dependency_links=[
+            'git+git://github.com/broadinstitute/cromwell-tools.git@v0.3.0#egg=cromwell-tools-1.0.1'
+      ],
       include_package_data=True
       )
