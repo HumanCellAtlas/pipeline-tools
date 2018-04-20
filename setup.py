@@ -1,7 +1,8 @@
 from setuptools import setup
 
 setup(name='pipeline-tools',
-      version='1.0.0.dev1',
+      use_scm_version=True,
+      setup_requires=['setuptools_scm'],
       description='Utilities for retrieving files from the HCA data storage service and submitting an analysis bundle to HCA-DCP',
       url='http://github.com/HumanCellAtlas/skylab',
       author='Human Cell Atlas Data Coordination Platform Mint Team',
@@ -14,7 +15,8 @@ setup(name='pipeline-tools',
           'google-cloud-storage>=1.8.0',
           'requests-mock>=1.4.0',
           'tenacity>=4.10.0',
-          'cromwell-tools'
+          'cromwell-tools',
+          'setuptools_scm==2.0.0'
       ],
       entry_points={
           "console_scripts": [
