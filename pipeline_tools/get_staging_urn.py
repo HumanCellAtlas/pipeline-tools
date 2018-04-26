@@ -4,7 +4,6 @@ import requests
 import argparse
 from tenacity import retry, retry_if_result, retry_if_exception_type, wait_exponential, stop_after_delay, RetryError
 
-
 RETRY_SECONDS = 10
 TIMEOUT_SECONDS = 600
 
