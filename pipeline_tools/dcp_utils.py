@@ -4,11 +4,12 @@ import time
 
 
 def get_file_by_uuid(file_id, dss_url):
-    """
-    Retrieve a file from the Human Cell Atlas data storage service by its id.
-    :param str file_id: The id of the file to retrieve
-    :param str dss_url: The url for the HCA data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1"
-    :return: dict file contents
+    """Retrieve a file from the Human Cell Atlas data storage service by its id.
+
+    :param str file_id: The id of the file to retrieve.
+    :param str dss_url: The url for the HCA data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1".
+
+    :return dict: file contents.
     """
     url = '{dss_url}/files/{file_id}?replica=gcp'.format(
         dss_url=dss_url, file_id=file_id)
@@ -20,14 +21,14 @@ def get_file_by_uuid(file_id, dss_url):
 
 
 def get_manifest(bundle_uuid, bundle_version, dss_url, timeout_seconds, retry_seconds):
-    """
-    Retrieve manifest.json file for a given bundle uuid and version.
+    """Retrieve manifest.json file for a given bundle uuid and version.
+
     :param str bundle_uuid: Bundle unique id
     :param str bundle_version: Timestamp of bundle creation, e.g. "2017-10-23T17:50:26.894Z"
     :param str dss_url: The url for the Human Cell Atlas data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1"
     :param int timeout_seconds: Seconds before allowing the request to timeout
     :param int retry_seconds: Seconds between retrying the request to get the manifest file
-    :return: {
+    :return dict: {
                 'name_to_meta': dict mapping <str file name>: <dict file metadata>,
                 'url_to_name': dict mapping <str file url>: <str file name>
              }
@@ -77,8 +78,9 @@ def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
                    client_secret="t-OAE-GQk_nZZtWn-QQezJxDsLXmU7VSzlAh9cKW5vb87i90qlXGTvVNAjfT9weF",
                    audience="http://localhost:8080",
                    grant_type="client_credentials"):
-    """Request and get the access token for a trusted client from Auth0. Note: The parameters and credentials here are
-        meant to be hard coded, the authentication is purely for identifying a user it doesn't give and permissions.
+    """Request and get the access token for a trusted client from Auth0.
+
+    Note: The parameters and credentials here are meant to be hard coded, the authentication is purely for identifying a user it doesn't give and permissions.
 
     :param str url: The url to the Auth0 domain oauth endpoint.
     :param str client_id: The value of the Client ID field of the Non Interactive Client of Auth0.
