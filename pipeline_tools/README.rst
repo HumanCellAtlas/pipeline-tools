@@ -1,5 +1,13 @@
 Overview
 ========
+
+.. image:: https://travis-ci.org/HumanCellAtlas/pipeline-tools.svg?branch=master
+    :target: https://travis-ci.org/HumanCellAtlas/pipeline-tools
+
+.. image:: https://readthedocs.org/projects/pipeline-tools/badge/?version=latest
+    :target: http://pipeline-tools.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 This package provides utilities for retrieving files from the data storage service for the Human Cell Atlas, and for
 submitting an analysis bundle to the Human Cell Atlas Data Coordination Platform.
 
