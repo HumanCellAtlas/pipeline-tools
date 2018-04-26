@@ -8,7 +8,6 @@ def get_file_by_uuid(file_id, dss_url):
 
     :param str file_id: The id of the file to retrieve.
     :param str dss_url: The url for the HCA data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1".
-
     :return dict: file contents.
     """
     url = '{dss_url}/files/{file_id}?replica=gcp'.format(
