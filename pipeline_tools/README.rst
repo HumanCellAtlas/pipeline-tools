@@ -29,27 +29,11 @@ You can use the cloud storage functions like this::
 
 The rest of the package consists of scripts that are meant to be invoked from the command line as described below.
 
-
-Running unit tests
-==================
-
-To run unit tests, first create a virtual environment with the requirements::
-
-    virtualenv test-env
-    source test-env/bin/activate
-    pip install -r requirements.txt -r test-requirements.txt
-
-Then, run unit tests from the root of the pipeline-tools repo like this::
-
-    bash test.sh
-
-To run schema integration tests, do::
-
-    export TEST_SUITE="latest_schema"
-    bash test.sh
+Usage
+=====
 
 create_analysis_json.py
-=======================
+-----------------------
 Creates analysis.json file, which is following the v4 metadata schema.
 
 Invoke it like this::
@@ -69,19 +53,19 @@ Invoke it like this::
 All arguments are required.
 
 create_envelope.py
-==================
+------------------
 Creates submission envelope and uploads metadata.
 
 Invoke it like this::
 
-    create-envelope \  
+    create-envelope \
       --submit_url ${submit_url} \
       --analysis_json_path analysis.json
 
 Both arguments are required.
 
 get_staging_urn.py
-==================
+------------------
 Obtains URN needed for staging files. Queries ingest API until URN is available.
 The URN (Uniform Resource Name) is a long string that looks like this:
 hca:sta:aws:staging:{short hash}:{long hash}
@@ -99,7 +83,7 @@ Invoke it like this::
 envelope_url is required
 
 confirm_submission.py
-=====================
+---------------------
 Confirms submission. This causes the ingest service to finalize the submission and create a bundle in the storage service.
 
 Waits until submission status is "Valid", since submission cannot be confirmed until then.
@@ -112,3 +96,25 @@ Invoke it like this::
       --timeout_seconds ${timeout_seconds}
 
 envelope_url is required
+
+
+Testing
+=======
+
+Running unit tests
+------------------
+
+To run unit tests, first create a virtual environment with the requirements::
+
+    virtualenv test-env
+    source test-env/bin/activate
+    pip install -r requirements.txt -r test-requirements.txt
+
+Then, run unit tests from the root of the pipeline-tools repo like this::
+
+    bash test.sh
+
+To run schema integration tests, do::
+
+    export TEST_SUITE="latest_schema"
+    bash test.sh
