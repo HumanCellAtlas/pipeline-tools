@@ -4,7 +4,7 @@ import os
 import json
 import requests
 from pipeline_tools import dcp_utils
-from tenacity import stop_after_attempt, stop_after_delay
+from tenacity import stop_after_attempt
 
 
 class TestDCPUtils(unittest.TestCase):

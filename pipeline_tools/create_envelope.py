@@ -53,8 +53,6 @@ def run(submit_url, analysis_json_path, schema_version, retry_seconds, timeout_s
 @retry(reraise=True, wait=wait_exponential(multiplier=1, max=RETRY_SECONDS), stop=stop_after_delay(TIMEOUT_SECONDS))
 def get_envelope_url(submit_url, auth_headers):
     print('Getting envelope url from {}'.format(submit_url))
-    import time
-    print(time.time())
     response = requests.get(submit_url, headers=auth_headers)
     check_status(response.status_code, response.text)
     envelope_url = get_entity_url(response.json(), 'submissionEnvelopes')

@@ -2,7 +2,7 @@ import unittest
 import requests
 import requests_mock
 import pipeline_tools.get_staging_urn as gsu
-from tenacity import stop_after_attempt, stop_after_delay, RetryError
+from tenacity import stop_after_attempt, RetryError
 
 
 class TestGetStagingUrn(unittest.TestCase):
