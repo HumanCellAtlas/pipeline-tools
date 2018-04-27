@@ -27,10 +27,13 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, timeout_seconds, retry_se
     :param str dss_url: The url for the Human Cell Atlas data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1"
     :param int timeout_seconds: Seconds before allowing the request to timeout
     :param int retry_seconds: Seconds between retrying the request to get the manifest file
-    :return dict: {
+    :return dict:
+        ::
+
+            {
                 'name_to_meta': dict mapping <str file name>: <dict file metadata>,
                 'url_to_name': dict mapping <str file url>: <str file name>
-             }
+            }
     """
     url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls=true'.format(
         dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version)
@@ -79,7 +82,9 @@ def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
                    grant_type="client_credentials"):
     """Request and get the access token for a trusted client from Auth0.
 
-    Note: The parameters and credentials here are meant to be hard coded, the authentication is purely for identifying a user it doesn't give and permissions.
+    .. note::
+
+        The parameters and credentials here are meant to be hard coded, the authentication is purely for identifying a user it doesn't give and permissions.
 
     :param str url: The url to the Auth0 domain oauth endpoint.
     :param str client_id: The value of the Client ID field of the Non Interactive Client of Auth0.
