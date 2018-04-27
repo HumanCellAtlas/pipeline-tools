@@ -8,6 +8,9 @@ Overview
     :target: http://pipeline-tools.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+.. note::
+    This tool is still under active developemnt, so there could be significant changes to its API.
+
 This package provides utilities for retrieving files from the data storage service for the Human Cell Atlas, and for
 submitting an analysis bundle to the Human Cell Atlas Data Coordination Platform.
 
