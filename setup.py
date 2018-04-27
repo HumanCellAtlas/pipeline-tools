@@ -28,7 +28,7 @@ setup(name='pipeline-tools',
           ]
       },
       dependency_links=[
-            'git+git://github.com/broadinstitute/cromwell-tools.git@v0.3.0#egg=cromwell-tools-1.0.1'
+            'git+git://github.com/broadinstitute/cromwell-tools.git@v0.3.1#egg=cromwell-tools-1.0.1'
       ],
       include_package_data=True
       )

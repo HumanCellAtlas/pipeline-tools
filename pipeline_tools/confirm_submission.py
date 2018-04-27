@@ -4,6 +4,7 @@ import requests
 import argparse
 import time
 
+
 def run(envelope_url, retry_seconds, timeout_seconds):
     start = time.time()
     while True:
@@ -20,6 +21,7 @@ def run(envelope_url, retry_seconds, timeout_seconds):
             raise ValueError(message)
     confirm(envelope_url)
 
+
 def confirm(envelope_url):
     print('Confirming submission')
     headers = {
@@ -28,10 +30,12 @@ def confirm(envelope_url):
     response = requests.put('{}/submissionEvent'.format(envelope_url), headers=headers)
     print(response.text)
 
+
 def get_envelope_json(envelope_url):
     response = requests.get(envelope_url)
     envelope_js = response.json()
     return envelope_js
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -40,6 +44,7 @@ def main():
     parser.add_argument('--timeout_seconds', type=int, default=600)
     args = parser.parse_args()
     run(args.envelope_url, args.retry_seconds, args.timeout_seconds)
+
 
 if __name__ == '__main__':
     main()
