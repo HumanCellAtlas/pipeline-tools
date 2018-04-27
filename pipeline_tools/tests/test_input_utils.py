@@ -2,8 +2,11 @@ import unittest
 import json
 import os
 import pytest
-from pipeline_tools import input_utils
-from pipeline_tools import dcp_utils
+import requests
+import requests_mock
+from pipeline_tools import dcp_utils, input_utils
+from pipeline_tools.http_requests import HttpRequests
+from .http_requests_manager import HttpRequestsManager
 
 
 class TestInputUtils(unittest.TestCase):
@@ -135,6 +138,89 @@ class TestInputUtils(unittest.TestCase):
         self.assertEqual(r1, expected_r1)
         self.assertEqual(r2, expected_r2)
         self.assertEqual(i1, expected_i1)
+
+    
+    @requests_mock.mock()
+    def test_get_metadata_to_process(self, mock_request):
+        with open(self.data_file('metadata/v5/ss2_links.json')) as f:
+            links_json = json.load(f)
+        def _links_json_callback(request, context):
+            context.status_code = 200
+            return links_json
+
+        with open(self.data_file('metadata/v5/ss2_files.json')) as f:
+            files_json = json.load(f)
+        def _file_json_callback(request, context):
+            context.status_code = 200
+            return files_json
+
+        links_json_url = 'https://fake_url/files/links_json_uuid?replica=gcp'
+        file_json_url = 'https://fake_url/files/file_json_uuid?replica=gcp'
+
+        manifest_files = {
+            'name_to_meta': {
+                'links.json': {
+                    'uuid': 'links_json_uuid'
+                },
+                'file.json': {
+                    'uuid': 'file_json_uuid'
+                }
+            }
+        }
+
+        mock_request.get(links_json_url, json=_links_json_callback)
+        mock_request.get(file_json_url, json=_file_json_callback)
+        with HttpRequestsManager():
+            inputs_json, sample_json, schema_version  = input_utils.get_metadata_to_process(
+                manifest_files,
+                dss_url='https://fake_url',
+                is_v5_or_higher=True,
+                http_requests=HttpRequests()
+            )
+
+        self.assertEqual(schema_version, '5.0.0')
+        self.assertEqual(inputs_json, files_json)
+        self.assertEqual(sample_json, links_json)
+        self.assertEqual(mock_request.call_count, 2)
+
+    @requests_mock.mock()
+    def test_get_content_for_ss2_input_tsv(self, mock_request):
+        with open(self.data_file('metadata/v5/ss2_links.json')) as f:
+            links_json = json.load(f)
+        def _links_json_callback(request, context):
+            context.status_code = 200
+            return links_json
+
+        with open(self.data_file('metadata/v5/ss2_files.json')) as f:
+            files_json = json.load(f)
+        def _file_json_callback(request, context):
+            context.status_code = 200
+            return files_json
+
+        with open(self.data_file('metadata/v5/ss2_manifest.json')) as f:
+            manifest_json = json.load(f)
+        def _manifest_callback(request, context):
+            context.status_code = 200
+            return manifest_json
+
+        links_json_url = 'https://fake_url/files/links_json_uuid?replica=gcp'
+        mock_request.get(links_json_url, json=_links_json_callback)
+        file_json_url = 'https://fake_url/files/file_json_uuid?replica=gcp'
+        mock_request.get(file_json_url, json=_file_json_callback)
+        manifest_url = 'https://fake_url/bundles/foo_uuid?version=foo_version&replica=gcp&directurls=true'
+        mock_request.get(manifest_url, json=_manifest_callback)
+
+        with HttpRequestsManager():
+            fastq_1_url, fastq_2_url, sample_id  = input_utils._get_content_for_ss2_input_tsv(
+                uuid='foo_uuid',
+                version='foo_version',
+                dss_url='https://fake_url',
+                http_requests=HttpRequests()
+            )
+
+        self.assertEqual(fastq_1_url, 'gs://org-humancellatlas-dss-dev/blobs/fastq_1')
+        self.assertEqual(fastq_2_url, 'gs://org-humancellatlas-dss-dev/blobs/fastq_2')
+        self.assertEqual(sample_id, 'test_sample_id')
 
     @staticmethod
     def data_file(file_name):

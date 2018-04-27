@@ -6,26 +6,35 @@ task GetInputs {
   String bundle_uuid
   String bundle_version
   String dss_url
-  Int retry_seconds
-  Int timeout_seconds
+  Int? retry_timeout
+  Float? retry_multiplier
+  Int? retry_max_interval
+  Int? individual_request_timeout
+  Boolean record_http
 
   command <<<
+    export RECORD_HTTP_REQUESTS="${record_http}"
+    export RETRY_TIMEOUT="${retry_timeout}"
+    export RETRY_MULTIPLIER="${retry_multiplier}"
+    export RETRY_MAX_INTERVAL="${retry_max_interval}"
+    export INDIVIDUAL_REQUEST_TIMEOUT="${individual_request_timeout}"
+
     python <<CODE
     from pipeline_tools import input_utils
 
     input_utils.create_ss2_input_tsv(
                     "${bundle_uuid}",
                     "${bundle_version}",
-                    "${dss_url}",
-                    ${retry_seconds},
-                    ${timeout_seconds})
+                    "${dss_url}")
 
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.18.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.19.0"
   }
   output {
+    Array[File] http_requests = glob("request_*.txt")
+    Array[File] http_responses = glob("response_*.txt")
     Object inputs = read_object("inputs.tsv")
   }
 }
@@ -54,21 +63,28 @@ workflow AdapterSmartSeq2SingleCell{
   String method
   String schema_version
   String run_type
-  Int retry_seconds
-  Int timeout_seconds
+  Int? retry_max_interval
+  Float? retry_multiplier
+  Int? retry_timeout
+  Int? individual_request_timeout
   String reference_bundle
   Boolean use_caas
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
+  # By default, don't record http requests, unless we override in inputs json
+  Boolean record_http = false
 
   call GetInputs as prep {
     input:
       bundle_uuid = bundle_uuid,
       bundle_version = bundle_version,
       dss_url = dss_url,
-      retry_seconds = retry_seconds,
-      timeout_seconds = timeout_seconds
+      retry_multiplier = retry_multiplier,
+      retry_max_interval = retry_max_interval,
+      retry_timeout = retry_timeout,
+      individual_request_timeout = individual_request_timeout,
+      record_http = record_http
   }
 
   call ss2.SmartSeq2SingleCell as analysis {
@@ -189,9 +205,12 @@ workflow AdapterSmartSeq2SingleCell{
       run_type = run_type,
       schema_version = schema_version,
       method = method,
-      retry_seconds = retry_seconds,
-      timeout_seconds = timeout_seconds,
+      retry_multiplier = retry_multiplier,
+      retry_max_interval = retry_max_interval,
+      retry_timeout = retry_timeout,
+      individual_request_timeout = individual_request_timeout,
       runtime_environment = runtime_environment,
-      use_caas = use_caas
+      use_caas = use_caas,
+      record_http = record_http
   }
 }

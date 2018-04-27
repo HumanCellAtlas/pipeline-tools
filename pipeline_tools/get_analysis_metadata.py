@@ -1,17 +1,19 @@
 import argparse
 import json
-import requests
 from requests.auth import HTTPBasicAuth
-from tenacity import retry, wait_exponential, stop_after_delay
 from cromwell_tools import cromwell_tools
+from pipeline_tools.http_requests import HttpRequests
 
 
 def get_workflow_id(analysis_output_path):
-    """
-    Parse the analysis workflow id from one of its output paths, and write the id to a file so that it is available
+    """Parse the analysis workflow id from one of its output paths, and write the id to a file so that it is available
     outside of the get_analysis task.
-    :param str analysis_output_path: Path to workflow output file.
-    :return: str workflow_id: Cromwell UUID of the workflow.
+
+    Args:
+        analysis_output_path (str): path to workflow output file.
+
+    Returns:
+        workflow_id: string giving Cromwell UUID of the workflow.
     """
     url = analysis_output_path
     hash_end = url.rfind("/call-")
@@ -23,10 +25,13 @@ def get_workflow_id(analysis_output_path):
 
 
 def get_auth(credentials_file=None):
-    """
-    Parse cromwell username and password from credentials file.
-    :param str credentials_file: Path to the file containing cromwell authentication credentials.
-    :return: requests.auth.HTTPBasicAuth: Auth object to use for cromwell requests.
+    """Parse cromwell username and password from credentials file.
+
+    Args:
+        credentials_file (str): Path to the file containing cromwell authentication credentials.
+
+    Returns:
+        requests.auth.HTTPBasicAuth object to use for cromwell requests
     """
     credentials_file = credentials_file or '/cromwell-metadata/cromwell_credentials.txt'
     with open(credentials_file) as f:
@@ -36,18 +41,25 @@ def get_auth(credentials_file=None):
     return HTTPBasicAuth(user, password)
 
 
-@retry(reraise=True, wait=wait_exponential(multiplier=1, max=10), stop=stop_after_delay(20))
-def get_metadata(runtime_environment, workflow_id, use_caas, caas_key_file=None):
-    """
-    Get metadata for analysis workflow from Cromwell and write it to a JSON file. Retry the request with exponentially
+def get_metadata(runtime_environment, workflow_id, http_requests, use_caas=False, caas_key_file=None):
+    """Get metadata for analysis workflow from Cromwell and write it to a JSON file. Retry the request with exponentially
     increasing wait times if there is an error.
-    :param str runtime_environment: The cromwell environment the workflow was run in.
-    :param str workflow_id: The analysis workflow id.
-    :param bool use_caas: Whether or not to use Cromwell-as-a-Service.
-    :param str caas_key_file: Path to CAAS service account JSON key file.
-    :return:
+
+    Args:
+        runtime_environment (str): the cromwell environment the workflow was run in.
+        workflow_id (str): the analysis workflow id.
+        use_caas (bool): whether or not to use Cromwell-as-a-Service.
+        caas_key_file (str): path to CaaS service account JSON key file.
+
+    Returns:
+        Nothing returned
+
+    Raises:
+        requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
     """
-    print('Getting metadata for workflow {}'.format(workflow_id))
+    def log_before(workflow_id):
+        print('Getting metadata for workflow {}'.format(workflow_id))
+
     if use_caas:
         cromwell_url = 'https://cromwell.caas-dev.broadinstitute.org/api/workflows/v1'
         json_credentials = caas_key_file or "/cromwell-metadata/caas_key.json"
@@ -58,8 +70,7 @@ def get_metadata(runtime_environment, workflow_id, use_caas, caas_key_file=None)
         headers = None
         auth = get_auth()
     url = '{}/{}/metadata?expandSubWorkflows=true'.format(cromwell_url, workflow_id)
-    response = requests.get(url, auth=auth, headers=headers)
-    response.raise_for_status()
+    response = http_requests.get(url, auth=auth, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
         json.dump(response.json(), f, indent=2)
 
@@ -70,16 +81,10 @@ def main():
     parser.add_argument('--runtime_environment', required=True)
     parser.add_argument('--use_caas', required=True)
     parser.add_argument('--caas_key_file', required=False, default=None)
-    parser.add_argument('--retry_exponential_multiplier', required=False, default=1)
-    parser.add_argument('--retry_exponential_max', required=False, default=10)
-    parser.add_argument('--retry_timeout', required=False, default=20)
     args = parser.parse_args()
     workflow_id = get_workflow_id(args.analysis_output_path)
     use_caas = True if args.use_caas.lower() == 'true' else False
-    get_metadata.retry_with(reraise=True,
-                            wait=wait_exponential(multiplier=args.retry_exponential_multiplier, max=args.retry_exponential_max),
-                            stop=stop_after_delay(args.retry_timeout))(args.runtime_environment, workflow_id, use_caas, args.caas_key_file)
-    print(get_metadata.retry.statistics)
+    get_metadata(args.runtime_environment, workflow_id, HttpRequests(), use_caas, args.caas_key_file)
 
 
 if __name__ == '__main__':

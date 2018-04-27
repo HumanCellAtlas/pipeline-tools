@@ -4,7 +4,10 @@ import json
 import requests
 import requests_mock
 import pipeline_tools.create_envelope as submit
-from tenacity import stop_after_attempt
+from .http_requests_manager import HttpRequestsManager
+from pipeline_tools.http_requests import HttpRequests
+from tenacity import stop_after_attempt, wait_exponential
+import tempfile
 
 
 class TestCreateEnvelope(unittest.TestCase):
@@ -29,7 +32,8 @@ class TestCreateEnvelope(unittest.TestCase):
             return self.links_json
 
         mock_request.get(submit_url, json=_request_callback)
-        envelope_url = submit.get_envelope_url(submit_url, self.headers)
+        with HttpRequestsManager():
+            envelope_url = submit.get_envelope_url(submit_url, self.headers, HttpRequests())
         expected = "http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes"
         self.assertEqual(envelope_url, expected)
         self.assertEqual(mock_request.call_count, 1)
@@ -43,9 +47,8 @@ class TestCreateEnvelope(unittest.TestCase):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         mock_request.get(submit_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError):
-            # Make the test complete faster by limiting the number of retries
-            submit.get_envelope_url.retry_with(stop=stop_after_attempt(3))(submit_url, self.headers)
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            submit.get_envelope_url(submit_url, self.headers, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
@@ -61,9 +64,8 @@ class TestCreateEnvelope(unittest.TestCase):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         mock_request.post(envelope_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError):
-            # Make the test complete faster by limiting the number of retries
-            submit.create_submission_envelope.retry_with(stop=stop_after_attempt(3))(envelope_url, self.headers)
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            submit.create_submission_envelope(envelope_url, self.headers, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
     def test_create_analysis(self):
@@ -78,9 +80,8 @@ class TestCreateEnvelope(unittest.TestCase):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         mock_request.post(analyses_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError):
-            # Make the test complete faster by limiting the number of retries
-            submit.create_analysis.retry_with(stop=stop_after_attempt(3))(analyses_url, self.headers, self.analysis_json)
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            submit.create_analysis(analyses_url, self.headers, self.analysis_json, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
     def test_add_input_bundles(self):
@@ -95,10 +96,8 @@ class TestCreateEnvelope(unittest.TestCase):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         mock_request.put(input_bundles_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError):
-            # Make the test complete faster by limiting the number of retries
-            submit.add_input_bundles.retry_with(stop=stop_after_attempt(3))(input_bundles_url, self.headers, self.analysis_json)
-
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            submit.add_input_bundles(input_bundles_url, self.headers, self.analysis_json, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
     def test_add_file_reference(self):
@@ -125,21 +124,20 @@ class TestCreateEnvelope(unittest.TestCase):
                 }
             }
         }
-        with self.assertRaises(requests.HTTPError):
-            # Make the test complete faster by limiting the number of retries
-            submit.add_file_reference.retry_with(stop=stop_after_attempt(3))(file_ref, file_refs_url, self.headers)
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            submit.add_file_reference(file_ref, file_refs_url, self.headers, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
-    def test_get_entity(self):
+    def test_get_subject_url(self):
         with open(self.data_file('response.json')) as f:
             js = json.load(f)
-            entity_url = submit.get_entity_url(js, 'processes')
-            self.assertEqual(entity_url, 'http://api.ingest.dev.data.humancellatlas.org/processes')
+        entity_url = submit.get_subject_url(js, 'processes')
+        self.assertEqual(entity_url, 'http://api.ingest.dev.data.humancellatlas.org/processes')
 
     def test_get_input_bundle_uuid(self):
         with open(self.data_file('analysis.json')) as f:
             js = json.load(f)
-            self.assertEqual(submit.get_input_bundle_uuid(js), '75a7f618-9adc-48af-a249-0010305160f6')
+        self.assertEqual(submit.get_input_bundle_uuid(js), '75a7f618-9adc-48af-a249-0010305160f6')
 
     def test_get_output_files(self):
         schema_version = 'version_232'
@@ -148,14 +146,15 @@ class TestCreateEnvelope(unittest.TestCase):
 
         with open(self.data_file('analysis.json')) as f:
             js = json.load(f)
-            outputs = submit.get_output_files(js, schema_version)
-            self.assertEqual(len(outputs), 3)
-            self.assertEqual(outputs[0]['fileName'], 'aligned_bam')
-            self.assertEqual(outputs[0]['content']['schema_type'], 'file')
-            self.assertEqual(outputs[0]['content']['describedBy'], analysis_file_schema_url)
-            self.assertEqual(outputs[0]['content']['file_core']['describedBy'], file_core_schema_url)
-            self.assertEqual(outputs[0]['content']['file_core']['file_name'], 'aligned_bam')
-            self.assertEqual(outputs[0]['content']['file_core']['file_format'], 'bam')
+
+        outputs = submit.get_output_files(js, schema_version)
+        self.assertEqual(len(outputs), 3)
+        self.assertEqual(outputs[0]['fileName'], 'aligned_bam')
+        self.assertEqual(outputs[0]['content']['schema_type'], 'file')
+        self.assertEqual(outputs[0]['content']['describedBy'], analysis_file_schema_url)
+        self.assertEqual(outputs[0]['content']['file_core']['describedBy'], file_core_schema_url)
+        self.assertEqual(outputs[0]['content']['file_core']['file_name'], 'aligned_bam')
+        self.assertEqual(outputs[0]['content']['file_core']['file_format'], 'bam')
 
     def data_file(self, file_name):
         return os.path.split(__file__)[0] + '/data/' + file_name

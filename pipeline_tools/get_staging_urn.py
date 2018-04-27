@@ -2,44 +2,50 @@
 
 import requests
 import argparse
-from .dcp_utils import check_status
-from tenacity import retry, retry_if_result, retry_if_exception_type, wait_exponential, stop_after_delay, RetryError
-
-RETRY_SECONDS = 10
-TIMEOUT_SECONDS = 600
+from tenacity import retry, retry_if_result, retry_if_exception_type, RetryError
+from pipeline_tools.http_requests import HttpRequests
 
 
-def urn_is_none(urn):
-    return urn is None
 
-
-@retry(reraise=True, wait=wait_exponential(multiplier=1, max=RETRY_SECONDS), stop=stop_after_delay(TIMEOUT_SECONDS),
-       retry=(retry_if_result(urn_is_none) | retry_if_exception_type(requests.HTTPError)))
-def run(envelope_url):
-    """
-    Check the contents of the submission envelope for the staging urn. Retry until the envelope contains a
+def run(envelope_url, http_requests):
+    """Check the contents of the submission envelope for the staging urn. Retry until the envelope contains a
     staging urn, or if there is an error with the request.
 
-    :param str envelope_url: Submission envelope url
-    :return: str urn: staging urn in the format dcp:upl:aws:integration:12345:abcde
+    Args:
+        envelope_url (str): the submission envelope url
+
+    Returns:
+        String giving the staging urn in the format dcp:upl:aws:integration:12345:abcde
+
+    Raises:
+        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+        tenacity.RetryError: if urn is missing beyond timeout
     """
-    envelope_js = get_envelope_json(envelope_url)
-    urn = get_staging_urn(envelope_js)
+    def urn_is_none(response):
+        envelope_js = response.json()
+        urn = get_staging_urn(envelope_js)
+        return urn is None
+
+    response = (
+        http_requests
+        .get(
+            envelope_url,
+            retry=retry_if_result(urn_is_none)
+        )
+    )
+    urn = get_staging_urn(response.json())
     return urn
 
 
-def get_envelope_json(envelope_url):
-    response = requests.get(envelope_url)
-    check_status(response.status_code, response.text)
-    envelope_js = response.json()
-    return envelope_js
-
-
 def get_staging_urn(envelope_js):
-    """
-    Get the staging urn from the submission envelope.
-    :param dict envelope_js: submission envelope contents
-    :return: str urn: staging urn in the format dcp:upl:aws:integration:12345:abcde
+    """Get the staging urn from the submission envelope.
+
+    Args:
+        envelope_js (dict): the submission envelope contents
+
+    Returns:
+        String giving the staging urn in the format dcp:upl:aws:integration:12345:abcde,
+        or None if the envelope doesn't contain a urn
     """
     details = envelope_js.get('stagingDetails')
     if not details:
@@ -54,14 +60,11 @@ def get_staging_urn(envelope_js):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--envelope_url', required=True)
-    parser.add_argument('--retry_seconds', type=int, default=RETRY_SECONDS, help='Maximum interval for exponential retries')
-    parser.add_argument('--timeout_seconds', type=int, default=TIMEOUT_SECONDS, help='Maximum duration for retrying a request')
     args = parser.parse_args()
     try:
-        urn = run.retry_with(wait=wait_exponential(multiplier=1, max=args.retry_seconds),
-                             stop=stop_after_delay(args.timeout_seconds))(args.envelope_url)
+        urn = run(args.envelope_url, HttpRequests())
     except RetryError:
-        message = 'Timed out while trying to get urn. Timeout seconds: {}'.format(args.timeout_seconds)
+        message = 'Timed out while trying to get urn.'
         raise ValueError(message)
     print(urn)
 

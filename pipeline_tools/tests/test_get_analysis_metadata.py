@@ -4,8 +4,9 @@ import unittest
 import requests_mock
 import requests
 from requests.auth import HTTPBasicAuth
-from tenacity import stop_after_delay, stop_after_attempt
 from pipeline_tools import get_analysis_metadata
+from .http_requests_manager import HttpRequestsManager
+from pipeline_tools.http_requests import HttpRequests
 
 
 class TestGetAnalysisMetadata(unittest.TestCase):
@@ -41,7 +42,8 @@ class TestGetAnalysisMetadata(unittest.TestCase):
             }
         mock_auth.return_value = HTTPBasicAuth('user', 'password')
         mock_request.get(self.cromwell_url, json=_request_callback)
-        get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, use_caas=False)
+        with HttpRequestsManager():
+            get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, HttpRequests(), use_caas=False)
         self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
@@ -54,7 +56,8 @@ class TestGetAnalysisMetadata(unittest.TestCase):
             }
         mock_header.return_value = {'Authorization': 'bearer 12345'}
         mock_request.get(self.caas_url, json=_request_callback)
-        get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, use_caas=True)
+        with HttpRequestsManager():
+            get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, HttpRequests(), use_caas=True)
         self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
@@ -65,17 +68,11 @@ class TestGetAnalysisMetadata(unittest.TestCase):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         mock_auth.return_value = HTTPBasicAuth('user', 'password')
-        # Makes the test complete faster by limiting the number of retries
-        get_analysis_metadata.get_metadata.retry.stop = stop_after_attempt(3)
 
         mock_request.get(self.cromwell_url, json=_request_callback)
-
-        with self.assertRaises(requests.HTTPError):
-            get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, use_caas=False)
-            self.assertNotEqual(mock_request.call_count, 1)
-
-        # Reset decorator default
-        get_analysis_metadata.get_metadata.retry.stop = stop_after_delay(20)
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            get_analysis_metadata.get_metadata(self.runtime_environment, self.workflow_id, HttpRequests(), use_caas=False)
+        self.assertEqual(mock_request.call_count, 3)
 
     def data_file(self, file_name):
         return os.path.split(__file__)[0] + '/data/' + file_name

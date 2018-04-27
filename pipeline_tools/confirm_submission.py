@@ -2,67 +2,81 @@
 
 import requests
 import argparse
-from .dcp_utils import check_status
-from tenacity import retry, retry_if_result, retry_if_exception_type, wait_exponential, stop_after_delay, RetryError
-
-RETRY_SECONDS = 10
-TIMEOUT_SECONDS = 600
+from tenacity import retry, retry_if_result, retry_if_exception_type, RetryError, before
+from pipeline_tools.http_requests import HttpRequests
 
 
-def status_is_invalid(status):
-    return status != 'Valid'
-
-
-@retry(reraise=True, wait=wait_exponential(multiplier=1, max=RETRY_SECONDS), stop=stop_after_delay(TIMEOUT_SECONDS),
-       retry=(retry_if_result(status_is_invalid) | retry_if_exception_type(requests.HTTPError)))
-def wait_for_valid_status(envelope_url):
+def wait_for_valid_status(envelope_url, http_requests):
     """
     Check the status of the submission. Retry until the status is "Valid", or if there is an error with the request to
     get the submission envelope.
 
-    :param str envelope_url: Submission envelope url
-    :return: str status: Status of the submission ("Valid", "Validating", etc.)
+    Args:
+        envelope_url (str): Submission envelope url
+        http_requests (HttpRequests): HttpRequests object
+
+    Returns:
+        str: Status of the submission ("Valid", "Validating", etc.)
+
+    Raises:
+        requests.HTTPError: if 4xx error or 5xx error past timeout
+        tenacity.RetryError: if status is invalid past timeout
     """
-    print('Getting status for {}'.format(envelope_url))
-    envelope_js = get_envelope_json(envelope_url)
-    status = envelope_js.get('submissionState')
-    print('submissionState: {}'.format(status))
-    return status
+    def log_before(envelope_url):
+        print('Getting status for {}'.format(envelope_url))
+
+    def status_is_invalid(response):
+        envelope_js = response.json()
+        status = envelope_js.get('submissionState')
+        print('submissionState: {}'.format(status))
+        return status != 'Valid'
+
+    response = (
+        http_requests
+        .get(
+            envelope_url,
+            before=log_before(envelope_url),
+            retry=retry_if_result(status_is_invalid)
+        )
+    )
+    return True
 
 
-@retry(reraise=True, wait=wait_exponential(multiplier=1, max=RETRY_SECONDS), stop=stop_after_delay(TIMEOUT_SECONDS))
-def confirm(envelope_url):
+def confirm(envelope_url, http_requests):
+    """Confirms the submission.
+
+    Args:
+        envelope_url (str): the url for the envelope
+        http_requests (HttpRequests): HttpRequests object
+
+    Returns:
+        str: The text of the response
+
+    Raises:
+        requests.HTTPError: if the response status indicates an error
+    """
     print('Confirming submission')
     headers = {
         'Content-type': 'application/json'
     }
-    response = requests.put('{}/submissionEvent'.format(envelope_url), headers=headers)
-    check_status(response.status_code, response.text)
-    print(response.text)
-
-
-def get_envelope_json(envelope_url):
-    response = requests.get(envelope_url)
-    envelope_js = response.json()
-    check_status(response.status_code, response.text)
-    return envelope_js
+    response = http_requests.put('{}/submissionEvent'.format(envelope_url), headers=headers)
+    text = response.text
+    print(text)
+    return text
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--envelope_url', required=True)
-    parser.add_argument('--retry_seconds', type=int, default=RETRY_SECONDS, help='Maximum interval for exponential retries')
-    parser.add_argument('--timeout_seconds', type=int, default=TIMEOUT_SECONDS, help='Maximum duration for retrying a request')
     args = parser.parse_args()
+    http_requests = HttpRequests()
     try:
-        wait_for_valid_status.retry_with(wait=wait_exponential(multiplier=1, max=args.retry_seconds),
-                                         stop=stop_after_delay(args.timeout_seconds))(args.envelope_url)
+        wait_for_valid_status(args.envelope_url, http_requests)
     except RetryError:
-        message = 'Timed out while waiting for Valid status. Timeout seconds: {}'.format(args.timeout_seconds)
+        message = 'Timed out while waiting for Valid status.'
         raise ValueError(message)
 
-    confirm.retry_with(wait=wait_exponential(multiplier=1, max=args.retry_seconds),
-                       stop=stop_after_delay(args.timeout_seconds))(args.envelope_url)
+    confirm(args.envelope_url, http_requests)
 
 
 if __name__ == '__main__':

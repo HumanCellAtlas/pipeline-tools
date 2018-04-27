@@ -2,7 +2,9 @@ import unittest
 import requests
 import requests_mock
 import pipeline_tools.get_staging_urn as gsu
-from tenacity import stop_after_attempt, RetryError
+from .http_requests_manager import HttpRequestsManager
+from pipeline_tools.http_requests import HttpRequests
+from tenacity import RetryError
 
 
 class TestGetStagingUrn(unittest.TestCase):
@@ -54,7 +56,8 @@ class TestGetStagingUrn(unittest.TestCase):
             context.status_code = 200
             return self.envelope_json
         mock_request.get(self.envelope_url, json=_request_callback)
-        response = gsu.run(self.envelope_url)
+        with HttpRequestsManager():
+            response = gsu.run(self.envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
@@ -63,9 +66,8 @@ class TestGetStagingUrn(unittest.TestCase):
             context.status_code = 200
             return {}
         mock_request.get(self.envelope_url, json=_request_callback)
-        with self.assertRaises(RetryError):
-            # Make the test complete faster by limiting the number of retries
-            response = gsu.run.retry_with(stop=stop_after_attempt(3))(self.envelope_url)
+        with self.assertRaises(RetryError), HttpRequestsManager():
+            gsu.run(self.envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
@@ -74,9 +76,8 @@ class TestGetStagingUrn(unittest.TestCase):
             context.status_code = 500
             return {}
         mock_request.get(self.envelope_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError):
-            # Make the test complete faster by limiting the number of retries
-            response = gsu.run.retry_with(stop=stop_after_attempt(3))(self.envelope_url)
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            gsu.run(self.envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
 
