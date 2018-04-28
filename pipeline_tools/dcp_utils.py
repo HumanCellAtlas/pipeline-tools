@@ -84,7 +84,7 @@ def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
 
     .. note::
 
-        The parameters and credentials here are meant to be hard coded, the authentication is purely for identifying a user it doesn't give and permissions.
+        The parameters and credentials here are meant to be hard coded, the authentication is purely for identifying a user it doesn't give any permissions.
 
     :param str url: The url to the Auth0 domain oauth endpoint.
     :param str client_id: The value of the Client ID field of the Non Interactive Client of Auth0.
