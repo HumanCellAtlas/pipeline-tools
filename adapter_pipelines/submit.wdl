@@ -32,6 +32,8 @@ task create_submission {
   Array[String] outputs
   File format_map
   String submit_url
+  Int retry_seconds
+  Int timeout_seconds
 
   command <<<
     # First, create the analysis.json
@@ -53,11 +55,13 @@ task create_submission {
     create-envelope \
       --submit_url ${submit_url} \
       --analysis_json_path analysis.json \
-      --schema_version ${schema_version}
+      --schema_version ${schema_version} \
+      --retry_seconds ${retry_seconds} \
+      --timeout_seconds ${timeout_seconds}
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.16.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.17.0"
   }
   output {
     File analysis_json = "analysis.json"
@@ -105,7 +109,7 @@ task stage_and_confirm {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.16.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.17.0"
   }
 }
 
@@ -143,7 +147,9 @@ workflow submit {
       format_map = format_map,
       metadata_json = get_metadata.metadata,
       input_bundle_uuid = input_bundle_uuid,
-      workflow_id = get_metadata.workflow_id
+      workflow_id = get_metadata.workflow_id,
+      retry_seconds = retry_seconds,
+      timeout_seconds = timeout_seconds
   }
 
   call stage_and_confirm {

@@ -144,20 +144,23 @@ def detect_schema_version(file_json):
     return version
 
 
-def get_metadata_to_process(manifest_files, dss_url, is_v5_or_higher):
+def get_metadata_to_process(manifest_files, dss_url, is_v5_or_higher, retry_seconds, timeout_seconds):
     """Return the metadata json that we need to parse to set up pipeline inputs"""
     if not is_v5_or_higher:
         schema_version = '4.x'
         sample_id_file_uuid = dcp_utils.get_file_uuid(manifest_files, 'sample.json')
         inputs_metadata_file_uuid = dcp_utils.get_file_uuid(manifest_files, 'assay.json')
-        inputs_metadata_json = dcp_utils.get_file_by_uuid(inputs_metadata_file_uuid, dss_url)
+        inputs_metadata_json = dcp_utils.get_file_by_uuid.retry_with(wait=dcp_utils.wait_exponential(retry_seconds),
+                                                                     stop=dcp_utils.stop_after_delay(timeout_seconds))(inputs_metadata_file_uuid, dss_url)
         sample_id_file_json = inputs_metadata_json
     else:
         sample_id_file_uuid = dcp_utils.get_file_uuid(manifest_files, 'links.json')
         inputs_metadata_file_uuid = dcp_utils.get_file_uuid(manifest_files, 'file.json')
-        inputs_metadata_json = dcp_utils.get_file_by_uuid(inputs_metadata_file_uuid, dss_url)
+        inputs_metadata_json = dcp_utils.get_file_by_uuid.retry_with(wait=dcp_utils.wait_exponential(retry_seconds),
+                                                                     stop=dcp_utils.stop_after_delay(timeout_seconds))(inputs_metadata_file_uuid, dss_url)
         schema_version = detect_schema_version(inputs_metadata_json)
-        sample_id_file_json = dcp_utils.get_file_by_uuid(sample_id_file_uuid, dss_url)
+        sample_id_file_json = dcp_utils.get_file_by_uuid.retry_with(wait=dcp_utils.wait_exponential(retry_seconds),
+                                                                    stop=dcp_utils.stop_after_delay(timeout_seconds))(sample_id_file_uuid, dss_url)
     return inputs_metadata_json, sample_id_file_json, schema_version
 
 
@@ -165,11 +168,12 @@ def create_ss2_input_tsv(uuid, version, dss_url, retry_seconds, timeout_seconds)
     """Create tsv of Smart-seq2 inputs"""
     # Get bundle manifest
     print("Getting bundle manifest for id {0}, version {1}".format(uuid, version))
-    manifest = dcp_utils.get_manifest(uuid, version, dss_url, timeout_seconds, retry_seconds)
+    manifest = dcp_utils.get_manifest.retry_with(wait=dcp_utils.wait_exponential(retry_seconds),
+                                                 stop=dcp_utils.stop_after_delay(timeout_seconds))(uuid, version, dss_url)
     manifest_files = dcp_utils.get_manifest_file_dicts(manifest)
 
     inputs_metadata_json, sample_id_file_json, schema_version = get_metadata_to_process(
-        manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']))
+        manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']), retry_seconds, timeout_seconds)
 
     sample_id = get_sample_id(sample_id_file_json, schema_version)
     fastq_1_name, fastq_2_name = get_smart_seq_2_fastq_names(inputs_metadata_json, schema_version)
@@ -187,11 +191,12 @@ def create_optimus_input_tsv(uuid, version, dss_url, retry_seconds, timeout_seco
     """Create tsv of Optimus inputs"""
     # Get bundle manifest
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
-    manifest = dcp_utils.get_manifest(uuid, version, dss_url, timeout_seconds, retry_seconds)
+    manifest = dcp_utils.get_manifest.retry_with(wait=dcp_utils.wait_exponential(retry_seconds),
+                                                 stop=dcp_utils.stop_after_delay(timeout_seconds))(uuid, version, dss_url)
     manifest_files = dcp_utils.get_manifest_file_dicts(manifest)
 
     inputs_metadata_json, sample_id_file_json, schema_version = get_metadata_to_process(
-        manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']))
+        manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']), retry_seconds, timeout_seconds)
 
     # Parse inputs from metadata and write to fastq_inputs
     print('Writing fastq inputs to fastq_inputs.tsv')

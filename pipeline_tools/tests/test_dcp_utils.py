@@ -2,7 +2,9 @@ import unittest
 import requests_mock
 import os
 import json
+import requests
 from pipeline_tools import dcp_utils
+from tenacity import stop_after_attempt
 
 
 class TestDCPUtils(unittest.TestCase):
@@ -15,8 +17,6 @@ class TestDCPUtils(unittest.TestCase):
         cls.FILE_ID = "test_id"
         cls.BUNDLE_UUID = "test_uuid"
         cls.BUNDLE_VERSION = "test_version"
-        cls.TIMEOUT_SECONDS = 100
-        cls.RETRY_SECONDS = 10
         cls.AUTH_TOKEN = {
             "access_token": "test_token",
             "expires_in": 86400,
@@ -39,6 +39,37 @@ class TestDCPUtils(unittest.TestCase):
 
         self.assertEqual(json_response['file'], expect_file['file'])
 
+        self.assertEqual(mock_request.call_count, 1)
+
+    @requests_mock.mock()
+    def test_get_file_by_uuid_retries_on_error(self, mock_request):
+        url = '{dss_url}/files/{file_id}?replica=gcp'.format(dss_url=self.DSS_URL, file_id=self.FILE_ID)
+
+        def _request_callback(request, context):
+            context.status_code = 500
+            return {'status': 'error', 'message': 'Internal Server Error'}
+
+        mock_request.get(url, json=_request_callback)
+        with self.assertRaises(requests.HTTPError):
+            # Make the test complete faster by limiting the number of retries
+            response = dcp_utils.get_file_by_uuid.retry_with(stop=stop_after_attempt(3))(self.FILE_ID, self.DSS_URL)
+        self.assertEqual(mock_request.call_count, 3)
+
+    @requests_mock.mock()
+    def test_get_manifest_retries_on_error(self, mock_request):
+        url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls=true'.format(
+            dss_url=self.DSS_URL, bundle_uuid=self.BUNDLE_UUID, bundle_version=self.BUNDLE_VERSION)
+
+        def _request_callback(request, context):
+            context.status_code = 500
+            return {'status': 'error', 'message': 'Internal Server Error'}
+
+        mock_request.get(url, json=_request_callback)
+        with self.assertRaises(requests.HTTPError):
+            # Make the test complete faster by limiting the number of retries
+            response = dcp_utils.get_manifest.retry_with(stop=stop_after_attempt(3))(self.BUNDLE_UUID, self.BUNDLE_VERSION, self.DSS_URL)
+        self.assertEqual(mock_request.call_count, 3)
+
     def test_get_manifest_file_dicts(self):
         result = dcp_utils.get_manifest_file_dicts(self.ss2_manifest_json_v4)
 
@@ -49,16 +80,13 @@ class TestDCPUtils(unittest.TestCase):
         self.assertEqual(name_to_meta['R2.fastq.gz']['url'], 'gs://org-humancellatlas-dss-staging/blobs/foo.bar')
         self.assertEqual(url_to_name['gs://org-humancellatlas-dss-staging/blobs/foo.bar'], 'R2.fastq.gz')
 
-
     def test_get_file_uuid(self):
         uuid = dcp_utils.get_file_uuid(self.ss2_manifest_files_v4, 'assay.json')
         self.assertEqual(uuid, 'e56638c7-f026-42d0-9be8-24b71a7d6e86')
 
-
     def test_get_file_url(self):
         url = dcp_utils.get_file_url(self.ss2_manifest_files_v4, 'R2.fastq.gz')
         self.assertEqual(url, 'gs://org-humancellatlas-dss-staging/blobs/foo.bar')
-
 
     @requests_mock.mock()
     def test_auth_token(self, mock_request):
@@ -84,6 +112,24 @@ class TestDCPUtils(unittest.TestCase):
 
         self.assertEqual(headers, expect_header)
 
+    def test_check_status_bad_codes(self):
+        with self.assertRaises(requests.HTTPError):
+            dcp_utils.check_status(404, 'foo')
+        with self.assertRaises(requests.HTTPError):
+            dcp_utils.check_status(500, 'foo')
+        with self.assertRaises(requests.HTTPError):
+            dcp_utils.check_status(301, 'foo')
+
+    def test_check_status_acceptable_codes(self):
+        try:
+            dcp_utils.check_status(200, 'foo')
+        except requests.HTTPError as e:
+            self.fail(str(e))
+
+        try:
+            dcp_utils.check_status(202, 'foo')
+        except requests.HTTPError as e:
+            self.fail(str(e))
 
     @staticmethod
     def data_file(file_name):
