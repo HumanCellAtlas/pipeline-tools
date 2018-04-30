@@ -3,7 +3,7 @@
 import requests
 import json
 import argparse
-from .dcp_utils import get_auth_token, make_auth_header
+from .dcp_utils import get_auth_token, make_auth_header, check_status
 from tenacity import retry, wait_exponential, stop_after_delay
 
 RETRY_SECONDS = 10
@@ -92,29 +92,6 @@ def add_file_reference(file_ref, file_refs_url, auth_headers):
     print('Adding file: {}'.format(file_ref['fileName']))
     response = requests.put(file_refs_url, headers=auth_headers, data=json.dumps(file_ref))
     check_status(response.status_code, response.text)
-
-
-def check_status(status, response_text, expected='2xx'):
-    """Check that status is in range 200-299 or the specified range, if given.
-    Raises a ValueError and prints response_text if status is not in the expected range. Otherwise,
-    just returns silently.
-    Args:
-        status (int): The actual HTTP status code.
-        response_text (str): Text to print along with status code when mismatch occurs
-        expected (str): The range of acceptable values represented as a string.
-    Examples:
-        check_status(200, 'foo') passes
-        check_status(404, 'foo') raises error
-        check_status(301, 'bar') raises error
-        check_status(301, 'bar', '3xx') passes
-    """
-    first_digit = int(expected[0])
-    low = first_digit * 100
-    high = low + 99
-    matches = low <= status <= high
-    if not matches:
-        message = 'HTTP status code {0} is not in expected range {1}. Response: {2}'.format(status, expected, response_text)
-        raise ValueError(message)
 
 
 def get_entity_url(js, entity):

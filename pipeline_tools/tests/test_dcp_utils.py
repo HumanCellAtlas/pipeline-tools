@@ -112,6 +112,25 @@ class TestDCPUtils(unittest.TestCase):
 
         self.assertEqual(headers, expect_header)
 
+    def test_check_status_bad_codes(self):
+        with self.assertRaises(requests.HTTPError):
+            dcp_utils.check_status(404, 'foo')
+        with self.assertRaises(requests.HTTPError):
+            dcp_utils.check_status(500, 'foo')
+        with self.assertRaises(requests.HTTPError):
+            dcp_utils.check_status(301, 'foo')
+
+    def test_check_status_acceptable_codes(self):
+        try:
+            dcp_utils.check_status(200, 'foo')
+        except requests.HTTPError as e:
+            self.fail(str(e))
+
+        try:
+            dcp_utils.check_status(202, 'foo')
+        except requests.HTTPError as e:
+            self.fail(str(e))
+
     @staticmethod
     def data_file(file_name):
         return os.path.split(__file__)[0] + '/data/' + file_name

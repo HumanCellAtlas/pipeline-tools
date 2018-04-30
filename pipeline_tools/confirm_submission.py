@@ -2,6 +2,7 @@
 
 import requests
 import argparse
+from .dcp_utils import check_status
 from tenacity import retry, retry_if_result, retry_if_exception_type, wait_exponential, stop_after_delay, RetryError
 
 RETRY_SECONDS = 10
@@ -36,14 +37,14 @@ def confirm(envelope_url):
         'Content-type': 'application/json'
     }
     response = requests.put('{}/submissionEvent'.format(envelope_url), headers=headers)
-    response.raise_for_status()
+    check_status(response.status_code, response.text)
     print(response.text)
 
 
 def get_envelope_json(envelope_url):
     response = requests.get(envelope_url)
     envelope_js = response.json()
-    response.raise_for_status()
+    check_status(response.status_code, response.text)
     return envelope_js
 
 

@@ -18,9 +18,9 @@ def get_file_by_uuid(file_id, dss_url):
         dss_url=dss_url, file_id=file_id)
     logging.info('GET {0}'.format(url))
     response = requests.get(url)
+    check_status(response.status_code, response.text)
     logging.info(response.status_code)
     logging.info(response.text)
-    response.raise_for_status()
     return response.json()
 
 
@@ -45,9 +45,9 @@ def get_manifest(bundle_uuid, bundle_version, dss_url):
         dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version)
     logging.info('GET {0}'.format(url))
     response = requests.get(url)
+    check_status(response.status_code, response.text)
     logging.info(response.status_code)
     logging.info(response.text)
-    response.raise_for_status()
     manifest = response.json()
     return manifest
 
@@ -123,3 +123,21 @@ def make_auth_header(auth_token):
         "Authorization": "{token_type} {access_token}".format(token_type=token_type, access_token=access_token)
     }
     return headers
+
+
+def check_status(status, response_text):
+    """Check that the response status code is in range 200-299.
+    Raises a ValueError and prints response_text if status is not in the expected range. Otherwise,
+    just returns silently.
+    Args:
+        status (int): The actual HTTP status code.
+        response_text (str): Text to print along with status code when mismatch occurs
+    Examples:
+        check_status(200, 'foo') passes
+        check_status(404, 'foo') raises error
+        check_status(301, 'bar') raises error
+    """
+    matches = 200 <= status <= 299
+    if not matches:
+        message = 'HTTP status code {0} is not in expected range 2xx. Response: {1}'.format(status, response_text)
+        raise requests.HTTPError(message)

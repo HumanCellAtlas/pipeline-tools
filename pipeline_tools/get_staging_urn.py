@@ -2,6 +2,7 @@
 
 import requests
 import argparse
+from .dcp_utils import check_status
 from tenacity import retry, retry_if_result, retry_if_exception_type, wait_exponential, stop_after_delay, RetryError
 
 RETRY_SECONDS = 10
@@ -29,7 +30,7 @@ def run(envelope_url):
 
 def get_envelope_json(envelope_url):
     response = requests.get(envelope_url)
-    response.raise_for_status()
+    check_status(response.status_code, response.text)
     envelope_js = response.json()
     return envelope_js
 
