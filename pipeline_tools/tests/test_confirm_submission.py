@@ -18,6 +18,7 @@ class TestConfirmSubmission(unittest.TestCase):
         mock_request.get(envelope_url, json=_request_callback)
         status = confirm_submission.wait_for_valid_status(envelope_url)
         self.assertEqual(status, 'Valid')
+        self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
     def test_wait_for_valid_status_retries_if_not_valid(self, mock_request):
@@ -31,7 +32,7 @@ class TestConfirmSubmission(unittest.TestCase):
         with self.assertRaises(RetryError):
             # Make the test complete faster by limiting the number of retries
             confirm_submission.wait_for_valid_status.retry_with(stop=stop_after_attempt(3))(envelope_url)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
     def test_wait_for_valid_status_retries_on_error(self, mock_request):
@@ -45,7 +46,7 @@ class TestConfirmSubmission(unittest.TestCase):
         with self.assertRaises(requests.HTTPError):
             # Make the test complete faster by limiting the number of retries
             confirm_submission.wait_for_valid_status.retry_with(stop=stop_after_attempt(3))(envelope_url)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
     def test_confirm_retries_on_error(self, mock_request):
@@ -59,4 +60,4 @@ class TestConfirmSubmission(unittest.TestCase):
         with self.assertRaises(requests.HTTPError):
             # Make the test complete faster by limiting the number of retries
             confirm_submission.confirm.retry_with(stop=stop_after_attempt(3))(envelope_url)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)

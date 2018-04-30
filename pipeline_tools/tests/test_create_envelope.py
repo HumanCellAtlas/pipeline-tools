@@ -31,6 +31,7 @@ class TestCreateEnvelope(unittest.TestCase):
         envelope_url = submit.get_envelope_url(submit_url, self.headers)
         expected = "http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes"
         self.assertEqual(envelope_url, expected)
+        self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
     def test_get_envelope_url_retries_on_error(self, mock_request):
@@ -44,7 +45,7 @@ class TestCreateEnvelope(unittest.TestCase):
         with self.assertRaises(ValueError):
             # Make the test complete faster by limiting the number of retries
             submit.get_envelope_url.retry_with(stop=stop_after_attempt(3))(submit_url, self.headers)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
     def test_create_submission_envelope(self, mock_request):
@@ -62,7 +63,7 @@ class TestCreateEnvelope(unittest.TestCase):
         with self.assertRaises(ValueError):
             # Make the test complete faster by limiting the number of retries
             submit.create_submission_envelope.retry_with(stop=stop_after_attempt(3))(envelope_url, self.headers)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     def test_create_analysis(self):
         pass
@@ -79,7 +80,7 @@ class TestCreateEnvelope(unittest.TestCase):
         with self.assertRaises(ValueError):
             # Make the test complete faster by limiting the number of retries
             submit.create_analysis.retry_with(stop=stop_after_attempt(3))(analyses_url, self.headers, self.analysis_json)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     def test_add_input_bundles(self):
         pass
@@ -97,7 +98,7 @@ class TestCreateEnvelope(unittest.TestCase):
             # Make the test complete faster by limiting the number of retries
             submit.add_input_bundles.retry_with(stop=stop_after_attempt(3))(input_bundles_url, self.headers, self.analysis_json)
 
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     def test_add_file_reference(self):
         pass
@@ -126,7 +127,7 @@ class TestCreateEnvelope(unittest.TestCase):
         with self.assertRaises(ValueError):
             # Make the test complete faster by limiting the number of retries
             submit.add_file_reference.retry_with(stop=stop_after_attempt(3))(file_ref, file_refs_url, self.headers)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     def test_get_entity(self):
         with open(self.data_file('response.json')) as f:

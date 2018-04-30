@@ -66,10 +66,10 @@ class TestGetStagingUrn(unittest.TestCase):
         with self.assertRaises(RetryError):
             # Make the test complete faster by limiting the number of retries
             response = gsu.run.retry_with(stop=stop_after_attempt(3))(self.envelope_url)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
-    def test__run_retry_if_error(self, mock_request):
+    def test_run_retry_if_error(self, mock_request):
         def _request_callback(request, context):
             context.status_code = 500
             return {}
@@ -77,7 +77,7 @@ class TestGetStagingUrn(unittest.TestCase):
         with self.assertRaises(requests.HTTPError):
             # Make the test complete faster by limiting the number of retries
             response = gsu.run.retry_with(stop=stop_after_attempt(3))(self.envelope_url)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
 
 if __name__ == '__main__':

@@ -39,6 +39,8 @@ class TestDCPUtils(unittest.TestCase):
 
         self.assertEqual(json_response['file'], expect_file['file'])
 
+        self.assertEqual(mock_request.call_count, 1)
+
     @requests_mock.mock()
     def test_get_file_by_uuid_retries_on_error(self, mock_request):
         url = '{dss_url}/files/{file_id}?replica=gcp'.format(dss_url=self.DSS_URL, file_id=self.FILE_ID)
@@ -51,7 +53,7 @@ class TestDCPUtils(unittest.TestCase):
         with self.assertRaises(requests.HTTPError):
             # Make the test complete faster by limiting the number of retries
             response = dcp_utils.get_file_by_uuid.retry_with(stop=stop_after_attempt(3))(self.FILE_ID, self.DSS_URL)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
     def test_get_manifest_retries_on_error(self, mock_request):
@@ -66,7 +68,7 @@ class TestDCPUtils(unittest.TestCase):
         with self.assertRaises(requests.HTTPError):
             # Make the test complete faster by limiting the number of retries
             response = dcp_utils.get_manifest.retry_with(stop=stop_after_attempt(3))(self.BUNDLE_UUID, self.BUNDLE_VERSION, self.DSS_URL)
-        self.assertNotEqual(mock_request.call_count, 1)
+        self.assertEqual(mock_request.call_count, 3)
 
     def test_get_manifest_file_dicts(self):
         result = dcp_utils.get_manifest_file_dicts(self.ss2_manifest_json_v4)
