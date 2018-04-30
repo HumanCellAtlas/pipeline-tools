@@ -8,6 +8,9 @@ Overview
     :target: http://pipeline-tools.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+.. note::
+    This tool is still under active development, so there could be significant changes to its API.
+
 This package provides utilities for retrieving files from the data storage service for the Human Cell Atlas, and for
 submitting an analysis bundle to the Human Cell Atlas Data Coordination Platform.
 
@@ -25,11 +28,15 @@ The steps in the submission process are as follows:
 Installing
 ==========
 
-Install it like this::
+Install it like this:
+
+.. code::
 
     pip install git+git://github.com/HumanCellAtlas/pipeline-tools.git
 
-You can use the cloud storage functions like this::
+You can use the cloud storage functions like this:
+
+.. code:: python
 
     import pipeline_tools
     from pipeline_tools import gcs_utils
@@ -44,7 +51,9 @@ create_analysis_json.py
 -----------------------
 Creates analysis.json file, which is following the v4 metadata schema.
 
-Invoke it like this::
+Invoke it like this:
+
+.. code::
 
     create-analysis-json \
       --analysis_id ${workflow_id} \
@@ -64,7 +73,9 @@ create_envelope.py
 ------------------
 Creates submission envelope and uploads metadata.
 
-Invoke it like this::
+Invoke it like this:
+
+.. code::
 
     create-envelope \
       --submit_url ${submit_url} \
@@ -81,7 +92,9 @@ hca:sta:aws:staging:{short hash}:{long hash}
 It gets decoded by the `hca-cli <https://github.com/HumanCellAtlas/dcp-cli>`_ to extract the staging location and credentials
 needed to stage files.
 
-Invoke it like this::
+Invoke it like this:
+
+.. code::
 
     get-staging-urn \
       --envelope_url ${submission_url} \
@@ -96,7 +109,9 @@ Confirms submission. This causes the ingest service to finalize the submission a
 
 Waits until submission status is "Valid", since submission cannot be confirmed until then.
 
-Invoke it like this::
+Invoke it like this:
+
+.. code::
 
     confirm-submission \
       --envelope_url ${submission_url} \
@@ -112,17 +127,23 @@ Testing
 Running unit tests
 ------------------
 
-To run unit tests, first create a virtual environment with the requirements::
+To run unit tests, first create a virtual environment with the requirements:
+
+.. code::
 
     virtualenv test-env
     source test-env/bin/activate
     pip install -r requirements.txt -r test-requirements.txt
 
-Then, run unit tests from the root of the pipeline-tools repo like this::
+Then, run unit tests from the root of the pipeline-tools repo like this:
+
+.. code::
 
     bash test.sh
 
-To run schema integration tests, do::
+To run schema integration tests, do:
+
+.. code::
 
     export TEST_SUITE="latest_schema"
     bash test.sh
