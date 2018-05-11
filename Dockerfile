@@ -11,6 +11,3 @@ WORKDIR /tools
 COPY . .
 
 RUN pip install . --process-dependency-links
-
-# Install the latest hca-cli for submit.wdl
-RUN pip install hca==3.3.0
