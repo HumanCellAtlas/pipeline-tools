@@ -10,13 +10,14 @@ setup(name='pipeline-tools',
       license='BSD 3-clause "New" or "Revised" License',
       packages=['pipeline_tools'],
       install_requires=[
-          'requests>=2.18.4',
-          'mock>=2.0.0',
-          'google-cloud-storage>=1.8.0',
-          'requests-mock>=1.4.0',
-          'tenacity>=4.10.0',
           'cromwell-tools',
-          'setuptools_scm==2.0.0'
+          'google-cloud-storage>=1.8.0',
+          'hca>=3.5.0',
+          'mock>=2.0.0',
+          'requests>=2.18.4',
+          'requests-mock>=1.4.0',
+          'setuptools_scm==2.0.0',
+          'tenacity>=4.10.0',
       ],
       entry_points={
           "console_scripts": [
