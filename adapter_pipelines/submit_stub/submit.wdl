@@ -20,6 +20,7 @@ workflow submit {
   String runtime_environment
   Int retry_seconds
   Int timeout_seconds
+  Boolean use_caas
 
   call submit_stub
 
