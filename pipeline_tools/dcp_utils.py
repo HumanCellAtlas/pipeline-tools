@@ -1,51 +1,56 @@
 import requests
 import logging
-from tenacity import retry, wait_exponential, stop_after_delay
+from pipeline_tools.http_requests import HttpRequests
 
 
-@retry(reraise=True, wait=wait_exponential(multiplier=1, max=10), stop=stop_after_delay(1200))
-def get_file_by_uuid(file_id, dss_url):
-    """
-    Retrieve a file from the Human Cell Atlas data storage service by its id.Retry with exponentially increasing wait
-    times between requests if there are any failures. View statistics about the retries with
-    `get_file_by_uuid.retry.statistics`.
+def get_file_by_uuid(file_id, dss_url, http_requests):
+    """Retrieve a JSON file from the Human Cell Atlas data storage service by its id.
+    Retry with exponentially increasing wait times between requests if there are any failures.
 
-    :param str file_id: The id of the file to retrieve.
-    :param str dss_url: The url for the HCA data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1".
-    :return dict: file contents.
+    Args:
+        file_id (str): the id of the file to retrieve.
+        dss_url (str): the url for the HCA data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1".
+        http_requests (HttpRequests): the HttpRequests object to use
+
+    Returns:
+        dict representing the contents of the JSON file
+
+    Raises:
+        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     url = '{dss_url}/files/{file_id}?replica=gcp'.format(
         dss_url=dss_url, file_id=file_id)
     logging.info('GET {0}'.format(url))
-    response = requests.get(url)
-    check_status(response.status_code, response.text)
+    response = http_requests.get(url)
     logging.info(response.status_code)
     logging.info(response.text)
     return response.json()
 
 
-@retry(reraise=True, wait=wait_exponential(multiplier=1, max=10), stop=stop_after_delay(1200))
-def get_manifest(bundle_uuid, bundle_version, dss_url):
-    """
-    Retrieve manifest.json file for a given bundle uuid and version.Retry with exponentially increasing wait times
-    between requests if there are any failures. View statistics about the retries with `get_manifest.retry.statistics`.
+def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
+    """Retrieve manifest JSON file for a given bundle uuid and version.
+    Retry with exponentially increasing wait times between requests if there are any failures.
 
-    :param str bundle_uuid: Bundle unique id
-    :param str bundle_version: Timestamp of bundle creation, e.g. "2017-10-23T17:50:26.894Z"
-    :param str dss_url: The url for the Human Cell Atlas data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1"
-    :return dict:
-        ::
+    Args:
+        bundle_uuid (str): the uuid of the bundle
+        bundle_version (str): the bundle version, e.g. "2017-10-23T17:50:26.894Z"
+        dss_url (str): The url for the Human Cell Atlas data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1"
+        http_requests (HttpRequests): the HttpRequests object to use
 
+    Returns:
+        A dict of the following form:
             {
                 'name_to_meta': dict mapping <str file name>: <dict file metadata>,
                 'url_to_name': dict mapping <str file url>: <str file name>
             }
+
+    Raises:
+        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls=true'.format(
         dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version)
     logging.info('GET {0}'.format(url))
-    response = requests.get(url)
-    check_status(response.status_code, response.text)
+    response = http_requests.get(url)
     logging.info(response.status_code)
     logging.info(response.text)
     manifest = response.json()
@@ -53,6 +58,21 @@ def get_manifest(bundle_uuid, bundle_version, dss_url):
 
 
 def get_manifest_file_dicts(manifest):
+    """Create a dictionary of metadata describing files in the manifest
+
+    Args:
+        manifest (dict): the bundle manifest
+
+    Returns:
+        A dict of metadata describing files in the manifest, like:
+            {
+                'name_to_meta': <dict>
+                'url_to_name': <dict>
+            }
+
+        The 'name_to_meta' dict maps the file name to metadata about it.
+        The 'url_to_name' dict maps the file url to its name
+    """
     bundle = manifest['bundle']
     name_to_meta = {}
     url_to_name = {}
@@ -73,7 +93,8 @@ def get_file_url(manifest_file_dicts, file_name):
     return manifest_file_dicts['name_to_meta'][file_name]['url']
 
 
-def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
+def get_auth_token(http_requests,
+                   url="https://danielvaughan.eu.auth0.com/oauth/token",
                    client_id="Zdsog4nDAnhQ99yiKwMQWAPc2qUDlR99",
                    client_secret="t-OAE-GQk_nZZtWn-QQezJxDsLXmU7VSzlAh9cKW5vb87i90qlXGTvVNAjfT9weF",
                    audience="http://localhost:8080",
@@ -82,15 +103,21 @@ def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
 
     .. note::
 
-        The parameters and credentials here are meant to be hard coded, the authentication is purely for identifying a user it doesn't give any permissions.
+        We have hard-coded some test credentials here temporarily, which do not give any special permissions in the ingest service.
 
-    :param str url: The url to the Auth0 domain oauth endpoint.
-    :param str client_id: The value of the Client ID field of the Non Interactive Client of Auth0.
-    :param str client_secret: The value of the Client Secret field of the Non Interactive Client of Auth0.
-    :param str audience: The value of the Identifier field of the Auth0 Management API.
-    :param str grant_type: Denotes which OAuth 2.0 flow you want to run. e.g. client_credentials
-    :return dict auth_token: JSON response of the signed JWT (JSON Web Token), with when it expires (24h by default),
-     the scopes granted, and the token type.
+    Args:
+        http_requests (HttpRequests): the HttpRequests object to use
+        url (str): the url to the Auth0 domain oauth endpoint.
+        client_id (str): the value of the Client ID field of the Non Interactive Client of Auth0.
+        client_secret (str): the value of the Client Secret field of the Non Interactive Client of Auth0.
+        audience (str): the value of the Identifier field of the Auth0 Management API.
+        grant_type (str): type of OAuth 2.0 flow you want to run. e.g. client_credentials
+
+    Returns:
+        A dict containing the JWT (JSON Web Token) and its expiry (24h by default), the scopes granted, and the token type.
+
+    Raises:
+        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     url = url
     headers = {
@@ -102,7 +129,7 @@ def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
         "audience": audience,
         "grant_type": grant_type
     }
-    response = requests.post(url=url, headers=headers, json=payload)
+    response = http_requests.post(url=url, headers=headers, json=payload)
     response.raise_for_status()
     auth_token = response.json()
     return auth_token
@@ -111,9 +138,12 @@ def get_auth_token(url="https://danielvaughan.eu.auth0.com/oauth/token",
 def make_auth_header(auth_token):
     """Make the authorization headers to communicate with endpoints which implement Auth0 authentication API.
 
-    :param dict auth_token: Obtained from the Auth0 domain oauth endpoint, a dictionary of the
-     signed JWT (JSON Web Token), with when it expires (24h by default), the scopes granted, and the token type.
-    :return dict headers: A header with necessary token information to talk to Auth0 authentication required endpoints.
+    Args:
+        auth_token (dict): a dict obtained from the Auth0 domain oauth endpoint, containing the signed JWT (JSON Web Token),
+        its expiry, the scopes granted, and the token type.
+
+    Returns:
+        A dict representing the headers with necessary token information to talk to Auth0 authentication required endpoints.
     """
     token_type = auth_token['token_type']
     access_token = auth_token['access_token']
@@ -123,21 +153,3 @@ def make_auth_header(auth_token):
         "Authorization": "{token_type} {access_token}".format(token_type=token_type, access_token=access_token)
     }
     return headers
-
-
-def check_status(status, response_text):
-    """Check that the response status code is in range 200-299.
-    Raises a ValueError and prints response_text if status is not in the expected range. Otherwise,
-    just returns silently.
-    Args:
-        status (int): The actual HTTP status code.
-        response_text (str): Text to print along with status code when mismatch occurs
-    Examples:
-        check_status(200, 'foo') passes
-        check_status(404, 'foo') raises error
-        check_status(301, 'bar') raises error
-    """
-    matches = 200 <= status <= 299
-    if not matches:
-        message = 'HTTP status code {0} is not in expected range 2xx. Response: {1}'.format(status, response_text)
-        raise requests.HTTPError(message)

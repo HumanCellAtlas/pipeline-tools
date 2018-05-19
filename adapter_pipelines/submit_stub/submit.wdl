@@ -18,9 +18,13 @@ workflow submit {
   String schema_version
   String method
   String runtime_environment
-  Int retry_seconds
-  Int timeout_seconds
   Boolean use_caas
+  Int? retry_max_interval
+  Float? retry_multiplier
+  Int? retry_timeout
+  Int? individual_request_timeout
+  # By default, don't record http requests
+  Boolean record_http = false
 
   call submit_stub
 

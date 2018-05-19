@@ -2,13 +2,15 @@ import unittest
 import requests
 import requests_mock
 from pipeline_tools import confirm_submission
-from tenacity import stop_after_attempt, RetryError
+from pipeline_tools.http_requests import HttpRequests
+from .http_requests_manager import HttpRequestsManager
+from tenacity import RetryError
 
 
 class TestConfirmSubmission(unittest.TestCase):
 
     @requests_mock.mock()
-    def test_wait_for_valid_status(self, mock_request):
+    def test_wait_for_valid_status_success(self, mock_request):
         envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
 
         def _request_callback(request, context):
@@ -16,8 +18,10 @@ class TestConfirmSubmission(unittest.TestCase):
             return {'submissionState': 'Valid'}
 
         mock_request.get(envelope_url, json=_request_callback)
-        status = confirm_submission.wait_for_valid_status(envelope_url)
-        self.assertEqual(status, 'Valid')
+
+        with HttpRequestsManager():
+            result = confirm_submission.wait_for_valid_status(envelope_url, HttpRequests())
+        self.assertEqual(result, True)
         self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
@@ -29,9 +33,8 @@ class TestConfirmSubmission(unittest.TestCase):
             return {'submissionState': 'Validating'}
 
         mock_request.get(envelope_url, json=_request_callback)
-        with self.assertRaises(RetryError):
-            # Make the test complete faster by limiting the number of retries
-            confirm_submission.wait_for_valid_status.retry_with(stop=stop_after_attempt(3))(envelope_url)
+        with self.assertRaises(RetryError), HttpRequestsManager():
+            confirm_submission.wait_for_valid_status(envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
@@ -43,10 +46,22 @@ class TestConfirmSubmission(unittest.TestCase):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         mock_request.get(envelope_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError):
-            # Make the test complete faster by limiting the number of retries
-            confirm_submission.wait_for_valid_status.retry_with(stop=stop_after_attempt(3))(envelope_url)
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            confirm_submission.wait_for_valid_status(envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
+
+    @requests_mock.mock()
+    def test_confirm_success(self, mock_request):
+        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            return {}
+
+        mock_request.put('{}/submissionEvent'.format(envelope_url), json=_request_callback)
+        with HttpRequestsManager():
+            confirm_submission.confirm(envelope_url, HttpRequests())
+        self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
     def test_confirm_retries_on_error(self, mock_request):
@@ -57,7 +72,6 @@ class TestConfirmSubmission(unittest.TestCase):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         mock_request.put('{}/submissionEvent'.format(envelope_url), json=_request_callback)
-        with self.assertRaises(requests.HTTPError):
-            # Make the test complete faster by limiting the number of retries
-            confirm_submission.confirm.retry_with(stop=stop_after_attempt(3))(envelope_url)
+        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
+            confirm_submission.confirm(envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)

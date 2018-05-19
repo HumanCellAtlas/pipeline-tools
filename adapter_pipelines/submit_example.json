@@ -20,7 +20,5 @@
   "submit.method": "Ss2RsemSingleSample",
   "submit.schema_version": "4.6.1",
   "submit.run_type": "run",
-  "submit.retry_seconds": 10,
-  "submit.timeout_seconds": 120,
   "submit.runtime_environment": "dev"
 }
