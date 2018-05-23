@@ -19,7 +19,8 @@ task GetInputs {
     export RETRY_MAX_INTERVAL="${retry_max_interval}"
     export INDIVIDUAL_REQUEST_TIMEOUT="${individual_request_timeout}"
 
-    python <<CODE
+    # Force the binary layer of the stdout and stderr streams to be unbuffered.
+    python -u <<CODE
     from pipeline_tools import input_utils
 
     input_utils.create_ss2_input_tsv(
