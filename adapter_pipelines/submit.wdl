@@ -17,6 +17,10 @@ task get_metadata {
     export INDIVIDUAL_REQUEST_TIMEOUT="${individual_request_timeout}"
     touch request_000.txt && touch response_000.txt
 
+    # Force the binary layer of the stdout and stderr streams (which is available as their buffer attribute)
+    # to be unbuffered. This is the same as "-u", more info: https://docs.python.org/3/using/cmdline.html#cmdoption-u
+    export PYTHONUNBUFFERED=TRUE
+
     get-analysis-metadata \
       --analysis_output_path ${analysis_output_path} \
       --runtime_environment ${runtime_environment} \
@@ -58,6 +62,11 @@ task create_submission {
     export RETRY_MULTIPLIER="${retry_multiplier}"
     export RETRY_MAX_INTERVAL="${retry_max_interval}"
     export INDIVIDUAL_REQUEST_TIMEOUT="${individual_request_timeout}"
+    touch request_000.txt && touch response_000.txt
+
+    # Force the binary layer of the stdout and stderr streams (which is available as their buffer attribute)
+    # to be unbuffered. This is the same as "-u", more info: https://docs.python.org/3/using/cmdline.html#cmdoption-u
+    export PYTHONUNBUFFERED=TRUE
 
     # First, create the analysis.json
     # Note that create-analysis-json can take a comma-separated list of bundles,
@@ -113,6 +122,11 @@ task stage_and_confirm {
     export RETRY_MULTIPLIER="${retry_multiplier}"
     export RETRY_MAX_INTERVAL="${retry_max_interval}"
     export INDIVIDUAL_REQUEST_TIMEOUT="${individual_request_timeout}"
+    touch request_000.txt && touch response_000.txt
+
+    # Force the binary layer of the stdout and stderr streams (which is available as their buffer attribute)
+    # to be unbuffered. This is the same as "-u", more info: https://docs.python.org/3/using/cmdline.html#cmdoption-u
+    export PYTHONUNBUFFERED=TRUE
 
     # Get the urn needed for staging files
     staging_urn=$(get-staging-urn --envelope_url ${submission_url})

@@ -3,7 +3,8 @@ task submit_stub {
     echo "This is a stub submission task for testing purposes only."
   >>>
   runtime {
-    docker: "python:2.7"
+    # Use the slim version of the docker image here for efficiency
+    docker: "python:2.7-slim"
   }
 }
 

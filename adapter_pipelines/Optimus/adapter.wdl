@@ -10,7 +10,8 @@ task GetInputs {
   Int timeout_seconds
 
   command <<<
-    python <<CODE
+    # Force the binary layer of the stdout and stderr streams to be unbuffered.
+    python -u <<CODE
     from pipeline_tools import input_utils
 
     input_utils.create_optimus_input_tsv(
@@ -36,7 +37,8 @@ task inputs_for_submit {
     Array[Object] other_inputs
 
     command <<<
-      python <<CODE
+      # Force the binary layer of the stdout and stderr streams to be unbuffered.
+      python -u <<CODE
       inputs = []
       print('other inputs')
       with open('${write_objects(other_inputs)}') as f:
@@ -79,7 +81,8 @@ task outputs_for_submit {
     Array[File] other_outputs
 
     command <<<
-      python <<CODE
+      # Force the binary layer of the stdout and stderr streams to be unbuffered.
+      python -u <<CODE
       print('other outputs')
 
       outputs = ['${sep="', '" other_outputs}']

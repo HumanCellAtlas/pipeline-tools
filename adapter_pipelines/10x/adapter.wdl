@@ -9,7 +9,8 @@ task GetInputs {
   Int timeout_seconds
 
   command <<<
-    python <<CODE
+    # Force the binary layer of the stdout and stderr streams to be unbuffered.
+    python -u <<CODE
     from pipeline_tools import dcp_utils
 
     # Get bundle manifest
@@ -86,7 +87,8 @@ task rename_files {
   String i1_name
 
   command <<<
-    python <<CODE
+    # Force the binary layer of the stdout and stderr streams to be unbuffered.
+    python -u <<CODE
 
     import subprocess
 
@@ -114,7 +116,8 @@ task inputs_for_submit {
   Array[Object] primers
 
   command <<<
-    python <<CODE
+    # Force the binary layer of the stdout and stderr streams to be unbuffered.
+    python -u <<CODE
     import json
 
     print('primers')
