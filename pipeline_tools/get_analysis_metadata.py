@@ -13,7 +13,7 @@ def get_workflow_id(analysis_output_path):
         analysis_output_path (str): path to workflow output file.
 
     Returns:
-        workflow_id: string giving Cromwell UUID of the workflow.
+        workflow_id (str): string giving Cromwell UUID of the workflow.
     """
     url = analysis_output_path
     hash_end = url.rfind("/call-")
@@ -31,7 +31,7 @@ def get_auth(credentials_file=None):
         credentials_file (str): Path to the file containing cromwell authentication credentials.
 
     Returns:
-        requests.auth.HTTPBasicAuth object to use for cromwell requests
+        requests.auth.HTTPBasicAuth: object to be used for cromwell requests
     """
     credentials_file = credentials_file or '/cromwell-metadata/cromwell_credentials.txt'
     with open(credentials_file) as f:
@@ -50,9 +50,6 @@ def get_metadata(runtime_environment, workflow_id, http_requests, use_caas=False
         workflow_id (str): the analysis workflow id.
         use_caas (bool): whether or not to use Cromwell-as-a-Service.
         caas_key_file (str): path to CaaS service account JSON key file.
-
-    Returns:
-        Nothing returned
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout

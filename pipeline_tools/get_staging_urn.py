@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-import requests
 import argparse
-from tenacity import retry, retry_if_result, retry_if_exception_type, RetryError
+from tenacity import retry_if_result, RetryError
 from pipeline_tools.http_requests import HttpRequests
-
 
 
 def run(envelope_url, http_requests):
@@ -12,6 +10,7 @@ def run(envelope_url, http_requests):
     staging urn, or if there is an error with the request.
 
     Args:
+        http_requests (HttpRequests): an HttpRequests object.
         envelope_url (str): the submission envelope url
 
     Returns:

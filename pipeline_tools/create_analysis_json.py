@@ -21,7 +21,7 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         format_map (str): path to file containing a map of file extensions to types
 
     Returns:
-        A dict representing the analysis json file to be submitted
+        analysis (dict): A dict representing the analysis json file to be submitted
     """
     print('Creating analysis.json for {}'.format(analysis_id))
 
@@ -66,7 +66,7 @@ def create_inputs(inputs_file):
         inputs_file (str): giving the path to the file containing inputs metadata
 
     Returns:
-        Array of dicts representing inputs metadata in the format required for the analysis json file
+        inputs (list): Array of dicts representing inputs metadata in the format required for the analysis json file.
     """
     inputs = []
     with open(inputs_file) as f:
@@ -97,7 +97,7 @@ def create_outputs(outputs_file, format_map, schema_version):
         schema_version (str): the version of the metadata schema that the analysis json should conform to
 
     Returns:
-        Array of dicts representing outputs metadata in the format required for the analysis json file
+        outputs (list): Array of dicts representing outputs metadata in the format required for the analysis json file.
     """
     with open(format_map) as f:
         extension_to_format = json.load(f)
@@ -132,7 +132,7 @@ def get_format(path, extension_to_format):
         extension_to_format (dict): dict mapping file extensions to file types
 
     Returns:
-        A string representing the format of the file
+        str: A string representing the format of the file
     """
     for ext in extension_to_format:
         if path.endswith(ext):
@@ -150,7 +150,8 @@ def get_tasks(metadata):
         metadata (dict): the workflow metadata
 
     Returns:
-        Array of dicts representing task metadata in the format required for the analysis json
+        sorted_output_tasks (list): Sorted array of dicts representing task metadata in the format required for
+            the analysis json.
     """
     calls = metadata['calls']
 
@@ -188,7 +189,7 @@ def create_process_core(analysis_id, schema_version):
         schema_version (str): the version of the metadata schema that the analysis json will conform to
 
     Returns:
-        Dict containing process_core metadata required for analysis json
+        dict: Dict containing process_core metadata required for analysis json
     """
     return {
         'process_id': analysis_id,
@@ -204,7 +205,7 @@ def create_process_type(schema_version):
         schema_version (str): the metadata schema version that the analysis json will conform to
 
     Returns:
-        Dict containing process_type metadata in the forma required for the analysis json
+        dict: Dict containing process_type metadata in the forma required for the analysis json
     """
     return {
         'text': 'analysis',

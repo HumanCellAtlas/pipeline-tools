@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-import requests
 import argparse
-from tenacity import retry, retry_if_result, retry_if_exception_type, RetryError, before
+from tenacity import retry_if_result, RetryError
 from pipeline_tools.http_requests import HttpRequests
 
 

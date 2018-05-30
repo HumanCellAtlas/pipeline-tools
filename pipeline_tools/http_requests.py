@@ -14,6 +14,7 @@ RETRY_MULTIPLIER = 'RETRY_MULTIPLIER'
 RETRY_MAX_INTERVAL = 'RETRY_MAX_INTERVAL'
 INDIVIDUAL_REQUEST_TIMEOUT = 'INDIVIDUAL_REQUEST_TIMEOUT'
 
+
 class HttpRequests(object):
     """Wraps requests library and adds ability to record requests and responses.
 
@@ -66,7 +67,8 @@ class HttpRequests(object):
         self.retry_max_interval = self._get_param(RETRY_MAX_INTERVAL, '60', float)
         self.individual_request_timeout = self._get_param(INDIVIDUAL_REQUEST_TIMEOUT, '60', float)
 
-    def _get_param(self, name, default, convert_fn=lambda x: x):
+    @staticmethod
+    def _get_param(name, default, convert_fn=lambda x: x):
         param_str = os.environ.get(name, default)
 
         # handle case where environment var is set to empty string
@@ -84,7 +86,7 @@ class HttpRequests(object):
             All arguments that requests.get accepts are accepted here.
 
         Returns:
-            A requests.Response object representing the response to the request.
+            requests.Response: An object representing the response to the request.
 
         Raises:
             requests.HTTPError: if 5xx error occurs
@@ -105,7 +107,7 @@ class HttpRequests(object):
             for 'body' -- use 'json' instead.
 
         Returns:
-            A requests.Response object representing the response to the request.
+            requests.Response: An object representing the response to the request.
 
         Raises:
             requests.HTTPError: if 5xx error occurs
@@ -126,7 +128,7 @@ class HttpRequests(object):
             for 'body' -- use 'json' instead.
 
         Returns:
-            A requests.Response object representing the response to the request.
+            requests.Response: An object representing the response to the request.
 
         Raises:
             requests.HTTPError: if 5xx error occurs
@@ -179,7 +181,7 @@ class HttpRequests(object):
             here except for 'body' -- use 'json' instead.
 
         Returns:
-            A requests.Response object representing the response to the request.
+            requests.Response: An object representing the response to the request.
 
         Raises:
             requests.HTTPError: if 5xx error occurs
@@ -248,10 +250,10 @@ class HttpRequests(object):
         zero-padded integer like 005 and foo is an arbitrary prefix.
 
         Args:
-            files: list of strings representing files in a directory that look like foo_n.txt
+            files (list): list of strings representing files in a directory that look like foo_n.txt
 
         Returns:
-            A string representing the next suffix, one higher than the highest one present
+            str: A string representing the next suffix, one higher than the highest one present
             in the given list.
         """
         if len(files) == 0:
@@ -268,8 +270,8 @@ class HttpRequests(object):
         Raises a ValueError and prints response_text if status is not in the expected range. Otherwise,
         just returns silently.
         Args:
-            status (int): The actual HTTP status code.
-            response_text (str): Text to print along with status code when mismatch occurs
+            response.status (int): The actual HTTP status code.
+            response.text (str): Text to print along with status code when mismatch occurs
 
         Raises:
             requests.HTTPError: for 5xx errors and prints response_text if status is not in the expected range. Otherwise,
