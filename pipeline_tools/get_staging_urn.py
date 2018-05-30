@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import argparse
-from tenacity import retry_if_result, RetryError
+import requests
+from tenacity import retry_if_result, RetryError, retry_if_exception_type
 from pipeline_tools.http_requests import HttpRequests
 
 
@@ -29,7 +30,7 @@ def run(envelope_url, http_requests):
         http_requests
         .get(
             envelope_url,
-            retry=retry_if_result(urn_is_none)
+            retry=(retry_if_result(urn_is_none) | retry_if_exception_type(requests.exceptions.ReadTimeout))
         )
     )
     urn = get_staging_urn(response.json())
