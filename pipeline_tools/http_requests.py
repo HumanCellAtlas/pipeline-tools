@@ -142,7 +142,8 @@ class HttpRequests(object):
         def is_retryable(error):
             def is_retryable_status_code(error):
                 return isinstance(error, requests.HTTPError) and not (400 <= error.response.status_code <= 499)
-            return is_retryable_status_code(error) or isinstance(error, requests.ConnectionError)
+            return is_retryable_status_code(error) or isinstance(error,
+                                                                 (requests.ConnectionError, requests.ReadTimeout))
 
         if 'retry' in kwargs:
             retry = kwargs['retry'] | retry_if_exception(is_retryable)

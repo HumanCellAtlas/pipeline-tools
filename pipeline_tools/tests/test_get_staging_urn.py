@@ -80,6 +80,16 @@ class TestGetStagingUrn(unittest.TestCase):
             gsu.run(self.envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
+    @requests_mock.mock()
+    def test_run_retry_if_read_timeout_error_occurs(self, mock_request):
+        def _request_callback(request, context):
+            context.status_code = 500
+            raise requests.ReadTimeout
+        mock_request.get(self.envelope_url, json=_request_callback)
+        with self.assertRaises(requests.ReadTimeout), HttpRequestsManager():
+            gsu.run(self.envelope_url, HttpRequests())
+        self.assertEqual(mock_request.call_count, 3)
+
 
 if __name__ == '__main__':
     unittest.main()

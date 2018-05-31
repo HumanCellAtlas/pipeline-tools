@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
-import requests
-from tenacity import retry_if_result, RetryError, retry_if_exception_type
+from tenacity import retry_if_result, RetryError
 from pipeline_tools.http_requests import HttpRequests
 
 
@@ -36,7 +35,7 @@ def wait_for_valid_status(envelope_url, http_requests):
         .get(
             envelope_url,
             before=log_before(envelope_url),
-            retry=(retry_if_result(status_is_invalid) | retry_if_exception_type(requests.exceptions.ReadTimeout))
+            retry=retry_if_result(status_is_invalid)
         )
     )
     return True
@@ -60,9 +59,7 @@ def confirm(envelope_url, http_requests):
         'Content-type': 'application/json'
     }
     response = http_requests.put('{}/submissionEvent'.format(envelope_url),
-                                 headers=headers,
-                                 retry=retry_if_exception_type(requests.exceptions.ReadTimeout)
-                                 )
+                                 headers=headers)
     text = response.text
     print(text)
     return text

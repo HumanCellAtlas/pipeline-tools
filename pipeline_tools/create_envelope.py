@@ -4,8 +4,6 @@ import json
 import argparse
 from .dcp_utils import get_auth_token, make_auth_header
 from pipeline_tools.http_requests import HttpRequests
-import requests
-from tenacity import retry_if_exception_type
 
 
 def run(submit_url, analysis_json_path, schema_version):
@@ -71,8 +69,7 @@ def get_envelope_url(submit_url, auth_headers, http_requests):
     """
     print('Getting envelope url from {}'.format(submit_url))
     response = http_requests.get(submit_url,
-                                 headers=auth_headers,
-                                 retry=retry_if_exception_type(requests.exceptions.ReadTimeout))
+                                 headers=auth_headers)
     envelope_url = get_subject_url(response.json(), 'submissionEnvelopes')
     return envelope_url
 
@@ -94,8 +91,7 @@ def create_submission_envelope(envelope_url, auth_headers, http_requests):
     print('Creating submission envelope at {0}'.format(envelope_url))
     response = http_requests.post(envelope_url,
                                   '{}',
-                                  headers=auth_headers,
-                                  retry=retry_if_exception_type(requests.exceptions.ReadTimeout))
+                                  headers=auth_headers)
     envelope_js = response.json()
     return envelope_js
 
@@ -118,8 +114,7 @@ def create_analysis(analyses_url, auth_headers, analysis_json_contents, http_req
     print('Creating analysis at {0}'.format(analyses_url))
     response = http_requests.post(analyses_url,
                                   headers=auth_headers,
-                                  json=analysis_json_contents,
-                                  retry=retry_if_exception_type(requests.exceptions.ReadTimeout))
+                                  json=analysis_json_contents)
     analysis_js = response.json()
     return analysis_js
 
@@ -145,8 +140,7 @@ def add_input_bundles(input_bundles_url, auth_headers, analysis_json_contents, h
     print(bundle_refs_js)
     response = http_requests.put(input_bundles_url,
                                  headers=auth_headers,
-                                 json=bundle_refs_js,
-                                 retry=retry_if_exception_type(requests.exceptions.ReadTimeout))
+                                 json=bundle_refs_js)
     return response.json()
 
 
@@ -168,8 +162,7 @@ def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
     print('Adding file: {}'.format(file_ref['fileName']))
     response = http_requests.put(file_refs_url,
                                  headers=auth_headers,
-                                 json=file_ref,
-                                 retry=retry_if_exception_type(requests.exceptions.ReadTimeout))
+                                 json=file_ref)
     return response.json()
 
 
