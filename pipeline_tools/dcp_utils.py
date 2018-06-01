@@ -1,4 +1,3 @@
-import requests
 import logging
 from pipeline_tools.http_requests import HttpRequests
 
@@ -13,7 +12,7 @@ def get_file_by_uuid(file_id, dss_url, http_requests):
         http_requests (HttpRequests): the HttpRequests object to use
 
     Returns:
-        dict representing the contents of the JSON file
+        dict: dict representing the contents of the JSON file
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
@@ -38,7 +37,7 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
         http_requests (HttpRequests): the HttpRequests object to use
 
     Returns:
-        A dict of the following form:
+        dict: A dict of the following form:
             {
                 'name_to_meta': dict mapping <str file name>: <dict file metadata>,
                 'url_to_name': dict mapping <str file url>: <str file name>
@@ -64,7 +63,7 @@ def get_manifest_file_dicts(manifest):
         manifest (dict): the bundle manifest
 
     Returns:
-        A dict of metadata describing files in the manifest, like:
+        dict: A dict of metadata describing files in the manifest, like:
             {
                 'name_to_meta': <dict>
                 'url_to_name': <dict>
@@ -103,7 +102,8 @@ def get_auth_token(http_requests,
 
     .. note::
 
-        We have hard-coded some test credentials here temporarily, which do not give any special permissions in the ingest service.
+        We have hard-coded some test credentials here temporarily, which do not give any special
+        permissions in the ingest service.
 
     Args:
         http_requests (HttpRequests): the HttpRequests object to use
@@ -114,7 +114,8 @@ def get_auth_token(http_requests,
         grant_type (str): type of OAuth 2.0 flow you want to run. e.g. client_credentials
 
     Returns:
-        A dict containing the JWT (JSON Web Token) and its expiry (24h by default), the scopes granted, and the token type.
+        auth_token (dict): A dict containing the JWT (JSON Web Token) and its expiry (24h by default),
+            the scopes granted, and the token type.
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
@@ -139,11 +140,12 @@ def make_auth_header(auth_token):
     """Make the authorization headers to communicate with endpoints which implement Auth0 authentication API.
 
     Args:
-        auth_token (dict): a dict obtained from the Auth0 domain oauth endpoint, containing the signed JWT (JSON Web Token),
-        its expiry, the scopes granted, and the token type.
+        auth_token (dict): a dict obtained from the Auth0 domain oauth endpoint, containing the signed JWT
+            (JSON Web Token), its expiry, the scopes granted, and the token type.
 
     Returns:
-        A dict representing the headers with necessary token information to talk to Auth0 authentication required endpoints.
+        headers (dict): A dict representing the headers with necessary token information to talk to Auth0 authentication
+            required endpoints.
     """
     token_type = auth_token['token_type']
     access_token = auth_token['access_token']

@@ -9,8 +9,11 @@ from io import BytesIO
 def get_filename_from_gs_link(link):
     """Get the filename corresponding to a google_storage link.
 
-    :param str link: A string of google cloud storage link.
-    :return str: A string of filename.
+    Args:
+        link (str): A string of google cloud storage link.
+
+    Returns:
+        str: A string of filename.
     """
     return link.split('/')[-1]
 
@@ -18,9 +21,11 @@ def get_filename_from_gs_link(link):
 def parse_bucket_blob_from_gs_link(path):
     """Utility to split a google storage path into bucket + blob name.
 
-    :param str path: A string of google cloud storage path (must have gs:// prefix)
-    :return str: A string of bucket name.
-    :return str: A string of blob name
+    Args:
+        path (str): A string of google cloud storage path (must have gs:// prefix)
+
+    Returns:
+        (str, str): A tuple of (bucket name, blob name)
     """
     if not path.startswith('gs://'):
         raise ValueError('%s path is not a valid link')
@@ -31,10 +36,13 @@ def parse_bucket_blob_from_gs_link(path):
 
 
 def download_to_buffer(blob):
-    """Return a bytes file-like object readable by requests and REST APIs
+    """Return a bytes file-like object readable by requests and REST APIs.
 
-    :param google.cloud.storage.Blob blob: google storage blob
-    :return _io.BufferedIOBase: readable file object
+    Args:
+        blob (google.cloud.storage.Blob): google storage blob
+
+    Returns:
+        _io.BufferedIOBase: readable file object
     """
     bytes_buffer = BytesIO()
     blob.download_to_file(bytes_buffer)
@@ -45,11 +53,14 @@ def download_to_buffer(blob):
 def download_gcs_blob(gcs_client, bucket_name, source_blob_name):
     """Use google.cloud.storage API to download a blob from the bucket.
 
-    :param GoogleCloudStorageClient gcs_client: A GoogleCloudStorageClient object with a
+    Args:
+        gcs_client (GoogleCloudStorageClient): A GoogleCloudStorageClient object with a
             google.cloud.storage.client.Client instance as a lazy-initialized property.
-    :param str bucket_name: A string of bucket name.
-    :param str source_blob_name: A string of source blob name that to be downloaded.
-    :return BufferedIOBase: File-like object returned by download_to_buffer.
+        bucket_name (str): A string of bucket name.
+        source_blob_name (str): A string of source blob name that to be downloaded.
+
+    Returns:
+        BufferedIOBase: File-like object returned by download_to_buffer.
     """
     logging.getLogger()
 
@@ -89,8 +100,9 @@ class GoogleCloudStorageClient(object):
     def __init__(self, key_location, scopes):
         """This class implements the client to interact with Google Cloud Storage.
 
-        :param str key_location: The location of Google Cloud Storage API key.
-        :param list scopes: A list of OAuth 2.0 scopes information.
+        Args:
+            key_location(str): The location of Google Cloud Storage API key.
+            scopes (list): A list of OAuth 2.0 scopes information.
         """
         self.key_location, self.scopes = key_location, scopes
 
@@ -98,7 +110,8 @@ class GoogleCloudStorageClient(object):
     def storage_client(self):
         """This lazy property returns an authenticated google cloud storage client.
 
-        :return google.cloud.storage.client.Client: An authenticated google cloud storage client.
+        Returns:
+            google.cloud.storage.client.Client: An authenticated google cloud storage client.
         """
         logging.getLogger()
         logging.debug('Configuring listener credentials using %s' % self.key_location)

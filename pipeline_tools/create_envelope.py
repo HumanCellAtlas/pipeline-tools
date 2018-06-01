@@ -14,9 +14,6 @@ def run(submit_url, analysis_json_path, schema_version):
         analysis_json_path (str): path to analysis json file
         schema_version (str): version of metadata schema that submission should conform to
 
-    Returns:
-        Nothing returned
-
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
@@ -65,13 +62,14 @@ def get_envelope_url(submit_url, auth_headers, http_requests):
         http_requests (HttpRequests): the HttpRequests object to use
 
     Returns:
-        A string giving the url for creating envelopes
+        envelope_url (str): A string giving the url for creating envelopes
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     print('Getting envelope url from {}'.format(submit_url))
-    response = http_requests.get(submit_url, headers=auth_headers)
+    response = http_requests.get(submit_url,
+                                 headers=auth_headers)
     envelope_url = get_subject_url(response.json(), 'submissionEnvelopes')
     return envelope_url
 
@@ -85,13 +83,15 @@ def create_submission_envelope(envelope_url, auth_headers, http_requests):
         http_requests (HttpRequests): HttpRequests object to use
 
     Returns:
-        Dict representing the JSON response to the request
+        envelope_js (dict): Dict representing the JSON response to the request
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     print('Creating submission envelope at {0}'.format(envelope_url))
-    response = http_requests.post(envelope_url, '{}', headers=auth_headers)
+    response = http_requests.post(envelope_url,
+                                  '{}',
+                                  headers=auth_headers)
     envelope_js = response.json()
     return envelope_js
 
@@ -106,13 +106,15 @@ def create_analysis(analyses_url, auth_headers, analysis_json_contents, http_req
         http_requests (HttpRequests): HttpRequests object to use
 
     Returns:
-        dict representing the response JSON
+        analysis_js (dict): A dict represents the response JSON
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     print('Creating analysis at {0}'.format(analyses_url))
-    response = http_requests.post(analyses_url, headers=auth_headers, json=analysis_json_contents)
+    response = http_requests.post(analyses_url,
+                                  headers=auth_headers,
+                                  json=analysis_json_contents)
     analysis_js = response.json()
     return analysis_js
 
@@ -127,7 +129,7 @@ def add_input_bundles(input_bundles_url, auth_headers, analysis_json_contents, h
         http_requests (HttpRequests): the HttpRequests object to use
 
     Returns:
-        Dict representing the JSON response to the request
+        dict: Dict representing the JSON response to the request
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
@@ -136,7 +138,9 @@ def add_input_bundles(input_bundles_url, auth_headers, analysis_json_contents, h
     input_bundle_uuid = get_input_bundle_uuid(analysis_json_contents)
     bundle_refs_js = {"bundleUuids": [input_bundle_uuid]}
     print(bundle_refs_js)
-    response = http_requests.put(input_bundles_url, headers=auth_headers, json=bundle_refs_js)
+    response = http_requests.put(input_bundles_url,
+                                 headers=auth_headers,
+                                 json=bundle_refs_js)
     return response.json()
 
 
@@ -150,13 +154,15 @@ def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
         http_requests (HttpRequests): the HttpRequests object to use
 
     Returns:
-        Dict representing the JSON response to the request
+        dict: Dict representing the JSON response to the request
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     print('Adding file: {}'.format(file_ref['fileName']))
-    response = http_requests.put(file_refs_url, headers=auth_headers, json=file_ref)
+    response = http_requests.put(file_refs_url,
+                                 headers=auth_headers,
+                                 json=file_ref)
     return response.json()
 
 
@@ -169,7 +175,7 @@ def get_subject_url(js, subject):
         'submissionEnvelope', 'add-file-reference')
 
     Returns:
-        A string giving the url for the given subject
+        subject_url (str): A string giving the url for the given subject
     """
     subject_url = js['_links'][subject]['href'].split('{')[0]
     print('Got url for {0}: {1}'.format(subject, subject_url))
@@ -183,7 +189,7 @@ def get_input_bundle_uuid(analysis_json):
         analysis_json (dict): metadata describing the analysis
 
     Returns:
-        A string representing the input bundle uuid
+        uuid (str): A string representing the input bundle uuid
     """
     bundle = analysis_json['input_bundles'][0]
     uuid = bundle
@@ -199,7 +205,7 @@ def get_output_files(analysis_json, schema_version):
         schema_version (str): the schema version that file references will conform to
 
     Returns:
-        A dict of metadata describing the output files produced by the analysis
+        output_refs (dict): A dict of metadata describing the output files produced by the analysis
     """
     outputs = analysis_json['outputs']
     output_refs = []
