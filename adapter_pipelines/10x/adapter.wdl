@@ -64,7 +64,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-separate-confirm-submission-as-a-standalone-task-785"
   }
   output {
     Array[File] r1 = read_lines("r1.tsv")
@@ -99,7 +99,7 @@ task rename_files {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-separate-confirm-submission-as-a-standalone-task-785"
   }
   output {
     File r1_new = "${r1_name}"
@@ -186,7 +186,7 @@ task inputs_for_submit {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.1.9"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-separate-confirm-submission-as-a-standalone-task-785"
   }
   output {
     File inputs = "inputs.tsv"
