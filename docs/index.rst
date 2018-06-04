@@ -14,6 +14,11 @@ API documentation
    :members:
    :inherited-members:
 
+.. automodule:: pipeline_tools.http_requests
+   :members:
+   :inherited-members:
+
+
 Table of Contents
 =================
 
