@@ -91,7 +91,7 @@ task create_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.19.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
   }
   output {
     File analysis_json = "analysis.json"
@@ -101,8 +101,8 @@ task create_submission {
   }
 }
 
-# Stage files, then confirm submission
-task stage_and_confirm {
+# Stage files for the submission
+task stage_files {
   String submission_url
   Array[File] files
   Int? retry_max_interval
@@ -142,14 +142,47 @@ task stage_and_confirm {
       echo "hca upload file $f"
       hca upload file $f
     done
+  >>>
+
+  runtime {
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+  }
+  output {
+    Array[File] http_requests = glob("request_*.txt")
+    Array[File] http_responses = glob("response_*.txt")
+  }
+}
+
+# Confirm the submission
+task confirm_submission {
+  String submission_url
+  Int? retry_max_interval
+  Float? retry_multiplier
+  Int? retry_timeout
+  Int? individual_request_timeout
+  Boolean record_http
+
+  command <<<
+    set -e
+    export RECORD_HTTP_REQUESTS="${record_http}"
+    export RETRY_TIMEOUT="${retry_timeout}"
+    export RETRY_MULTIPLIER="${retry_multiplier}"
+    export RETRY_MAX_INTERVAL="${retry_max_interval}"
+    export INDIVIDUAL_REQUEST_TIMEOUT="${individual_request_timeout}"
+    touch request_000.txt && touch response_000.txt
+
+    # Force the binary layer of the stdout and stderr streams (which is available as their buffer attribute)
+    # to be unbuffered. This is the same as "-u", more info: https://docs.python.org/3/using/cmdline.html#cmdoption-u
+    export PYTHONUNBUFFERED=TRUE
 
     # Confirm the submission
     confirm-submission --envelope_url ${submission_url}
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.19.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
   }
+
   output {
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
@@ -207,10 +240,20 @@ workflow submit {
       record_http = record_http
   }
 
-  call stage_and_confirm {
+  call stage_files {
     input:
       submission_url = create_submission.submission_url,
       files = outputs,
+      retry_timeout = retry_timeout,
+      individual_request_timeout = individual_request_timeout,
+      retry_multiplier = retry_multiplier,
+      retry_max_interval = retry_max_interval,
+      record_http = record_http
+  }
+
+  call confirm_submission {
+    input:
+      submission_url = create_submission.submission_url,
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
       retry_multiplier = retry_multiplier,
@@ -222,7 +265,9 @@ workflow submit {
     File analysis_json = create_submission.analysis_json
     Array[File] create_envelope_requests = create_submission.http_requests
     Array[File] create_envelope_responses = create_submission.http_responses
-    Array[File] stage_and_confirm_requests = stage_and_confirm.http_requests
-    Array[File] stage_and_confirm_responses = stage_and_confirm.http_responses
+    Array[File] stage_and_confirm_requests = stage_files.http_requests
+    Array[File] stage_and_confirm_responses = stage_files.http_responses
+    Array[File] confirm_submission_requests = confirm_submission.http_requests
+    Array[File] confirm_submission_responses = confirm_submission.http_responses
   }
 }
