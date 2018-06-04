@@ -24,7 +24,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-separate-confirm-submission-as-a-standalone-task-785"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
   }
   output {
     String sample_id = read_string("inputs.tsv")
@@ -66,7 +66,7 @@ task inputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-separate-confirm-submission-as-a-standalone-task-785"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
     }
 
     output {
@@ -106,7 +106,7 @@ task outputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-separate-confirm-submission-as-a-standalone-task-785"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
     }
 
     output {

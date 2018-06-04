@@ -31,7 +31,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-separate-confirm-submission-as-a-standalone-task-785"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
   }
   output {
     Array[File] http_requests = glob("request_*.txt")
