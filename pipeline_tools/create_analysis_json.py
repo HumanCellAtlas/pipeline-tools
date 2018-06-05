@@ -34,7 +34,7 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
 
     input_bundles = input_bundles_string.split(',')
 
-    schema_url = 'https://schema.humancellatlas.org/type/process/analysis/{}/analysis_process'.format(schema_version)
+    schema_url = 'https://schema.humancellatlas.org/type/protocol/analysis/{}/analysis_protocol'.format(schema_version)
 
     analysis = {
         'analysis_run_type': run_type,
@@ -46,9 +46,9 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         'tasks': tasks,
         'inputs': inputs,
         'outputs': outputs,
-        'process_core': create_process_core(analysis_id, schema_version),
-        'process_type': create_process_type(schema_version),
-        'schema_type': 'process',
+        'protocol_core': create_protocol_core(analysis_id, schema_version),
+        'protocol_type': create_protocol_type(schema_version),
+        'schema_type': 'protocol',
         'describedBy': schema_url
     }
 
@@ -181,7 +181,7 @@ def get_tasks(metadata):
     return sorted_output_tasks
 
 
-def create_process_core(analysis_id, schema_version):
+def create_protocol_core(analysis_id, schema_version):
     """Creates process_core entry for analysis json
 
     Args:
@@ -192,13 +192,13 @@ def create_process_core(analysis_id, schema_version):
         dict: Dict containing process_core metadata required for analysis json
     """
     return {
-        'process_id': analysis_id,
-        'describedBy': 'https://schema.humancellatlas.org/core/process/{}/process_core'.format(schema_version),
+        'protocol_id': analysis_id,
+        'describedBy': 'https://schema.humancellatlas.org/core/protocol/{}/protocol_core'.format(schema_version),
         'schema_version': schema_version
     }
 
 
-def create_process_type(schema_version):
+def create_protocol_type(schema_version):
     """Creates process_type metadata for analysis json
 
     Args:
