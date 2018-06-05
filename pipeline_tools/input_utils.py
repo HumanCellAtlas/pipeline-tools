@@ -2,7 +2,7 @@ from pipeline_tools import dcp_utils
 from pipeline_tools.http_requests import HttpRequests
 
 
-def get_sample_id(metadata, version):
+def get_sample_id(metadata, version, sequencing_protocol_id=None):
     """Return the sample id from the given metadata
 
     Args:
@@ -19,8 +19,29 @@ def get_sample_id(metadata, version):
         return _get_sample_id_v4(metadata)
     elif version.startswith('5.'):
         return _get_sample_id_v5(metadata)
+    elif version.startswith('6.'):
+        return _get_sample_id_v6(metadata, sequencing_protocol_id)
     else:
-        raise NotImplementedError('Only implemented for v4 and v5 metadata')
+        raise NotImplementedError('Only implemented for v4, v5 and v6 metadata')
+
+
+def _get_sample_id_v6(links_json, sequencing_protocol_id):
+    def is_sequencing_protocol_link(link, sequencing_protocol_id):
+        return link['destination_id'] == sequencing_protocol_id and link['source_type'] == 'process'
+
+    def is_sample_link(link, process_id):
+        return link['source_type'] == 'biomaterial' and link['destination_id'] == process_id
+
+    links = links_json['links']
+    sequencing_protocols = list(filter(lambda x: is_sequencing_protocol_link(x, sequencing_protocol_id), links))
+    process_id = sequencing_protocols[0]['source_id']
+    sample_links = list(filter(lambda x: is_sample_link(x, process_id), links))
+    num_links = len(sample_links)
+    if num_links == 0:
+        raise ValueError('No sample link found')
+    elif num_links > 1:
+        raise ValueError('Expecting one sample link. {0} found'.format(num_links))
+    return sample_links[0]['source_id']
 
 
 def _get_sample_id_v5(links_json):
@@ -66,12 +87,14 @@ def get_input_metadata_file_uuid(manifest_files, version):
     Raises:
         NotImplementedError: if version is unsupported
     """
-    if version.startswith('5.'):
-        return _get_input_metadata_file_uuid_v5(manifest_files)
-    elif version.startswith('4.'):
+    # if version.startswith('5.'):
+    #     return _get_input_metadata_file_uuid_v5(manifest_files)
+    if version.startswith('4.'):
         return _get_input_metadata_file_uuid_v4(manifest_files)
     else:
-        raise NotImplementedError('Only implemented for v4 and v5 metadata')
+        return _get_input_metadata_file_uuid_v5(manifest_files)
+    # else:
+    #     raise NotImplementedError('Only implemented for v4 and v5 metadata')
 
 
 def _get_input_metadata_file_uuid_v5(manifest_files):
@@ -98,15 +121,16 @@ def get_sample_id_file_uuid(manifest_files, version):
     Raises:
         NotImplementedError: if metadata version is unsupported
     """
-    if version.startswith('5.'):
-        return _get_sample_id_file_uuid_v5(manifest_files)
-    elif version.startswith('4.'):
+    # if version.startswith('5.'):
+    #     return _get_sample_id_file_uuid_v5_or_higher(manifest_files)
+    if version.startswith('4.'):
         return _get_sample_id_file_uuid_v4(manifest_files)
     else:
-        raise NotImplementedError('Only implemented for v4 and v5 metadata')
+        return _get_sample_id_file_uuid_v5_or_higher(manifest_files)
+        # raise NotImplementedError('Only implemented for v4 and v5 metadata')
 
 
-def _get_sample_id_file_uuid_v5(manifest_files):
+def _get_sample_id_file_uuid_v5_or_higher(manifest_files):
     """Get the uuid of the links.json file"""
     return dcp_utils.get_file_uuid(manifest_files, 'links.json')
 
@@ -129,15 +153,16 @@ def get_smart_seq_2_fastq_names(metadata, version):
     Raises:
         NotImplementedError: if metadata version is unsupported
     """
-    if version.startswith('5.'):
-        return _get_smart_seq_2_fastq_names_v5(metadata)
-    elif version.startswith('4.'):
+    version_prefix = int(version.split('.', 1)[0])
+    if version_prefix >= 5:
+        return _get_smart_seq_2_fastq_names_v5_or_higher(metadata)
+    elif version_prefix == 4:
         return _get_smart_seq_2_fastq_names_v4(metadata)
     else:
         raise NotImplementedError('Only implemented for v4 and v5 metadata')
 
 
-def _get_smart_seq_2_fastq_names_v5(files_json):
+def _get_smart_seq_2_fastq_names_v5_or_higher(files_json):
     """Returns fastq file names
 
     Args:
@@ -326,7 +351,12 @@ def _get_content_for_ss2_input_tsv(uuid, version, dss_url, http_requests):
     inputs_metadata_json, sample_id_file_json, schema_version = get_metadata_to_process(
         manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']), http_requests)
 
-    sample_id = get_sample_id(sample_id_file_json, schema_version)
+    protocol_uuid = dcp_utils.get_file_uuid(manifest_files, 'protocol.json')
+    protocol_json = dcp_utils.get_file_by_uuid(protocol_uuid, dss_url, http_requests)
+    sequencing_protocol = [protocol for protocol in protocol_json['protocols'] if 'sequencing_protocol' in protocol['content']['describedBy']]
+    sequencing_protocol_id = sequencing_protocol[0]['hca_ingest']['document_id']
+
+    sample_id = get_sample_id(sample_id_file_json, schema_version, sequencing_protocol_id)
     fastq_1_name, fastq_2_name = get_smart_seq_2_fastq_names(inputs_metadata_json, schema_version)
     fastq_1_url = dcp_utils.get_file_url(manifest_files, fastq_1_name)
     fastq_2_url = dcp_utils.get_file_url(manifest_files, fastq_2_name)

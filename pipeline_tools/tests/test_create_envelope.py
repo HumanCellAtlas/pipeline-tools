@@ -99,7 +99,7 @@ class TestCreateEnvelope(unittest.TestCase):
 
     @requests_mock.mock()
     def test_create_analysis_retries_on_error(self, mock_request):
-        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/protocols'
 
         def _request_callback(request, context):
             context.status_code = 500
@@ -112,7 +112,7 @@ class TestCreateEnvelope(unittest.TestCase):
 
     @requests_mock.mock()
     def test_create_analysis_retries_on_read_timeout_error(self, mock_request):
-        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/protocols'
 
         def _request_callback(request, context):
             context.status_code = 500
@@ -208,8 +208,8 @@ class TestCreateEnvelope(unittest.TestCase):
     def test_get_subject_url(self):
         with open(self.data_file('response.json')) as f:
             js = json.load(f)
-        entity_url = submit.get_subject_url(js, 'processes')
-        self.assertEqual(entity_url, 'http://api.ingest.dev.data.humancellatlas.org/processes')
+        entity_url = submit.get_subject_url(js, 'protocols')
+        self.assertEqual(entity_url, 'http://api.ingest.dev.data.humancellatlas.org/protocols')
 
     def test_get_input_bundle_uuid(self):
         with open(self.data_file('analysis.json')) as f:
