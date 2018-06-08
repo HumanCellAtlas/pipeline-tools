@@ -150,11 +150,15 @@ task stage_files {
   output {
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
+    # Make this task output a placeholder string here for confirm_submission so that they can be executed in order
+    String ready_to_be_confirmed = "true"
   }
 }
 
 # Confirm the submission
 task confirm_submission {
+  # Make this task ask for a placeholder string here for so that stage_files task and this can be executed in order
+  String ready_to_be_confirmed
   String submission_url
   Int? retry_max_interval
   Float? retry_multiplier
@@ -253,6 +257,7 @@ workflow submit {
 
   call confirm_submission {
     input:
+      ready_to_be_confirmed = stage_files.ready_to_be_confirmed,
       submission_url = create_submission.submission_url,
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
