@@ -38,7 +38,7 @@ def run(submit_url, analysis_json_path, schema_version):
     # 3. Create analysis
     with open(analysis_json_path) as f:
         analysis_json_contents = json.load(f)
-    analyses_url = get_subject_url(envelope_js, 'processes')
+    analyses_url = get_subject_url(envelope_js, 'protocols')
     analysis_js = create_analysis(analyses_url, auth_headers, analysis_json_contents, http_requests)
 
     # 4. Add input bundles
