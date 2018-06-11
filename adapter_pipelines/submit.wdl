@@ -46,6 +46,7 @@ task create_submission {
   String run_type
   String method
   String schema_version
+  String analysis_file_version
   Array[Object] inputs
   Array[String] outputs
   File format_map
@@ -79,6 +80,7 @@ task create_submission {
       --run_type ${run_type} \
       --method ${method} \
       --schema_version ${schema_version} \
+      --analysis_file_version ${analysis_file_version} \
       --inputs_file ${write_objects(inputs)} \
       --outputs_file ${write_lines(outputs)} \
       --format_map ${format_map}
@@ -87,7 +89,7 @@ task create_submission {
     create-envelope \
       --submit_url ${submit_url} \
       --analysis_json_path analysis.json \
-      --schema_version ${schema_version}
+      --analysis_file_version ${analysis_file_version}
   >>>
 
   runtime {
@@ -211,6 +213,7 @@ workflow submit {
   Boolean use_caas
   # By default, don't record http requests
   Boolean record_http = false
+  String analysis_file_version = "5.2.1"
 
   call get_metadata {
     input:
@@ -229,6 +232,7 @@ workflow submit {
       reference_bundle = reference_bundle,
       run_type = run_type,
       schema_version = schema_version,
+      analysis_file_version = analysis_file_version,
       method = method,
       submit_url = submit_url,
       inputs = inputs,

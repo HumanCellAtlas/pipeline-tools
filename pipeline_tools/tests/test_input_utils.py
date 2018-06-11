@@ -171,7 +171,7 @@ class TestInputUtils(unittest.TestCase):
         mock_request.get(links_json_url, json=_links_json_callback)
         mock_request.get(file_json_url, json=_file_json_callback)
         with HttpRequestsManager():
-            inputs_json, sample_json, schema_version  = input_utils.get_metadata_to_process(
+            inputs_json, sample_json, schema_version, sequencing_protocol_id = input_utils.get_metadata_to_process(
                 manifest_files,
                 dss_url='https://fake_url',
                 is_v5_or_higher=True,
@@ -203,17 +203,18 @@ class TestInputUtils(unittest.TestCase):
             context.status_code = 200
             return manifest_json
 
+        version = 'bundle_version'
         links_json_url = 'https://fake_url/files/links_json_uuid?replica=gcp'
         mock_request.get(links_json_url, json=_links_json_callback)
         file_json_url = 'https://fake_url/files/file_json_uuid?replica=gcp'
         mock_request.get(file_json_url, json=_file_json_callback)
-        manifest_url = 'https://fake_url/bundles/foo_uuid?version=foo_version&replica=gcp&directurls=true'
+        manifest_url = 'https://fake_url/bundles/foo_uuid?version={}&replica=gcp&directurls=true'.format(version)
         mock_request.get(manifest_url, json=_manifest_callback)
 
         with HttpRequestsManager():
             fastq_1_url, fastq_2_url, sample_id  = input_utils._get_content_for_ss2_input_tsv(
-                uuid='foo_uuid',
-                version='foo_version',
+                bundle_uuid='foo_uuid',
+                bundle_version=version,
                 dss_url='https://fake_url',
                 http_requests=HttpRequests()
             )

@@ -5,7 +5,7 @@ import argparse
 
 
 def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_bundle,
-        run_type, method, schema_version, inputs_file, outputs_file, format_map):
+        run_type, method, schema_version, analysis_file_version, inputs_file, outputs_file, format_map):
     """Creates analysis json for submission.
 
     Args:
@@ -30,7 +30,7 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         tasks = get_tasks(metadata)
 
     inputs = create_inputs(inputs_file)
-    outputs = create_outputs(outputs_file, format_map, schema_version)
+    outputs = create_outputs(outputs_file, format_map, analysis_file_version)
 
     input_bundles = input_bundles_string.split(',')
 
@@ -46,8 +46,8 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         'tasks': tasks,
         'inputs': inputs,
         'outputs': outputs,
-        'protocol_core': create_protocol_core(analysis_id, schema_version),
-        'protocol_type': create_protocol_type(schema_version),
+        'protocol_core': create_protocol_core(analysis_id),
+        'protocol_type': create_protocol_type(),
         'schema_type': 'protocol',
         'describedBy': schema_url
     }
@@ -88,13 +88,13 @@ def create_inputs(inputs_file):
     return inputs
 
 
-def create_outputs(outputs_file, format_map, schema_version):
+def create_outputs(outputs_file, format_map, analysis_file_version):
     """Creates outputs metadata array for analysis json
 
     Args:
         outputs_file (str): the path to a file containing outputs metadata
         format_map (str): the path to a file containing a map of file extensions to types
-        schema_version (str): the version of the metadata schema that the analysis json should conform to
+        analysis_file_version (str): the version of the metadata schema that the output file json should conform to
 
     Returns:
         outputs (list): Array of dicts representing outputs metadata in the format required for the analysis json file.
@@ -107,10 +107,9 @@ def create_outputs(outputs_file, format_map, schema_version):
         for line in f:
             path = line.strip()
             d = {
-              'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version),
+              'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(analysis_file_version),
               'schema_type': 'file',
               'file_core': {
-                'describedBy': 'https://schema.humancellatlas.org/core/file/{}/file_core'.format(schema_version),
                 'file_name': path.split('/')[-1],
                 'file_format': get_format(path, extension_to_format)
               }
@@ -181,35 +180,28 @@ def get_tasks(metadata):
     return sorted_output_tasks
 
 
-def create_protocol_core(analysis_id, schema_version):
+def create_protocol_core(analysis_id):
     """Creates process_core entry for analysis json
 
     Args:
         analysis_id (str): the workflow id
-        schema_version (str): the version of the metadata schema that the analysis json will conform to
 
     Returns:
         dict: Dict containing process_core metadata required for analysis json
     """
     return {
         'protocol_id': analysis_id,
-        'describedBy': 'https://schema.humancellatlas.org/core/protocol/{}/protocol_core'.format(schema_version),
-        'schema_version': schema_version
     }
 
 
-def create_protocol_type(schema_version):
+def create_protocol_type():
     """Creates process_type metadata for analysis json
-
-    Args:
-        schema_version (str): the metadata schema version that the analysis json will conform to
 
     Returns:
         dict: Dict containing process_type metadata in the forma required for the analysis json
     """
     return {
-        'text': 'analysis',
-        'describedBy': 'https://schema.humancellatlas.org/module/ontology/{}/process_type_ontology'.format(schema_version)
+        'text': 'analysis'
     }
 
 
@@ -222,13 +214,14 @@ def main():
     parser.add_argument('--run_type', required=True, help='Should always be "run" for now, may be "copy-forward" in some cases in future')
     parser.add_argument('--method', required=True, help='Supposed to be method store url, for now can be url for wdl in skylab')
     parser.add_argument('--schema_version', required=True, help='The metadata schema version that this analysis.json conforms to')
+    parser.add_argument('--analysis_file_version', required=True, help='The metadata schema version that the output files conform to')
     parser.add_argument('--inputs_file', required=True, help='Path to tsv containing info about inputs')
     parser.add_argument('--outputs_file', required=True, help='Path to json file containing info about outputs')
     parser.add_argument('--format_map', required=True, help='JSON file providing map of file extensions to formats')
     args = parser.parse_args()
 
     analysis = create_analysis(args.analysis_id, args.metadata_json, args.input_bundles,
-        args.reference_bundle, args.run_type, args.method, args.schema_version,
+        args.reference_bundle, args.run_type, args.method, args.schema_version, args.analysis_file_version,
         args.inputs_file, args.outputs_file, args.format_map)
 
     with open('analysis.json', 'w') as f:
