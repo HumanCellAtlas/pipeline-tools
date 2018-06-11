@@ -76,6 +76,8 @@ workflow AdapterSmartSeq2SingleCell{
   # By default, don't record http requests, unless we override in inputs json
   Boolean record_http = false
 
+  Int max_cromwell_retries = 0
+
   call GetInputs as prep {
     input:
       bundle_uuid = bundle_uuid,
@@ -103,7 +105,8 @@ workflow AdapterSmartSeq2SingleCell{
       sample_name = prep.inputs.sample_id,
       output_name = prep.inputs.sample_id,
       fastq1 = prep.inputs.fastq_1,
-      fastq2 = prep.inputs.fastq_2
+      fastq2 = prep.inputs.fastq_2,
+      max_retries = max_cromwell_retries
   }
 
   call submit_wdl.submit {
