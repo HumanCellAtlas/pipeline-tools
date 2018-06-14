@@ -15,11 +15,12 @@ def get_sample_id(metadata, schema_version, sequencing_protocol_id=None):
     Raises:
         NotImplementedError: if version is unsupported
     """
+    version_prefix = get_version_prefix(schema_version)
     if schema_version.startswith('4.'):
         return _get_sample_id_v4(metadata)
     elif schema_version.startswith('5.'):
         return _get_sample_id_v5(metadata)
-    elif int(schema_version[0]) >= 6:
+    elif version_prefix >= 6:
         return _get_sample_id_from_links(metadata, sequencing_protocol_id)
     else:
         raise NotImplementedError('Only implemented for v4 metadata and above.')
@@ -269,6 +270,13 @@ def detect_schema_version(file_json):
     return version
 
 
+def get_version_prefix(schema_version):
+    try:
+        return int(schema_version.split('.', 1)[0])
+    except ValueError:
+        raise ValueError('Invalid schema version')
+
+
 def get_metadata_to_process(manifest_files, dss_url, is_v5_or_higher, http_requests):
     """Return the metadata json that we need to parse to set up pipeline inputs
 
@@ -297,7 +305,8 @@ def get_metadata_to_process(manifest_files, dss_url, is_v5_or_higher, http_reque
         schema_version = detect_schema_version(inputs_metadata_json)
         sample_id_file_json = dcp_utils.get_file_by_uuid(sample_id_file_uuid, dss_url, http_requests)
 
-        if int(schema_version[0]) >= 6:
+        version_prefix = get_version_prefix(schema_version)
+        if version_prefix >= 6:
             protocol_uuid = dcp_utils.get_file_uuid(manifest_files, 'protocol.json')
             protocol_json = dcp_utils.get_file_by_uuid(protocol_uuid, dss_url, http_requests)
             sequencing_protocol = [protocol for protocol in protocol_json['protocols'] if 'sequencing_protocol' in protocol['content']['describedBy']]
