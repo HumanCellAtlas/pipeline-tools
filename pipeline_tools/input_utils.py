@@ -19,13 +19,13 @@ def get_sample_id(metadata, schema_version, sequencing_protocol_id=None):
         return _get_sample_id_v4(metadata)
     elif schema_version.startswith('5.'):
         return _get_sample_id_v5(metadata)
-    elif schema_version.startswith('6.'):
-        return _get_sample_id_v6(metadata, sequencing_protocol_id)
+    elif int(schema_version[0]) >= 6:
+        return _get_sample_id_from_links(metadata, sequencing_protocol_id)
     else:
-        raise NotImplementedError('Only implemented for v4, v5 and v6 metadata')
+        raise NotImplementedError('Only implemented for v4 metadata and above.')
 
 
-def _get_sample_id_v6(links_json, sequencing_protocol_id):
+def _get_sample_id_from_links(links_json, sequencing_protocol_id):
     def is_sequencing_protocol_link(link, sequencing_protocol_id):
         return link['destination_id'] == sequencing_protocol_id and link['source_type'] == 'process'
 
@@ -147,16 +147,15 @@ def get_smart_seq_2_fastq_names(metadata, version):
         NotImplementedError: if metadata version is unsupported
     """
     version_prefix = int(version.split('.', 1)[0])
-    print(version_prefix)
-    if version_prefix >= 5:
-        return _get_smart_seq_2_fastq_names_v5_or_higher(metadata)
+    if version_prefix == 5 or version_prefix == 6:
+        return _get_smart_seq_2_fastq_names_v5_or_v6(metadata)
     elif version_prefix == 4:
         return _get_smart_seq_2_fastq_names_v4(metadata)
     else:
         raise NotImplementedError('Only implemented for v4 and v5 metadata')
 
 
-def _get_smart_seq_2_fastq_names_v5_or_higher(files_json):
+def _get_smart_seq_2_fastq_names_v5_or_v6(files_json):
     """Returns fastq file names
 
     Args:
