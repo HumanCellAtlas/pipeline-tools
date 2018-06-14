@@ -64,7 +64,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     Array[File] r1 = read_lines("r1.tsv")
@@ -99,7 +99,7 @@ task rename_files {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     File r1_new = "${r1_name}"

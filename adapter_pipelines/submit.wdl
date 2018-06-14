@@ -93,7 +93,7 @@ task create_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:se-test-v6-changes"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     File analysis_json = "analysis.json"
@@ -147,7 +147,7 @@ task stage_files {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:se-test-v6-changes"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     Array[File] http_requests = glob("request_*.txt")
@@ -186,7 +186,7 @@ task confirm_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:se-test-v6-changes"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
 
   output {

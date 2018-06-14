@@ -31,7 +31,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:se-test-v6-changes"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     Array[File] http_requests = glob("request_*.txt")
