@@ -17,6 +17,7 @@ workflow submit {
   String reference_bundle
   String run_type
   String schema_version
+  String analysis_file_version
   String method
   String runtime_environment
   Boolean use_caas
