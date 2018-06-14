@@ -213,6 +213,7 @@ workflow Adapter10xCount {
   String reference_bundle
   String run_type
   String schema_version
+  String analysis_file_version
   String method
   Int retry_seconds
   Int timeout_seconds
@@ -324,6 +325,7 @@ workflow Adapter10xCount {
       reference_bundle = reference_bundle,
       run_type = run_type,
       schema_version = schema_version,
+      analysis_file_version = analysis_file_version,
       method = method,
       retry_seconds = retry_seconds,
       timeout_seconds = timeout_seconds,

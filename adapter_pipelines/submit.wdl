@@ -204,6 +204,7 @@ workflow submit {
   String reference_bundle
   String run_type
   String schema_version
+  String analysis_file_version
   String method
   String runtime_environment
   Int? retry_max_interval
@@ -213,7 +214,6 @@ workflow submit {
   Boolean use_caas
   # By default, don't record http requests
   Boolean record_http = false
-  String analysis_file_version = "5.2.1"
 
   call get_metadata {
     input:
