@@ -24,7 +24,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     String sample_id = read_string("inputs.tsv")
@@ -66,7 +66,7 @@ task inputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
     }
 
     output {
@@ -106,7 +106,7 @@ task outputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
     }
 
     output {
@@ -131,6 +131,7 @@ workflow AdapterOptimus {
   String reference_bundle
   String method
   String schema_version
+  String analysis_file_version
   String run_type
   Int retry_seconds
   Int timeout_seconds
@@ -211,6 +212,7 @@ workflow AdapterOptimus {
       reference_bundle = reference_bundle,
       run_type = run_type,
       schema_version = schema_version,
+      analysis_file_version = analysis_file_version,
       method = method,
       retry_seconds = retry_seconds,
       timeout_seconds = timeout_seconds,

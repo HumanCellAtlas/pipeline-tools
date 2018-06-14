@@ -6,13 +6,13 @@ from .dcp_utils import get_auth_token, make_auth_header
 from pipeline_tools.http_requests import HttpRequests
 
 
-def run(submit_url, analysis_json_path, schema_version):
+def run(submit_url, analysis_json_path, analysis_file_version):
     """Create submission in ingest service.
 
     Args:
         submit_url (str): url of ingest service to use
         analysis_json_path (str): path to analysis json file
-        schema_version (str): version of metadata schema that submission should conform to
+        analysis_file_version (str): version of metadata schema that output files should conform to
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
@@ -48,7 +48,7 @@ def run(submit_url, analysis_json_path, schema_version):
     # 5. Add file references
     file_refs_url = get_subject_url(analysis_js, 'add-file-reference')
     print('Adding file references at {0}'.format(file_refs_url))
-    output_files = get_output_files(analysis_json_contents, schema_version)
+    output_files = get_output_files(analysis_json_contents, analysis_file_version)
     for file_ref in output_files:
         add_file_reference(file_ref, file_refs_url, auth_headers, http_requests)
 
@@ -197,12 +197,12 @@ def get_input_bundle_uuid(analysis_json):
     return uuid
 
 
-def get_output_files(analysis_json, schema_version):
+def get_output_files(analysis_json, analysis_file_version):
     """Get the metadata describing the outputs of the analysis
 
     Args:
         analysis_json (dict): metadata describing the analysis
-        schema_version (str): the schema version that file references will conform to
+        analysis_file_version (str): the schema version that file references will conform to
 
     Returns:
         output_refs (dict): A dict of metadata describing the output files produced by the analysis
@@ -215,10 +215,9 @@ def get_output_files(analysis_json, schema_version):
         file_name = out['file_core']['file_name']
         output_ref['fileName'] = file_name
         output_ref['content'] = {
-            'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version),
+            'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(analysis_file_version),
             'schema_type': 'file',
             'file_core': {
-                'describedBy': 'https://schema.humancellatlas.org/core/file/{}/file_core'.format(schema_version),
                 'file_name': file_name,
                 'file_format': out['file_core']['file_format']
             }
@@ -231,9 +230,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--submit_url', required=True)
     parser.add_argument('--analysis_json_path', required=True)
-    parser.add_argument('--schema_version', required=True, help='The metadata schema version that the analysis.json conforms to')
+    parser.add_argument('--analysis_file_version', required=True, help='The metadata schema version that the analysis files conform to')
     args = parser.parse_args()
-    run(args.submit_url, args.analysis_json_path, args.schema_version)
+    run(args.submit_url, args.analysis_json_path, args.analysis_file_version)
 
 
 if __name__ == '__main__':

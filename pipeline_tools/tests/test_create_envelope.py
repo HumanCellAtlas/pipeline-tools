@@ -170,7 +170,6 @@ class TestCreateEnvelope(unittest.TestCase):
                 'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
                 'schema_type': 'file',
                 'file_core': {
-                    'describedBy': 'https://schema.humancellatlas.org/core/file/schema_version/file_core',
                     'file_name': 'test',
                     'file_format': 'bam'
                 }
@@ -195,7 +194,6 @@ class TestCreateEnvelope(unittest.TestCase):
                 'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
                 'schema_type': 'file',
                 'file_core': {
-                    'describedBy': 'https://schema.humancellatlas.org/core/file/schema_version/file_core',
                     'file_name': 'test',
                     'file_format': 'bam'
                 }
@@ -228,8 +226,6 @@ class TestCreateEnvelope(unittest.TestCase):
         self.assertEqual(len(outputs), 3)
         self.assertEqual(outputs[0]['fileName'], 'aligned_bam')
         self.assertEqual(outputs[0]['content']['schema_type'], 'file')
-        self.assertEqual(outputs[0]['content']['describedBy'], analysis_file_schema_url)
-        self.assertEqual(outputs[0]['content']['file_core']['describedBy'], file_core_schema_url)
         self.assertEqual(outputs[0]['content']['file_core']['file_name'], 'aligned_bam')
         self.assertEqual(outputs[0]['content']['file_core']['file_format'], 'bam')
 

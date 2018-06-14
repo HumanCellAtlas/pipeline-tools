@@ -14,18 +14,19 @@ class TestCreateAnalysisJson(unittest.TestCase):
             reference_bundle='foo_ref_bundle',
             run_type='foo_run_type',
             method='foo_method',
-            schema_version='v1.2.3',
+            schema_version='1.2.3',
+            analysis_file_version='4.5.6',
             inputs_file=self.data_file('inputs.tsv'),
             outputs_file=self.data_file('outputs.txt'),
             format_map=self.data_file('format_map.json')
         )
-        self.assertEqual(js.get('process_core').get('process_id'), '12345abcde')
+        self.assertEqual(js.get('protocol_core').get('protocol_id'), '12345abcde')
         self.verify_inputs(js.get('inputs'))
-        schema_url = 'https://schema.humancellatlas.org/type/file/v1.2.3/analysis_file'
-        self.verify_outputs(js.get('outputs'), schema_url)
+        file_schema_url = 'https://schema.humancellatlas.org/type/file/4.5.6/analysis_file'
+        self.verify_outputs(js.get('outputs'), file_schema_url)
         self.verify_tasks(js.get('tasks'))
-        self.assertEqual(js.get('schema_type'), 'process')
-        schema_url = 'https://schema.humancellatlas.org/type/process/analysis/v1.2.3/analysis_process' 
+        self.assertEqual(js.get('schema_type'), 'protocol')
+        schema_url = 'https://schema.humancellatlas.org/type/protocol/analysis/1.2.3/analysis_protocol'
         self.assertEqual(js.get('describedBy'), schema_url)
         self.assertEqual(js.get('computational_method'), 'foo_method')
         self.assertEqual(js.get('reference_bundle'), 'foo_ref_bundle')
@@ -60,27 +61,22 @@ class TestCreateAnalysisJson(unittest.TestCase):
         self.assertEqual(caj.get_format('asdf.bam', {'.bam': 'bam', '_metrics': 'metrics'}), 'bam')
         self.assertEqual(caj.get_format('asdf.foo_metrics', {'.bam': 'bam', '_metrics': 'metrics'}), 'metrics')
 
-    def test_create_process_core(self):
+    def test_create_protocol_core(self):
         analysis_id = '12345abcde'
-        schema_version = 'good_version'
-        schema_url = 'https://schema.humancellatlas.org/core/process/{}/process_core'.format(schema_version)
 
-        process_core = caj.create_process_core(analysis_id, schema_version)
+        protocol_core = caj.create_protocol_core(analysis_id)
         expected_core = {
-            'process_id': analysis_id,
-            'describedBy': schema_url,
-            'schema_version': schema_version
+            'protocol_id': analysis_id
         }
-        self.assertEqual(process_core, expected_core)
+        self.assertEqual(protocol_core, expected_core)
 
-    def test_create_process_type(self):
+    def test_create_protocol_type(self):
         schema_version = 'good_version'
-        process_type = caj.create_process_type(schema_version)
-        expected_process_type = {
+        protocol_type = caj.create_protocol_type()
+        expected_protocol_type = {
             'text': 'analysis',
-            'describedBy': 'https://schema.humancellatlas.org/module/ontology/{}/process_type_ontology'.format(schema_version)
         }
-        self.assertEqual(process_type, expected_process_type)
+        self.assertEqual(protocol_type, expected_protocol_type)
 
     def verify_inputs(self, inputs):
         self.assertEqual(inputs[0]['parameter_name'], 'fastq_read1')

@@ -33,6 +33,8 @@ class TestInputUtils(unittest.TestCase):
             self.links_json_v5_extra_sample = json.load(f)
         with open(self.data_file('metadata/v5/ss2_links_no_sample.json')) as f:
             self.links_json_v5_no_sample = json.load(f)
+        with open(self.data_file('metadata/v6/ss2_links.json')) as f:
+            self.links_json_v6 = json.load(f)
 
     def test_get_sample_id_v4(self):
         sample_id = input_utils.get_sample_id(self.ss2_assay_json_v4, '4.x')
@@ -50,9 +52,14 @@ class TestInputUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             input_utils.get_sample_id(self.links_json_v5_no_sample, '5.2.1')
 
+    def test_get_sample_id_from_links(self):
+        sequencing_protocol_id = '4f929153-0044-4003-8d14-a5da3ae13d26'
+        sample_id = input_utils.get_sample_id(self.links_json_v6, '6.1.1', sequencing_protocol_id)
+        self.assertEqual(sample_id, '4ee53206-80cd-4144-8c75-b62399a7ae99')
+
     def test_get_sample_id_non_existent_version_raises_error(self):
         with self.assertRaises(NotImplementedError):
-            input_utils.get_sample_id(self.ss2_assay_json_v4, '-1')
+            input_utils.get_sample_id(self.ss2_assay_json_v4, '-1.')
 
     def test_get_input_metadata_file_uuid_v4(self):
         uuid = input_utils.get_input_metadata_file_uuid(self.ss2_manifest_files_v4, '4.x')
@@ -94,6 +101,14 @@ class TestInputUtils(unittest.TestCase):
         fastq_1_name, fastq_2_name = input_utils.get_smart_seq_2_fastq_names(self.ss2_files_json_v5, '5.2.1')
         self.assertEqual(fastq_1_name, 'R1.fastq.gz')
         self.assertEqual(fastq_2_name, 'R2.fastq.gz')
+
+    def test_get_version_prefix(self):
+        version_prefix = input_utils.get_version_prefix('5.0.0')
+        self.assertEqual(version_prefix, 5)
+
+    def test_get_version_prefix_invalid_format(self):
+        with self.assertRaises(ValueError):
+            input_utils.get_version_prefix('version')
 
     @pytest.mark.latest_schema
     def test_detect_schema_version(self):
@@ -139,7 +154,8 @@ class TestInputUtils(unittest.TestCase):
         self.assertEqual(r2, expected_r2)
         self.assertEqual(i1, expected_i1)
 
-    
+
+
     @requests_mock.mock()
     def test_get_metadata_to_process(self, mock_request):
         with open(self.data_file('metadata/v5/ss2_links.json')) as f:
@@ -171,7 +187,7 @@ class TestInputUtils(unittest.TestCase):
         mock_request.get(links_json_url, json=_links_json_callback)
         mock_request.get(file_json_url, json=_file_json_callback)
         with HttpRequestsManager():
-            inputs_json, sample_json, schema_version  = input_utils.get_metadata_to_process(
+            inputs_json, sample_json, schema_version, sequencing_protocol_id = input_utils.get_metadata_to_process(
                 manifest_files,
                 dss_url='https://fake_url',
                 is_v5_or_higher=True,
@@ -203,17 +219,18 @@ class TestInputUtils(unittest.TestCase):
             context.status_code = 200
             return manifest_json
 
+        version = 'bundle_version'
         links_json_url = 'https://fake_url/files/links_json_uuid?replica=gcp'
         mock_request.get(links_json_url, json=_links_json_callback)
         file_json_url = 'https://fake_url/files/file_json_uuid?replica=gcp'
         mock_request.get(file_json_url, json=_file_json_callback)
-        manifest_url = 'https://fake_url/bundles/foo_uuid?version=foo_version&replica=gcp&directurls=true'
+        manifest_url = 'https://fake_url/bundles/foo_uuid?version={}&replica=gcp&directurls=true'.format(version)
         mock_request.get(manifest_url, json=_manifest_callback)
 
         with HttpRequestsManager():
             fastq_1_url, fastq_2_url, sample_id  = input_utils._get_content_for_ss2_input_tsv(
-                uuid='foo_uuid',
-                version='foo_version',
+                bundle_uuid='foo_uuid',
+                bundle_version=version,
                 dss_url='https://fake_url',
                 http_requests=HttpRequests()
             )
@@ -225,6 +242,7 @@ class TestInputUtils(unittest.TestCase):
     @staticmethod
     def data_file(file_name):
         return os.path.split(__file__)[0] + '/data/' + file_name
+
 
 if __name__ == '__main__':
     unittest.main()

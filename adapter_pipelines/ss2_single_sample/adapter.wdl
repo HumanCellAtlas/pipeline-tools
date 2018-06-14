@@ -31,7 +31,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     Array[File] http_requests = glob("request_*.txt")
@@ -63,6 +63,7 @@ workflow AdapterSmartSeq2SingleCell{
   String submit_url
   String method
   String schema_version
+  String analysis_file_version
   String run_type
   Int? retry_max_interval
   Float? retry_multiplier
@@ -208,6 +209,7 @@ workflow AdapterSmartSeq2SingleCell{
       reference_bundle = reference_bundle,
       run_type = run_type,
       schema_version = schema_version,
+      analysis_file_version = analysis_file_version,
       method = method,
       retry_multiplier = retry_multiplier,
       retry_max_interval = retry_max_interval,

@@ -46,6 +46,7 @@ task create_submission {
   String run_type
   String method
   String schema_version
+  String analysis_file_version
   Array[Object] inputs
   Array[String] outputs
   File format_map
@@ -79,6 +80,7 @@ task create_submission {
       --run_type ${run_type} \
       --method ${method} \
       --schema_version ${schema_version} \
+      --analysis_file_version ${analysis_file_version} \
       --inputs_file ${write_objects(inputs)} \
       --outputs_file ${write_lines(outputs)} \
       --format_map ${format_map}
@@ -87,11 +89,11 @@ task create_submission {
     create-envelope \
       --submit_url ${submit_url} \
       --analysis_json_path analysis.json \
-      --schema_version ${schema_version}
+      --analysis_file_version ${analysis_file_version}
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     File analysis_json = "analysis.json"
@@ -145,7 +147,7 @@ task stage_files {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
   output {
     Array[File] http_requests = glob("request_*.txt")
@@ -184,7 +186,7 @@ task confirm_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.20.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
   }
 
   output {
@@ -202,6 +204,7 @@ workflow submit {
   String reference_bundle
   String run_type
   String schema_version
+  String analysis_file_version
   String method
   String runtime_environment
   Int? retry_max_interval
@@ -229,6 +232,7 @@ workflow submit {
       reference_bundle = reference_bundle,
       run_type = run_type,
       schema_version = schema_version,
+      analysis_file_version = analysis_file_version,
       method = method,
       submit_url = submit_url,
       inputs = inputs,

@@ -13,6 +13,7 @@
   "AdapterSmartSeq2SingleCell.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
   "AdapterSmartSeq2SingleCell.format_map": "gs://hca-dcp-mint-test-data/adapters/file_format_map.json",
   "AdapterSmartSeq2SingleCell.method": "SmartSeq2SingleCell",
-  "AdapterSmartSeq2SingleCell.schema_version": "5.1.0",
+  "AdapterSmartSeq2SingleCell.schema_version": "7.0.0",
+  "AdapterSmartSeq2SingleCell.analysis_file_version": "5.2.1",
   "AdapterSmartSeq2SingleCell.run_type": "run"
 }
