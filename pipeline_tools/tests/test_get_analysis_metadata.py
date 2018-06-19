@@ -19,7 +19,6 @@ class TestGetAnalysisMetadata(unittest.TestCase):
         self.cromwell_url = '{}/{}/metadata?expandSubWorkflows=true'.format(base_url, self.workflow_id)
         self.caas_url = '{}/{}/metadata?expandSubWorkflows=true'.format(caas_base_url, self.workflow_id)
 
-    @unittest.skip('Skipping until get_worflow_id correctly parses the analysis subworkflow id')
     def test_get_workflow_id(self):
         analysis_output_path = 'gs://broad-dsde-mint-dev-cromwell-execution/cromwell-executions/AdapterSmartSeq2SingleCell/workflow_id/call-analysis/SmartSeq2SingleCell/analysis_subworkflow_id/call-qc/RunHisat2Pipeline/qc_workflow_id/call-Hisat2/12345_qc.hisat2.met.txt'
         result = get_analysis_metadata.get_workflow_id(analysis_output_path)
