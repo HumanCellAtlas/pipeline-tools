@@ -8,6 +8,7 @@ task GetInputs {
   String dss_url
   Int retry_seconds
   Int timeout_seconds
+  String pipeline_tools_version
 
   command <<<
     # Force the binary layer of the stdout and stderr streams to be unbuffered.
@@ -24,7 +25,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
   }
   output {
     String sample_id = read_string("inputs.tsv")
@@ -35,6 +36,7 @@ task GetInputs {
 task inputs_for_submit {
     Array[Array[File]] fastq_inputs
     Array[Object] other_inputs
+    String pipeline_tools_version
 
     command <<<
       # Force the binary layer of the stdout and stderr streams to be unbuffered.
@@ -66,7 +68,7 @@ task inputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
     }
 
     output {
@@ -79,6 +81,7 @@ task outputs_for_submit {
     Array[Array[File]] umi_metrics
     Array[Array[File]] duplicate_metrics
     Array[File] other_outputs
+    String pipeline_tools_version
 
     command <<<
       # Force the binary layer of the stdout and stderr streams to be unbuffered.
@@ -106,7 +109,7 @@ task outputs_for_submit {
     >>>
 
     runtime {
-      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
     }
 
     output {
@@ -139,6 +142,7 @@ workflow AdapterOptimus {
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
+  String pipeline_tools_version = "v0.22.0"
 
   call GetInputs as prep {
     input:
@@ -146,7 +150,8 @@ workflow AdapterOptimus {
       bundle_version = bundle_version,
       dss_url = dss_url,
       retry_seconds = retry_seconds,
-      timeout_seconds = timeout_seconds
+      timeout_seconds = timeout_seconds,
+      pipeline_tools_version = pipeline_tools_version
   }
 
   call Optimus.Optimus as analysis {
@@ -184,7 +189,8 @@ workflow AdapterOptimus {
           "name": "ref_genome_fasta",
           "value": ref_genome_fasta
         }
-      ]
+      ],
+      pipeline_tools_version = pipeline_tools_version
   }
 
   call outputs_for_submit {
@@ -197,7 +203,8 @@ workflow AdapterOptimus {
         analysis.matrix,
         analysis.matrix_summary,
         analysis.picard_metrics
-      ]
+      ],
+      pipeline_tools_version = pipeline_tools_version
   }
 
   Array[Object] inputs = read_objects(inputs_for_submit.inputs)
@@ -217,6 +224,7 @@ workflow AdapterOptimus {
       retry_seconds = retry_seconds,
       timeout_seconds = timeout_seconds,
       runtime_environment = runtime_environment,
-      use_caas = use_caas
+      use_caas = use_caas,
+      pipeline_tools_version = pipeline_tools_version
   }
 }

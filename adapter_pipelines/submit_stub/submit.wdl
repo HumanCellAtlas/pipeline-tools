@@ -27,6 +27,7 @@ workflow submit {
   Int? individual_request_timeout
   # By default, don't record http requests
   Boolean record_http = false
+  String pipeline_tools_version
 
   call submit_stub
 

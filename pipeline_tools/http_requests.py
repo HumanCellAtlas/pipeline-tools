@@ -234,12 +234,16 @@ class HttpRequests(object):
 
     @staticmethod
     def _get_method(http_method):
+        session = requests.Session()
+        # The default max_redirects is 30. We need to boost it because DSS sometimes redirects us more than 30 times,
+        # which causes an error if we don't allow for more.
+        session.max_redirects = 100
         if http_method == 'get':
-            fn = requests.get
+            fn = session.get
         elif http_method == 'put':
-            fn = requests.put
+            fn = session.put
         elif http_method == 'post':
-            fn = requests.post
+            fn = session.post
         else:
             raise NotImplementedError('Only get, put, and post are implemented.')
         return fn

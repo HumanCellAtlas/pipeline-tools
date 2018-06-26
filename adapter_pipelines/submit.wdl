@@ -56,6 +56,7 @@ task create_submission {
   Int? retry_timeout
   Int? individual_request_timeout
   Boolean record_http
+  String pipeline_tools_version
 
   command <<<
     export RECORD_HTTP_REQUESTS="${record_http}"
@@ -93,7 +94,7 @@ task create_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
   }
   output {
     File analysis_json = "analysis.json"
@@ -116,6 +117,7 @@ task stage_files {
   String lb = "{"
   String rb = "}"
   Boolean record_http
+  String pipeline_tools_version
 
   command <<<
     set -e
@@ -147,7 +149,7 @@ task stage_files {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
   }
   output {
     Array[File] http_requests = glob("request_*.txt")
@@ -167,6 +169,7 @@ task confirm_submission {
   Int? retry_timeout
   Int? individual_request_timeout
   Boolean record_http
+  String pipeline_tools_version
 
   command <<<
     set -e
@@ -186,7 +189,7 @@ task confirm_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
   }
 
   output {
@@ -214,6 +217,7 @@ workflow submit {
   Boolean use_caas
   # By default, don't record http requests
   Boolean record_http = false
+  String pipeline_tools_version
 
   call get_metadata {
     input:
@@ -245,7 +249,8 @@ workflow submit {
       individual_request_timeout = individual_request_timeout,
       retry_multiplier = retry_multiplier,
       retry_max_interval = retry_max_interval,
-      record_http = record_http
+      record_http = record_http,
+      pipeline_tools_version = pipeline_tools_version
   }
 
   call stage_files {
@@ -256,7 +261,8 @@ workflow submit {
       individual_request_timeout = individual_request_timeout,
       retry_multiplier = retry_multiplier,
       retry_max_interval = retry_max_interval,
-      record_http = record_http
+      record_http = record_http,
+      pipeline_tools_version = pipeline_tools_version
   }
 
   call confirm_submission {
@@ -267,7 +273,8 @@ workflow submit {
       individual_request_timeout = individual_request_timeout,
       retry_multiplier = retry_multiplier,
       retry_max_interval = retry_max_interval,
-      record_http = record_http
+      record_http = record_http,
+      pipeline_tools_version = pipeline_tools_version
   }
 
   output {
