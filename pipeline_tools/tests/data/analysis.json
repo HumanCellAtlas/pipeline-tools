@@ -1,96 +1,98 @@
 {
-  "describedBy": "https://schema.humancellatlas.org/type/process/analysis/5.0.0/analysis_process",
-  "schema_type": "process",
-  "process_type": {
-    "text": "analysis",
-    "describedBy": "https://schema.humancellatlas.org/module/ontology/5.0.0/process_type_ontology"
-  },
-  "process_core": {
-    "process_id": 4342342,
-    "describedBy": "https://schema.humancellatlas.org/core/process/5.0.0/process_core",
-    "schema_version": "5.0.0"
-  },
-  "input_bundles" : [ "75a7f618-9adc-48af-a249-0010305160f6" ],
-  "inputs" : [
-      {
-        "parameter_name": "left_sample",
-        "checksum" : "d0f7d08f1980f7980f",
-        "parameter_value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/12bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_R1.fastq.gz"
-      },
-      {
-         "parameter_name" : "right_sample",
-         "checksum" : "d0f7d18f7980f7980f",
-         "parameter_value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/01bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_R2.fastq.gz"
-      },
-      {
-         "parameter_name" : "index_sample",
-         "checksum" : "d0f7d18f7980f7980f",
-         "parameter_value" : "bluebox://23bd7eb0-23a3-4898-b043-f7e982de281f/v1/01bd7eb0-23a3-4898-b043-f7e982de281g/v1#10x_I1.fastq.gz"
-      },
-      {
-         "parameter_name" : "expected_cell_count",
-         "parameter_value" : "1000"
-      }
-   ],
-  "timestamp_start_utc" : "2017-05-18T03:44:23-5:00",
-  "timestamp_stop_utc" : "2017-05-18T014:44:23-5:00",
-  "computational_method" : "https://www.dockstore.org:8443/api/ga4gh/v1/tools/quay.io%2Fhca%2Fdockstore-hca-uploader/",
-  "analysis_run_type" : "run",
-  "outputs" : [
-      {
-          "describedBy": "https://schema.humancellatlas.org/type/file/5.0.0/analysis_file",
-          "schema_type": "file",
-          "file_core": {
-            "file_name": "aligned_bam",
-            "file_format" : "bam",
-            "checksum" : "d0f7d08f7980f7910f"
-          }
-      },
-      {
-        "describedBy": "https://schema.humancellatlas.org/type/file/5.0.0/analysis_file",
-        "schema_type": "file",
-        "file_core": {
-          "file_name": "counts_matrix",
-          "checksum": "d0f7d08f7910f7980f",
-          "file_format": "counts_matrix"
-        }
-      },
-    {
-      "describedBy": "https://schema.humancellatlas.org/type/file/5.0.0/analysis_file",
-      "schema_type": "file",
-      "file_core": {
-        "file_name": "report_qc",
-        "file_format": "qc_matrix",
-        "checksum": "d0f7d18f7980f7980f"
-      }
-    }
-   ],
-  "metadata_schema" : "version_232",
-  "tasks" : [
-      {
-       "stop_time" : "2017-05-18T08:44:23-5:00",
-       "start_time" : "2017-05-18T03:44:23-5:00",
-       "task_name" : "step_one",
-       "log_err" : "bluebox://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/05bd7eb0-23a3-4898-b043-f7e982de281g/v1#10xv2_step_one.err",
-       "log_out" : "bluebox://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/05bd7eb0-23a3-4898-b043-f7e982de281g/v1#10xv2_step_one.out",
-       "disk_size" : "500GB",
-       "docker_image" : "https://uri-to-docker-image",
-       "cpus" : 8,
-       "memory" : "10GB",
-       "zone" : "us-east4-a"
-      },
-      {
-       "start_utc" : "2017-05-18T08:44:23-5:00",
-       "stop_utc" : "2017-05-18T14:44:23-5:00",
-       "task_name" : "step_two",
-       "log_err" : "bluebox://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/05bd7eb0-23a3-4898-b043-f7e982de281g/v1#10xv2_step_two.err",
-       "log_out" : "bluebox://43bd7eb0-23a3-4898-b043-f7e982de281a/v1/05bd7eb0-23a3-4898-b043-f7e982de281g/v1#10xv2_step_two.out",
-       "disk_size" : "500GB",
-       "docker_image" : "https://uri-to-docker-image",
-       "cpus" : 8,
-       "memory" : "10GB",
-       "zone" : "us-east4-a"
-      }
+  "analysis_run_type": "run",
+  "computational_method": "SmartSeq2SingleCell",
+  "describedBy": "https://schema.humancellatlas.org/type/protocol/analysis/7.0.0/analysis_protocol",
+  "input_bundles": [
+    "4bd77ee5-2133-413b-8cb8-1ca740eb556c"
   ],
-  "reference_bundle" : "bluebox://03gh7eb0-23a3-4898-b043-f7e982de281b/v1"
+  "inputs": [
+    {
+      "checksum": "d0f7d08f1980f7980f",
+      "parameter_name": "fastq1",
+      "parameter_value": "gs://org-humancellatlas-dss-integration/blobs/fe6d4fdfea2ff1df97500dcfe7085ac3abfb760026bff75a34c20fb97a4b2b29.17f8b4be0cc6e8281a402bb365b1283b458906a3.c7bbee4c46bbf29432862e05830c8f39.4ef74578"
+    },
+    {
+      "checksum": "d0f7d08f1980f7980f",
+      "parameter_name": "fastq2",
+      "parameter_value": "gs://org-humancellatlas-dss-integration/blobs/c305bee37b3c3735585e11306272b6ab085f04cd22ea8703957b4503488cfeba.f166b6952e30a41e1409e7fb0cb0fb1ad93f3f21.a3a9f23d07cfc5e40a4c3a8adf3903ae.69987b3e"
+    },
+    {
+      "parameter_name": "sample_name",
+      "parameter_value": "adb6ee29-43ac-4b5e-a91c-8808d0d17321"
+    }
+  ],
+  "outputs": [
+    {
+      "describedBy": "https://schema.humancellatlas.org/type/file/5.2.1/analysis_file",
+      "file_core": {
+        "file_format": "bam",
+        "file_name": "adb6ee29-43ac-4b5e-a91c-8808d0d17321_qc.bam"
+      },
+      "schema_type": "file"
+    },
+    {
+      "describedBy": "https://schema.humancellatlas.org/type/file/5.2.1/analysis_file",
+      "file_core": {
+        "file_format": "txt",
+        "file_name": "adb6ee29-43ac-4b5e-a91c-8808d0d17321_qc.alignment_summary_metrics.txt"
+      },
+      "schema_type": "file"
+    },
+    {
+      "describedBy": "https://schema.humancellatlas.org/type/file/5.2.1/analysis_file",
+      "file_core": {
+        "file_format": "txt",
+        "file_name": "adb6ee29-43ac-4b5e-a91c-8808d0d17321_qc.bait_bias_detail_metrics.txt"
+      },
+      "schema_type": "file"
+    }
+  ],
+  "protocol_core": {
+    "protocol_id": "ff84b09c-2b65-4d65-9ba2-7437e9ddac8b"
+  },
+  "protocol_type": {
+    "text": "analysis"
+  },
+  "reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
+  "schema_type": "protocol",
+  "tasks": [
+    {
+      "cpus": 2,
+      "disk_size": "local-disk 11 HDD",
+      "docker_image": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+      "log_err": "gs://broad-dsde-mint-test-cromwell-execution/caas-cromwell-executions/AdapterSmartSeq2SingleCell/b22bf56d-4126-4947-8015-765a6b4c45e5/call-analysis/SmartSeq2SingleCell/ff84b09c-2b65-4d65-9ba2-7437e9ddac8b/call-CollectDuplicationMetrics/stderr",
+      "log_out": "gs://broad-dsde-mint-test-cromwell-execution/caas-cromwell-executions/AdapterSmartSeq2SingleCell/b22bf56d-4126-4947-8015-765a6b4c45e5/call-analysis/SmartSeq2SingleCell/ff84b09c-2b65-4d65-9ba2-7437e9ddac8b/call-CollectDuplicationMetrics/stdout",
+      "memory": "7500.0 MB",
+      "start_time": "2018-06-27T12:39:06.133Z",
+      "stop_time": "2018-06-27T12:42:01.907Z",
+      "task_name": "CollectDuplicationMetrics",
+      "zone": "us-central1-b"
+    },
+    {
+      "cpus": 1,
+      "disk_size": "local-disk 14 HDD",
+      "docker_image": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+      "log_err": "gs://broad-dsde-mint-test-cromwell-execution/caas-cromwell-executions/AdapterSmartSeq2SingleCell/b22bf56d-4126-4947-8015-765a6b4c45e5/call-analysis/SmartSeq2SingleCell/ff84b09c-2b65-4d65-9ba2-7437e9ddac8b/call-CollectMultipleMetrics/stderr",
+      "log_out": "gs://broad-dsde-mint-test-cromwell-execution/caas-cromwell-executions/AdapterSmartSeq2SingleCell/b22bf56d-4126-4947-8015-765a6b4c45e5/call-analysis/SmartSeq2SingleCell/ff84b09c-2b65-4d65-9ba2-7437e9ddac8b/call-CollectMultipleMetrics/stdout",
+      "memory": "7500.0 MB",
+      "start_time": "2018-06-27T12:39:06.133Z",
+      "stop_time": "2018-06-27T12:44:37.904Z",
+      "task_name": "CollectMultipleMetrics",
+      "zone": "us-central1-b"
+    },
+    {
+      "cpus": 1,
+      "disk_size": "local-disk 11 HDD",
+      "docker_image": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+      "log_err": "gs://broad-dsde-mint-test-cromwell-execution/caas-cromwell-executions/AdapterSmartSeq2SingleCell/b22bf56d-4126-4947-8015-765a6b4c45e5/call-analysis/SmartSeq2SingleCell/ff84b09c-2b65-4d65-9ba2-7437e9ddac8b/call-CollectRnaMetrics/stderr",
+      "log_out": "gs://broad-dsde-mint-test-cromwell-execution/caas-cromwell-executions/AdapterSmartSeq2SingleCell/b22bf56d-4126-4947-8015-765a6b4c45e5/call-analysis/SmartSeq2SingleCell/ff84b09c-2b65-4d65-9ba2-7437e9ddac8b/call-CollectRnaMetrics/stdout",
+      "memory": "3500.0 MB",
+      "start_time": "2018-06-27T12:39:06.133Z",
+      "stop_time": "2018-06-27T12:42:43.904Z",
+      "task_name": "CollectRnaMetrics",
+      "zone": "us-central1-b"
+    }
+  ],
+  "timestamp_start_utc": "2018-06-27T12:26:27.183Z",
+  "timestamp_stop_utc": "2018-06-27T12:44:39.673Z"
 }

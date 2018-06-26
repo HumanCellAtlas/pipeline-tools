@@ -98,6 +98,31 @@ class TestCreateEnvelope(unittest.TestCase):
         pass
 
     @requests_mock.mock()
+    def test_get_analysis_results_returns_false(self, mock_request):
+        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            return {'_embedded': {'processes': []}}
+
+        mock_request.get(analyses_url, json=_request_callback)
+        analysis_js = submit.get_analysis_results(analyses_url, self.headers, self.analysis_json, HttpRequests())
+        self.assertFalse(analysis_js)
+
+    @requests_mock.mock()
+    def test_get_analysis_results_finds_existing_analysis_process(self, mock_request):
+        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            analysis_process = self.analysis_json
+            return {'_embedded': {'processes': [{'content': analysis_process}]}}
+
+        mock_request.get(analyses_url, json=_request_callback)
+        analysis_js = submit.get_analysis_results(analyses_url, self.headers, self.analysis_json, HttpRequests())
+        self.assertEqual(analysis_js['content']['protocol_core']['protocol_id'], self.analysis_json['protocol_core']['protocol_id'])
+
+    @requests_mock.mock()
     def test_create_analysis_retries_on_error(self, mock_request):
         analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
 
