@@ -16,9 +16,8 @@ def get_workflow_id(analysis_output_path):
         workflow_id (str): string giving Cromwell UUID of the workflow.
     """
     url = analysis_output_path
-    hash_end = url.rfind("/call-")
-    hash_start = url.rfind('/', 0, hash_end) + 1
-    workflow_id = url[hash_start:hash_end]
+    calls = url.split('/call-')
+    workflow_id = calls[1].split('/')[-1]
     with open('workflow_id.txt', 'w') as f:
         f.write(workflow_id)
     return workflow_id
