@@ -55,7 +55,13 @@ def run(submit_url, analysis_json_path, analysis_file_version):
     output_files = get_output_files(analysis_json_contents, analysis_file_version)
 
     for file_ref in output_files:
-        add_file_reference(file_ref, file_refs_url, auth_headers, http_requests)
+        try:
+            add_file_reference(file_ref, file_refs_url, auth_headers, http_requests)
+        except requests.exceptions.HTTPError() as error:
+            if error.code == 409:
+                print(error.message)
+            else:
+                raise
 
 
 def get_envelope_url(submit_url, auth_headers, http_requests):
@@ -179,16 +185,10 @@ def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     print('Adding file: {}'.format(file_ref['fileName']))
-    try:
-        response = http_requests.put(file_refs_url,
-                                     headers=auth_headers,
-                                     json=file_ref)
-        return response.json()
-    except requests.HTTPError() as error:
-        if error.code == 409:
-            print(error.message)
-        else:
-            raise
+    response = http_requests.put(file_refs_url,
+                                 headers=auth_headers,
+                                 json=file_ref)
+    return response.json()
 
 
 def get_subject_url(js, subject):

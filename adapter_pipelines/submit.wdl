@@ -142,10 +142,19 @@ task stage_files {
 
     # Stage the files
     files=( ${sep=' ' files} )
+
+    # Check if any files were already uploaded to the staging area
+    uploaded=($(hca upload list))
+
     for f in "$${lb}files[@]${rb}"
     do
-      echo "hca upload file $f"
-      hca upload file $f
+      file_path=($(echo "$f" | tr '/' '\n'))
+      file_name="$${lb}file_path[$${lb}#file_path[@]${rb} -1]${rb}"
+      is_uploaded=$(echo "$${lb}uploaded[@]${rb}" | grep -o $file_name | wc -w)
+      if [ $is_uploaded == 0 ]; then
+        echo "hca upload file $f"
+        hca upload file $f
+      fi
     done
   >>>
 
