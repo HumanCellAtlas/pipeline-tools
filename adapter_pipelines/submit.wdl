@@ -133,11 +133,12 @@ task stage_files {
     export PYTHONUNBUFFERED=TRUE
 
     # Get the urn needed for staging files
-    staging_urn=$(get-staging-urn --envelope_url ${submission_url})
+    get-upload-urn -envelope_url ${submission_url} -output upload_urn.txt
+    upload_urn=$(cat upload_urn.txt)
 
-    # Select staging area
-    echo "hca upload select $staging_urn"
-    hca upload select $staging_urn
+    # Select upload area
+    echo "hca upload select $upload_urn"
+    hca upload select $upload_urn
 
     # Stage the files
     files=( ${sep=' ' files} )

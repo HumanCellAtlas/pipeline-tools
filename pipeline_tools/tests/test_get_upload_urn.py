@@ -1,7 +1,7 @@
 import unittest
 import requests
 import requests_mock
-import pipeline_tools.get_staging_urn as gsu
+import pipeline_tools.get_upload_urn as getter
 from .http_requests_manager import HttpRequestsManager
 from pipeline_tools.http_requests import HttpRequests
 from tenacity import RetryError
@@ -19,25 +19,25 @@ class TestGetStagingUrn(unittest.TestCase):
             }
         }
 
-    def test_get_staging_urn_empty_js(self):
+    def test_get_upload_urn_empty_js(self):
         js = {}
-        self.assertIsNone(gsu.get_staging_urn(js))
+        self.assertIsNone(getter.get_upload_urn(js))
 
-    def test_get_staging_urn_null_details(self):
+    def test_get_upload_urn_null_details(self):
         js = { 
             'stagingDetails': None
         }
-        self.assertIsNone(gsu.get_staging_urn(js))
+        self.assertIsNone(getter.get_upload_urn(js))
 
-    def test_get_staging_urn_null_location(self):
+    def test_get_upload_urn_null_location(self):
         js = { 
             'stagingDetails': {
                 'stagingAreaLocation': None
             }
         }
-        self.assertIsNone(gsu.get_staging_urn(js))
+        self.assertIsNone(getter.get_upload_urn(js))
 
-    def test_get_staging_urn_null_value(self):
+    def test_get_upload_urn_null_value(self):
         js = { 
             'stagingDetails': {
                 'stagingAreaLocation': {
@@ -45,10 +45,10 @@ class TestGetStagingUrn(unittest.TestCase):
                 }
             }
         }
-        self.assertIsNone(gsu.get_staging_urn(js))
+        self.assertIsNone(getter.get_upload_urn(js))
 
-    def test_get_staging_urn_valid_value(self):
-        self.assertEqual(gsu.get_staging_urn(self.envelope_json), 'test_urn')
+    def test_get_upload_urn_valid_value(self):
+        self.assertEqual(getter.get_upload_urn(self.envelope_json), 'test_urn')
 
     @requests_mock.mock()
     def test_run(self, mock_request):
@@ -57,7 +57,7 @@ class TestGetStagingUrn(unittest.TestCase):
             return self.envelope_json
         mock_request.get(self.envelope_url, json=_request_callback)
         with HttpRequestsManager():
-            response = gsu.run(self.envelope_url, HttpRequests())
+            response = getter.run(self.envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 1)
 
     @requests_mock.mock()
@@ -67,7 +67,7 @@ class TestGetStagingUrn(unittest.TestCase):
             return {}
         mock_request.get(self.envelope_url, json=_request_callback)
         with self.assertRaises(RetryError), HttpRequestsManager():
-            gsu.run(self.envelope_url, HttpRequests())
+            getter.run(self.envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
@@ -77,7 +77,7 @@ class TestGetStagingUrn(unittest.TestCase):
             return {}
         mock_request.get(self.envelope_url, json=_request_callback)
         with self.assertRaises(requests.HTTPError), HttpRequestsManager():
-            gsu.run(self.envelope_url, HttpRequests())
+            getter.run(self.envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
     @requests_mock.mock()
@@ -87,7 +87,7 @@ class TestGetStagingUrn(unittest.TestCase):
             raise requests.ReadTimeout
         mock_request.get(self.envelope_url, json=_request_callback)
         with self.assertRaises(requests.ReadTimeout), HttpRequestsManager():
-            gsu.run(self.envelope_url, HttpRequests())
+            getter.run(self.envelope_url, HttpRequests())
         self.assertEqual(mock_request.call_count, 3)
 
 

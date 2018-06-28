@@ -2,6 +2,7 @@
 
 import argparse
 from tenacity import retry_if_result, RetryError
+from datetime import datetime
 from pipeline_tools.http_requests import HttpRequests
 
 
@@ -22,7 +23,8 @@ def wait_for_valid_status(envelope_url, http_requests):
         tenacity.RetryError: if status is invalid past timeout
     """
     def log_before(envelope_url):
-        print('Getting status for {}'.format(envelope_url))
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print('{0} Getting status for {1}'.format(now, envelope_url))
 
     def status_is_invalid(response):
         envelope_js = response.json()
