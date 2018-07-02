@@ -11,20 +11,20 @@ setup(name='pipeline-tools',
       packages=['pipeline_tools'],
       install_requires=[
           'cromwell-tools',
-          'google-cloud-storage>=1.8.0',
-          'hca>=4.0.0',
-          'mock>=2.0.0',
-          'requests>=2.18.4',
-          'requests-mock>=1.4.0',
-          'setuptools_scm==2.0.0',
-          'tenacity>=4.10.0',
+          'google-cloud-storage>=1.8.0,<2',
+          'hca>=4.0.0,<5',
+          'mock>=2.0.0,<3',
+          'requests>=2.18.4,<3',
+          'requests-mock>=1.4.0,<2',
+          'setuptools_scm>=2.0.0,<3',
+          'tenacity>=4.10.0,<5',
       ],
       entry_points={
           "console_scripts": [
               'get-analysis-metadata=pipeline_tools.get_analysis_metadata:main',
               'create-analysis-json=pipeline_tools.create_analysis_json:main',
               'create-envelope=pipeline_tools.create_envelope:main',
-              'get-staging-urn=pipeline_tools.get_staging_urn:main',
+              'get-upload-urn=pipeline_tools.get_upload_urn:main',
               'confirm-submission=pipeline_tools.confirm_submission:main'
           ]
       },

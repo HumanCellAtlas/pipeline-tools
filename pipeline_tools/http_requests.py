@@ -3,6 +3,7 @@ import requests
 import os
 import glob
 from tenacity import retry, stop_after_attempt, stop_after_delay, wait_exponential, retry_if_exception
+from datetime import datetime
 
 
 HTTP_RECORD_DIR = 'HTTP_RECORD_DIR'
@@ -140,6 +141,8 @@ class HttpRequests(object):
 
     def _http_request_with_retry(self, *args, **kwargs):
         def is_retryable(error):
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print('{0} {1}'.format(now, repr(error)))
             def is_retryable_status_code(error):
                 return isinstance(error, requests.HTTPError) and not (400 <= error.response.status_code <= 499)
             return is_retryable_status_code(error) or isinstance(error,
