@@ -12,7 +12,7 @@ setup(name='pipeline-tools',
       install_requires=[
           'cromwell-tools',
           'google-cloud-storage>=1.8.0',
-          'hca>=3.5.0',
+          'hca>=4.0.0',
           'mock>=2.0.0',
           'requests>=2.18.4',
           'requests-mock>=1.4.0',

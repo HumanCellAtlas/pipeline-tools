@@ -11,6 +11,7 @@ task GetInputs {
   Int? retry_max_interval
   Int? individual_request_timeout
   Boolean record_http
+  String pipeline_tools_version
 
   command <<<
     export RECORD_HTTP_REQUESTS="${record_http}"
@@ -31,7 +32,7 @@ task GetInputs {
     CODE
   >>>
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.21.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
   }
   output {
     Array[File] http_requests = glob("request_*.txt")
@@ -78,6 +79,7 @@ workflow AdapterSmartSeq2SingleCell{
   Boolean record_http = false
 
   Int max_cromwell_retries = 0
+  String pipeline_tools_version = "v0.22.0"
 
   call GetInputs as prep {
     input:
@@ -88,7 +90,8 @@ workflow AdapterSmartSeq2SingleCell{
       retry_max_interval = retry_max_interval,
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
-      record_http = record_http
+      record_http = record_http,
+      pipeline_tools_version = pipeline_tools_version
   }
 
   call ss2.SmartSeq2SingleCell as analysis {
@@ -217,6 +220,7 @@ workflow AdapterSmartSeq2SingleCell{
       individual_request_timeout = individual_request_timeout,
       runtime_environment = runtime_environment,
       use_caas = use_caas,
-      record_http = record_http
+      record_http = record_http,
+      pipeline_tools_version = pipeline_tools_version
   }
 }
