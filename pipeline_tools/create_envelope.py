@@ -55,13 +55,7 @@ def run(submit_url, analysis_json_path, analysis_file_version):
     output_files = get_output_files(analysis_json_contents, analysis_file_version)
 
     for file_ref in output_files:
-        try:
-            add_file_reference(file_ref, file_refs_url, auth_headers, http_requests)
-        except requests.exceptions.HTTPError() as error:
-            if error.code == 409:
-                print(error.message)
-            else:
-                raise
+        add_file_reference(file_ref, file_refs_url, auth_headers, http_requests)
 
 
 def get_envelope_url(submit_url, auth_headers, http_requests):
@@ -108,6 +102,21 @@ def create_submission_envelope(envelope_url, auth_headers, http_requests):
 
 
 def get_analysis_results(analyses_url, auth_headers, analysis_json_contents, http_requests):
+    """Checks the submission envelope for an analysis process with a protocol_id
+    that matches the analysis workflow id.
+
+    Args:
+        analyses_url (str): the url for creating the analysis record
+        auth_headers (dict): headers to use for auth
+        analysis_json_contents (dict): metadata describing the analysis
+        http_requests (HttpRequests): HttpRequests object to use
+
+    Returns:
+        analysis_js (dict): A dict represents the response JSON
+
+    Raises:
+        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+    """
     analysis_workflow_id = analysis_json_contents['protocol_core']['protocol_id']
     response = http_requests.get(analyses_url, headers=auth_headers)
     data = response.json().get('_embedded')
@@ -118,7 +127,7 @@ def get_analysis_results(analyses_url, auth_headers, analysis_json_contents, htt
             if process_id == analysis_workflow_id:
                 print('Found existing analysis result for workflow {} in {}'.format(analysis_workflow_id, analyses_url))
                 return process
-    return False
+    return None
 
 
 def create_analysis(analyses_url, auth_headers, analysis_json_contents, http_requests):
