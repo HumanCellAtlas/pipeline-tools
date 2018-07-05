@@ -41,7 +41,9 @@ def run(submit_url, analysis_json_path, analysis_file_version):
         analysis_json_contents = json.load(f)
     analyses_url = get_subject_url(envelope_js, 'processes')
 
-    analysis_js = get_analysis_results(analyses_url, auth_headers, analysis_json_contents, http_requests)
+    # Check if an analysis process exists in the submission envelope from a previous attempt
+    analysis_workflow_id = analysis_json_contents['protocol_core']['protocol_id']
+    analysis_js = get_analysis_process(analyses_url, auth_headers, analysis_workflow_id, http_requests)
     if not analysis_js:
         analysis_js = create_analysis(analyses_url, auth_headers, analysis_json_contents, http_requests)
 
@@ -101,14 +103,14 @@ def create_submission_envelope(envelope_url, auth_headers, http_requests):
     return envelope_js
 
 
-def get_analysis_results(analyses_url, auth_headers, analysis_json_contents, http_requests):
+def get_analysis_process(analyses_url, auth_headers, analysis_workflow_id, http_requests):
     """Checks the submission envelope for an analysis process with a protocol_id
     that matches the analysis workflow id.
 
     Args:
         analyses_url (str): the url for creating the analysis record
         auth_headers (dict): headers to use for auth
-        analysis_json_contents (dict): metadata describing the analysis
+        analysis_workflow_id (str): Cromwell id for analysis workflow
         http_requests (HttpRequests): HttpRequests object to use
 
     Returns:
@@ -117,7 +119,6 @@ def get_analysis_results(analyses_url, auth_headers, analysis_json_contents, htt
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
-    analysis_workflow_id = analysis_json_contents['protocol_core']['protocol_id']
     response = http_requests.get(analyses_url, headers=auth_headers)
     data = response.json().get('_embedded')
     if data:

@@ -24,6 +24,8 @@ class TestCreateEnvelope(unittest.TestCase):
         with open(self.data_file('analysis.json')) as f:
             self.analysis_json = json.load(f)
 
+        self.analysis_id = self.analysis_json['protocol_core']['protocol_id']
+
     @requests_mock.mock()
     def test_get_envelope_url(self, mock_request):
         submit_url = "http://api.ingest.dev.data.humancellatlas.org/"
@@ -107,7 +109,7 @@ class TestCreateEnvelope(unittest.TestCase):
             return {}
 
         mock_request.get(analyses_url, json=_request_callback)
-        analysis_js = submit.get_analysis_results(analyses_url, self.headers, self.analysis_json, HttpRequests())
+        analysis_js = submit.get_analysis_process(analyses_url, self.headers, self.analysis_id, HttpRequests())
         self.assertFalse(analysis_js)
 
     @requests_mock.mock()
@@ -120,8 +122,8 @@ class TestCreateEnvelope(unittest.TestCase):
             return {'_embedded': {'processes': [{'content': analysis_process}]}}
 
         mock_request.get(analyses_url, json=_request_callback)
-        analysis_js = submit.get_analysis_results(analyses_url, self.headers, self.analysis_json, HttpRequests())
-        self.assertEqual(analysis_js['content']['protocol_core']['protocol_id'], self.analysis_json['protocol_core']['protocol_id'])
+        analysis_js = submit.get_analysis_process(analyses_url, self.headers, self.analysis_id, HttpRequests())
+        self.assertEqual(analysis_js['content']['protocol_core']['protocol_id'], self.analysis_id)
 
     @requests_mock.mock()
     def test_create_analysis_retries_on_error(self, mock_request):
