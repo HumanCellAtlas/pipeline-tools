@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 
-import json
 import argparse
+import base64
+import codecs
+from copy import deepcopy
+from csv import DictReader
+from google.cloud import storage
+import json
 
 
 def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_bundle,
-        run_type, method, schema_version, analysis_file_version, inputs_file, outputs_file, format_map):
+        run_type, method, schema_version, analysis_file_version, inputs, output_url_to_md5,
+        extension_to_format):
     """Creates analysis json for submission.
 
     Args:
@@ -17,8 +23,8 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         method (str): the name of the workflow
         schema_version (str): the version of the metadata schema that the analysis json conforms to
         inputs_file (str): path to file containing metadata about workflow inputs
-        outputs_file (str): path to file containing metadata about workflow outputs
-        format_map (str): path to file containing a map of file extensions to types
+        output_url_to_md5 (dict): dict mappiung workflow output urls to corresponding md5 hashes
+        extension_to_format (dict): dict mapping file extensions to file formats
 
     Returns:
         analysis (dict): A dict representing the analysis json file to be submitted
@@ -29,10 +35,9 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         metadata = json.load(f)
         tasks = get_tasks(metadata)
 
-    inputs = create_inputs(inputs_file)
-    outputs = create_outputs(outputs_file, format_map, analysis_file_version)
-
     input_bundles = input_bundles_string.split(',')
+
+    outputs = create_outputs(output_url_to_md5, extension_to_format, analysis_file_version)
 
     schema_url = 'https://schema.humancellatlas.org/type/protocol/analysis/{}/analysis_protocol'.format(schema_version)
 
@@ -59,62 +64,133 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
     return analysis
 
 
-def create_inputs(inputs_file):
-    """Creates inputs metadata array for analysis json
+def get_inputs(inputs_file):
+    """Reads input parameter names and values from tsv file
 
     Args:
-        inputs_file (str): giving the path to the file containing inputs metadata
+        inputs_file (str): Path to tsv file of parameter names and values
 
     Returns:
-        inputs (list): Array of dicts representing inputs metadata in the format required for the analysis json file.
+        inputs (list of dict): A list of dicts, where each dict gives the name and value of a single parameter
     """
     inputs = []
     with open(inputs_file) as f:
         f.readline() # skip header
-        for line in f:
-            parts = line.strip().split('\t')
-            name = parts[0]
-            value = parts[1]
-            input = {
-                'parameter_name': name,
-                'parameter_value': value
-            }
-            if value.startswith('gs://'):
-                # This is a placeholder for now, since the analysis json schema requires it.
-                # In future we will either properly calculate a checksum for the file
-                # or remove it from the schema.
-                input['checksum'] = 'd0f7d08f1980f7980f'
-            inputs.append(input)
+        reader = DictReader(f, lineterminator='\n', delimiter='\t', fieldnames=['parameter_name', 'parameter_value'])
+        for line in reader:
+            inputs.append(line)
     return inputs
 
 
-def create_outputs(outputs_file, format_map, analysis_file_version):
+def get_input_urls(inputs):
+    """Returns just the gs urls from the given list of inputs
+
+    Args:
+        inputs (list of dict): A list of input parameter dicts
+
+    Returns:
+        (list of str): list of gs urls
+    """
+    return [i['parameter_value'] for i in inputs if i['parameter_value'].startswith('gs://')]
+
+
+def add_md5s(inputs, input_url_to_md5):
+    """Adds md5 hash for each file in the given list.
+
+    Queries GCS for the md5 of each parameter whose value starts with 'gs://'.
+
+    Args:
+        inputs (list of dict): List of dicts containing input parameter names and values
+        input_url_to_md5 (dict): dict of gs urls to corresponding md5 hashes
+
+    Returns:
+        inputs (list of dict): A list of dicts, where each dict contains the name, value, and md5 hash (for gs urls)
+    """
+    inputs_with_md5 = []
+    for i in inputs:
+        value = i['parameter_value'] 
+        if value.startswith('gs://'):
+            input_with_md5 = deepcopy(i)
+            input_with_md5['checksum'] = input_url_to_md5[value]
+            inputs_with_md5.append(input_with_md5)
+        else:
+            inputs_with_md5.append(deepcopy(i))
+    return inputs_with_md5
+
+
+def get_md5s(output_urls, gcs_client):
+    """Gets md5s
+
+    Args:
+        output_urls (list of str): the gs urls to get md5s for
+        gcs_client (google.cloud.storage.Client): the client to use to get the md5s
+
+    Returns:
+        url_to_md5 (dict): dict of gs urls to md5 hashes
+    """
+    url_to_md5 = {}
+    for url in output_urls:
+        md5 = get_md5(url, gcs_client)
+        url_to_md5[url] = md5
+    return url_to_md5
+
+
+def get_md5(gs_url, gcs_client):
+    """Gets md5 hash for the given gs url
+
+    Args:
+        gs_url (str): the gs url
+        gcs_client (google.cloud.storage.Client): the client to use to get the md5
+
+    Returns:
+        hex_str (str): the md5 hash, hexadecimal-encoded
+    """
+    _, _, bucket_str, path_str = gs_url.split('/', 3)
+    bucket = gcs_client.bucket(bucket_str)
+    blob = bucket.get_blob(path_str)
+    hex_str = base64_to_hex(blob.md5_hash)
+    return hex_str
+
+
+def base64_to_hex(base64_str):
+    """Converts a base64 string to the equivalent hexadecimal string
+
+    Args:
+        base64_str (str): A string representing base64-encoded data
+
+    Returns:
+        hex_str (str): A string giving the hexadecimal-encoded representation of the given data
+    """
+    base64_bytes = base64.b64decode(base64_str.strip('\n"\''))
+    hex_bytes = codecs.encode(base64_bytes, 'hex')
+    hex_str = hex_bytes.decode('utf-8')
+    return hex_str
+
+
+def create_outputs(output_url_to_md5, extension_to_format, analysis_file_version):
     """Creates outputs metadata array for analysis json
 
     Args:
-        outputs_file (str): the path to a file containing outputs metadata
-        format_map (str): the path to a file containing a map of file extensions to types
+        output_url_to_md5 (dict): dict of output gs urls to corresponding md5 hashs
+        extension_to_format (dict): dict of file extensions to corresponding file formats
         analysis_file_version (str): the version of the metadata schema that the output file json should conform to
 
     Returns:
         outputs (list): Array of dicts representing outputs metadata in the format required for the analysis json file.
     """
-    with open(format_map) as f:
-        extension_to_format = json.load(f)
 
     outputs = []
-    with open(outputs_file) as f:
-        for line in f:
-            path = line.strip()
-            d = {
-              'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(analysis_file_version),
-              'schema_type': 'file',
-              'file_core': {
-                'file_name': path.split('/')[-1],
-                'file_format': get_format(path, extension_to_format)
-              }
-            }
-            outputs.append(d)
+    for output_url, md5_hash in sorted(output_url_to_md5.items()):
+        d = {
+          'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(analysis_file_version),
+          'schema_type': 'file',
+          'file_core': {
+            'file_name': output_url.split('/')[-1],
+            'file_format': get_format(output_url, extension_to_format),
+            'checksum': md5_hash
+          }
+        }
+        outputs.append(d)
 
     # Add logging
     print('The content of outputs: ')
@@ -220,9 +296,20 @@ def main():
     parser.add_argument('--format_map', required=True, help='JSON file providing map of file extensions to formats')
     args = parser.parse_args()
 
+    with open(args.format_map) as f:
+        extension_to_format = json.load(f)
+    with open(args.outputs_file) as f:
+        output_urls = f.read().splitlines()
+    client = storage.Client()
+    output_url_to_md5 = get_md5s(output_urls, client)
+
+    inputs = get_inputs(args.inputs_file)
+    input_urls = get_input_urls(inputs)
+    input_url_to_md5 = get_md5s(input_urls, client)
+    inputs = add_md5s(inputs, input_url_to_md5)
     analysis = create_analysis(args.analysis_id, args.metadata_json, args.input_bundles,
         args.reference_bundle, args.run_type, args.method, args.schema_version, args.analysis_file_version,
-        args.inputs_file, args.outputs_file, args.format_map)
+        inputs, output_url_to_md5, extension_to_format)
 
     with open('analysis.json', 'w') as f:
         json.dump(analysis, f, indent=2, sort_keys=True)

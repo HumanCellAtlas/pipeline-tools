@@ -18,6 +18,7 @@ setup(name='pipeline-tools',
           'requests-mock>=1.4.0,<2',
           'setuptools_scm>=2.0.0,<3',
           'tenacity>=4.10.0,<5',
+          'google-cloud-storage>=1.10.0,<2',
       ],
       entry_points={
           "console_scripts": [
