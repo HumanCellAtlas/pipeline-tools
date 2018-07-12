@@ -3,6 +3,7 @@ import requests
 import os
 import glob
 from tenacity import retry, stop_after_attempt, stop_after_delay, wait_exponential, retry_if_exception
+from requests.packages.urllib3.util import retry as retry_utils
 from datetime import datetime
 
 
@@ -14,6 +15,12 @@ RETRY_MAX_TRIES = 'RETRY_MAX_TRIES'
 RETRY_MULTIPLIER = 'RETRY_MULTIPLIER'
 RETRY_MAX_INTERVAL = 'RETRY_MAX_INTERVAL'
 INDIVIDUAL_REQUEST_TIMEOUT = 'INDIVIDUAL_REQUEST_TIMEOUT'
+
+
+class RetryPolicy(retry_utils.Retry):
+    def __init__(self, retry_after_status_codes={301}, **kwargs):
+        super(RetryPolicy, self).__init__(**kwargs)
+        self.RETRY_AFTER_STATUS_CODES = frozenset(retry_after_status_codes | retry_utils.Retry.RETRY_AFTER_STATUS_CODES)
 
 
 class HttpRequests(object):
@@ -47,7 +54,7 @@ class HttpRequests(object):
         if not write_dummy_files:
             return
 
-        msg="""This dummy file is needed to prevent an error when running in WDL
+        msg = """This dummy file is needed to prevent an error when running in WDL
         that collects http request and response files using the WDL glob function,
         which will throw an error if the glob matches zero files.
         """
@@ -238,9 +245,10 @@ class HttpRequests(object):
     @staticmethod
     def _get_method(http_method):
         session = requests.Session()
-        # The default max_redirects is 30. We need to boost it because DSS sometimes redirects us more than 30 times,
-        # which causes an error if we don't allow for more.
-        session.max_redirects = 100
+        retry_policy = RetryPolicy(read=5, status=5, status_forcelist=frozenset({500, 502, 503, 504}))
+        adapter = requests.adapters.HTTPAdapter(max_retries=retry_policy)
+        session.mount('https://', adapter)
+
         if http_method == 'get':
             fn = session.get
         elif http_method == 'put':
