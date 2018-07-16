@@ -18,6 +18,12 @@ INDIVIDUAL_REQUEST_TIMEOUT = 'INDIVIDUAL_REQUEST_TIMEOUT'
 
 
 class RetryPolicy(retry_utils.Retry):
+    """Wrapper around the urllib3.retry module that overrides which status codes should follow the retry_after header.
+
+    Attributes:
+        retry_after_status_codes (frozenset): Which status codes follow the retry_after header
+
+    """
     def __init__(self, retry_after_status_codes={301}, **kwargs):
         super(RetryPolicy, self).__init__(**kwargs)
         self.RETRY_AFTER_STATUS_CODES = frozenset(retry_after_status_codes)
@@ -245,6 +251,8 @@ class HttpRequests(object):
     @staticmethod
     def _get_method(http_method):
         session = requests.Session()
+        # Follow retry-after headers for 301 status codes to avoid exceeding max_redirects (defaults to 30)
+        # when requesting files from the Data Store.
         retry_policy = RetryPolicy()
         adapter = requests.adapters.HTTPAdapter(max_retries=retry_policy)
         session.mount('https://', adapter)
