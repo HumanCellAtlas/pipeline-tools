@@ -20,7 +20,7 @@ INDIVIDUAL_REQUEST_TIMEOUT = 'INDIVIDUAL_REQUEST_TIMEOUT'
 class RetryPolicy(retry_utils.Retry):
     def __init__(self, retry_after_status_codes={301}, **kwargs):
         super(RetryPolicy, self).__init__(**kwargs)
-        self.RETRY_AFTER_STATUS_CODES = frozenset(retry_after_status_codes | retry_utils.Retry.RETRY_AFTER_STATUS_CODES)
+        self.RETRY_AFTER_STATUS_CODES = frozenset(retry_after_status_codes)
 
 
 class HttpRequests(object):
@@ -245,7 +245,7 @@ class HttpRequests(object):
     @staticmethod
     def _get_method(http_method):
         session = requests.Session()
-        retry_policy = RetryPolicy(read=5, status=5, status_forcelist=frozenset({500, 502, 503, 504}))
+        retry_policy = RetryPolicy()
         adapter = requests.adapters.HTTPAdapter(max_retries=retry_policy)
         session.mount('https://', adapter)
 
