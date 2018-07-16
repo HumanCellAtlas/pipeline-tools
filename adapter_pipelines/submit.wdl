@@ -140,9 +140,20 @@ task stage_files {
     echo "hca upload select $upload_urn"
     hca upload select $upload_urn
 
+    # Check if any files were already uploaded to the staging area
+    uploaded_files=$(hca upload list)
+
+    if [ -z $uploaded_files ]; then
+      unstaged_files=(${sep=' ' files})
+    else
+      echo "Checking which files to upload to the staging area..."
+      get-files-to-upload \
+        --files ${sep=' ' files} \
+        --uploaded_files $uploaded_files
+      unstaged_files=($(cat files.txt))
+    fi
     # Stage the files
-    files=( ${sep=' ' files} )
-    for f in "$${lb}files[@]${rb}"
+    for f in "$${lb}unstaged_files[@]${rb}"
     do
       echo "hca upload file $f"
       hca upload file $f

@@ -2,6 +2,7 @@ import unittest
 import os
 import json
 import requests
+import mock
 import requests_mock
 import pipeline_tools.create_envelope as submit
 from .http_requests_manager import HttpRequestsManager
@@ -22,6 +23,8 @@ class TestCreateEnvelope(unittest.TestCase):
 
         with open(self.data_file('analysis.json')) as f:
             self.analysis_json = json.load(f)
+
+        self.analysis_id = self.analysis_json['protocol_core']['protocol_id']
 
     @requests_mock.mock()
     def test_get_envelope_url(self, mock_request):
@@ -96,6 +99,31 @@ class TestCreateEnvelope(unittest.TestCase):
 
     def test_create_analysis(self):
         pass
+
+    @requests_mock.mock()
+    def test_get_analysis_results_returns_false(self, mock_request):
+        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            return {}
+
+        mock_request.get(analyses_url, json=_request_callback)
+        analysis_js = submit.get_analysis_process(analyses_url, self.headers, self.analysis_id, HttpRequests())
+        self.assertFalse(analysis_js)
+
+    @requests_mock.mock()
+    def test_get_analysis_results_finds_existing_analysis_process(self, mock_request):
+        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            analysis_process = self.analysis_json
+            return {'_embedded': {'processes': [{'content': analysis_process}]}}
+
+        mock_request.get(analyses_url, json=_request_callback)
+        analysis_js = submit.get_analysis_process(analyses_url, self.headers, self.analysis_id, HttpRequests())
+        self.assertEqual(analysis_js['content']['protocol_core']['protocol_id'], self.analysis_id)
 
     @requests_mock.mock()
     def test_create_analysis_retries_on_error(self, mock_request):
@@ -212,22 +240,22 @@ class TestCreateEnvelope(unittest.TestCase):
     def test_get_input_bundle_uuid(self):
         with open(self.data_file('analysis.json')) as f:
             js = json.load(f)
-        self.assertEqual(submit.get_input_bundle_uuid(js), '75a7f618-9adc-48af-a249-0010305160f6')
+        self.assertEqual(submit.get_input_bundle_uuid(js), js['input_bundles'][0])
 
     def test_get_output_files(self):
         schema_version = 'version_232'
         analysis_file_schema_url = 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version)
-        file_core_schema_url = 'https://schema.humancellatlas.org/core/file/{}/file_core'.format(schema_version)
 
         with open(self.data_file('analysis.json')) as f:
             js = json.load(f)
 
         outputs = submit.get_output_files(js, schema_version)
-        self.assertEqual(len(outputs), 3)
-        self.assertEqual(outputs[0]['fileName'], 'aligned_bam')
-        self.assertEqual(outputs[0]['content']['schema_type'], 'file')
-        self.assertEqual(outputs[0]['content']['file_core']['file_name'], 'aligned_bam')
-        self.assertEqual(outputs[0]['content']['file_core']['file_format'], 'bam')
+        expected_outputs = js['outputs']
+        self.assertEqual(len(outputs), len(expected_outputs))
+        self.assertEqual(outputs[0]['fileName'], expected_outputs[0]['file_core']['file_name'])
+        self.assertEqual(outputs[0]['content']['schema_type'], expected_outputs[0]['schema_type'])
+        self.assertEqual(outputs[0]['content']['file_core']['file_name'], expected_outputs[0]['file_core']['file_name'])
+        self.assertEqual(outputs[0]['content']['file_core']['file_format'], expected_outputs[0]['file_core']['file_format'])
 
     def data_file(self, file_name):
         return os.path.split(__file__)[0] + '/data/' + file_name

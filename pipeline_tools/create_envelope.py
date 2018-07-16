@@ -2,6 +2,7 @@
 
 import json
 import argparse
+import requests
 from .dcp_utils import get_auth_token, make_auth_header
 from pipeline_tools.http_requests import HttpRequests
 
@@ -39,7 +40,12 @@ def run(submit_url, analysis_json_path, analysis_file_version):
     with open(analysis_json_path) as f:
         analysis_json_contents = json.load(f)
     analyses_url = get_subject_url(envelope_js, 'processes')
-    analysis_js = create_analysis(analyses_url, auth_headers, analysis_json_contents, http_requests)
+
+    # Check if an analysis process exists in the submission envelope from a previous attempt
+    analysis_workflow_id = analysis_json_contents['protocol_core']['protocol_id']
+    analysis_js = get_analysis_process(analyses_url, auth_headers, analysis_workflow_id, http_requests)
+    if not analysis_js:
+        analysis_js = create_analysis(analyses_url, auth_headers, analysis_json_contents, http_requests)
 
     # 4. Add input bundles
     input_bundles_url = get_subject_url(analysis_js, 'add-input-bundles')
@@ -49,6 +55,7 @@ def run(submit_url, analysis_json_path, analysis_file_version):
     file_refs_url = get_subject_url(analysis_js, 'add-file-reference')
     print('Adding file references at {0}'.format(file_refs_url))
     output_files = get_output_files(analysis_json_contents, analysis_file_version)
+
     for file_ref in output_files:
         add_file_reference(file_ref, file_refs_url, auth_headers, http_requests)
 
@@ -94,6 +101,34 @@ def create_submission_envelope(envelope_url, auth_headers, http_requests):
                                   headers=auth_headers)
     envelope_js = response.json()
     return envelope_js
+
+
+def get_analysis_process(analyses_url, auth_headers, analysis_workflow_id, http_requests):
+    """Checks the submission envelope for an analysis process with a protocol_id
+    that matches the analysis workflow id.
+
+    Args:
+        analyses_url (str): the url for creating the analysis record
+        auth_headers (dict): headers to use for auth
+        analysis_workflow_id (str): Cromwell id for analysis workflow
+        http_requests (HttpRequests): HttpRequests object to use
+
+    Returns:
+        analysis_js (dict): A dict represents the response JSON
+
+    Raises:
+        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+    """
+    response = http_requests.get(analyses_url, headers=auth_headers)
+    data = response.json().get('_embedded')
+    if data:
+        processes_js = data.get('processes')
+        for process in processes_js:
+            process_id = process['content']['protocol_core']['protocol_id']
+            if process_id == analysis_workflow_id:
+                print('Found existing analysis result for workflow {} in {}'.format(analysis_workflow_id, analyses_url))
+                return process
+    return None
 
 
 def create_analysis(analyses_url, auth_headers, analysis_json_contents, http_requests):

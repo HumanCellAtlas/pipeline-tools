@@ -25,6 +25,7 @@ setup(name='pipeline-tools',
               'create-analysis-json=pipeline_tools.create_analysis_json:main',
               'create-envelope=pipeline_tools.create_envelope:main',
               'get-upload-urn=pipeline_tools.get_upload_urn:main',
+              'get-files-to-upload=pipeline_tools.get_files_to_upload:main',
               'confirm-submission=pipeline_tools.confirm_submission:main'
           ]
       },
