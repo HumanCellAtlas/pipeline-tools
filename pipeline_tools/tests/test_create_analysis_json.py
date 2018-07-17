@@ -1,12 +1,62 @@
+from copy import deepcopy
 import unittest
 import os
 import json
+from google.cloud import storage
 import pipeline_tools.create_analysis_json as caj
 
 
 class TestCreateAnalysisJson(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(self):
+        self.output_url_to_md5 = {
+            'gs://foo/bar/Aligned.sortedByCoord.out.bam': '0123456789abcdef0123456789abcdef',
+            'gs://foo/bar/GSM1957573_rna_metrics': 'abcdef0123456789abcdef0123456789'
+        }
+        self.extension_to_format = {
+            '.bam': 'bam',
+            '_metrics': 'metrics'
+        }
+        self.output_dicts = [
+            {
+                'name': 'Aligned.sortedByCoord.out.bam',
+                'format': 'bam',
+                'checksum': '0123456789abcdef0123456789abcdef'
+            },
+            {
+                'name': 'GSM1957573_rna_metrics',
+                'format': 'metrics',
+                'checksum': 'abcdef0123456789abcdef0123456789'
+            }
+        ]
+        self.inputs = [
+            {
+                'parameter_name': 'fastq_read1',
+                'parameter_value': 'gs://foo/path/read1.fastq.gz',
+                'checksum': '0123456789abcdef0123456789abcdef'
+            },
+            {
+                'parameter_name': 'fastq_read2',
+                'parameter_value': 'gs://foo/path/read2.fastq.gz',
+                'checksum': 'abcdef0123456789abcdef0123456789'
+            },
+            {
+                'parameter_name': 'output_prefix',
+                'parameter_value': 'GSM1957573'
+            },
+            {
+                'parameter_name': 'test_int',
+                'parameter_value': '123'
+            }
+        ]
+        self.input_url_to_md5 = {
+            'gs://foo/path/read1.fastq.gz': '0123456789abcdef0123456789abcdef',
+            'gs://foo/path/read2.fastq.gz': 'abcdef0123456789abcdef0123456789'
+        }
+
     def test_create_analysis(self):
+
         js = caj.create_analysis(
             analysis_id='12345abcde',
             metadata_file=self.data_file('metadata.json'),
@@ -16,14 +66,14 @@ class TestCreateAnalysisJson(unittest.TestCase):
             method='foo_method',
             schema_version='1.2.3',
             analysis_file_version='4.5.6',
-            inputs_file=self.data_file('inputs.tsv'),
-            outputs_file=self.data_file('outputs.txt'),
-            format_map=self.data_file('format_map.json')
+            inputs=self.inputs,
+            output_url_to_md5=self.output_url_to_md5,
+            extension_to_format=self.extension_to_format
         )
         self.assertEqual(js.get('protocol_core').get('protocol_id'), '12345abcde')
         self.verify_inputs(js.get('inputs'))
         file_schema_url = 'https://schema.humancellatlas.org/type/file/4.5.6/analysis_file'
-        self.verify_outputs(js.get('outputs'), file_schema_url)
+        self.verify_outputs(js.get('outputs'), self.output_dicts, file_schema_url)
         self.verify_tasks(js.get('tasks'))
         self.assertEqual(js.get('schema_type'), 'protocol')
         schema_url = 'https://schema.humancellatlas.org/type/protocol/analysis/1.2.3/analysis_protocol'
@@ -35,18 +85,16 @@ class TestCreateAnalysisJson(unittest.TestCase):
         self.assertEqual(js.get('timestamp_stop_utc'), '2017-09-14T19:54:31.871Z')
         self.assertEqual(js.get('input_bundles'), ['foo_input_bundle1', 'foo_input_bundle2'])
 
-    def test_create_inputs(self):
+    def test_get_inputs(self):
         inputs_file = self.data_file('inputs.tsv')
-        inputs = caj.create_inputs(inputs_file)
-        self.verify_inputs(inputs)
+        inputs = caj.get_inputs(inputs_file)
+        self.verify_inputs(inputs, include_checksum=False)
 
     def test_create_outputs(self):
-        outputs_file = self.data_file('outputs.txt') 
-        format_map_file = self.data_file('format_map.json')
         schema_version = 'good_version'
         schema_url = 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version)
-        outputs = caj.create_outputs(outputs_file, format_map_file, schema_version)
-        self.verify_outputs(outputs, schema_url)
+        outputs_json = caj.create_outputs(self.output_url_to_md5, self.extension_to_format, schema_version)
+        self.verify_outputs(outputs_json, self.output_dicts, schema_url)
 
     def test_get_tasks(self):
         with open(self.data_file('metadata.json')) as f:
@@ -78,27 +126,64 @@ class TestCreateAnalysisJson(unittest.TestCase):
         }
         self.assertEqual(protocol_type, expected_protocol_type)
 
-    def verify_inputs(self, inputs):
-        self.assertEqual(inputs[0]['parameter_name'], 'fastq_read1')
-        self.assertEqual(inputs[0]['parameter_value'], 'gs://broad-dsde-mint-dev-teststorage/path/read1.fastq.gz')
-        self.assertEqual(inputs[0]['checksum'], 'd0f7d08f1980f7980f')
-        self.assertEqual(inputs[1]['parameter_name'], 'fastq_read2')
-        self.assertEqual(inputs[1]['parameter_value'], 'gs://broad-dsde-mint-dev-teststorage/path/read2.fastq.gz')
-        self.assertEqual(inputs[1]['checksum'], 'd0f7d08f1980f7980f')
-        self.assertEqual(inputs[2]['parameter_name'], 'output_prefix')
-        self.assertEqual(inputs[2]['parameter_value'], 'GSM1957573')
-        self.assertEqual(inputs[3]['parameter_name'], 'test_int')
-        self.assertEqual(inputs[3]['parameter_value'], '123')
+    def test_base64_to_hex(self):
+        base64_str = 'FdUxglEpKjfcvIRvkju7nA=='
+        hex_str = '15d5318251292a37dcbc846f923bbb9c'
+        self.assertEqual(caj.base64_to_hex(base64_str), hex_str)
 
-    def verify_outputs(self, outputs, schema_url):
-        self.assertEqual(outputs[0]['describedBy'], schema_url)
-        self.assertEqual(outputs[0]['schema_type'], 'file')
-        self.assertEqual(outputs[0]['file_core']['file_format'], 'bam')
-        self.assertEqual(outputs[0]['file_core']['file_name'], 'Aligned.sortedByCoord.out.bam')
-        self.assertEqual(outputs[0]['describedBy'], schema_url)
-        self.assertEqual(outputs[1]['schema_type'], 'file')
-        self.assertEqual(outputs[1]['file_core']['file_format'], 'metrics')
-        self.assertEqual(outputs[1]['file_core']['file_name'], 'GSM1957573_rna_metrics')
+    def test_get_input_urls(self):
+        input_urls = caj.get_input_urls(self.inputs)
+        self.assertEqual(len(input_urls), 2)
+        self.assertIn('gs://foo/path/read1.fastq.gz', input_urls)
+        self.assertIn('gs://foo/path/read2.fastq.gz', input_urls)
+
+    def test_get_input_urls_empty_list(self):
+        input_urls = caj.get_input_urls([])
+        self.assertEqual(len(input_urls), 0)
+
+    def test_get_input_urls_no_urls(self):
+        inputs = [
+            {
+                'parameter_name': 'p1',
+                'parameter_value': 'foo'
+            }
+        ]
+        input_urls = caj.get_input_urls(inputs)
+        self.assertEqual(len(input_urls), 0)
+
+    def test_add_md5s(self):
+        inputs = deepcopy(self.inputs)
+        for i in inputs:
+            i.pop('checksum', None)
+        inputs_with_md5s = caj.add_md5s(self.inputs, self.input_url_to_md5)
+        self.verify_inputs(inputs_with_md5s)
+        # Verify that original dict was not modified
+        self.assertEqual(len([i for i in inputs if 'checksum' in i]), 0)
+
+    def verify_inputs(self, inputs, include_checksum=True):
+        self.assertEqual(inputs[0]['parameter_name'], self.inputs[0]['parameter_name'])
+        self.assertEqual(inputs[0]['parameter_value'], self.inputs[0]['parameter_value'])
+        self.assertEqual(inputs[1]['parameter_name'], self.inputs[1]['parameter_name'])
+        self.assertEqual(inputs[1]['parameter_value'], self.inputs[1]['parameter_value'])
+        self.assertEqual(inputs[2]['parameter_name'], self.inputs[2]['parameter_name'])
+        self.assertEqual(inputs[2]['parameter_value'], self.inputs[2]['parameter_value'])
+        self.assertEqual(inputs[3]['parameter_name'], self.inputs[3]['parameter_name'])
+        self.assertEqual(inputs[3]['parameter_value'], self.inputs[3]['parameter_value'])
+        if include_checksum:
+            self.assertEqual(inputs[0]['checksum'], self.inputs[0]['checksum'])
+            self.assertEqual(inputs[1]['checksum'], self.inputs[1]['checksum'])
+
+    def verify_outputs(self, output_json, output_dicts, schema_url):
+        self.assertEqual(output_json[0]['describedBy'], schema_url)
+        self.assertEqual(output_json[0]['schema_type'], 'file')
+        self.assertEqual(output_json[0]['file_core']['file_format'], output_dicts[0]['format'])
+        self.assertEqual(output_json[0]['file_core']['file_name'], output_dicts[0]['name'])
+        self.assertEqual(output_json[0]['file_core']['checksum'], output_dicts[0]['checksum'])
+        self.assertEqual(output_json[0]['describedBy'], schema_url)
+        self.assertEqual(output_json[1]['schema_type'], 'file')
+        self.assertEqual(output_json[1]['file_core']['file_format'], output_dicts[1]['format'])
+        self.assertEqual(output_json[1]['file_core']['file_name'], output_dicts[1]['name'])
+        self.assertEqual(output_json[1]['file_core']['checksum'], output_dicts[1]['checksum'])
 
     def verify_tasks(self, tasks):
         self.assertEqual(len(tasks), 5)
