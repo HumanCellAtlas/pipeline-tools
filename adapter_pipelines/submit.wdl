@@ -71,6 +71,7 @@ task create_submission {
     export PYTHONUNBUFFERED=TRUE
 
     # Test comment
+    # Another test
     # First, create the analysis.json
     # Note that create-analysis-json can take a comma-separated list of bundles,
     # but current workflows only take a single input bundle
