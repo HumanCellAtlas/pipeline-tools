@@ -10,7 +10,7 @@ import json
 
 
 def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_bundle,
-        run_type, method, schema_version, analysis_file_version, inputs, output_url_to_md5,
+        run_type, method, schema_url, schema_version, analysis_file_version, inputs, output_url_to_md5,
         extension_to_format):
     """Creates analysis json for submission.
 
@@ -21,6 +21,7 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
         reference_bundle (str): the uuid of the reference bundle
         run_type (str): indicates whether this analysis was actually run or is just copying previous results
         method (str): the name of the workflow
+        schema_url (str): URL for retrieving HCA metadata schemas
         schema_version (str): the version of the metadata schema that the analysis json conforms to
         inputs_file (str): path to file containing metadata about workflow inputs
         output_url_to_md5 (dict): dict mappiung workflow output urls to corresponding md5 hashes
@@ -37,9 +38,9 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
 
     input_bundles = input_bundles_string.split(',')
 
-    outputs = create_outputs(output_url_to_md5, extension_to_format, analysis_file_version)
+    outputs = create_outputs(output_url_to_md5, extension_to_format, schema_url, analysis_file_version)
 
-    schema_url = 'https://schema.humancellatlas.org/type/protocol/analysis/{}/analysis_protocol'.format(schema_version)
+    schema_url = '{}/type/protocol/analysis/{}/analysis_protocol'.format(schema_url, schema_version)
 
     analysis = {
         'analysis_run_type': run_type,
@@ -167,7 +168,7 @@ def base64_to_hex(base64_str):
     return hex_str
 
 
-def create_outputs(output_url_to_md5, extension_to_format, analysis_file_version):
+def create_outputs(output_url_to_md5, extension_to_format, schema_url, analysis_file_version):
     """Creates outputs metadata array for analysis json
 
     Args:
@@ -182,7 +183,7 @@ def create_outputs(output_url_to_md5, extension_to_format, analysis_file_version
     outputs = []
     for output_url, md5_hash in sorted(output_url_to_md5.items()):
         d = {
-          'describedBy': 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(analysis_file_version),
+          'describedBy': '{}/type/file/{}/analysis_file'.format(schema_url, analysis_file_version),
           'schema_type': 'file',
           'file_core': {
             'file_name': output_url.split('/')[-1],
@@ -289,6 +290,7 @@ def main():
     parser.add_argument('--reference_bundle', required=True, help='To refer to the DSS resource bundle used for this workflow, once such things exist')
     parser.add_argument('--run_type', required=True, help='Should always be "run" for now, may be "copy-forward" in some cases in future')
     parser.add_argument('--method', required=True, help='Supposed to be method store url, for now can be url for wdl in skylab')
+    parser.add_argument('--schema_url', required=True, help='URL for retrieving HCA metadata schemas')
     parser.add_argument('--schema_version', required=True, help='The metadata schema version that this analysis.json conforms to')
     parser.add_argument('--analysis_file_version', required=True, help='The metadata schema version that the output files conform to')
     parser.add_argument('--inputs_file', required=True, help='Path to tsv containing info about inputs')
@@ -307,8 +309,9 @@ def main():
     input_urls = get_input_urls(inputs)
     input_url_to_md5 = get_md5s(input_urls, client)
     inputs = add_md5s(inputs, input_url_to_md5)
+    schema_url = args.schema_url.strip('/')
     analysis = create_analysis(args.analysis_id, args.metadata_json, args.input_bundles,
-        args.reference_bundle, args.run_type, args.method, args.schema_version, args.analysis_file_version,
+        args.reference_bundle, args.run_type, args.method, schema_url, args.schema_version, args.analysis_file_version,
         inputs, output_url_to_md5, extension_to_format)
 
     with open('analysis.json', 'w') as f:
