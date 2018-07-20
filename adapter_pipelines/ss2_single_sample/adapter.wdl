@@ -63,6 +63,7 @@ workflow AdapterSmartSeq2SingleCell{
   String dss_url
   String submit_url
   String method
+  String schema_url
   String schema_version
   String analysis_file_version
   String run_type
@@ -211,6 +212,7 @@ workflow AdapterSmartSeq2SingleCell{
       input_bundle_uuid = bundle_uuid,
       reference_bundle = reference_bundle,
       run_type = run_type,
+      schema_url = schema_url,
       schema_version = schema_version,
       analysis_file_version = analysis_file_version,
       method = method,
