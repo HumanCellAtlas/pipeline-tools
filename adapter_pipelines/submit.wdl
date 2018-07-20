@@ -70,7 +70,7 @@ task create_submission {
     # to be unbuffered. This is the same as "-u", more info: https://docs.python.org/3/using/cmdline.html#cmdoption-u
     export PYTHONUNBUFFERED=TRUE
 
-    # Comment to test changes
+    # Comment
     # First, create the analysis.json
     # Note that create-analysis-json can take a comma-separated list of bundles,
     # but current workflows only take a single input bundle
