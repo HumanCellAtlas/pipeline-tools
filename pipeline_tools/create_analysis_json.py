@@ -58,6 +58,7 @@ def create_analysis(analysis_id, metadata_file, input_bundles_string, reference_
     }
 
     # Add logging
+    # Test comment
     print('The content of analysis.json: ')
     print(analysis)
 
