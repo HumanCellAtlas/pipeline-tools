@@ -92,6 +92,7 @@ task create_submission {
     create-envelope \
       --submit_url ${submit_url} \
       --analysis_json_path analysis.json \
+      --schema_url ${schema_url} \
       --analysis_file_version ${analysis_file_version}
   >>>
 

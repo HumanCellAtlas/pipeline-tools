@@ -174,6 +174,7 @@ def create_outputs(output_url_to_md5, extension_to_format, schema_url, analysis_
     Args:
         output_url_to_md5 (dict): dict of output gs urls to corresponding md5 hashs
         extension_to_format (dict): dict of file extensions to corresponding file formats
+        schema_url (str): URL for retrieving HCA metadata schemas
         analysis_file_version (str): the version of the metadata schema that the output file json should conform to
 
     Returns:
