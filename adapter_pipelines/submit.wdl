@@ -45,6 +45,7 @@ task create_submission {
   String reference_bundle
   String run_type
   String method
+  String schema_url
   String schema_version
   String analysis_file_version
   Array[Object] inputs
@@ -80,6 +81,7 @@ task create_submission {
       --reference_bundle ${reference_bundle} \
       --run_type ${run_type} \
       --method ${method} \
+      --schema_url ${schema_url} \
       --schema_version ${schema_version} \
       --analysis_file_version ${analysis_file_version} \
       --inputs_file ${write_objects(inputs)} \
@@ -90,6 +92,7 @@ task create_submission {
     create-envelope \
       --submit_url ${submit_url} \
       --analysis_json_path analysis.json \
+      --schema_url ${schema_url} \
       --analysis_file_version ${analysis_file_version}
   >>>
 
@@ -218,6 +221,7 @@ workflow submit {
   String input_bundle_uuid
   String reference_bundle
   String run_type
+  String schema_url
   String schema_version
   String analysis_file_version
   String method
@@ -247,6 +251,7 @@ workflow submit {
     input:
       reference_bundle = reference_bundle,
       run_type = run_type,
+      schema_url = schema_url,
       schema_version = schema_version,
       analysis_file_version = analysis_file_version,
       method = method,

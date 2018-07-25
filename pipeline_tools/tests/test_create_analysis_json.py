@@ -54,9 +54,9 @@ class TestCreateAnalysisJson(unittest.TestCase):
             'gs://foo/path/read1.fastq.gz': '0123456789abcdef0123456789abcdef',
             'gs://foo/path/read2.fastq.gz': 'abcdef0123456789abcdef0123456789'
         }
+        self.schema_url = 'http://schema.humancellatlas.org'
 
     def test_create_analysis(self):
-
         js = caj.create_analysis(
             analysis_id='12345abcde',
             metadata_file=self.data_file('metadata.json'),
@@ -64,6 +64,7 @@ class TestCreateAnalysisJson(unittest.TestCase):
             reference_bundle='foo_ref_bundle',
             run_type='foo_run_type',
             method='foo_method',
+            schema_url=self.schema_url,
             schema_version='1.2.3',
             analysis_file_version='4.5.6',
             inputs=self.inputs,
@@ -72,11 +73,11 @@ class TestCreateAnalysisJson(unittest.TestCase):
         )
         self.assertEqual(js.get('protocol_core').get('protocol_id'), '12345abcde')
         self.verify_inputs(js.get('inputs'))
-        file_schema_url = 'https://schema.humancellatlas.org/type/file/4.5.6/analysis_file'
+        file_schema_url = '{}/type/file/4.5.6/analysis_file'.format(self.schema_url)
         self.verify_outputs(js.get('outputs'), self.output_dicts, file_schema_url)
         self.verify_tasks(js.get('tasks'))
         self.assertEqual(js.get('schema_type'), 'protocol')
-        schema_url = 'https://schema.humancellatlas.org/type/protocol/analysis/1.2.3/analysis_protocol'
+        schema_url = '{}/type/protocol/analysis/1.2.3/analysis_protocol'.format(self.schema_url)
         self.assertEqual(js.get('describedBy'), schema_url)
         self.assertEqual(js.get('computational_method'), 'foo_method')
         self.assertEqual(js.get('reference_bundle'), 'foo_ref_bundle')
@@ -92,8 +93,8 @@ class TestCreateAnalysisJson(unittest.TestCase):
 
     def test_create_outputs(self):
         schema_version = 'good_version'
-        schema_url = 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version)
-        outputs_json = caj.create_outputs(self.output_url_to_md5, self.extension_to_format, schema_version)
+        schema_url = '{}/type/file/{}/analysis_file'.format(self.schema_url, schema_version)
+        outputs_json = caj.create_outputs(self.output_url_to_md5, self.extension_to_format, self.schema_url, schema_version)
         self.verify_outputs(outputs_json, self.output_dicts, schema_url)
 
     def test_get_tasks(self):

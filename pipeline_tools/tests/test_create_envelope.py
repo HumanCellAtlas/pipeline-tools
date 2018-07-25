@@ -249,7 +249,7 @@ class TestCreateEnvelope(unittest.TestCase):
         with open(self.data_file('analysis.json')) as f:
             js = json.load(f)
 
-        outputs = submit.get_output_files(js, schema_version)
+        outputs = submit.get_output_files(js, analysis_file_schema_url, schema_version)
         expected_outputs = js['outputs']
         self.assertEqual(len(outputs), len(expected_outputs))
         self.assertEqual(outputs[0]['fileName'], expected_outputs[0]['file_core']['file_name'])

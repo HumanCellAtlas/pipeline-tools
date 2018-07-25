@@ -16,6 +16,7 @@ workflow submit {
   String input_bundle_uuid
   String reference_bundle
   String run_type
+  String schema_url
   String schema_version
   String analysis_file_version
   String method

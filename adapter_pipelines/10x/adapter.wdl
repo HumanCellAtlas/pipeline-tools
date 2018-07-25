@@ -212,6 +212,7 @@ workflow Adapter10xCount {
   String submit_url
   String reference_bundle
   String run_type
+  String schema_url
   String schema_version
   String analysis_file_version
   String method
@@ -272,32 +273,32 @@ workflow Adapter10xCount {
       primers = primers,
       other_inputs = [
         {
-          'name': 'sample_def',
-          'value': sample_def
+          "name": "sample_def",
+          "value": sample_def
         },
         {
-          'name': 'sample_id',
-          'value': sample_id
+          "name": "sample_id",
+          "value": sample_id
         },
         {
-          'name': 'reads_per_file',
-          'value': reads_per_file
+          "name": "reads_per_file",
+          "value": reads_per_file
         },
         {
-          'name': 'subsample_rate',
-          'value': subsample_rate
+          "name": "subsample_rate",
+          "value": subsample_rate
         },
         {
-          'name': 'align',
-          'value': align
+          "name": "align",
+          "value": align
         },
         {
-          'name': 'reference_path',
-          'value': reference_path
+          "name": "reference_path",
+          "value": reference_path
         },
         {
-          'name': 'umi_min_qual_threshold',
-          'value': umi_min_qual_threshold
+          "name": "umi_min_qual_threshold",
+          "value": umi_min_qual_threshold
         }
       ]
   }
@@ -324,6 +325,7 @@ workflow Adapter10xCount {
       input_bundle_uuid = bundle_uuid,
       reference_bundle = reference_bundle,
       run_type = run_type,
+      schema_url = schema_url,
       schema_version = schema_version,
       analysis_file_version = analysis_file_version,
       method = method,
