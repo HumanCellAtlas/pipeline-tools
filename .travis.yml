@@ -4,9 +4,7 @@ python:
 - '3.6'
 install: pip install -r requirements.txt -r test-requirements.txt
 env:
-- TEST_SUITE=unit
-- TEST_SUITE=latest_schema
-script: bash test.sh $TEST_SUITE
+script: pytest -v
 notifications:
   slack:
     on_success: change
