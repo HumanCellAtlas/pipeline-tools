@@ -110,23 +110,6 @@ class TestInputUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             input_utils.get_version_prefix('version')
 
-    @pytest.mark.latest_schema
-    def test_detect_schema_version(self):
-        with open(self.data_file('metadata/latest/ss2/file.json')) as f:
-            ss2_file_json_latest = json.load(f)
-        version = input_utils.detect_schema_version(ss2_file_json_latest)
-        parts = version.split('.')
-        self.assertEqual(len(parts), 3)
-        self.assertGreaterEqual(int(parts[0]), 5)
-
-    @pytest.mark.latest_schema
-    def test_get_smart_seq_2_fastq_names_latest(self):
-        with open(self.data_file('metadata/latest/ss2/file.json')) as f:
-            ss2_files_json_latest = json.load(f)
-        fastq_1_name, fastq_2_name = input_utils.get_smart_seq_2_fastq_names(ss2_files_json_latest, '5.x')
-        self.assertEqual(fastq_1_name, 'R1.fastq.gz')
-        self.assertEqual(fastq_2_name, 'R2.fastq.gz')
-
     def test_get_optimus_lanes_v4(self):
         lanes = input_utils.get_optimus_lanes(self.optimus_assay_json_v4, '4.x')
         self.assertEqual(len(lanes), 2)
@@ -153,8 +136,6 @@ class TestInputUtils(unittest.TestCase):
         self.assertEqual(r1, expected_r1)
         self.assertEqual(r2, expected_r2)
         self.assertEqual(i1, expected_i1)
-
-
 
     @requests_mock.mock()
     def test_get_metadata_to_process(self, mock_request):
