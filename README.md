@@ -21,12 +21,5 @@ pip install -r test-requirements.txt
 ### Run unit tests
 
 ```
-bash test.sh
-```
-
-### Run schema tests
-
-```
-export TEST_SUITE=latest_schema
-bash test.sh
+pytest -v
 ```
