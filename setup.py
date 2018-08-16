@@ -31,7 +31,8 @@ setup(name='pipeline-tools',
           ]
       },
       dependency_links=[
-            'git+git://github.com/broadinstitute/cromwell-tools.git@v0.3.1#egg=cromwell-tools-1.0.1'
+            'git+git://github.com/broadinstitute/cromwell-tools.git@v0.5.0#egg=cromwell-tools-1.0.1',
+            'git+git://github.com/HumanCellAtlas/metadata-api@master#egg=hca-metadata-api[dss]'
       ],
       include_package_data=True
       )
