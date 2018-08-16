@@ -1,1 +1,4 @@
 adapter_pipelines
+.eggs
+.pytest_cache
+pipeline_tools.egg-info
