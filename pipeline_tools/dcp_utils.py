@@ -28,7 +28,21 @@ def get_file_by_uuid(file_id, dss_url, http_requests):
 
 def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
     """Retrieve manifest JSON file for a given bundle uuid and version.
+
     Retry with exponentially increasing wait times between requests if there are any failures.
+
+    TODO: Reduce the number of lines of code by switching to use DSS Python API client.
+
+    Instead of talking to the DSS API directly, using the DSS Python API can avoid a lot of potential issues,
+    especially those related to the Checkout Service. A simple example of using the DSS Python client and the
+    metadata-api to get the manifest would be:
+
+    ```python
+    from humancellatlas.data.metadata.helpers.dss import download_bundle_metadata, dss_client
+
+    client = dss_client()
+    version, manifest, metadata_files = download_bundle_metadata(client, 'gcp', bundle_uuid, directurls=True)
+    ```
 
     Args:
         bundle_uuid (str): the uuid of the bundle
@@ -54,42 +68,6 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
     logging.info(response.text)
     manifest = response.json()
     return manifest
-
-
-def get_manifest_file_dicts(manifest):
-    """Create a dictionary of metadata describing files in the manifest
-
-    Args:
-        manifest (dict): the bundle manifest
-
-    Returns:
-        dict: A dict of metadata describing files in the manifest, like:
-            {
-                'name_to_meta': <dict>
-                'url_to_name': <dict>
-            }
-
-        The 'name_to_meta' dict maps the file name to metadata about it.
-        The 'url_to_name' dict maps the file url to its name
-    """
-    bundle = manifest['bundle']
-    name_to_meta = {}
-    url_to_name = {}
-    for f in bundle['files']:
-        name_to_meta[f['name']] = f
-        url_to_name[f['url']] = f['name']
-    return {
-        'name_to_meta': name_to_meta,
-        'url_to_name': url_to_name
-    }
-
-
-def get_file_uuid(manifest_file_dicts, file_name):
-    return manifest_file_dicts['name_to_meta'][file_name]['uuid']
-
-
-def get_file_url(manifest_file_dicts, file_name):
-    return manifest_file_dicts['name_to_meta'][file_name]['url']
 
 
 def get_auth_token(http_requests,
