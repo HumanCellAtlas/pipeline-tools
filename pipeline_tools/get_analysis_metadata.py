@@ -30,7 +30,7 @@ def get_analysis_workflow_id(analysis_output_path):
     workflow_id = calls[1].split('/')[-1]
     print('Got analysis workflow UUID: {0}'.format(workflow_id))
     with open('workflow_id.txt', 'w') as f:
-        f.write(workflow_id)
+        f.write(url)
     return workflow_id
 
 
