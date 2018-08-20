@@ -134,7 +134,8 @@ workflow AdapterOptimus {
   String reference_bundle
   String method
   String schema_url
-  String schema_version
+  String analysis_process_schema_version
+  String analysis_protocol_schema_version
   String analysis_file_version
   String run_type
   Int retry_seconds
@@ -220,7 +221,8 @@ workflow AdapterOptimus {
       reference_bundle = reference_bundle,
       run_type = run_type,
       schema_url = schema_url,
-      schema_version = schema_version,
+      analysis_process_schema_version = analysis_process_schema_version,
+      analysis_protocol_schema_version = analysis_protocol_schema_version,
       analysis_file_version = analysis_file_version,
       method = method,
       retry_seconds = retry_seconds,
