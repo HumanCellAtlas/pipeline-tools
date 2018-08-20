@@ -1,11 +1,21 @@
 import argparse
 import json
-from requests.auth import HTTPBasicAuth
 from cromwell_tools import cromwell_tools
+from requests.auth import HTTPBasicAuth
+
 from pipeline_tools.http_requests import HttpRequests
 
 
-def get_workflow_id(analysis_output_path):
+def _get_caas_backend():
+    """Get the url to the Cromwell-as-a-service backend.
+
+    This is a temporary function abstracted from the other functions which are hard-coding the url. FIXME: it doesn't
+    make sense to hard-code the CaaS url anymore once we migrate to use caas-prod as backend.
+    """
+    return 'https://cromwell.caas-dev.broadinstitute.org/api/workflows/v1'
+
+
+def get_analysis_workflow_id(analysis_output_path):
     """Parse the analysis workflow id from one of its output paths, and write the id to a file so that it is available
     outside of the get_analysis task.
 
@@ -23,6 +33,66 @@ def get_workflow_id(analysis_output_path):
     return workflow_id
 
 
+def get_adapter_workflow_id(analysis_output_path):
+    """Parse the adapter workflow id from one of its analysis workflow output paths.
+
+    Args:
+        analysis_output_path (str): Path to workflow output file.
+
+    Returns:
+        workflow_id (str): String giving Cromwell UUID of the adapter workflow.
+    """
+    url = analysis_output_path
+    calls = url.split('/call-')
+    workflow_id = calls[0].split('/')[-1]
+    return workflow_id
+
+
+def get_adapter_workflow_version(runtime_environment,
+                                 adapter_workflow_id,
+                                 http_requests,
+                                 use_caas=False,
+                                 caas_key_file=None):
+    """Get the version of the adapter workflow from its workflow id and write the version to a file so that it is
+    available outside of the get_analysis task.
+
+    Args:
+        runtime_environment (str): The cromwell environment the workflow was run in.
+        adapter_workflow_id (str): String giving Cromwell UUID of the adapter workflow.
+        http_requests: `http_requests.HttpRequests` instance, a wrapper around requests provides better retry and
+                       logging.
+        use_caas (bool): whether or not to use Cromwell-as-a-Service.
+        caas_key_file (str): path to CaaS service account JSON key file.
+
+    Raises:
+        requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
+    """
+
+    def log_before(workflowId):
+        print('Getting the version for adapter workflow {}'.format(workflowId))
+
+    if use_caas:
+        cromwell_url = _get_caas_backend()
+        json_credentials = caas_key_file or "/cromwell-metadata/caas_key.json"
+        headers = cromwell_tools.generate_auth_header_from_key_file(json_credentials)
+        auth = None
+    else:
+        cromwell_url = 'https://cromwell.mint-{}.broadinstitute.org/api/workflows/v1'.format(runtime_environment)
+        headers = None
+        auth = get_auth()
+    url = '{0}/query?id={1}&additionalQueryResultFields=labels'.format(
+            cromwell_url,
+            adapter_workflow_id)
+    response = http_requests.get(url, auth=auth, headers=headers, before=log_before(adapter_workflow_id))
+
+    workflow_labels = response.json().get('results')[0].get('labels')
+
+    workflow_version = workflow_labels.get('workflow-version') if workflow_labels else None
+
+    with open('pipeline_version.txt', 'w') as f:
+        f.write(workflow_version)
+
+
 def get_auth(credentials_file=None):
     """Parse cromwell username and password from credentials file.
 
@@ -30,7 +100,7 @@ def get_auth(credentials_file=None):
         credentials_file (str): Path to the file containing cromwell authentication credentials.
 
     Returns:
-        requests.auth.HTTPBasicAuth: object to be used for cromwell requests
+        requests.auth.HTTPBasicAuth: An object to be used for cromwell requests.
     """
     credentials_file = credentials_file or '/cromwell-metadata/cromwell_credentials.txt'
     with open(credentials_file) as f:
@@ -41,23 +111,26 @@ def get_auth(credentials_file=None):
 
 
 def get_metadata(runtime_environment, workflow_id, http_requests, use_caas=False, caas_key_file=None):
-    """Get metadata for analysis workflow from Cromwell and write it to a JSON file. Retry the request with exponentially
-    increasing wait times if there is an error.
+    """Get metadata for analysis workflow from Cromwell and write it to a JSON file. Retry the request with
+    exponentially increasing wait times if there is an error.
 
     Args:
-        runtime_environment (str): the cromwell environment the workflow was run in.
-        workflow_id (str): the analysis workflow id.
-        use_caas (bool): whether or not to use Cromwell-as-a-Service.
-        caas_key_file (str): path to CaaS service account JSON key file.
+        http_requests: `http_requests.HttpRequests` instance, a wrapper around requests provides better retry and
+                       logging.
+        runtime_environment (str): The cromwell environment the workflow was run in.
+        workflow_id (str): The analysis workflow id.
+        use_caas (bool): Whether or not to use Cromwell-as-a-Service.
+        caas_key_file (str): Path to CaaS service account JSON key file.
 
     Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
+        requests.HTTPError: For 4xx errors or 5xx errors beyond the timeout
     """
-    def log_before(workflow_id):
-        print('Getting metadata for workflow {}'.format(workflow_id))
+
+    def log_before(workflowId):
+        print('Getting metadata for workflow {}'.format(workflowId))
 
     if use_caas:
-        cromwell_url = 'https://cromwell.caas-dev.broadinstitute.org/api/workflows/v1'
+        cromwell_url = _get_caas_backend()
         json_credentials = caas_key_file or "/cromwell-metadata/caas_key.json"
         headers = cromwell_tools.generate_auth_header_from_key_file(json_credentials)
         auth = None
@@ -65,7 +138,7 @@ def get_metadata(runtime_environment, workflow_id, http_requests, use_caas=False
         cromwell_url = 'https://cromwell.mint-{}.broadinstitute.org/api/workflows/v1'.format(runtime_environment)
         headers = None
         auth = get_auth()
-    url = '{}/{}/metadata?expandSubWorkflows=true'.format(cromwell_url, workflow_id)
+    url = '{0}/{1}/metadata?expandSubWorkflows=true'.format(cromwell_url, workflow_id)
     response = http_requests.get(url, auth=auth, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
         json.dump(response.json(), f, indent=2)
@@ -78,9 +151,19 @@ def main():
     parser.add_argument('--use_caas', required=True)
     parser.add_argument('--caas_key_file', required=False, default=None)
     args = parser.parse_args()
-    workflow_id = get_workflow_id(args.analysis_output_path)
+
+    # Get the workflow id and metadata, write them to files
+    workflow_id = get_analysis_workflow_id(args.analysis_output_path)
     use_caas = True if args.use_caas.lower() == 'true' else False
     get_metadata(args.runtime_environment, workflow_id, HttpRequests(), use_caas, args.caas_key_file)
+
+    # Get the pipeline version and write to file
+    adapter_workflow_id = get_adapter_workflow_id(args.analysis_output_path)
+    get_adapter_workflow_version(args.runtime_environment,
+                                 adapter_workflow_id,
+                                 HttpRequests(),
+                                 use_caas,
+                                 args.caas_key_file)
 
 
 if __name__ == '__main__':
