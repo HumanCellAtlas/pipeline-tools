@@ -144,7 +144,7 @@ workflow AdapterOptimus {
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
-  String pipeline_tools_version = "v0.24.0"
+  String pipeline_tools_version = "cw-update-to-new-bundle-structure"
 
   call GetInputs as prep {
     input:
