@@ -87,9 +87,6 @@ def get_adapter_workflow_version(runtime_environment,
     url = '{0}/query?id={1}&additionalQueryResultFields=labels'.format(cromwell_url, adapter_workflow_id)
     response = http_requests.get(url, auth=auth, headers=headers, before=log_before(adapter_workflow_id))
 
-    if not response:
-        print('BUG!')
-        
     workflow_labels = response.json().get('results')[0].get('labels')
 
     workflow_version = workflow_labels.get('workflow-version') if workflow_labels else None
@@ -157,9 +154,12 @@ def main():
     parser.add_argument('--caas_key_file', required=False, default=None)
     args = parser.parse_args()
 
+    use_caas = True if args.use_caas.lower() == 'true' else False
+
+    print('Analysis output path: {}'.format(args.analysis_output_path))
+
     # Get the workflow id and metadata, write them to files
     workflow_id = get_analysis_workflow_id(analysis_output_path=args.analysis_output_path)
-    use_caas = True if args.use_caas.lower() == 'true' else False
     get_metadata(args.runtime_environment,
                  workflow_id=workflow_id,
                  http_requests=HttpRequests(),
