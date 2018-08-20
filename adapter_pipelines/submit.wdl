@@ -27,7 +27,7 @@ task get_metadata {
       --use_caas ${use_caas}
   >>>
   runtime {
-    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:v0.19.0"
+    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:cw-update-to-new-bundle-structure"
   }
   output {
     File metadata = "metadata.json"

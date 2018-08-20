@@ -30,7 +30,7 @@ def get_analysis_workflow_id(analysis_output_path):
     workflow_id = calls[1].split('/')[-1]
     print('Got analysis workflow UUID: {0}'.format(workflow_id))
     with open('workflow_id.txt', 'w') as f:
-        f.write(url)
+        f.write(workflow_id)
     return workflow_id
 
 
@@ -45,11 +45,11 @@ def get_adapter_workflow_id(analysis_output_path):
     """
     url = analysis_output_path
     calls = url.split('/call-')
-    workflow_id = calls[0].split('/')[-1]
-    print('Got adapter workflow UUID: {0}'.format(workflow_id))
+    adapter_workflow_id = calls[0].split('/')[-1]
+    print('Got adapter workflow UUID: {0}'.format(adapter_workflow_id))
     with open('adapter_workflow_id.txt', 'w') as f:
-        f.write(workflow_id)
-    return workflow_id
+        f.write(adapter_workflow_id)
+    return adapter_workflow_id
 
 
 def get_adapter_workflow_version(runtime_environment,
@@ -156,7 +156,7 @@ def main():
 
     use_caas = True if args.use_caas.lower() == 'true' else False
 
-    print('Analysis output path: {}'.format(args.analysis_output_path))
+    print('Using analysis output path: {0}'.format(args.analysis_output_path))
 
     # Get the workflow id and metadata, write them to files
     workflow_id = get_analysis_workflow_id(analysis_output_path=args.analysis_output_path)
