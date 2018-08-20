@@ -261,7 +261,7 @@ workflow submit {
       run_type = run_type,
       schema_url = schema_url,
       analysis_process_schema_version = analysis_process_schema_version,
-      analysis_process_schema_version = analysis_process_schema_version,
+      analysis_protocol_schema_version = analysis_protocol_schema_version,
       analysis_file_version = analysis_file_version,
       method = method,
       submit_url = submit_url,
