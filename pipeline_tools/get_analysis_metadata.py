@@ -47,6 +47,8 @@ def get_adapter_workflow_id(analysis_output_path):
     calls = url.split('/call-')
     workflow_id = calls[0].split('/')[-1]
     print('Got adapter workflow UUID: {0}'.format(workflow_id))
+    with open('adapter_workflow_id.txt', 'w') as f:
+        f.write(workflow_id)
     return workflow_id
 
 
@@ -82,11 +84,12 @@ def get_adapter_workflow_version(runtime_environment,
         cromwell_url = 'https://cromwell.mint-{}.broadinstitute.org/api/workflows/v1'.format(runtime_environment)
         headers = None
         auth = get_auth()
-    url = '{0}/query?id={1}&additionalQueryResultFields=labels'.format(
-            cromwell_url,
-            adapter_workflow_id)
+    url = '{0}/query?id={1}&additionalQueryResultFields=labels'.format(cromwell_url, adapter_workflow_id)
     response = http_requests.get(url, auth=auth, headers=headers, before=log_before(adapter_workflow_id))
 
+    if not response:
+        print('BUG!')
+        
     workflow_labels = response.json().get('results')[0].get('labels')
 
     workflow_version = workflow_labels.get('workflow-version') if workflow_labels else None
