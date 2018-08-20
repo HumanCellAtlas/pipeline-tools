@@ -2,3 +2,5 @@ adapter_pipelines
 .eggs
 .pytest_cache
 pipeline_tools.egg-info
+cromwell_credentials.txt
+caas_key.json
