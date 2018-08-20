@@ -28,6 +28,7 @@ def get_analysis_workflow_id(analysis_output_path):
     url = analysis_output_path
     calls = url.split('/call-')
     workflow_id = calls[1].split('/')[-1]
+    print('Got analysis workflow UUID: {0}'.format(workflow_id))
     with open('workflow_id.txt', 'w') as f:
         f.write(workflow_id)
     return workflow_id
@@ -45,6 +46,7 @@ def get_adapter_workflow_id(analysis_output_path):
     url = analysis_output_path
     calls = url.split('/call-')
     workflow_id = calls[0].split('/')[-1]
+    print('Got adapter workflow UUID: {0}'.format(workflow_id))
     return workflow_id
 
 
@@ -153,17 +155,21 @@ def main():
     args = parser.parse_args()
 
     # Get the workflow id and metadata, write them to files
-    workflow_id = get_analysis_workflow_id(args.analysis_output_path)
+    workflow_id = get_analysis_workflow_id(analysis_output_path=args.analysis_output_path)
     use_caas = True if args.use_caas.lower() == 'true' else False
-    get_metadata(args.runtime_environment, workflow_id, HttpRequests(), use_caas, args.caas_key_file)
+    get_metadata(args.runtime_environment,
+                 workflow_id=workflow_id,
+                 http_requests=HttpRequests(),
+                 use_caas=use_caas,
+                 caas_key_file=args.caas_key_file)
 
     # Get the pipeline version and write to file
-    adapter_workflow_id = get_adapter_workflow_id(args.analysis_output_path)
-    get_adapter_workflow_version(args.runtime_environment,
-                                 adapter_workflow_id,
-                                 HttpRequests(),
-                                 use_caas,
-                                 args.caas_key_file)
+    adapter_workflow_id = get_adapter_workflow_id(analysis_output_path=args.analysis_output_path)
+    get_adapter_workflow_version(runtime_environment=args.runtime_environment,
+                                 adapter_workflow_id=adapter_workflow_id,
+                                 http_requests=HttpRequests(),
+                                 use_caas=use_caas,
+                                 caas_key_file=args.caas_key_file)
 
 
 if __name__ == '__main__':
