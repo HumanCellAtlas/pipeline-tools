@@ -18,6 +18,7 @@ setup(name='pipeline-tools',
           'cromwell-tools',
           'google-cloud-storage>=1.8.0,<2',
           'hca>=4.0.0,<5',
+          'hca-metadata-api',
           'mock>=2.0.0,<3',
           'requests>=2.18.4,<3',
           'requests-mock>=1.4.0,<2',
@@ -35,9 +36,13 @@ setup(name='pipeline-tools',
               'confirm-submission=pipeline_tools.confirm_submission:main'
           ]
       },
+      # FIXME: DEPRECATION: Dependency Links processing has been deprecated and will be removed in a future release.
       dependency_links=[
           'git+git://github.com/broadinstitute/cromwell-tools.git@v0.5.0#egg=cromwell-tools-1.0.1',
-          'git+git://github.com/HumanCellAtlas/metadata-api@master#egg=hca-metadata-api[dss]'
+          # FIXME: install hca-metadata-api from PyPI once it is available (shortly)
+          # Pin to a specific commit of the hca-metadata-api so we won't be broken by changes to that repo before it's
+          # available on PyPI
+          'git+git://github.com/HumanCellAtlas/metadata-api@1b7192c#egg=hca-metadata-api-0.0.1'
       ],
       include_package_data=True
       )
