@@ -248,7 +248,7 @@ def get_outputs(output_url_to_md5, extension_to_format, schema_url, analysis_fil
     """
     outputs = [
         {
-            'describedBy': '{}/type/file/{}/analysis_file'.format(schema_url, analysis_file_version),
+            'describedBy': '{0}/type/file/{1}/analysis_file'.format(schema_url, analysis_file_version),
             'schema_type': 'file',
             'file_core'  : {
                 'file_name'  : output_url.split('/')[-1],
