@@ -1,9 +1,6 @@
 import os
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    # for Python 2
-    from backports.tempfile import TemporaryDirectory
+
+from tempfile import TemporaryDirectory
 from pipeline_tools import http_requests
 
 
@@ -23,7 +20,8 @@ class HttpRequestsManager(TemporaryDirectory):
             individual_request_timeout (float): time out any request that takes longer than this number of seconds
     """
 
-    def __init__(self, should_record=True, max_tries=3, retry_multiplier=0.01, timeout=1, max_interval=10, individual_request_timeout=1):
+    def __init__(self, should_record=True, max_tries=3, retry_multiplier=0.01, timeout=1, max_interval=10,
+                 individual_request_timeout=1):
         """Sets self.should_record attribute.
 
         Args:
