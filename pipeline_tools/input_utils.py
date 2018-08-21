@@ -147,13 +147,15 @@ def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_re
     return fastq_1_url, fastq_2_url, sample_id
 
 
-def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url):
+def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, input_tsv_name='inputs.tsv'):
     """Create TSV of Smart-seq2 inputs.
 
     Args:
         bundle_uuid (str): The bundle uuid
         bundle_version (str): The bundle version
         dss_url (str): The url for the DCP Data Storage Service
+        input_tsv_name (str): The file name of the input TSV file. By default, it's set to 'inputs.tsv',
+                              which will be consumed by the pipelines.
 
     Returns:
         None: this function will write the TSV file of cloud paths for the input files.
@@ -165,7 +167,7 @@ def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url):
                                                                          HttpRequests())
 
     print("Creating input map")
-    with open("inputs.tsv", "w") as f:
+    with open(input_tsv_name, "w") as f:
         f.write("fastq_1\tfastq_2\tsample_id\n")
         f.write("{0}\t{1}\t{2}\n".format(fastq_1_url, fastq_2_url, sample_id))
     print("Wrote input map")
