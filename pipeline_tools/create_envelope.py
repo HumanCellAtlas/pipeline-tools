@@ -241,7 +241,7 @@ def get_analysis_process(analysis_process_url, auth_headers, process_id, http_re
     content = response.json().get('_embedded')
 
     if content:
-        for process in content.get('protocols'):
+        for process in content.get('processes'):
             if process['content']['process_core']['process_id'] == process_id:
                 print('Found existing analysis_process for workflow {0} in {1}'.format(
                         process_id, analysis_process_url))
@@ -307,7 +307,7 @@ def add_input_bundles(input_bundles_url, auth_headers, analysis_process, http_re
         requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     print('Adding input bundles at {0}'.format(input_bundles_url))
-    input_bundle_uuid = analysis_process['input_bundles'][0]
+    input_bundle_uuid = analysis_process['input_bundles'][0]  # Note: it's a placeholder here
     bundle_refs_dict = {'bundleUuids': [input_bundle_uuid]}
     response = http_requests.put(input_bundles_url, headers=auth_headers, json=bundle_refs_dict)
     print('Added input bundle reference: {0}'.format(bundle_refs_dict))
