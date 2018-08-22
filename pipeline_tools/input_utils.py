@@ -133,7 +133,7 @@ def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_re
                                       dss_url=dss_url,
                                       http_requests=http_requests)['bundle']['files']
 
-    metadata_files_dict = {f["name"]: f for f in manifest if f["indexed"]}
+    metadata_files_dict = {f['name']: f for f in manifest if f['indexed']}
     metadata_files = get_metadata_files(metadata_files_dict=metadata_files_dict, dss_url=dss_url)
 
     # construct the bundle object to get required fields
@@ -166,11 +166,11 @@ def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, input_tsv_name='i
     fastq_1_url, fastq_2_url, sample_id = _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url,
                                                                          HttpRequests())
 
-    print("Creating input map")
-    with open(input_tsv_name, "w") as f:
-        f.write("fastq_1\tfastq_2\tsample_id\n")
-        f.write("{0}\t{1}\t{2}\n".format(fastq_1_url, fastq_2_url, sample_id))
-    print("Wrote input map")
+    print('Creating input map')
+    with open(input_tsv_name, 'w') as f:
+        f.write('fastq_1\tfastq_2\tsample_id\n')
+        f.write('{0}\t{1}\t{2}\n'.format(fastq_1_url, fastq_2_url, sample_id))
+    print('Wrote input map to disk.')
 
 
 def _get_optimus_inputs(lanes, manifest_files):

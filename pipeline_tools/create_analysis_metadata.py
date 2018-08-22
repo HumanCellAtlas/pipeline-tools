@@ -107,7 +107,7 @@ def base64_to_hex(base64_str):
     return hex_str
 
 
-def get_analysis_describedBy(schema_url, schema_type, schema_version):
+def get_analysis_described_by(schema_url, schema_type, schema_version):
     """A helper function prepares the "describedBy" field in the analysis metadata, works for both process and protocol.
 
     Args:
@@ -210,7 +210,7 @@ def get_workflow_tasks(workflow_metadata):
     return sorted_output_tasks
 
 
-def get_format(path, extension_to_format):
+def get_file_format(path, extension_to_format):
     """Returns the file type of the file at the given path.
 
     Args:
@@ -252,7 +252,7 @@ def get_outputs(output_url_to_md5, extension_to_format, schema_url, analysis_fil
             'schema_type': 'file',
             'file_core'  : {
                 'file_name'  : output_url.split('/')[-1],
-                'file_format': get_format(output_url, extension_to_format),
+                'file_format': get_file_format(output_url, extension_to_format),
                 'checksum'   : md5_hash
             }
         } for output_url, md5_hash in sorted(output_url_to_md5.items())
@@ -342,15 +342,15 @@ def create_analysis_process(raw_schema_url,
     workflow_tasks = get_workflow_tasks(workflow_metadata)
 
     analysis_process = {
-        'describedBy'        : get_analysis_describedBy(schema_url=raw_schema_url,
-                                                        schema_type=SCHEMA_TYPE,
-                                                        schema_version=analysis_process_schema_version),
+        'describedBy'        : get_analysis_described_by(schema_url=raw_schema_url,
+                                                         schema_type=SCHEMA_TYPE,
+                                                         schema_version=analysis_process_schema_version),
         'schema_type'        : SCHEMA_TYPE,
         'process_core'       : get_analysis_process_core(analysis_workflow_id=analysis_id),
         'process_type'       : get_analysis_process_type(),
         'timestamp_start_utc': workflow_metadata.get('start'),
         'timestamp_stop_utc' : workflow_metadata.get('end'),
-        'input_bundles'      : input_bundles_string.split('.'),
+        'input_bundles'      : input_bundles_string.split(','),
         'reference_bundle'   : reference_bundle,
         'tasks'              : workflow_tasks,
         'inputs'             : inputs,
@@ -388,9 +388,9 @@ def create_analysis_protocol(raw_schema_url, analysis_protocol_schema_version, p
     SCHEMA_TYPE = 'protocol'
 
     analysis_protocol = {
-        'describedBy'         : get_analysis_describedBy(schema_url=raw_schema_url,
-                                                         schema_type=SCHEMA_TYPE,
-                                                         schema_version=analysis_protocol_schema_version),
+        'describedBy'         : get_analysis_described_by(schema_url=raw_schema_url,
+                                                          schema_type=SCHEMA_TYPE,
+                                                          schema_version=analysis_protocol_schema_version),
         'schema_type'         : SCHEMA_TYPE,
         'protocol_core'       : get_analysis_protocol_core(pipeline_version=pipeline_version),
         'computational_method': method,

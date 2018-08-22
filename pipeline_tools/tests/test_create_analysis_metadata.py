@@ -3,7 +3,7 @@ import unittest
 import os
 import json
 from google.cloud import storage
-import pipeline_tools.create_analysis_json as caj
+import pipeline_tools.create_analysis_metadata as cam
 
 
 class TestCreateAnalysisJson(unittest.TestCase):

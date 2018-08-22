@@ -51,11 +51,7 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
         http_requests (HttpRequests): the HttpRequests object to use
 
     Returns:
-        dict: A dict of the following form:
-            {
-                'name_to_meta': dict mapping <str file name>: <dict file metadata>,
-                'url_to_name': dict mapping <str file url>: <str file name>
-            }
+        dict: A dict representing the full bundle manifest, with `directurls` for each file.
 
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout

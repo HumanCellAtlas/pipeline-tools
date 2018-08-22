@@ -7,17 +7,47 @@ from pipeline_tools.dcp_utils import get_auth_token, make_auth_header
 from pipeline_tools.http_requests import HttpRequests
 
 
-def get_subject_url(target_dic, subject):
+def get_subject_url(endpoint_dict, subject):
     """Get the Ingest service url for a given subject.
 
     Args:
-        target_dic (dict): Dict representing the JSON response from the root Ingest service url.
+        endpoint_dict (dict): Dict representing the JSON response from the root Ingest service url. A typical dict will
+                              look like below:
+        ```
+        {'_links': {'biomaterials'       : {'href'     : 'ingest_root_url/biomaterials{?page,size,sort,projection}',
+                                            'templated': True},
+                    'bundleManifests'    : {'href'     : 'ingest_root_url/bundleManifests{?page,size,sort}',
+                                            'templated': True,
+                                            'title'    : 'Access or create bundle manifests (describing which '
+                                                         'submitted contents went into which bundle in the datastore)'},
+                    'files'              : {'href'     : 'ingest_root_url/files{?page,size,sort}',
+                                            'templated': True,
+                                            'title'    : 'Access or create, within a submission envelope, a new assay'},
+                    'processes'          : {'href'     : 'ingest_root_url/processes{?page,size,sort,projection}',
+                                            'templated': True},
+                    'profile'            : {'href': 'ingest_root_url/profile'},
+                    'projects'           : {'href'     : 'ingest_root_url/projects{?page,size,sort}',
+                                            'templated': True,
+                                            'title'    : 'Access or create projects. Creation can only be done inside '
+                                                         'a submission envelope'},
+                    'protocols'          : {'href'     : 'ingest_root_url/protocols{?page,size,sort}',
+                                            'templated': True,
+                                            'title'    : 'Access or create protocols'},
+                    'schemas'            : {'href'     : 'ingest_root_url/schemas{?page,size,sort}',
+                                            'templated': True},
+                    'submissionEnvelopes': {'href'     : 'ingest_root_url/submissionEnvelopes{?page,size,sort}',
+                                            'templated': True,
+                                            'title'    : 'Access or create new submission envelopes'},
+                    'submissionManifests': {'href'     : 'ingest_root_url/submissionManifests{?page,size,sort}',
+                                            'templated': True},
+                    'user'               : {'href': 'ingest_root_url/user'}}}
+        ```
         subject (str): The name of the subject to look for. (e.g. 'submissionEnvelope', 'add-file-reference')
 
     Returns:
         subject_url (str): A string giving the url for the given subject.
     """
-    subject_url = target_dic['_links'][subject]['href'].split('{')[0]
+    subject_url = endpoint_dict['_links'][subject]['href'].split('{')[0]
     print('Got {subject} URL: {subject_url}'.format(subject=subject, subject_url=subject_url))
     return subject_url
 
@@ -38,7 +68,7 @@ def get_envelope_url(submit_url, auth_headers, http_requests):
     """
     print('Getting envelope url from {}'.format(submit_url))
     response = http_requests.get(submit_url, headers=auth_headers)
-    envelope_url = get_subject_url(target_dic=response.json(), subject='submissionEnvelopes')
+    envelope_url = get_subject_url(endpoint_dict=response.json(), subject='submissionEnvelopes')
     return envelope_url
 
 
@@ -220,7 +250,7 @@ def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
 
     Args:
         file_ref (dict): HCA metadata stub about the file.
-        file_refs_url (str): The url for adding file references
+        file_refs_url (str): The url for adding file references.
         auth_headers (dict): Dict representing headers to use for auth.
         http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
@@ -233,6 +263,21 @@ def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
     print('Adding file: {0} to the file reference.'.format(file_ref['fileName']))
     response = http_requests.put(file_refs_url, headers=auth_headers, json=file_ref)
     return response.json()
+
+
+def link_analysis_protocol_to_analysis_process(link_url, analysis_protocol_url, http_requests):
+    """Make the analysis process to be associated with the analysis_protocol to let Ingest create the links.json.
+
+    Args:
+        link_url (str): The url for link protocols to processes.
+        analysis_protocol_url (str): The url for creating the analysis_protocol.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
+
+    Raises:
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
+    """
+    link_headers = {'content-type': 'text/uri-list'}
+    response = http_requests.put(link_url, headers=link_headers, data=analysis_protocol_url)
 
 
 def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, raw_schema_url,
@@ -260,7 +305,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
 
     # === 2. Create envelope and get submission_url ===
     envelope_dict = create_submission_envelope(envelope_url, auth_headers, http_requests)
-    submission_url = get_subject_url(target_dic=envelope_dict, subject='submissionEnvelope')
+    submission_url = get_subject_url(endpoint_dict=envelope_dict, subject='submissionEnvelope')
 
     # save submission_url to disk
     with open('submission_url.txt', 'w') as f:
@@ -270,7 +315,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     with open(analysis_protocol_path) as f:
         analysis_protocol_dict = json.load(f)
 
-    analysis_protocol_url = get_subject_url(target_dic=envelope_dict, subject='analysis_protocol')
+    analysis_protocol_url = get_subject_url(endpoint_dict=envelope_dict, subject='protocols')
 
     # Check if an analysis_protocol already exists in the submission envelope from a previous attempt
     pipeline_version = analysis_protocol_dict['protocol_core']['protocol_id']
@@ -287,11 +332,10 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
                                                    http_requests=http_requests)
 
     # === 4. Create analysis_process ===
-    # TODO: parallelize this with creating the analysis_protocol to speed up
     with open(analysis_process_path) as f:
         analysis_process_dict = json.load(f)
 
-    analysis_process_url = get_subject_url(target_dic=envelope_dict, subject='analysis_process')
+    analysis_process_url = get_subject_url(endpoint_dict=envelope_dict, subject='processes')
 
     # Check if an analysis_process already exists in the submission envelope from a previous attempt
     analysis_workflow_id = analysis_process_dict['process_core']['process_id']
@@ -307,16 +351,23 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
                                                 analysis_process=analysis_process_dict,
                                                 http_requests=http_requests)
 
-    # === 5. Add input bundles ===
-    input_bundles_url = get_subject_url(analysis_process, 'add-input-bundles')
+    # === 5. Link analysis_protocol to analysis_process ===
+    link_url = get_subject_url(endpoint_dict=analysis_process, subject='protocols')
+    print('Linking analysis_protocol to analysis_process at {0}'.format(link_url))
+    link_analysis_protocol_to_analysis_process(link_url=link_url,
+                                               analysis_protocol_url=analysis_protocol_url,
+                                               http_requests=http_requests)
+
+    # === 6. Add input bundle references ===
+    input_bundles_url = get_subject_url(endpoint_dict=analysis_process, subject='add-input-bundles')
     print('Adding input bundles at {0}'.format(input_bundles_url))
     add_input_bundles(input_bundles_url=input_bundles_url,
                       auth_headers=auth_headers,
                       analysis_process=analysis_process_dict,
                       http_requests=http_requests)
 
-    # === 6. Add file references ===
-    file_refs_url = get_subject_url(analysis_process, 'add-file-reference')
+    # === 7. Add file references ===
+    file_refs_url = get_subject_url(endpoint_dict=analysis_process, subject='add-file-reference')
     print('Adding file references at {0}'.format(file_refs_url))
     output_files = get_output_files(analysis_process=analysis_process_dict,
                                     raw_schema_url=raw_schema_url,
