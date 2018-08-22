@@ -9,6 +9,110 @@ from google.cloud import storage
 from typing import List
 
 
+def create_analysis_process(raw_schema_url,
+                            metadata_file,
+                            analysis_process_schema_version,
+                            analysis_id,
+                            input_bundles_string,
+                            reference_bundle,
+                            inputs,
+                            output_url_to_md5,
+                            extension_to_format,
+                            analysis_file_version,
+                            run_type):
+    """Collect and create the information about the analysis process for submission to Ingest service.
+
+    Based the design of this HCA metadata type, analysis_process will vary between each analysis run, even if they share
+    the same version of pipeline. Most of the content of this process will be collected from the Cromwell workflow
+    metadata. This function strictly follows the metadata schema defined at:
+    https://github.com/HumanCellAtlas/metadata-schema
+
+    TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
+    2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L255" so we can use the `metadata-api` directly to create
+    the analysis_process metadata file.
+
+    Args:
+        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
+        metadata_file (str): Path to file containing metadata json for the workflow.
+        analysis_process_schema_version (str): Version of the metadata schema that the analysis_process conforms to.
+        analysis_id (str): UUID of the analysis workflow.
+        input_bundles_string (str): A comma-separated list of input bundle UUIDs.
+        reference_bundle (str): UUID of the reference bundle. FIXME: we are using a placeholder id for this field
+                                since it is required in the schema, but we are not using reference bundles yet. We
+                                should use the actual value here once it's applicable.
+        inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
+        output_url_to_md5 (dict): A dict mapping workflow output urls to corresponding md5 hashes.
+        extension_to_format (dict): A dict mapping file extensions to file formats.
+        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
+        run_type (str): Indicator of whether the analysis actually ran or was just copied forward as an optimization.
+                        Should be either "run" or "copy-forward".
+
+    Returns:
+        analysis_process (dict): A dict representing the analysis_process json file to be submitted.
+    """
+    SCHEMA_TYPE = 'process'
+
+    workflow_metadata = get_workflow_metadata(metadata_file)
+    workflow_tasks = get_workflow_tasks(workflow_metadata)
+
+    analysis_process = {
+        'describedBy'        : get_analysis_described_by(schema_url=raw_schema_url,
+                                                         schema_type=SCHEMA_TYPE,
+                                                         schema_version=analysis_process_schema_version),
+        'schema_type'        : SCHEMA_TYPE,
+        'process_core'       : get_analysis_process_core(analysis_workflow_id=analysis_id),
+        'process_type'       : get_analysis_process_type(),
+        'timestamp_start_utc': workflow_metadata.get('start'),
+        'timestamp_stop_utc' : workflow_metadata.get('end'),
+        'input_bundles'      : input_bundles_string.split(','),
+        'reference_bundle'   : reference_bundle,
+        'tasks'              : workflow_tasks,
+        'inputs'             : inputs,
+        'outputs'            : get_outputs(output_url_to_md5=output_url_to_md5,
+                                           extension_to_format=extension_to_format,
+                                           schema_url=raw_schema_url,
+                                           analysis_file_version=analysis_file_version),
+        'analysis_run_type'  : run_type,
+    }
+    return analysis_process
+
+
+def create_analysis_protocol(raw_schema_url, analysis_protocol_schema_version, pipeline_version, method):
+    """Collect and create the information about the analysis protocol for submission to Ingest service.
+
+    Based the design of this HCA metadata type, one analysis_protocol will be shared by every analysis run for a given
+    pipeline, although the same content will be submitted to the protocols endpoint for each run. Besides, any changes
+    to the pipeline version will change the content of the standard analysis_protocol. This function strictly follows
+    the metadata schema defined at: https://github.com/HumanCellAtlas/metadata-schema
+
+    TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
+    2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L339" so we can use the `metadata-api` directly to create
+    the analysis_protocol metadata file.
+
+    Args:
+        pipeline_version (str): The version of the pipeline, usually provided by the label of the adapter workflow
+                                around the analysis workflow.
+        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
+        analysis_protocol_schema_version (str): Version of the metadata schema that the analysis_protocol conforms to.
+        method (str): The name of the analysis workflow, e.g. "SmartSeq2SingleCell"
+
+    Returns:
+        analysis_protocol (dict): A dict representing the analysis_protocol json file to be submitted.
+    """
+    SCHEMA_TYPE = 'protocol'
+
+    analysis_protocol = {
+        'describedBy'         : get_analysis_described_by(schema_url=raw_schema_url,
+                                                          schema_type=SCHEMA_TYPE,
+                                                          schema_version=analysis_protocol_schema_version),
+        'schema_type'         : SCHEMA_TYPE,
+        'protocol_core'       : get_analysis_protocol_core(pipeline_version=pipeline_version),
+        'computational_method': method,
+        'protocol_type'       : get_analysis_protocol_type(),
+    }
+    return analysis_protocol
+
+
 def get_inputs(inputs_file):
     """Reads input parameter names and values from tsv file.
 
@@ -140,7 +244,7 @@ def get_analysis_process_core(analysis_workflow_id, **kwargs):
         analysis_process_core (dict): Dict containing process_core metadata required for analysis_process.
     """
     analysis_process_core = {'process_id': analysis_workflow_id}
-    for optional_key, optional_val in kwargs:
+    for optional_key, optional_val in kwargs.items():
         analysis_process_core[optional_key] = optional_val
     return analysis_process_core
 
@@ -277,7 +381,7 @@ def get_analysis_protocol_core(pipeline_version, **kwargs):
         analysis_protocol_core (dict): Dict containing protocol_core metadata required for analysis_protocol.
     """
     analysis_protocol_core = {'protocol_id': pipeline_version}
-    for optional_key, optional_val in kwargs:
+    for optional_key, optional_val in kwargs.items():
         analysis_protocol_core[optional_key] = optional_val
     return analysis_protocol_core
 
@@ -293,110 +397,6 @@ def get_analysis_protocol_type():
     """
     analysis_protocol_type = {'text': 'analysis'}
     return analysis_protocol_type
-
-
-def create_analysis_process(raw_schema_url,
-                            metadata_file,
-                            analysis_process_schema_version,
-                            analysis_id,
-                            input_bundles_string,
-                            reference_bundle,
-                            inputs,
-                            output_url_to_md5,
-                            extension_to_format,
-                            analysis_file_version,
-                            run_type):
-    """Collect and create the information about the analysis process for submission to Ingest service.
-
-    Based the design of this HCA metadata type, analysis_process will vary between each analysis run, even if they share
-    the same version of pipeline. Most of the content of this process will be collected from the Cromwell workflow
-    metadata. This function strictly follows the metadata schema defined at:
-    https://github.com/HumanCellAtlas/metadata-schema
-
-    TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
-    2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L255" so we can use the `metadata-api` directly to create
-    the analysis_process metadata file.
-
-    Args:
-        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
-        metadata_file (str): Path to file containing metadata json for the workflow.
-        analysis_process_schema_version (str): Version of the metadata schema that the analysis_process conforms to.
-        analysis_id (str): UUID of the analysis workflow.
-        input_bundles_string (str): A comma-separated list of input bundle UUIDs.
-        reference_bundle (str): UUID of the reference bundle. FIXME: we are using a placeholder id for this field
-                                since it is required in the schema, but we are not using reference bundles yet. We
-                                should use the actual value here once it's applicable.
-        inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
-        output_url_to_md5 (dict): A dict mapping workflow output urls to corresponding md5 hashes.
-        extension_to_format (dict): A dict mapping file extensions to file formats.
-        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
-        run_type (str): Indicator of whether the analysis actually ran or was just copied forward as an optimization.
-                        Should be either "run" or "copy-forward".
-
-    Returns:
-        analysis_process (dict): A dict representing the analysis_process json file to be submitted.
-    """
-    SCHEMA_TYPE = 'process'
-
-    workflow_metadata = get_workflow_metadata(metadata_file)
-    workflow_tasks = get_workflow_tasks(workflow_metadata)
-
-    analysis_process = {
-        'describedBy'        : get_analysis_described_by(schema_url=raw_schema_url,
-                                                         schema_type=SCHEMA_TYPE,
-                                                         schema_version=analysis_process_schema_version),
-        'schema_type'        : SCHEMA_TYPE,
-        'process_core'       : get_analysis_process_core(analysis_workflow_id=analysis_id),
-        'process_type'       : get_analysis_process_type(),
-        'timestamp_start_utc': workflow_metadata.get('start'),
-        'timestamp_stop_utc' : workflow_metadata.get('end'),
-        'input_bundles'      : input_bundles_string.split(','),
-        'reference_bundle'   : reference_bundle,
-        'tasks'              : workflow_tasks,
-        'inputs'             : inputs,
-        'outputs'            : get_outputs(output_url_to_md5=output_url_to_md5,
-                                           extension_to_format=extension_to_format,
-                                           schema_url=raw_schema_url,
-                                           analysis_file_version=analysis_file_version),
-        'analysis_run_type'  : run_type,
-    }
-    return analysis_process
-
-
-def create_analysis_protocol(raw_schema_url, analysis_protocol_schema_version, pipeline_version, method):
-    """Collect and create the information about the analysis protocol for submission to Ingest service.
-
-    Based the design of this HCA metadata type, one analysis_protocol will be shared by every analysis run for a given
-    pipeline, although the same content will be submitted to the protocols endpoint for each run. Besides, any changes
-    to the pipeline version will change the content of the standard analysis_protocol. This function strictly follows
-    the metadata schema defined at: https://github.com/HumanCellAtlas/metadata-schema
-
-    TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
-    2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L339" so we can use the `metadata-api` directly to create
-    the analysis_protocol metadata file.
-
-    Args:
-        pipeline_version (str): The version of the pipeline, usually provided by the label of the adapter workflow
-                                around the analysis workflow.
-        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
-        analysis_protocol_schema_version (str): Version of the metadata schema that the analysis_protocol conforms to.
-        method (str): The name of the analysis workflow, e.g. "SmartSeq2SingleCell"
-
-    Returns:
-        analysis_protocol (dict): A dict representing the analysis_protocol json file to be submitted.
-    """
-    SCHEMA_TYPE = 'protocol'
-
-    analysis_protocol = {
-        'describedBy'         : get_analysis_described_by(schema_url=raw_schema_url,
-                                                          schema_type=SCHEMA_TYPE,
-                                                          schema_version=analysis_protocol_schema_version),
-        'schema_type'         : SCHEMA_TYPE,
-        'protocol_core'       : get_analysis_protocol_core(pipeline_version=pipeline_version),
-        'computational_method': method,
-        'protocol_type'       : get_analysis_protocol_type(),
-    }
-    return analysis_protocol
 
 
 def main():

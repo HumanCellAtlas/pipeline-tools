@@ -7,6 +7,107 @@ from pipeline_tools.dcp_utils import get_auth_token, make_auth_header
 from pipeline_tools.http_requests import HttpRequests
 
 
+def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, raw_schema_url,
+                   analysis_file_version):
+    """Create the submission envelope in Ingest service.
+
+    Args:
+        submit_url (str): URL of Ingest service to perform the submission.
+        analysis_protocol_path (str): Path to the analysis_protocol json file.
+        analysis_process_path (str): Path to the analysis_process json file.
+        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
+        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
+    """
+    # Instantiate a HttpRequests object
+    http_requests = HttpRequests()
+
+    # === 0. Get Auth token and make auth headers ===
+    print('Fetching auth token from Auth0')
+    auth_token = get_auth_token(http_requests)
+    print('Making auth headers')
+    auth_headers = make_auth_header(auth_token)
+
+    # === 1. Get envelope url ===
+    envelope_url = get_envelope_url(submit_url, auth_headers, http_requests)
+
+    # === 2. Create envelope and get submission_url ===
+    envelope_dict = create_submission_envelope(envelope_url, auth_headers, http_requests)
+    submission_url = get_subject_url(endpoint_dict=envelope_dict, subject='submissionEnvelope')
+
+    # save submission_url to disk
+    with open('submission_url.txt', 'w') as f:
+        f.write(submission_url)
+
+    # === 3. Create analysis_protocol ===
+    with open(analysis_protocol_path) as f:
+        analysis_protocol_dict = json.load(f)
+
+    analysis_protocol_url = get_subject_url(endpoint_dict=envelope_dict, subject='protocols')
+
+    # Check if an analysis_protocol already exists in the submission envelope from a previous attempt
+    pipeline_version = analysis_protocol_dict['protocol_core']['protocol_id']
+    analysis_protocol = get_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
+                                              auth_headers=auth_headers,
+                                              protocol_id=pipeline_version,
+                                              http_requests=http_requests)
+
+    # Create analysis_protocol if this is the first attempt
+    if not analysis_protocol:
+        _analysis_protocol = add_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
+                                                   auth_headers=auth_headers,
+                                                   analysis_protocol=analysis_protocol_dict,
+                                                   http_requests=http_requests)
+
+    # === 4. Create analysis_process ===
+    with open(analysis_process_path) as f:
+        analysis_process_dict = json.load(f)
+
+    analysis_process_url = get_subject_url(endpoint_dict=envelope_dict, subject='processes')
+
+    # Check if an analysis_process already exists in the submission envelope from a previous attempt
+    analysis_workflow_id = analysis_process_dict['process_core']['process_id']
+    analysis_process = get_analysis_process(analysis_process_url=analysis_process_url,
+                                            auth_headers=auth_headers,
+                                            process_id=analysis_workflow_id,
+                                            http_requests=http_requests)
+
+    # Create analysis_process if this is the first attempt
+    if not analysis_process:
+        analysis_process = add_analysis_process(analysis_process_url=analysis_process_url,
+                                                auth_headers=auth_headers,
+                                                analysis_process=analysis_process_dict,
+                                                http_requests=http_requests)
+
+    # === 5. Link analysis_protocol to analysis_process ===
+    link_url = get_subject_url(endpoint_dict=analysis_process, subject='protocols')
+    print('Linking analysis_protocol to analysis_process at {0}'.format(link_url))
+    link_analysis_protocol_to_analysis_process(link_url=link_url,
+                                               analysis_protocol_url=analysis_protocol_url,
+                                               http_requests=http_requests)
+
+    # === 6. Add input bundle references ===
+    input_bundles_url = get_subject_url(endpoint_dict=analysis_process, subject='add-input-bundles')
+    print('Adding input bundles at {0}'.format(input_bundles_url))
+    add_input_bundles(input_bundles_url=input_bundles_url,
+                      auth_headers=auth_headers,
+                      analysis_process=analysis_process_dict,
+                      http_requests=http_requests)
+
+    # === 7. Add file references ===
+    file_refs_url = get_subject_url(endpoint_dict=analysis_process, subject='add-file-reference')
+    print('Adding file references at {0}'.format(file_refs_url))
+    output_files = get_output_files(analysis_process=analysis_process_dict,
+                                    raw_schema_url=raw_schema_url,
+                                    analysis_file_version=analysis_file_version)
+
+    # TODO: parallelize this to speed up
+    for file_ref in output_files:  # TODO: parallelize this to speed up
+        add_file_reference(file_ref=file_ref,
+                           file_refs_url=file_refs_url,
+                           auth_headers=auth_headers,
+                           http_requests=http_requests)
+
+
 def get_subject_url(endpoint_dict, subject):
     """Get the Ingest service url for a given subject.
 
@@ -207,9 +308,9 @@ def add_input_bundles(input_bundles_url, auth_headers, analysis_process, http_re
     """
     print('Adding input bundles at {0}'.format(input_bundles_url))
     input_bundle_uuid = analysis_process['input_bundles'][0]
-    bundle_refs_dict = {'bundleUuids': list(input_bundle_uuid)}
+    bundle_refs_dict = {'bundleUuids': [input_bundle_uuid]}
+    response = http_requests.put(input_bundles_url, headers=auth_headers, json=bundle_refs_dict)
     print('Added input bundle reference: {0}'.format(bundle_refs_dict))
-    response = http_requests.put(input_bundle_uuid, headers=auth_headers, json=bundle_refs_dict)
     return response.json()
 
 
@@ -278,107 +379,6 @@ def link_analysis_protocol_to_analysis_process(link_url, analysis_protocol_url, 
     """
     link_headers = {'content-type': 'text/uri-list'}
     response = http_requests.put(link_url, headers=link_headers, data=analysis_protocol_url)
-
-
-def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, raw_schema_url,
-                   analysis_file_version):
-    """Create the submission envelope in Ingest service.
-
-    Args:
-        submit_url (str): URL of Ingest service to perform the submission.
-        analysis_protocol_path (str): Path to the analysis_protocol json file.
-        analysis_process_path (str): Path to the analysis_process json file.
-        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
-        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
-    """
-    # Instantiate a HttpRequests object
-    http_requests = HttpRequests()
-
-    # === 0. Get Auth token and make auth headers ===
-    print('Fetching auth token from Auth0')
-    auth_token = get_auth_token(http_requests)
-    print('Making auth headers')
-    auth_headers = make_auth_header(auth_token)
-
-    # === 1. Get envelope url ===
-    envelope_url = get_envelope_url(submit_url, auth_headers, http_requests)
-
-    # === 2. Create envelope and get submission_url ===
-    envelope_dict = create_submission_envelope(envelope_url, auth_headers, http_requests)
-    submission_url = get_subject_url(endpoint_dict=envelope_dict, subject='submissionEnvelope')
-
-    # save submission_url to disk
-    with open('submission_url.txt', 'w') as f:
-        f.write(submission_url)
-
-    # === 3. Create analysis_protocol ===
-    with open(analysis_protocol_path) as f:
-        analysis_protocol_dict = json.load(f)
-
-    analysis_protocol_url = get_subject_url(endpoint_dict=envelope_dict, subject='protocols')
-
-    # Check if an analysis_protocol already exists in the submission envelope from a previous attempt
-    pipeline_version = analysis_protocol_dict['protocol_core']['protocol_id']
-    analysis_protocol = get_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
-                                              auth_headers=auth_headers,
-                                              protocol_id=pipeline_version,
-                                              http_requests=http_requests)
-
-    # Create analysis_protocol if this is the first attempt
-    if not analysis_protocol:
-        _analysis_protocol = add_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
-                                                   auth_headers=auth_headers,
-                                                   analysis_protocol=analysis_protocol_dict,
-                                                   http_requests=http_requests)
-
-    # === 4. Create analysis_process ===
-    with open(analysis_process_path) as f:
-        analysis_process_dict = json.load(f)
-
-    analysis_process_url = get_subject_url(endpoint_dict=envelope_dict, subject='processes')
-
-    # Check if an analysis_process already exists in the submission envelope from a previous attempt
-    analysis_workflow_id = analysis_process_dict['process_core']['process_id']
-    analysis_process = get_analysis_process(analysis_process_url=analysis_process_url,
-                                            auth_headers=auth_headers,
-                                            process_id=analysis_workflow_id,
-                                            http_requests=http_requests)
-
-    # Create analysis_process if this is the first attempt
-    if not analysis_process:
-        analysis_process = add_analysis_process(analysis_process_url=analysis_process_url,
-                                                auth_headers=auth_headers,
-                                                analysis_process=analysis_process_dict,
-                                                http_requests=http_requests)
-
-    # === 5. Link analysis_protocol to analysis_process ===
-    link_url = get_subject_url(endpoint_dict=analysis_process, subject='protocols')
-    print('Linking analysis_protocol to analysis_process at {0}'.format(link_url))
-    link_analysis_protocol_to_analysis_process(link_url=link_url,
-                                               analysis_protocol_url=analysis_protocol_url,
-                                               http_requests=http_requests)
-
-    # === 6. Add input bundle references ===
-    input_bundles_url = get_subject_url(endpoint_dict=analysis_process, subject='add-input-bundles')
-    print('Adding input bundles at {0}'.format(input_bundles_url))
-    add_input_bundles(input_bundles_url=input_bundles_url,
-                      auth_headers=auth_headers,
-                      analysis_process=analysis_process_dict,
-                      http_requests=http_requests)
-
-    # === 7. Add file references ===
-    file_refs_url = get_subject_url(endpoint_dict=analysis_process, subject='add-file-reference')
-    print('Adding file references at {0}'.format(file_refs_url))
-    output_files = get_output_files(analysis_process=analysis_process_dict,
-                                    raw_schema_url=raw_schema_url,
-                                    analysis_file_version=analysis_file_version)
-
-    # TODO: parallelize this to speed up
-    for file_ref in output_files:  # TODO: parallelize this to speed up
-        add_file_reference(file_ref=file_ref,
-                           file_refs_url=file_refs_url,
-                           auth_headers=auth_headers,
-                           http_requests=http_requests)
 
 
 def main():
