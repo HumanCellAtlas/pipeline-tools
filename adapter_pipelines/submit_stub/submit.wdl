@@ -4,7 +4,7 @@ task submit_stub {
   >>>
   runtime {
     # Use the slim version of the docker image here for efficiency
-    docker: "python:2.7-slim"
+    docker: "python:3.6-slim"
   }
 }
 
@@ -17,7 +17,9 @@ workflow submit {
   String reference_bundle
   String run_type
   String schema_url
-  String schema_version
+  String cromwell_url
+  String analysis_process_schema_version
+  String analysis_protocol_schema_version
   String analysis_file_version
   String method
   String runtime_environment

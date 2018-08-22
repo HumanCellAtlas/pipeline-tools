@@ -104,7 +104,8 @@ class TestCreateEnvelope(object):
                     '_links'          : test_data.links_json['_links']}
 
         requests_mock.post(envelope_url, json=_request_callback)
-        envelope = submit.create_submission_envelope(envelope_url, test_data.headers, HttpRequests())
+        with HttpRequestsManager():
+            envelope = submit.create_submission_envelope(envelope_url, test_data.headers, HttpRequests())
         assert envelope['user'] == 'fake1@clients'
         assert requests_mock.call_count == 1
 
@@ -140,8 +141,9 @@ class TestCreateEnvelope(object):
             return {}
 
         requests_mock.get(analysis_protocol_url, json=_request_callback)
-        analysis_protocol = submit.get_analysis_protocol(analysis_protocol_url, test_data.headers,
-                                                         test_data.analysis_protocol_id, HttpRequests())
+        with HttpRequestsManager():
+            analysis_protocol = submit.get_analysis_protocol(analysis_protocol_url, test_data.headers,
+                                                             test_data.analysis_protocol_id, HttpRequests())
         assert analysis_protocol is None
 
     def test_get_analysis_protocol_finds_existing_analysis_protocol(self, requests_mock, test_data):
@@ -153,8 +155,9 @@ class TestCreateEnvelope(object):
             return {'_embedded': {'protocols': [{'content': analysis_protocol}]}}
 
         requests_mock.get(analysis_protocol_url, json=_request_callback)
-        analysis_protocol = submit.get_analysis_protocol(analysis_protocol_url, test_data.headers,
-                                                         test_data.analysis_protocol_id, HttpRequests())
+        with HttpRequestsManager():
+            analysis_protocol = submit.get_analysis_protocol(analysis_protocol_url, test_data.headers,
+                                                             test_data.analysis_protocol_id, HttpRequests())
         assert analysis_protocol['content']['protocol_core']['protocol_id'] == test_data.analysis_protocol_id
 
     def test_get_analysis_process_returns_None(self, requests_mock, test_data):
@@ -165,8 +168,9 @@ class TestCreateEnvelope(object):
             return {}
 
         requests_mock.get(analysis_process_url, json=_request_callback)
-        analysis_process = submit.get_analysis_process(analysis_process_url, test_data.headers,
-                                                       test_data.analysis_process_id, HttpRequests())
+        with HttpRequestsManager():
+            analysis_process = submit.get_analysis_process(analysis_process_url, test_data.headers,
+                                                           test_data.analysis_process_id, HttpRequests())
         assert analysis_process is None
 
     def test_get_analysis_process_finds_existing_analysis_process(self, requests_mock, test_data):
@@ -178,8 +182,9 @@ class TestCreateEnvelope(object):
             return {'_embedded': {'processes': [{'content': analysis_process}]}}
 
         requests_mock.get(analysis_process_url, json=_request_callback)
-        analysis_process = submit.get_analysis_process(analysis_process_url, test_data.headers,
-                                                       test_data.analysis_process_id, HttpRequests())
+        with HttpRequestsManager():
+            analysis_process = submit.get_analysis_process(analysis_process_url, test_data.headers,
+                                                           test_data.analysis_process_id, HttpRequests())
         assert analysis_process['content']['process_core']['process_id'] == test_data.analysis_process_id
 
     def test_add_analysis_protocol(self, requests_mock, test_data):

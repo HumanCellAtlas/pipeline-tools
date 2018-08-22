@@ -22,6 +22,10 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     http_requests = HttpRequests()
 
     # === 0. Get Auth token and make auth headers ===
+    # According to Ingest service, we only need to include the auth_headers for creating the envelope step, but
+    # to be safe, we are sending the token at each step, except the linking step, which requires a totally different
+    # content-type in the header.
+
     print('Fetching auth token from Auth0')
     auth_token = get_auth_token(http_requests)
     print('Making auth headers')

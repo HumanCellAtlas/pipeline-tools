@@ -57,10 +57,11 @@ Invoke it like this:
 
     get-analysis-metadata \
       --analysis_output_path ${analysis_output_path} \
-      --runtime_environment ${runtime_environment} \
-      --use_caas ${use_caas}
+      --cromwell_url ${cromwell_url} \
+      --use_caas ${use_caas} \
+      --caas_key_file ${caas_key_file}
 
-All arguments are required.
+All arguments are required, except the `--caas_key_file`, which is set to `None` by default.
 
 create_analysis_metadata.py
 ---------------------------

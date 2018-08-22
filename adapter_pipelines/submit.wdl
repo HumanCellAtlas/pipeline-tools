@@ -2,6 +2,7 @@
 task get_metadata {
   String analysis_output_path
   String runtime_environment
+  String cromwell_url
   Int? retry_max_interval
   Float? retry_multiplier
   Int? retry_timeout
@@ -23,7 +24,7 @@ task get_metadata {
 
     get-analysis-metadata \
       --analysis_output_path ${analysis_output_path} \
-      --runtime_environment ${runtime_environment} \
+      --cromwell_url ${cromwell_url} \
       --use_caas ${use_caas}
   >>>
   runtime {
@@ -230,6 +231,7 @@ workflow submit {
   String reference_bundle
   String run_type
   String schema_url
+  String cromwell_url
   String analysis_process_schema_version
   String analysis_protocol_schema_version
   String analysis_file_version
@@ -248,6 +250,7 @@ workflow submit {
     input:
       analysis_output_path = outputs[0],
       runtime_environment = runtime_environment,
+      cromwell_url = cromwell_url,
       use_caas=use_caas,
       record_http = record_http,
       retry_timeout = retry_timeout,

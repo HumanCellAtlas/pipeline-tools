@@ -16,8 +16,7 @@ data_dir = os.path.split(__file__)[0] + '/data/'
 def test_data():
     class Data:
         workflow_id = 'id'
-        runtime_environment = 'dev'
-        base_url = 'https://cromwell.mint-{}.broadinstitute.org/api/workflows/v1'.format(runtime_environment)
+        base_url = 'https://cromwell.mint-environment.broadinstitute.org/api/workflows/v1'
         caas_base_url = 'https://cromwell.caas-dev.broadinstitute.org/api/workflows/v1'
         cromwell_metadata_url = '{}/{}/metadata?expandSubWorkflows=true'.format(base_url, workflow_id)
         caas_metadata_url = '{}/{}/metadata?expandSubWorkflows=true'.format(caas_base_url, workflow_id)
@@ -100,7 +99,7 @@ class TestGetAnalysisMetadata(object):
         with patch('pipeline_tools.get_analysis_metadata.get_auth', side_effect=mocked_get_auth), \
              tmpdir.as_cwd(), \
              HttpRequestsManager():
-            get_analysis_metadata.get_adapter_workflow_version(test_data.runtime_environment,
+            get_analysis_metadata.get_adapter_workflow_version(test_data.base_url,
                                                                test_data.workflow_id,
                                                                HttpRequests(),
                                                                use_caas=False)
@@ -117,7 +116,7 @@ class TestGetAnalysisMetadata(object):
         requests_mock.get(test_data.caas_query_url, json=_request_callback)
         with patch('pipeline_tools.get_analysis_metadata.cromwell_tools.generate_auth_header_from_key_file',
                    side_effect=mocked_generate_auth_header_from_key_file), tmpdir.as_cwd(), HttpRequestsManager():
-            get_analysis_metadata.get_adapter_workflow_version(test_data.runtime_environment,
+            get_analysis_metadata.get_adapter_workflow_version(test_data.caas_base_url,
                                                                test_data.workflow_id,
                                                                HttpRequests(),
                                                                use_caas=True)
@@ -132,7 +131,7 @@ class TestGetAnalysisMetadata(object):
         requests_mock.get(test_data.cromwell_query_url, json=_request_callback)
         with patch('pipeline_tools.get_analysis_metadata.get_auth', side_effect=mocked_get_auth), \
              pytest.raises(requests.HTTPError), HttpRequestsManager():
-            get_analysis_metadata.get_adapter_workflow_version(test_data.runtime_environment,
+            get_analysis_metadata.get_adapter_workflow_version(test_data.base_url,
                                                                test_data.workflow_id,
                                                                HttpRequests(),
                                                                use_caas=False)
@@ -151,7 +150,9 @@ class TestGetAnalysisMetadata(object):
         with patch('pipeline_tools.get_analysis_metadata.get_auth', side_effect=mocked_get_auth), \
              tmpdir.as_cwd(), \
              HttpRequestsManager():
-            get_analysis_metadata.get_metadata(test_data.runtime_environment, test_data.workflow_id, HttpRequests(),
+            get_analysis_metadata.get_metadata(test_data.base_url,
+                                               test_data.workflow_id,
+                                               HttpRequests(),
                                                use_caas=False)
         assert requests_mock.call_count == 1
         assert current_file_path.read() is not None
@@ -168,7 +169,9 @@ class TestGetAnalysisMetadata(object):
         requests_mock.get(test_data.caas_metadata_url, json=_request_callback)
         with patch('pipeline_tools.get_analysis_metadata.cromwell_tools.generate_auth_header_from_key_file',
                    side_effect=mocked_generate_auth_header_from_key_file), tmpdir.as_cwd(), HttpRequestsManager():
-            get_analysis_metadata.get_metadata(test_data.runtime_environment, test_data.workflow_id, HttpRequests(),
+            get_analysis_metadata.get_metadata(test_data.caas_base_url,
+                                               test_data.workflow_id,
+                                               HttpRequests(),
                                                use_caas=True)
         assert requests_mock.call_count == 1
         assert current_file_path.read() is not None
@@ -181,6 +184,8 @@ class TestGetAnalysisMetadata(object):
         requests_mock.get(test_data.cromwell_metadata_url, json=_request_callback)
         with patch('pipeline_tools.get_analysis_metadata.get_auth', side_effect=mocked_get_auth), \
              pytest.raises(requests.HTTPError), HttpRequestsManager():
-            get_analysis_metadata.get_metadata(test_data.runtime_environment, test_data.workflow_id, HttpRequests(),
+            get_analysis_metadata.get_metadata(test_data.base_url,
+                                               test_data.workflow_id,
+                                               HttpRequests(),
                                                use_caas=False)
         assert requests_mock.call_count == 3

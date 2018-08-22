@@ -64,6 +64,7 @@ workflow AdapterSmartSeq2SingleCell{
   String submit_url
   String method
   String schema_url
+  String cromwell_url
   String analysis_process_schema_version
   String analysis_protocol_schema_version
   String analysis_file_version
@@ -210,6 +211,7 @@ workflow AdapterSmartSeq2SingleCell{
       ],
       format_map = format_map,
       submit_url = submit_url,
+      cromwell_url = cromwell_url,
       input_bundle_uuid = bundle_uuid,
       reference_bundle = reference_bundle,
       run_type = run_type,
