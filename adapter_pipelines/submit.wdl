@@ -33,7 +33,6 @@ task get_metadata {
   output {
     File metadata = "metadata.json"
     String workflow_id = read_string("workflow_id.txt")
-    String adapter_workflow_id = read_string("adapter_workflow_id.txt")
     String pipeline_version = read_string("pipeline_version.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
