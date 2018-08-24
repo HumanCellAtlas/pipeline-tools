@@ -116,37 +116,7 @@ def get_subject_url(endpoint_dict, subject):
     """Get the Ingest service url for a given subject.
 
     Args:
-        endpoint_dict (dict): Dict representing the JSON response from the root Ingest service url. A typical dict will
-                              look like below:
-        ```
-        {'_links': {'biomaterials'       : {'href'     : 'ingest_root_url/biomaterials{?page,size,sort,projection}',
-                                            'templated': True},
-                    'bundleManifests'    : {'href'     : 'ingest_root_url/bundleManifests{?page,size,sort}',
-                                            'templated': True,
-                                            'title'    : 'Access or create bundle manifests (describing which '
-                                                         'submitted contents went into which bundle in the datastore)'},
-                    'files'              : {'href'     : 'ingest_root_url/files{?page,size,sort}',
-                                            'templated': True,
-                                            'title'    : 'Access or create, within a submission envelope, a new assay'},
-                    'processes'          : {'href'     : 'ingest_root_url/processes{?page,size,sort,projection}',
-                                            'templated': True},
-                    'profile'            : {'href': 'ingest_root_url/profile'},
-                    'projects'           : {'href'     : 'ingest_root_url/projects{?page,size,sort}',
-                                            'templated': True,
-                                            'title'    : 'Access or create projects. Creation can only be done inside '
-                                                         'a submission envelope'},
-                    'protocols'          : {'href'     : 'ingest_root_url/protocols{?page,size,sort}',
-                                            'templated': True,
-                                            'title'    : 'Access or create protocols'},
-                    'schemas'            : {'href'     : 'ingest_root_url/schemas{?page,size,sort}',
-                                            'templated': True},
-                    'submissionEnvelopes': {'href'     : 'ingest_root_url/submissionEnvelopes{?page,size,sort}',
-                                            'templated': True,
-                                            'title'    : 'Access or create new submission envelopes'},
-                    'submissionManifests': {'href'     : 'ingest_root_url/submissionManifests{?page,size,sort}',
-                                            'templated': True},
-                    'user'               : {'href': 'ingest_root_url/user'}}}
-        ```
+        endpoint_dict (dict): Dict representing the JSON response from the root Ingest service url.
         subject (str): The name of the subject to look for. (e.g. 'submissionEnvelope', 'add-file-reference')
 
     Returns:
@@ -197,7 +167,6 @@ def create_submission_envelope(envelope_url, auth_headers, http_requests):
     return envelope_dict
 
 
-# FIXME: questionable in new bundle structure :(
 def get_analysis_protocol(analysis_protocol_url, auth_headers, protocol_id, http_requests):
     """Checks the submission envelope for an analysis_protocol with a protocol_id that matches the pipeline version.
 
@@ -225,7 +194,6 @@ def get_analysis_protocol(analysis_protocol_url, auth_headers, protocol_id, http
     return None
 
 
-# FIXME: questionable in new bundle structure :(
 def get_analysis_process(analysis_process_url, auth_headers, process_id, http_requests):
     """Checks the submission envelope for an analysis_process with a process_id that matches the analysis workflow id.
 
@@ -337,11 +305,11 @@ def get_output_files(analysis_process, raw_schema_url, analysis_file_version):
     output_refs = [
         {
             'fileName': out['file_core']['file_name'],
-            'content' : {
+            'content': {
                 'describedBy': '{0}/type/file/{1}/analysis_file'.format(raw_schema_url, analysis_file_version),
                 'schema_type': 'file',
-                'file_core'  : {
-                    'file_name'  : out['file_core']['file_name'],
+                'file_core': {
+                    'file_name': out['file_core']['file_name'],
                     'file_format': out['file_core']['file_format']
                 }
             }

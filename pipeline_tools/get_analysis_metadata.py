@@ -38,8 +38,6 @@ def get_adapter_workflow_id(analysis_output_path):
     calls = url.split('/call-')
     adapter_workflow_id = calls[0].split('/')[-1]
     print('Got adapter workflow UUID: {0}'.format(adapter_workflow_id))
-    with open('adapter_workflow_id.txt', 'w') as f:
-        f.write(adapter_workflow_id)
     return adapter_workflow_id
 
 
@@ -63,8 +61,8 @@ def get_adapter_workflow_version(cromwell_url,
         requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
     """
 
-    def log_before(workflowId):
-        print('Getting the version for adapter workflow {}'.format(workflowId))
+    def log_before(workflow_id):
+        print('Getting the version for adapter workflow {}'.format(workflow_id))
 
     cromwell_url = cromwell_url
 
@@ -119,8 +117,8 @@ def get_metadata(cromwell_url, workflow_id, http_requests, use_caas=False, caas_
         requests.HTTPError: For 4xx errors or 5xx errors beyond the timeout
     """
 
-    def log_before(workflowId):
-        print('Getting metadata for workflow {}'.format(workflowId))
+    def log_before(workflow_id):
+        print('Getting metadata for workflow {}'.format(workflow_id))
 
     cromwell_url = cromwell_url
 
