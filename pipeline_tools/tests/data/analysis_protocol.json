@@ -1,6 +1,6 @@
 {
   "computational_method": "SmartSeq2SingleCell",
-  "describedBy": "http://schema.integration.data.humancellatlas.org/type/protocol/analysis/7.1.0/analysis_protocol",
+  "describedBy": "http://schema.integration.data.humancellatlas.org/type/protocol/analysis/8.0.0/analysis_protocol",
   "protocol_core": {
     "protocol_id": "fake-pipeline-version"
   },

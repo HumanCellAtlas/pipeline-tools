@@ -1,6 +1,6 @@
 {
   "analysis_run_type": "run",
-  "describedBy": "http://schema.integration.data.humancellatlas.org/type/process/analysis/5.1.0/analysis_process",
+  "describedBy": "http://schema.integration.data.humancellatlas.org/type/process/analysis/8.0.0/analysis_process",
   "input_bundles": [
     "f4b1199a-5c72-4c20-ae42-54862b361a72"
   ],

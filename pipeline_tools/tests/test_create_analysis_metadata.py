@@ -11,41 +11,41 @@ def test_data():
     class Data:
         output_url_to_md5 = {
             'gs://foo/bar/Aligned.sortedByCoord.out.bam': '0123456789abcdef0123456789abcdef',
-            'gs://foo/bar/GSM1957573_rna_metrics'       : 'abcdef0123456789abcdef0123456789'
+            'gs://foo/bar/GSM1957573_rna_metrics': 'abcdef0123456789abcdef0123456789'
         }
         extension_to_format = {
-            '.bam'    : 'bam',
+            '.bam': 'bam',
             '_metrics': 'metrics'
         }
         output_dicts = [
             {
-                'name'    : 'Aligned.sortedByCoord.out.bam',
-                'format'  : 'bam',
+                'name': 'Aligned.sortedByCoord.out.bam',
+                'format': 'bam',
                 'checksum': '0123456789abcdef0123456789abcdef'
             },
             {
-                'name'    : 'GSM1957573_rna_metrics',
-                'format'  : 'metrics',
+                'name': 'GSM1957573_rna_metrics',
+                'format': 'metrics',
                 'checksum': 'abcdef0123456789abcdef0123456789'
             }
         ]
         inputs = [
             {
-                'parameter_name' : 'fastq_read1',
+                'parameter_name': 'fastq_read1',
                 'parameter_value': 'gs://foo/path/read1.fastq.gz',
-                'checksum'       : '0123456789abcdef0123456789abcdef'
+                'checksum': '0123456789abcdef0123456789abcdef'
             },
             {
-                'parameter_name' : 'fastq_read2',
+                'parameter_name': 'fastq_read2',
                 'parameter_value': 'gs://foo/path/read2.fastq.gz',
-                'checksum'       : 'abcdef0123456789abcdef0123456789'
+                'checksum': 'abcdef0123456789abcdef0123456789'
             },
             {
-                'parameter_name' : 'output_prefix',
+                'parameter_name': 'output_prefix',
                 'parameter_value': 'GSM1957573'
             },
             {
-                'parameter_name' : 'test_int',
+                'parameter_name': 'test_int',
                 'parameter_value': '123'
             }
         ]
@@ -128,7 +128,7 @@ class TestCreateAnalysisMetadata(object):
     def test_get_input_urls_no_urls(self):
         inputs = [
             {
-                'parameter_name' : 'p1',
+                'parameter_name': 'p1',
                 'parameter_value': 'foo'
             }
         ]
@@ -156,7 +156,7 @@ class TestCreateAnalysisMetadata(object):
         analysis_process_core = cam.get_analysis_process_core(analysis_workflow_id,
                                                               process_description=process_description)
         expected_process_core = {
-            'process_id'         : analysis_workflow_id,
+            'process_id': analysis_workflow_id,
             'process_description': process_description
         }
         assert analysis_process_core == expected_process_core
@@ -193,7 +193,7 @@ class TestCreateAnalysisMetadata(object):
         analysis_protocol_core = cam.get_analysis_protocol_core(pipeline_version,
                                                                 protocol_description=protocol_description)
         expected_protocol_type = {
-            'protocol_id'         : 'good_version',
+            'protocol_id': 'good_version',
             'protocol_description': 'good_description'
         }
         assert analysis_protocol_core == expected_protocol_type

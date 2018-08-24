@@ -1,4 +1,5 @@
 import logging
+
 from pipeline_tools.http_requests import HttpRequests
 
 
@@ -18,7 +19,7 @@ def get_file_by_uuid(file_id, dss_url, http_requests):
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     url = '{dss_url}/files/{file_id}?replica=gcp'.format(
-        dss_url=dss_url, file_id=file_id)
+            dss_url=dss_url, file_id=file_id)
     logging.info('GET {0}'.format(url))
     response = http_requests.get(url)
     logging.info(response.status_code)
@@ -47,7 +48,8 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
     Args:
         bundle_uuid (str): the uuid of the bundle
         bundle_version (str): the bundle version, e.g. "2017-10-23T17:50:26.894Z"
-        dss_url (str): The url for the Human Cell Atlas data storage service, e.g. "https://dss.staging.data.humancellatlas.org/v1"
+        dss_url (str): The url for the Human Cell Atlas data storage service,
+        e.g. "https://dss.staging.data.humancellatlas.org/v1"
         http_requests (HttpRequests): the HttpRequests object to use
 
     Returns:
@@ -57,7 +59,7 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls=true'.format(
-        dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version)
+            dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version)
     logging.info('GET {0}'.format(url))
     response = http_requests.get(url)
     logging.info(response.status_code)

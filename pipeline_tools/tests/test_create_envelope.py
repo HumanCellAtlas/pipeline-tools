@@ -15,7 +15,7 @@ data_dir = os.path.split(__file__)[0] + '/data/'
 def test_data():
     class Data:
         headers = {
-            "Content-type" : "application/json",
+            "Content-type": "application/json",
             "Authorization": "Bearer auth_token"
         }
         with open('{0}response.json'.format(data_dir)) as f:
@@ -90,18 +90,18 @@ class TestCreateEnvelope(object):
 
         def _request_callback(request, context):
             context.status_code = 201
-            return {'submissionDate'  : '2018-08-22T15:10:11.993Z',
-                    'updateDate'      : '2018-08-22T15:10:11.993Z',
-                    'user'            : 'fake1@clients',
+            return {'submissionDate': '2018-08-22T15:10:11.993Z',
+                    'updateDate': '2018-08-22T15:10:11.993Z',
+                    'user': 'fake1@clients',
                     'lastModifiedUser': 'fake1@clients',
-                    'uuid'            : {'uuid': 'fake-uuid'},
-                    'events'          : [],
-                    'stagingDetails'  : None,
-                    'submissionState' : 'Pending',
+                    'uuid': {'uuid': 'fake-uuid'},
+                    'events': [],
+                    'stagingDetails': None,
+                    'submissionState': 'Pending',
                     'triggersAnalysis': True,
                     'submissionErrors': [],
-                    'open'            : True,
-                    '_links'          : test_data.links_json['_links']}
+                    'open': True,
+                    '_links': test_data.links_json['_links']}
 
         requests_mock.post(envelope_url, json=_request_callback)
         with HttpRequestsManager():
@@ -325,11 +325,11 @@ class TestCreateEnvelope(object):
         requests_mock.put(file_refs_url, json=_request_callback)
         file_ref = {
             'fileName': 'aligned_bam',
-            'content' : {
+            'content': {
                 'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
                 'schema_type': 'file',
-                'file_core'  : {
-                    'file_name'  : 'test',
+                'file_core': {
+                    'file_name': 'test',
                     'file_format': 'bam'
                 }
             }
@@ -348,11 +348,11 @@ class TestCreateEnvelope(object):
         requests_mock.put(file_refs_url, json=_request_callback)
         file_ref = {
             'fileName': 'aligned_bam',
-            'content' : {
+            'content': {
                 'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
                 'schema_type': 'file',
-                'file_core'  : {
-                    'file_name'  : 'test',
+                'file_core': {
+                    'file_name': 'test',
                     'file_format': 'bam'
                 }
             }
@@ -371,11 +371,11 @@ class TestCreateEnvelope(object):
         requests_mock.put(file_refs_url, json=_request_callback)
         file_ref = {
             'fileName': 'aligned_bam',
-            'content' : {
+            'content': {
                 'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
                 'schema_type': 'file',
-                'file_core'  : {
-                    'file_name'  : 'test',
+                'file_core': {
+                    'file_name': 'test',
                     'file_format': 'bam'
                 }
             }

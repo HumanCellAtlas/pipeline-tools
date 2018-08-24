@@ -25,7 +25,8 @@ def create_analysis_process(raw_schema_url,
     Based the design of this HCA metadata type, analysis_process will vary between each analysis run, even if they share
     the same version of pipeline. Most of the content of this process will be collected from the Cromwell workflow
     metadata. This function strictly follows the metadata schema defined at:
-    https://github.com/HumanCellAtlas/metadata-schema
+    https://github.com/HumanCellAtlas/metadata-schema/blob/integration/json_schema/type/process/
+    analysis/analysis_process.json
 
     TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
     2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L255" so we can use the `metadata-api` directly to create
@@ -56,23 +57,23 @@ def create_analysis_process(raw_schema_url,
     workflow_tasks = get_workflow_tasks(workflow_metadata)
 
     analysis_process = {
-        'describedBy'        : get_analysis_described_by(schema_url=raw_schema_url,
-                                                         schema_type=SCHEMA_TYPE,
-                                                         schema_version=analysis_process_schema_version),
-        'schema_type'        : SCHEMA_TYPE,
-        'process_core'       : get_analysis_process_core(analysis_workflow_id=analysis_id),
-        'process_type'       : get_analysis_process_type(),
+        'describedBy': get_analysis_described_by(schema_url=raw_schema_url,
+                                                 schema_type=SCHEMA_TYPE,
+                                                 schema_version=analysis_process_schema_version),
+        'schema_type': SCHEMA_TYPE,
+        'process_core': get_analysis_process_core(analysis_workflow_id=analysis_id),
+        'process_type': get_analysis_process_type(),
         'timestamp_start_utc': workflow_metadata.get('start'),
-        'timestamp_stop_utc' : workflow_metadata.get('end'),
-        'input_bundles'      : input_bundles_string.split(','),
-        'reference_bundle'   : reference_bundle,
-        'tasks'              : workflow_tasks,
-        'inputs'             : inputs,
-        'outputs'            : get_outputs(output_url_to_md5=output_url_to_md5,
-                                           extension_to_format=extension_to_format,
-                                           schema_url=raw_schema_url,
-                                           analysis_file_version=analysis_file_version),
-        'analysis_run_type'  : run_type,
+        'timestamp_stop_utc': workflow_metadata.get('end'),
+        'input_bundles': input_bundles_string.split(','),
+        'reference_bundle': reference_bundle,
+        'tasks': workflow_tasks,
+        'inputs': inputs,
+        'outputs': get_outputs(output_url_to_md5=output_url_to_md5,
+                               extension_to_format=extension_to_format,
+                               schema_url=raw_schema_url,
+                               analysis_file_version=analysis_file_version),
+        'analysis_run_type': run_type,
     }
     return analysis_process
 
@@ -83,7 +84,9 @@ def create_analysis_protocol(raw_schema_url, analysis_protocol_schema_version, p
     Based the design of this HCA metadata type, one analysis_protocol will be shared by every analysis run for a given
     pipeline, although the same content will be submitted to the protocols endpoint for each run. Besides, any changes
     to the pipeline version will change the content of the standard analysis_protocol. This function strictly follows
-    the metadata schema defined at: https://github.com/HumanCellAtlas/metadata-schema
+    the metadata schema defined at:
+    https://github.com/HumanCellAtlas/metadata-schema/blob/integration/json_schema/type/process/
+    analysis/analysis_process.json
 
     TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
     2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L339" so we can use the `metadata-api` directly to create
@@ -102,13 +105,13 @@ def create_analysis_protocol(raw_schema_url, analysis_protocol_schema_version, p
     SCHEMA_TYPE = 'protocol'
 
     analysis_protocol = {
-        'describedBy'         : get_analysis_described_by(schema_url=raw_schema_url,
-                                                          schema_type=SCHEMA_TYPE,
-                                                          schema_version=analysis_protocol_schema_version),
-        'schema_type'         : SCHEMA_TYPE,
-        'protocol_core'       : get_analysis_protocol_core(pipeline_version=pipeline_version),
+        'describedBy': get_analysis_described_by(schema_url=raw_schema_url,
+                                                 schema_type=SCHEMA_TYPE,
+                                                 schema_version=analysis_protocol_schema_version),
+        'schema_type': SCHEMA_TYPE,
+        'protocol_core': get_analysis_protocol_core(pipeline_version=pipeline_version),
         'computational_method': method,
-        'protocol_type'       : get_analysis_protocol_type(),
+        'protocol_type': get_analysis_protocol_type(),
     }
     return analysis_protocol
 
@@ -298,16 +301,16 @@ def get_workflow_tasks(workflow_metadata):
         else:
             runtime = task['runtimeAttributes']
             out_task = {
-                'task_name'   : task_name,
-                'cpus'        : int(runtime['cpu']),
-                'memory'      : runtime['memory'],
-                'disk_size'   : runtime['disks'],
+                'task_name': task_name,
+                'cpus': int(runtime['cpu']),
+                'memory': runtime['memory'],
+                'disk_size': runtime['disks'],
                 'docker_image': runtime['docker'],
-                'zone'        : runtime['zones'],
-                'start_time'  : task['start'],
-                'stop_time'   : task['end'],
-                'log_out'     : task['stdout'],
-                'log_err'     : task['stderr']
+                'zone': runtime['zones'],
+                'start_time': task['start'],
+                'stop_time': task['end'],
+                'log_out': task['stdout'],
+                'log_err': task['stderr']
             }
             output_tasks.append(out_task)
     sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
@@ -354,10 +357,10 @@ def get_outputs(output_url_to_md5, extension_to_format, schema_url, analysis_fil
         {
             'describedBy': '{0}/type/file/{1}/analysis_file'.format(schema_url, analysis_file_version),
             'schema_type': 'file',
-            'file_core'  : {
-                'file_name'  : output_url.split('/')[-1],
+            'file_core': {
+                'file_name': output_url.split('/')[-1],
                 'file_format': get_file_format(output_url, extension_to_format),
-                'checksum'   : md5_hash
+                'checksum': md5_hash
             }
         } for output_url, md5_hash in sorted(output_url_to_md5.items())
     ]

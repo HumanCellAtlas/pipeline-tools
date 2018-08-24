@@ -35,8 +35,7 @@ def get_sample_id(bundle):
     Returns:
         sample_id (str): String giving the sample id
     """
-    cell_suspension = bundle.sequencing_input[0]
-    sample_id = str(cell_suspension.document_id)
+    sample_id = str(bundle.sequencing_input[0].document_id)
     return sample_id
 
 

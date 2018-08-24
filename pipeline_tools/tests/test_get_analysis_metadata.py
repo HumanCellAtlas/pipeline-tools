@@ -27,23 +27,23 @@ def test_data():
                                '/analysis_subworkflow_id/call-qc/RunHisat2Pipeline/qc_workflow_id/call-Hisat2' \
                                '/12345_qc.hisat2.met.txt'
         query_workflow_response_200 = {
-            "results"          : [
+            "results": [
                 {
-                    "name"      : "AdapterSmartSeq2SingleCell",
-                    "id"        : "id",
-                    "labels"    : {
+                    "name": "AdapterSmartSeq2SingleCell",
+                    "id": "id",
+                    "labels": {
                         "cromwell-workflow-id": "cromwell-id",
-                        "workflow-version"    : "testing-fake-version",
-                        "bundle-version"      : "foo-version",
+                        "workflow-version": "testing-fake-version",
+                        "bundle-version": "foo-version",
                         "caas-collection-name": "dev-workflows",
-                        "mintegration-test"   : "true",
-                        "bundle-uuid"         : "foo-bundle",
-                        "workflow-name"       : "AdapterSmartSeq2SingleCell"
+                        "mintegration-test": "true",
+                        "bundle-uuid": "foo-bundle",
+                        "workflow-name": "AdapterSmartSeq2SingleCell"
                     },
                     "submission": "foo-submission-time",
-                    "status"    : "Succeeded",
-                    "end"       : "foo-submission-end_time",
-                    "start"     : "foo-submission-start_time"
+                    "status": "Succeeded",
+                    "end": "foo-submission-end_time",
+                    "start": "foo-submission-start_time"
                 }
             ],
             "totalResultsCount": 1
@@ -72,15 +72,12 @@ class TestGetAnalysisMetadata(object):
         assert result == expected
         assert current_file_path.read() == 'analysis_subworkflow_id'
 
-    def test_get_adapter_workflow_id(self, test_data, tmpdir):
-        current_file_path = tmpdir.join('adapter_workflow_id.txt')
+    def test_get_adapter_workflow_id(self, test_data):
         analysis_output_path = test_data.analysis_output_path
 
-        with tmpdir.as_cwd():  # this stops unittests from writing files and polluting the directory
-            result = get_analysis_metadata.get_adapter_workflow_id(analysis_output_path)
+        result = get_analysis_metadata.get_adapter_workflow_id(analysis_output_path)
         expected = 'adapter_workflow_id'
         assert result == expected
-        assert current_file_path.read() == 'adapter_workflow_id'
 
     def test_get_auth(self):
         credentials_file = '{0}test_credentials.txt'.format(data_dir)
