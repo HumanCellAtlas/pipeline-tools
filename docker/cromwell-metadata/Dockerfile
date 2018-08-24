@@ -1,4 +1,4 @@
-FROM quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-update-to-new-bundle-structure
+FROM quay.io/humancellatlas/secondary-analysis-pipeline-tools:13ee7ef14e3b
 
 RUN mkdir /cromwell-metadata
 WORKDIR /cromwell-metadata
