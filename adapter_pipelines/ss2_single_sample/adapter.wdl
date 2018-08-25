@@ -82,7 +82,7 @@ workflow AdapterSmartSeq2SingleCell{
   Boolean record_http = false
 
   Int max_cromwell_retries = 0
-  String pipeline_tools_version = "13ee7ef14e3b"
+  String pipeline_tools_version = "v0.25.0"
 
   call GetInputs as prep {
     input:
