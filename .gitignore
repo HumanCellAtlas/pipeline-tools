@@ -1,8 +1,9 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.pyc
-docker/cromwell-metadata/cromwell_credentials.txt
-docker/cromwell-metadata/caas_key.json
+.pytest_cache
+cromwell_credentials.txt
+caas_key.json
 
 # Sphinx documentation
 docs/_build/

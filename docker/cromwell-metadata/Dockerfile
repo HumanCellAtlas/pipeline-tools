@@ -1,4 +1,4 @@
-FROM quay.io/humancellatlas/secondary-analysis-pipeline-tools
+FROM quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.25.0
 
 RUN mkdir /cromwell-metadata
 WORKDIR /cromwell-metadata

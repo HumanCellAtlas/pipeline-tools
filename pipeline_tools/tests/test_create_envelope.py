@@ -1,265 +1,427 @@
-import unittest
-import os
 import json
+import os
+import pytest
 import requests
-import mock
-import requests_mock
+
 import pipeline_tools.create_envelope as submit
-from .http_requests_manager import HttpRequestsManager
 from pipeline_tools.http_requests import HttpRequests
-from tenacity import stop_after_attempt, wait_exponential
-import tempfile
+from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
 
-class TestCreateEnvelope(unittest.TestCase):
+data_dir = os.path.split(__file__)[0] + '/data/'
 
-    def setUp(self):
-        self.headers = {
+
+@pytest.fixture(scope='module')
+def test_data():
+    class Data:
+        headers = {
             "Content-type": "application/json",
             "Authorization": "Bearer auth_token"
         }
-        with open(self.data_file('response.json')) as f:
-            self.links_json = json.load(f)
+        with open('{0}response.json'.format(data_dir)) as f:
+            links_json = json.load(f)
 
-        with open(self.data_file('analysis.json')) as f:
-            self.analysis_json = json.load(f)
+        with open('{0}analysis_process.json'.format(data_dir)) as f:
+            analysis_process = json.load(f)
 
-        self.analysis_id = self.analysis_json['protocol_core']['protocol_id']
+        with open('{0}analysis_protocol.json'.format(data_dir)) as f:
+            analysis_protocol = json.load(f)
 
-    @requests_mock.mock()
-    def test_get_envelope_url(self, mock_request):
+        analysis_protocol_id = analysis_protocol['protocol_core']['protocol_id']
+        analysis_process_id = analysis_process['process_core']['process_id']
+
+    return Data
+
+
+class TestCreateEnvelope(object):
+
+    def test_get_subject_url_for_processes(self, test_data):
+        entity_url = submit.get_subject_url(test_data.links_json, 'processes')
+        assert entity_url == 'http://api.ingest.dev.data.humancellatlas.org/processes'
+
+    def test_get_subject_url_for_protocols(self, test_data):
+        entity_url = submit.get_subject_url(test_data.links_json, 'protocols')
+        assert entity_url == 'http://api.ingest.dev.data.humancellatlas.org/protocols'
+
+    def test_get_subject_url_for_envelopes(self, test_data):
+        entity_url = submit.get_subject_url(test_data.links_json, 'submissionEnvelopes')
+        assert entity_url == 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes'
+
+    def test_get_envelope_url(self, requests_mock, test_data):
         submit_url = "http://api.ingest.dev.data.humancellatlas.org/"
 
         def _request_callback(request, context):
             context.status_code = 200
-            return self.links_json
+            return test_data.links_json
 
-        mock_request.get(submit_url, json=_request_callback)
+        requests_mock.get(submit_url, json=_request_callback)
         with HttpRequestsManager():
-            envelope_url = submit.get_envelope_url(submit_url, self.headers, HttpRequests())
+            envelope_url = submit.get_envelope_url(submit_url, test_data.headers, HttpRequests())
         expected = "http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes"
-        self.assertEqual(envelope_url, expected)
-        self.assertEqual(mock_request.call_count, 1)
+        assert envelope_url == expected
+        assert requests_mock.call_count == 1
 
-    @requests_mock.mock()
-    def test_get_envelope_url_retries_on_error(self, mock_request):
+    def test_get_envelope_url_retries_on_error(self, requests_mock, test_data):
         submit_url = 'http://api.ingest.dev.data.humancellatlas.org/'
 
         def _request_callback(request, context):
             context.status_code = 500
             return {'status': 'error', 'message': 'Internal Server Error'}
 
-        mock_request.get(submit_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
-            submit.get_envelope_url(submit_url, self.headers, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
+        requests_mock.get(submit_url, json=_request_callback)
+        with pytest.raises(requests.HTTPError), HttpRequestsManager():
+            submit.get_envelope_url(submit_url, test_data.headers, HttpRequests())
+        assert requests_mock.call_count == 3
 
-    @requests_mock.mock()
-    def test_get_envelope_url_retries_on_read_timeout_error(self, mock_request):
+    def test_get_envelope_url_retries_on_read_timeout_error(self, requests_mock, test_data):
         submit_url = 'http://api.ingest.dev.data.humancellatlas.org/'
 
         def _request_callback(request, context):
             context.status_code = 500
             raise requests.ReadTimeout
 
-        mock_request.get(submit_url, json=_request_callback)
-        with self.assertRaises(requests.ReadTimeout), HttpRequestsManager():
-            submit.get_envelope_url(submit_url, self.headers, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
+        requests_mock.get(submit_url, json=_request_callback)
+        with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
+            submit.get_envelope_url(submit_url, test_data.headers, HttpRequests())
+        assert requests_mock.call_count == 3
 
-    @requests_mock.mock()
-    def test_create_submission_envelope(self, mock_request):
-        pass
+    def test_create_submission_envelope(self, requests_mock, test_data):
+        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes'
 
-    @requests_mock.mock()
-    def test_create_submission_envelope_retries_on_error(self, mock_request):
+        def _request_callback(request, context):
+            context.status_code = 201
+            return {'submissionDate': '2018-08-22T15:10:11.993Z',
+                    'updateDate': '2018-08-22T15:10:11.993Z',
+                    'user': 'fake1@clients',
+                    'lastModifiedUser': 'fake1@clients',
+                    'uuid': {'uuid': 'fake-uuid'},
+                    'events': [],
+                    'stagingDetails': None,
+                    'submissionState': 'Pending',
+                    'triggersAnalysis': True,
+                    'submissionErrors': [],
+                    'open': True,
+                    '_links': test_data.links_json['_links']}
+
+        requests_mock.post(envelope_url, json=_request_callback)
+        with HttpRequestsManager():
+            envelope = submit.create_submission_envelope(envelope_url, test_data.headers, HttpRequests())
+        assert envelope['user'] == 'fake1@clients'
+        assert requests_mock.call_count == 1
+
+    def test_create_submission_envelope_retries_on_error(self, requests_mock, test_data):
         envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes'
 
         def _request_callback(request, context):
             context.status_code = 500
             return {'status': 'error', 'message': 'Internal Server Error'}
 
-        mock_request.post(envelope_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
-            submit.create_submission_envelope(envelope_url, self.headers, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
+        requests_mock.post(envelope_url, json=_request_callback)
+        with pytest.raises(requests.HTTPError), HttpRequestsManager():
+            submit.create_submission_envelope(envelope_url, test_data.headers, HttpRequests())
+        assert requests_mock.call_count == 3
 
-    @requests_mock.mock()
-    def test_create_submission_envelope_retries_onread_timeout_error(self, mock_request):
+    def test_create_submission_envelope_retries_on_read_timeout_error(self, requests_mock, test_data):
         envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes'
 
         def _request_callback(request, context):
             context.status_code = 500
             raise requests.ReadTimeout
 
-        mock_request.post(envelope_url, json=_request_callback)
-        with self.assertRaises(requests.ReadTimeout), HttpRequestsManager():
-            submit.create_submission_envelope(envelope_url, self.headers, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
+        requests_mock.post(envelope_url, json=_request_callback)
+        with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
+            submit.create_submission_envelope(envelope_url, test_data.headers, HttpRequests())
+        assert requests_mock.call_count == 3
 
-    def test_create_analysis(self):
-        pass
-
-    @requests_mock.mock()
-    def test_get_analysis_results_returns_false(self, mock_request):
-        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+    def test_get_analysis_protocol_returns_None(self, requests_mock, test_data):
+        analysis_protocol_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/protocols'
 
         def _request_callback(request, context):
             context.status_code = 200
             return {}
 
-        mock_request.get(analyses_url, json=_request_callback)
-        analysis_js = submit.get_analysis_process(analyses_url, self.headers, self.analysis_id, HttpRequests())
-        self.assertFalse(analysis_js)
+        requests_mock.get(analysis_protocol_url, json=_request_callback)
+        with HttpRequestsManager():
+            analysis_protocol = submit.get_analysis_protocol(analysis_protocol_url, test_data.headers,
+                                                             test_data.analysis_protocol_id, HttpRequests())
+        assert analysis_protocol is None
 
-    @requests_mock.mock()
-    def test_get_analysis_results_finds_existing_analysis_process(self, mock_request):
-        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+    def test_get_analysis_protocol_finds_existing_analysis_protocol(self, requests_mock, test_data):
+        analysis_protocol_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/protocols'
 
         def _request_callback(request, context):
             context.status_code = 200
-            analysis_process = self.analysis_json
+            analysis_protocol = test_data.analysis_protocol
+            return {'_embedded': {'protocols': [{'content': analysis_protocol}]}}
+
+        requests_mock.get(analysis_protocol_url, json=_request_callback)
+        with HttpRequestsManager():
+            analysis_protocol = submit.get_analysis_protocol(analysis_protocol_url, test_data.headers,
+                                                             test_data.analysis_protocol_id, HttpRequests())
+        assert analysis_protocol['content']['protocol_core']['protocol_id'] == test_data.analysis_protocol_id
+
+    def test_get_analysis_process_returns_None(self, requests_mock, test_data):
+        analysis_process_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            return {}
+
+        requests_mock.get(analysis_process_url, json=_request_callback)
+        with HttpRequestsManager():
+            analysis_process = submit.get_analysis_process(analysis_process_url, test_data.headers,
+                                                           test_data.analysis_process_id, HttpRequests())
+        assert analysis_process is None
+
+    def test_get_analysis_process_finds_existing_analysis_process(self, requests_mock, test_data):
+        analysis_process_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            analysis_process = test_data.analysis_process
             return {'_embedded': {'processes': [{'content': analysis_process}]}}
 
-        mock_request.get(analyses_url, json=_request_callback)
-        analysis_js = submit.get_analysis_process(analyses_url, self.headers, self.analysis_id, HttpRequests())
-        self.assertEqual(analysis_js['content']['protocol_core']['protocol_id'], self.analysis_id)
+        requests_mock.get(analysis_process_url, json=_request_callback)
+        with HttpRequestsManager():
+            analysis_process = submit.get_analysis_process(analysis_process_url, test_data.headers,
+                                                           test_data.analysis_process_id, HttpRequests())
+        assert analysis_process['content']['process_core']['process_id'] == test_data.analysis_process_id
 
-    @requests_mock.mock()
-    def test_create_analysis_retries_on_error(self, mock_request):
-        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+    def test_add_analysis_protocol(self, requests_mock, test_data):
+        analysis_protocol_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/protocols'
+
+        def _request_callback(request, context):
+            context.status_code = 201
+            return test_data.analysis_protocol
+
+        requests_mock.post(analysis_protocol_url, json=_request_callback)
+        with HttpRequestsManager():
+            res = submit.add_analysis_protocol(analysis_protocol_url, test_data.headers, test_data.analysis_protocol,
+                                               HttpRequests())
+        assert requests_mock.call_count == 1
+        assert res == test_data.analysis_protocol
+
+    def test_add_analysis_protocol_retries_on_error(self, requests_mock, test_data):
+        analysis_protocol_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/protocols'
 
         def _request_callback(request, context):
             context.status_code = 500
             return {'status': 'error', 'message': 'Internal Server Error'}
 
-        mock_request.post(analyses_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
-            submit.create_analysis(analyses_url, self.headers, self.analysis_json, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
+        requests_mock.post(analysis_protocol_url, json=_request_callback)
+        with pytest.raises(requests.HTTPError), HttpRequestsManager():
+            submit.add_analysis_protocol(analysis_protocol_url, test_data.headers, test_data.analysis_protocol,
+                                         HttpRequests())
+        assert requests_mock.call_count == 3
 
-    @requests_mock.mock()
-    def test_create_analysis_retries_on_read_timeout_error(self, mock_request):
-        analyses_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+    def test_add_analysis_protocol_retries_on_read_timeout_error(self, requests_mock, test_data):
+        analysis_protocol_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/protocols'
 
         def _request_callback(request, context):
             context.status_code = 500
             raise requests.ReadTimeout
 
-        mock_request.post(analyses_url, json=_request_callback)
-        with self.assertRaises(requests.ReadTimeout), HttpRequestsManager():
-            submit.create_analysis(analyses_url, self.headers, self.analysis_json, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
+        requests_mock.post(analysis_protocol_url, json=_request_callback)
+        with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
+            submit.add_analysis_protocol(analysis_protocol_url, test_data.headers, test_data.analysis_protocol,
+                                         HttpRequests())
+        assert requests_mock.call_count == 3
 
-    def test_add_input_bundles(self):
-        pass
+    def test_add_analysis_process(self, requests_mock, test_data):
+        analysis_process_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
 
-    @requests_mock.mock()
-    def test_add_input_bundles_retries_on_error(self, mock_request):
+        def _request_callback(request, context):
+            context.status_code = 201
+            return test_data.analysis_process
+
+        requests_mock.post(analysis_process_url, json=_request_callback)
+        with HttpRequestsManager():
+            res = submit.add_analysis_process(analysis_process_url, test_data.headers, test_data.analysis_process,
+                                              HttpRequests())
+        assert requests_mock.call_count == 1
+        assert res == test_data.analysis_process
+
+    def test_add_analysis_process_retries_on_error(self, requests_mock, test_data):
+        analysis_process_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+
+        def _request_callback(request, context):
+            context.status_code = 500
+            return {'status': 'error', 'message': 'Internal Server Error'}
+
+        requests_mock.post(analysis_process_url, json=_request_callback)
+        with pytest.raises(requests.HTTPError), HttpRequestsManager():
+            submit.add_analysis_process(analysis_process_url, test_data.headers, test_data.analysis_process,
+                                        HttpRequests())
+        assert requests_mock.call_count == 3
+
+    def test_add_analysis_process_retries_on_read_timeout_error(self, requests_mock, test_data):
+        analysis_process_url = 'http://api.ingest.dev.data.humancellatlas.org/abcde/processes'
+
+        def _request_callback(request, context):
+            context.status_code = 500
+            raise requests.ReadTimeout
+
+        requests_mock.post(analysis_process_url, json=_request_callback)
+        with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
+            submit.add_analysis_process(analysis_process_url, test_data.headers, test_data.analysis_process,
+                                        HttpRequests())
+        assert requests_mock.call_count == 3
+
+    def test_add_input_bundles(self, requests_mock, test_data):
+        input_bundles_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/bundleReferences'
+
+        def _request_callback(request, context):
+            context.status_code = 201
+            return {}
+
+        requests_mock.put(input_bundles_url, json=_request_callback)
+        with HttpRequestsManager():
+            submit.add_input_bundles(input_bundles_url, test_data.headers, test_data.analysis_process, HttpRequests())
+        assert requests_mock.call_count == 1
+
+    def test_add_input_bundles_retries_on_error(self, requests_mock, test_data):
         input_bundles_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/bundleReferences'
 
         def _request_callback(request, context):
             context.status_code = 500
             return {'status': 'error', 'message': 'Internal Server Error'}
 
-        mock_request.put(input_bundles_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
-            submit.add_input_bundles(input_bundles_url, self.headers, self.analysis_json, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
+        requests_mock.put(input_bundles_url, json=_request_callback)
+        with pytest.raises(requests.HTTPError), HttpRequestsManager():
+            submit.add_input_bundles(input_bundles_url, test_data.headers, test_data.analysis_process, HttpRequests())
+        assert requests_mock.call_count == 3
 
-    @requests_mock.mock()
-    def test_add_input_bundles_retries_on_read_timeout_error(self, mock_request):
+    def test_add_input_bundles_retries_on_read_timeout_error(self, requests_mock, test_data):
         input_bundles_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/bundleReferences'
 
         def _request_callback(request, context):
             context.status_code = 500
             raise requests.ReadTimeout
 
-        mock_request.put(input_bundles_url, json=_request_callback)
-        with self.assertRaises(requests.ReadTimeout), HttpRequestsManager():
-            submit.add_input_bundles(input_bundles_url, self.headers, self.analysis_json, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
+        requests_mock.put(input_bundles_url, json=_request_callback)
+        with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
+            submit.add_input_bundles(input_bundles_url, test_data.headers, test_data.analysis_process, HttpRequests())
+        assert requests_mock.call_count == 3
 
-    def test_add_file_reference(self):
-        pass
-
-    @requests_mock.mock()
-    def test_add_file_reference_retries_on_error(self, mock_request):
-        file_refs_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/fileReference'
-
-        def _request_callback(request, context):
-            context.status_code = 500
-            return {'status': 'error', 'message': 'Internal Server Error'}
-
-        mock_request.put(file_refs_url, json=_request_callback)
-        file_ref = {
-            'fileName': 'aligned_bam',
-            'content': {
-                'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
-                'schema_type': 'file',
-                'file_core': {
-                    'file_name': 'test',
-                    'file_format': 'bam'
-                }
-            }
-        }
-        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
-            submit.add_file_reference(file_ref, file_refs_url, self.headers, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
-
-    @requests_mock.mock()
-    def test_add_file_reference_retries_on_read_timeout_error(self, mock_request):
-        file_refs_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/fileReference'
-
-        def _request_callback(request, context):
-            context.status_code = 500
-            raise requests.ReadTimeout
-
-        mock_request.put(file_refs_url, json=_request_callback)
-        file_ref = {
-            'fileName': 'aligned_bam',
-            'content': {
-                'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
-                'schema_type': 'file',
-                'file_core': {
-                    'file_name': 'test',
-                    'file_format': 'bam'
-                }
-            }
-        }
-        with self.assertRaises(requests.ReadTimeout), HttpRequestsManager():
-            submit.add_file_reference(file_ref, file_refs_url, self.headers, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
-
-    def test_get_subject_url(self):
-        with open(self.data_file('response.json')) as f:
-            js = json.load(f)
-        entity_url = submit.get_subject_url(js, 'processes')
-        self.assertEqual(entity_url, 'http://api.ingest.dev.data.humancellatlas.org/processes')
-
-    def test_get_input_bundle_uuid(self):
-        with open(self.data_file('analysis.json')) as f:
-            js = json.load(f)
-        self.assertEqual(submit.get_input_bundle_uuid(js), js['input_bundles'][0])
-
-    def test_get_output_files(self):
+    def test_get_output_files(self, test_data):
         schema_version = 'version_232'
         analysis_file_schema_url = 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version)
 
-        with open(self.data_file('analysis.json')) as f:
-            js = json.load(f)
+        outputs = submit.get_output_files(test_data.analysis_process, analysis_file_schema_url, schema_version)
+        expected_outputs = test_data.analysis_process['outputs']
+        assert len(outputs) == len(expected_outputs)
+        assert outputs[0]['fileName'] == expected_outputs[0]['file_core']['file_name']
+        assert outputs[0]['content']['schema_type'] == expected_outputs[0]['schema_type']
+        assert outputs[0]['content']['file_core']['file_name'] == expected_outputs[0]['file_core']['file_name']
+        assert outputs[0]['content']['file_core']['file_format'] == expected_outputs[0]['file_core']['file_format']
 
-        outputs = submit.get_output_files(js, analysis_file_schema_url, schema_version)
-        expected_outputs = js['outputs']
-        self.assertEqual(len(outputs), len(expected_outputs))
-        self.assertEqual(outputs[0]['fileName'], expected_outputs[0]['file_core']['file_name'])
-        self.assertEqual(outputs[0]['content']['schema_type'], expected_outputs[0]['schema_type'])
-        self.assertEqual(outputs[0]['content']['file_core']['file_name'], expected_outputs[0]['file_core']['file_name'])
-        self.assertEqual(outputs[0]['content']['file_core']['file_format'], expected_outputs[0]['file_core']['file_format'])
+    def test_add_file_reference(self, requests_mock, test_data):
+        file_refs_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/fileReference'
 
-    def data_file(self, file_name):
-        return os.path.split(__file__)[0] + '/data/' + file_name
+        def _request_callback(request, context):
+            context.status_code = 201
+            return {}
 
+        requests_mock.put(file_refs_url, json=_request_callback)
+        file_ref = {
+            'fileName': 'aligned_bam',
+            'content': {
+                'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
+                'schema_type': 'file',
+                'file_core': {
+                    'file_name': 'test',
+                    'file_format': 'bam'
+                }
+            }
+        }
+        with HttpRequestsManager():
+            submit.add_file_reference(file_ref, file_refs_url, test_data.headers, HttpRequests())
+        assert requests_mock.call_count == 1
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_add_file_reference_retries_on_error(self, requests_mock, test_data):
+        file_refs_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/fileReference'
+
+        def _request_callback(request, context):
+            context.status_code = 500
+            return {'status': 'error', 'message': 'Internal Server Error'}
+
+        requests_mock.put(file_refs_url, json=_request_callback)
+        file_ref = {
+            'fileName': 'aligned_bam',
+            'content': {
+                'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
+                'schema_type': 'file',
+                'file_core': {
+                    'file_name': 'test',
+                    'file_format': 'bam'
+                }
+            }
+        }
+        with pytest.raises(requests.HTTPError), HttpRequestsManager():
+            submit.add_file_reference(file_ref, file_refs_url, test_data.headers, HttpRequests())
+        assert requests_mock.call_count == 3
+
+    def test_add_file_reference_retries_on_read_timeout_error(self, requests_mock, test_data):
+        file_refs_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/fileReference'
+
+        def _request_callback(request, context):
+            context.status_code = 500
+            raise requests.ReadTimeout
+
+        requests_mock.put(file_refs_url, json=_request_callback)
+        file_ref = {
+            'fileName': 'aligned_bam',
+            'content': {
+                'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
+                'schema_type': 'file',
+                'file_core': {
+                    'file_name': 'test',
+                    'file_format': 'bam'
+                }
+            }
+        }
+        with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
+            submit.add_file_reference(file_ref, file_refs_url, test_data.headers, HttpRequests())
+        assert requests_mock.call_count == 3
+
+    def test_link_analysis_protocol_to_analysis_process(self, requests_mock):
+        links_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/protocols'
+        analysis_protocol_url = 'http://api.ingest.dev.data.humancellatlas.org/protocols/abcde'
+
+        def _request_callback(request, context):
+            context.status_code = 201
+            return {}
+
+        requests_mock.put(links_url, json=_request_callback)
+
+        with HttpRequestsManager():
+            submit.link_analysis_protocol_to_analysis_process(links_url, analysis_protocol_url, HttpRequests())
+        assert requests_mock.call_count == 1
+
+    def test_link_analysis_protocol_to_analysis_process_retries_on_error(self, requests_mock):
+        links_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/protocols'
+        analysis_protocol_url = 'http://api.ingest.dev.data.humancellatlas.org/protocols/abcde'
+
+        def _request_callback(request, context):
+            context.status_code = 500
+            return {'status': 'error', 'message': 'Internal Server Error'}
+
+        requests_mock.put(links_url, json=_request_callback)
+
+        with pytest.raises(requests.HTTPError), HttpRequestsManager():
+            submit.link_analysis_protocol_to_analysis_process(links_url, analysis_protocol_url, HttpRequests())
+        assert requests_mock.call_count == 3
+
+    def test_link_analysis_protocol_to_analysis_process_retries_on_read_timeout_error(self, requests_mock):
+        links_url = 'http://api.ingest.dev.data.humancellatlas.org/processes/abcde/protocols'
+        analysis_protocol_url = 'http://api.ingest.dev.data.humancellatlas.org/protocols/abcde'
+
+        def _request_callback(request, context):
+            context.status_code = 500
+            raise requests.ReadTimeout
+
+        requests_mock.put(links_url, json=_request_callback)
+
+        with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
+            submit.link_analysis_protocol_to_analysis_process(links_url, analysis_protocol_url, HttpRequests())
+        assert requests_mock.call_count == 3

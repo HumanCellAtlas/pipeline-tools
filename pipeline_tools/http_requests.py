@@ -1,10 +1,10 @@
+import glob
+import os
 import re
 import requests
-import os
-import glob
-from tenacity import retry, stop_after_attempt, stop_after_delay, wait_exponential, retry_if_exception
-from requests.packages.urllib3.util import retry as retry_utils
 from datetime import datetime
+from requests.packages.urllib3.util import retry as retry_utils
+from tenacity import retry, retry_if_exception, stop_after_attempt, stop_after_delay, wait_exponential
 
 
 HTTP_RECORD_DIR = 'HTTP_RECORD_DIR'
@@ -24,6 +24,7 @@ class RetryPolicy(retry_utils.Retry):
         retry_after_status_codes (frozenset): Which status codes follow the retry_after header
 
     """
+
     def __init__(self, retry_after_status_codes={301}, **kwargs):
         super(RetryPolicy, self).__init__(**kwargs)
         self.RETRY_AFTER_STATUS_CODES = frozenset(retry_after_status_codes)
@@ -76,7 +77,7 @@ class HttpRequests(object):
         self.should_record = self._get_param(RECORD_HTTP_REQUESTS, 'false', is_true)
         self.record_dir = self._get_param(HTTP_RECORD_DIR, '.')
         self.retry_timeout = self._get_param(RETRY_TIMEOUT, '7200', float)
-        self.retry_max_tries = self._get_param(RETRY_MAX_TRIES, '10000', int) 
+        self.retry_max_tries = self._get_param(RETRY_MAX_TRIES, '10000', int)
         self.retry_multiplier = self._get_param(RETRY_MULTIPLIER, '1', float)
         self.retry_max_interval = self._get_param(RETRY_MAX_INTERVAL, '60', float)
         self.individual_request_timeout = self._get_param(INDIVIDUAL_REQUEST_TIMEOUT, '60', float)
@@ -156,8 +157,10 @@ class HttpRequests(object):
         def is_retryable(error):
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print('{0} {1}'.format(now, repr(error)))
+
             def is_retryable_status_code(error):
                 return isinstance(error, requests.HTTPError) and not (400 <= error.response.status_code <= 499)
+
             return is_retryable_status_code(error) or isinstance(error,
                                                                  (requests.ConnectionError, requests.ReadTimeout))
 
@@ -175,12 +178,12 @@ class HttpRequests(object):
         kwargs['timeout'] = self.individual_request_timeout
         return (
             self
-            ._http_request
-            .retry_with(
-                retry=retry,
-                before=before,
-                wait=wait_exponential(multiplier=self.retry_multiplier, max=self.retry_max_interval),
-                stop=(stop_after_delay(self.retry_timeout) | stop_after_attempt(self.retry_max_tries))
+                ._http_request
+                .retry_with(
+                    retry=retry,
+                    before=before,
+                    wait=wait_exponential(multiplier=self.retry_multiplier, max=self.retry_max_interval),
+                    stop=(stop_after_delay(self.retry_timeout) | stop_after_attempt(self.retry_max_tries))
             )(self, *args, **kwargs)
         )
 
@@ -298,7 +301,8 @@ class HttpRequests(object):
             response.text (str): Text to print along with status code when mismatch occurs
 
         Raises:
-            requests.HTTPError: for 5xx errors and prints response_text if status is not in the expected range. Otherwise,
+            requests.HTTPError: for 5xx errors and prints response_text if status is not in the expected range.
+            Otherwise,
             just returns silently.
 
         Examples:

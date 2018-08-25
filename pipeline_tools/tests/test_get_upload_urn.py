@@ -1,17 +1,17 @@
-import unittest
+import pytest
 import requests
-import requests_mock
-import pipeline_tools.get_upload_urn as getter
-from .http_requests_manager import HttpRequestsManager
-from pipeline_tools.http_requests import HttpRequests
 from tenacity import RetryError
 
+import pipeline_tools.get_upload_urn as getter
+from pipeline_tools.http_requests import HttpRequests
+from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
-class TestGetStagingUrn(unittest.TestCase):
 
-    def setUp(self):
-        self.envelope_url = 'http://api.ingest.integration.data.humancellatlas.org/submissionEnvelopes/abcde'
-        self.envelope_json = {
+@pytest.fixture(scope='module')
+def test_data():
+    class Data:
+        envelope_url = 'http://api.ingest.integration.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_json = {
             'stagingDetails': {
                 'stagingAreaLocation': {
                     'value': 'test_urn'
@@ -19,77 +19,78 @@ class TestGetStagingUrn(unittest.TestCase):
             }
         }
 
+    return Data
+
+
+class TestGetStagingUrn(object):
+
     def test_get_upload_urn_empty_js(self):
         js = {}
-        self.assertIsNone(getter.get_upload_urn(js))
+        assert getter.get_upload_urn(js) is None
 
     def test_get_upload_urn_null_details(self):
-        js = { 
+        js = {
             'stagingDetails': None
         }
-        self.assertIsNone(getter.get_upload_urn(js))
+        assert getter.get_upload_urn(js) is None
 
     def test_get_upload_urn_null_location(self):
-        js = { 
+        js = {
             'stagingDetails': {
                 'stagingAreaLocation': None
             }
         }
-        self.assertIsNone(getter.get_upload_urn(js))
+        assert getter.get_upload_urn(js) is None
 
     def test_get_upload_urn_null_value(self):
-        js = { 
+        js = {
             'stagingDetails': {
                 'stagingAreaLocation': {
                     'value': None
                 }
             }
         }
-        self.assertIsNone(getter.get_upload_urn(js))
+        assert getter.get_upload_urn(js) is None
 
-    def test_get_upload_urn_valid_value(self):
-        self.assertEqual(getter.get_upload_urn(self.envelope_json), 'test_urn')
+    def test_get_upload_urn_valid_value(self, test_data):
+        assert getter.get_upload_urn(test_data.envelope_json) == 'test_urn'
 
-    @requests_mock.mock()
-    def test_run(self, mock_request):
+    def test_run(self, requests_mock, test_data):
         def _request_callback(request, context):
             context.status_code = 200
-            return self.envelope_json
-        mock_request.get(self.envelope_url, json=_request_callback)
-        with HttpRequestsManager():
-            response = getter.run(self.envelope_url, HttpRequests())
-        self.assertEqual(mock_request.call_count, 1)
+            return test_data.envelope_json
 
-    @requests_mock.mock()
-    def test_run_retry_if_urn_is_none(self, mock_request):
+        requests_mock.get(test_data.envelope_url, json=_request_callback)
+        with HttpRequestsManager():
+            response = getter.run(test_data.envelope_url, HttpRequests())
+        assert requests_mock.call_count == 1
+
+    def test_run_retry_if_urn_is_none(self, requests_mock, test_data):
         def _request_callback(request, context):
             context.status_code = 200
             return {}
-        mock_request.get(self.envelope_url, json=_request_callback)
-        with self.assertRaises(RetryError), HttpRequestsManager():
-            getter.run(self.envelope_url, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
 
-    @requests_mock.mock()
-    def test_run_retry_if_error(self, mock_request):
+        requests_mock.get(test_data.envelope_url, json=_request_callback)
+        with pytest.raises(RetryError), HttpRequestsManager():
+            getter.run(test_data.envelope_url, HttpRequests())
+        assert requests_mock.call_count == 3
+
+    def test_run_retry_if_error(self, requests_mock, test_data):
         def _request_callback(request, context):
             context.status_code = 500
             return {}
-        mock_request.get(self.envelope_url, json=_request_callback)
-        with self.assertRaises(requests.HTTPError), HttpRequestsManager():
-            getter.run(self.envelope_url, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
 
-    @requests_mock.mock()
-    def test_run_retry_if_read_timeout_error_occurs(self, mock_request):
+        requests_mock.get(test_data.envelope_url, json=_request_callback)
+        with pytest.raises(requests.HTTPError), HttpRequestsManager():
+            getter.run(test_data.envelope_url, HttpRequests())
+        assert requests_mock.call_count == 3
+
+    def test_run_retry_if_read_timeout_error_occurs(self, requests_mock, test_data):
         def _request_callback(request, context):
             context.status_code = 500
             raise requests.ReadTimeout
-        mock_request.get(self.envelope_url, json=_request_callback)
-        with self.assertRaises(requests.ReadTimeout), HttpRequestsManager():
-            getter.run(self.envelope_url, HttpRequests())
-        self.assertEqual(mock_request.call_count, 3)
 
-
-if __name__ == '__main__':
-    unittest.main()
+        requests_mock.get(test_data.envelope_url, json=_request_callback)
+        with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
+            getter.run(test_data.envelope_url, HttpRequests())
+        assert requests_mock.call_count == 3

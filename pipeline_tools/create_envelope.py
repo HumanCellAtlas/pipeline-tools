@@ -1,277 +1,384 @@
 #!/usr/bin/env python
-
-import json
 import argparse
-import requests
-from .dcp_utils import get_auth_token, make_auth_header
+import json
+from typing import List
+
+from pipeline_tools.dcp_utils import get_auth_token, make_auth_header
 from pipeline_tools.http_requests import HttpRequests
 
 
-def run(submit_url, analysis_json_path, schema_url, analysis_file_version):
-    """Create submission in ingest service.
+def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, raw_schema_url,
+                   analysis_file_version):
+    """Create the submission envelope in Ingest service.
 
     Args:
-        submit_url (str): url of ingest service to use
-        analysis_json_path (str): path to analysis json file
-        schema_url (str): URL for retrieving HCA metadata schemas
-        analysis_file_version (str): version of metadata schema that output files should conform to
-
-    Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+        submit_url (str): URL of Ingest service to perform the submission.
+        analysis_protocol_path (str): Path to the analysis_protocol json file.
+        analysis_process_path (str): Path to the analysis_process json file.
+        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
+        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
     """
+    # Instantiate a HttpRequests object
     http_requests = HttpRequests()
 
-    # 0. Get Auth token and make auth headers
+    # === 0. Get Auth token and make auth headers ===
+    # According to Ingest service, we only need to include the auth_headers for creating the envelope step, but
+    # to be safe, we are sending the token at each step, except the linking step, which requires a totally different
+    # content-type in the header.
+
     print('Fetching auth token from Auth0')
     auth_token = get_auth_token(http_requests)
     print('Making auth headers')
     auth_headers = make_auth_header(auth_token)
 
-    # 1. Get envelope url
+    # === 1. Get envelope url ===
     envelope_url = get_envelope_url(submit_url, auth_headers, http_requests)
 
-    # 2. Create envelope
-    envelope_js = create_submission_envelope(envelope_url, auth_headers, http_requests)
+    # === 2. Create envelope and get submission_url ===
+    envelope_dict = create_submission_envelope(envelope_url, auth_headers, http_requests)
+    submission_url = get_subject_url(endpoint_dict=envelope_dict, subject='submissionEnvelope')
 
-    submission_url = get_subject_url(envelope_js, 'submissionEnvelope')
+    # save submission_url to disk
     with open('submission_url.txt', 'w') as f:
         f.write(submission_url)
 
-    # 3. Create analysis
-    with open(analysis_json_path) as f:
-        analysis_json_contents = json.load(f)
-    analyses_url = get_subject_url(envelope_js, 'processes')
+    # === 3. Create analysis_protocol ===
+    with open(analysis_protocol_path) as f:
+        analysis_protocol_dict = json.load(f)
 
-    # Check if an analysis process exists in the submission envelope from a previous attempt
-    analysis_workflow_id = analysis_json_contents['protocol_core']['protocol_id']
-    analysis_js = get_analysis_process(analyses_url, auth_headers, analysis_workflow_id, http_requests)
-    if not analysis_js:
-        analysis_js = create_analysis(analyses_url, auth_headers, analysis_json_contents, http_requests)
+    analysis_protocol_url = get_subject_url(endpoint_dict=envelope_dict, subject='protocols')
 
-    # 4. Add input bundles
-    input_bundles_url = get_subject_url(analysis_js, 'add-input-bundles')
-    add_input_bundles(input_bundles_url, auth_headers, analysis_json_contents, http_requests)
+    # Check if an analysis_protocol already exists in the submission envelope from a previous attempt
+    pipeline_version = analysis_protocol_dict['protocol_core']['protocol_id']
+    analysis_protocol = get_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
+                                              auth_headers=auth_headers,
+                                              protocol_id=pipeline_version,
+                                              http_requests=http_requests)
 
-    # 5. Add file references
-    file_refs_url = get_subject_url(analysis_js, 'add-file-reference')
+    # Create analysis_protocol if this is the first attempt
+    if not analysis_protocol:
+        _analysis_protocol = add_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
+                                                   auth_headers=auth_headers,
+                                                   analysis_protocol=analysis_protocol_dict,
+                                                   http_requests=http_requests)
+
+    # === 4. Create analysis_process ===
+    with open(analysis_process_path) as f:
+        analysis_process_dict = json.load(f)
+
+    analysis_process_url = get_subject_url(endpoint_dict=envelope_dict, subject='processes')
+
+    # Check if an analysis_process already exists in the submission envelope from a previous attempt
+    analysis_workflow_id = analysis_process_dict['process_core']['process_id']
+    analysis_process = get_analysis_process(analysis_process_url=analysis_process_url,
+                                            auth_headers=auth_headers,
+                                            process_id=analysis_workflow_id,
+                                            http_requests=http_requests)
+
+    # Create analysis_process if this is the first attempt
+    if not analysis_process:
+        analysis_process = add_analysis_process(analysis_process_url=analysis_process_url,
+                                                auth_headers=auth_headers,
+                                                analysis_process=analysis_process_dict,
+                                                http_requests=http_requests)
+
+    # === 5. Link analysis_protocol to analysis_process ===
+    link_url = get_subject_url(endpoint_dict=analysis_process, subject='protocols')
+    print('Linking analysis_protocol to analysis_process at {0}'.format(link_url))
+    link_analysis_protocol_to_analysis_process(link_url=link_url,
+                                               analysis_protocol_url=analysis_protocol_url,
+                                               http_requests=http_requests)
+
+    # === 6. Add input bundle references ===
+    input_bundles_url = get_subject_url(endpoint_dict=analysis_process, subject='add-input-bundles')
+    print('Adding input bundles at {0}'.format(input_bundles_url))
+    add_input_bundles(input_bundles_url=input_bundles_url,
+                      auth_headers=auth_headers,
+                      analysis_process=analysis_process_dict,
+                      http_requests=http_requests)
+
+    # === 7. Add file references ===
+    file_refs_url = get_subject_url(endpoint_dict=analysis_process, subject='add-file-reference')
     print('Adding file references at {0}'.format(file_refs_url))
-    output_files = get_output_files(analysis_json_contents, schema_url, analysis_file_version)
+    output_files = get_output_files(analysis_process=analysis_process_dict,
+                                    raw_schema_url=raw_schema_url,
+                                    analysis_file_version=analysis_file_version)
 
-    for file_ref in output_files:
-        add_file_reference(file_ref, file_refs_url, auth_headers, http_requests)
+    # TODO: parallelize this to speed up
+    for file_ref in output_files:  # TODO: parallelize this to speed up
+        add_file_reference(file_ref=file_ref,
+                           file_refs_url=file_refs_url,
+                           auth_headers=auth_headers,
+                           http_requests=http_requests)
+
+
+def get_subject_url(endpoint_dict, subject):
+    """Get the Ingest service url for a given subject.
+
+    Args:
+        endpoint_dict (dict): Dict representing the JSON response from the root Ingest service url.
+        subject (str): The name of the subject to look for. (e.g. 'submissionEnvelope', 'add-file-reference')
+
+    Returns:
+        subject_url (str): A string giving the url for the given subject.
+    """
+    subject_url = endpoint_dict['_links'][subject]['href'].split('{')[0]
+    print('Got {subject} URL: {subject_url}'.format(subject=subject, subject_url=subject_url))
+    return subject_url
 
 
 def get_envelope_url(submit_url, auth_headers, http_requests):
-    """Query the ingest service to get the url for creating envelopes.
+    """Query the Ingest service to get the url for creating envelopes.
 
     Args:
-        submit_url (str): the root url of the ingest service
-        auth_headers (dict): headers to use for auth
-        http_requests (HttpRequests): the HttpRequests object to use
+        submit_url (str): The root url of the Ingest service for submissions.
+        auth_headers (dict): Dict representing headers to use for auth.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        envelope_url (str): A string giving the url for creating envelopes
+        envelope_url (str): A string giving the url for creating envelopes.
 
     Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     print('Getting envelope url from {}'.format(submit_url))
-    response = http_requests.get(submit_url,
-                                 headers=auth_headers)
-    envelope_url = get_subject_url(response.json(), 'submissionEnvelopes')
+    response = http_requests.get(submit_url, headers=auth_headers)
+    envelope_url = get_subject_url(endpoint_dict=response.json(), subject='submissionEnvelopes')
     return envelope_url
 
 
 def create_submission_envelope(envelope_url, auth_headers, http_requests):
-    """Creates a new submission envelope
+    """Creates a new submission envelope and return its content.
 
     Args:
-        envelope_url (str): the url for creating envelopes
-        auth_headers (dict): headers to use for auth
-        http_requests (HttpRequests): HttpRequests object to use
+        envelope_url (str): The url for creating envelopes.
+        auth_headers (dict): Dict representing headers to use for auth.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        envelope_js (dict): Dict representing the JSON response to the request
+        envelope_dict (dict): Dict representing the JSON response to the request of creating the envelope.
 
     Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     print('Creating submission envelope at {0}'.format(envelope_url))
-    response = http_requests.post(envelope_url,
-                                  '{}',
-                                  headers=auth_headers)
-    envelope_js = response.json()
-    return envelope_js
+    response = http_requests.post(envelope_url, '{}', headers=auth_headers)
+    envelope_dict = response.json()
+    return envelope_dict
 
 
-def get_analysis_process(analyses_url, auth_headers, analysis_workflow_id, http_requests):
-    """Checks the submission envelope for an analysis process with a protocol_id
-    that matches the analysis workflow id.
+def get_analysis_protocol(analysis_protocol_url, auth_headers, protocol_id, http_requests):
+    """Checks the submission envelope for an analysis_protocol with a protocol_id that matches the pipeline version.
 
     Args:
-        analyses_url (str): the url for creating the analysis record
-        auth_headers (dict): headers to use for auth
-        analysis_workflow_id (str): Cromwell id for analysis workflow
-        http_requests (HttpRequests): HttpRequests object to use
+        analysis_protocol_url (str): The url for creating the analysis_protocol.
+        auth_headers (dict): Dict representing headers to use for auth.
+        protocol_id (str): Required field of the analysis_protocol, the version of the given pipeline.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        analysis_js (dict): A dict represents the response JSON
+        protocol (dict or None): A dict represents the analysis_protocol.
 
     Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
-    response = http_requests.get(analyses_url, headers=auth_headers)
-    data = response.json().get('_embedded')
-    if data:
-        processes_js = data.get('processes')
-        for process in processes_js:
-            process_id = process['content']['protocol_core']['protocol_id']
-            if process_id == analysis_workflow_id:
-                print('Found existing analysis result for workflow {} in {}'.format(analysis_workflow_id, analyses_url))
+    response = http_requests.get(analysis_protocol_url, headers=auth_headers)
+    content = response.json().get('_embedded')
+
+    if content:
+        for protocol in content.get('protocols'):
+            if protocol['content']['protocol_core']['protocol_id'] == protocol_id:
+                print('Found existing analysis_protocol for pipeline version {0} in {1}'.format(
+                        protocol_id, analysis_protocol_url))
+                return protocol
+    return None
+
+
+def get_analysis_process(analysis_process_url, auth_headers, process_id, http_requests):
+    """Checks the submission envelope for an analysis_process with a process_id that matches the analysis workflow id.
+
+    Args:
+        analysis_process_url (str): The url for creating the analysis_process.
+        auth_headers (dict): Dict representing headers to use for auth.
+        process_id (str): Required field of the analysis_process, the UUID of the analysis workflow in Cromwell.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
+
+    Returns:
+        process (dict or None): A dict represents the analysis_process.
+
+    Raises:
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
+    """
+    response = http_requests.get(analysis_process_url, headers=auth_headers)
+    content = response.json().get('_embedded')
+
+    if content:
+        for process in content.get('processes'):
+            if process['content']['process_core']['process_id'] == process_id:
+                print('Found existing analysis_process for workflow {0} in {1}'.format(
+                        process_id, analysis_process_url))
                 return process
     return None
 
 
-def create_analysis(analyses_url, auth_headers, analysis_json_contents, http_requests):
-    """Creates the analysis record for the submission envelope
+def add_analysis_protocol(analysis_protocol_url, auth_headers, analysis_protocol, http_requests):
+    """Add the analysis_protocol record for the submission envelope.
 
     Args:
-        analyses_url (str): the url for creating the analysis record
-        auth_headers (dict): headers to use for auth
-        analysis_json_contents (dict): metadata describing the analysis
-        http_requests (HttpRequests): HttpRequests object to use
+        analysis_protocol_url (str): The url for creating the analysis_protocol.
+        auth_headers (dict): Dict representing headers to use for auth.
+        analysis_protocol (dict): A dict representing the analysis_protocol json file to be submitted.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        analysis_js (dict): A dict represents the response JSON
+        analysis_protocol (dict): A dict represents the JSON response from adding the analysis protocol.
 
     Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
-    print('Creating analysis at {0}'.format(analyses_url))
-    response = http_requests.post(analyses_url,
-                                  headers=auth_headers,
-                                  json=analysis_json_contents)
-    analysis_js = response.json()
-    return analysis_js
+    print('Adding analysis_protocol at {0}'.format(analysis_protocol_url))
+    response = http_requests.post(analysis_protocol_url, headers=auth_headers, json=analysis_protocol)
+    analysis_protocol = response.json()
+    return analysis_protocol
 
 
-def add_input_bundles(input_bundles_url, auth_headers, analysis_json_contents, http_requests):
-    """Adds references to the input bundle(s) used in the analysis.
+def add_analysis_process(analysis_process_url, auth_headers, analysis_process, http_requests):
+    """Add the analysis_process record for the submission envelope.
 
     Args:
-        input_bundles_url (str): the url to use for adding input bundles
-        auth_headers (dict): headers to use for auth
-        analysis_json_contents (dict): metadata describing the analysis
-        http_requests (HttpRequests): the HttpRequests object to use
+        analysis_process_url (str): The url for creating the analysis_protocol.
+        auth_headers (dict): Dict representing headers to use for auth.
+        analysis_process (dict): A dict representing the analysis_process json file to be submitted.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        dict: Dict representing the JSON response to the request
+        analysis_process (dict): A dict represents the JSON response from adding the analysis process.
 
     Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
+    """
+    print('Adding analysis_process at {0}'.format(analysis_process_url))
+    response = http_requests.post(analysis_process_url, headers=auth_headers, json=analysis_process)
+    analysis_process = response.json()
+    return analysis_process
+
+
+def add_input_bundles(input_bundles_url, auth_headers, analysis_process, http_requests):
+    """Add references to the input bundle(s) used in the analysis.
+
+    Args:
+        input_bundles_url(str): The url to use for adding input bundles.
+        auth_headers (dict): Dict representing headers to use for auth.
+        analysis_process (dict): A dict representing the analysis_process json file to be submitted.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
+
+    Returns:
+        dict: Dict representing the JSON response to the request for adding the reference to input bundles.
+
+    Raises:
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     print('Adding input bundles at {0}'.format(input_bundles_url))
-    input_bundle_uuid = get_input_bundle_uuid(analysis_json_contents)
-    bundle_refs_js = {"bundleUuids": [input_bundle_uuid]}
-    print(bundle_refs_js)
-    response = http_requests.put(input_bundles_url,
-                                 headers=auth_headers,
-                                 json=bundle_refs_js)
+    input_bundle_uuid = analysis_process['input_bundles'][0]  # Note: it's a placeholder here
+    bundle_refs_dict = {'bundleUuids': [input_bundle_uuid]}
+    response = http_requests.put(input_bundles_url, headers=auth_headers, json=bundle_refs_dict)
+    print('Added input bundle reference: {0}'.format(bundle_refs_dict))
     return response.json()
+
+
+def get_output_files(analysis_process, raw_schema_url, analysis_file_version):
+    """Get the metadata describing the outputs of the analysis process.
+
+    TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
+    2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L445" so we can use the `metadata-api` directly to create
+    the analysis_file metadata file.
+
+    Args:
+        analysis_process (dict): A dict representing the analysis_process json file to be submitted.
+        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
+        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
+
+    Returns:
+        output_refs (List[dict]): A list of metadata dicts describing the output files produced by the analysis_process.
+    """
+    outputs = analysis_process['outputs']
+    output_refs = [
+        {
+            'fileName': out['file_core']['file_name'],
+            'content': {
+                'describedBy': '{0}/type/file/{1}/analysis_file'.format(raw_schema_url, analysis_file_version),
+                'schema_type': 'file',
+                'file_core': {
+                    'file_name': out['file_core']['file_name'],
+                    'file_format': out['file_core']['file_format']
+                }
+            }
+        } for out in outputs
+    ]
+    return output_refs
 
 
 def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
-    """Adds a file reference to the analysis metadata in a submission envelope
+    """Add a file reference to the analysis metadata in a submission envelope.
 
     Args:
-        file_ref (dict): metadata about the file
-        file_refs_url (str): the url for adding file references
-        auth_headers (dict): headers to use for auth
-        http_requests (HttpRequests): the HttpRequests object to use
+        file_ref (dict): HCA metadata stub about the file.
+        file_refs_url (str): The url for adding file references.
+        auth_headers (dict): Dict representing headers to use for auth.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        dict: Dict representing the JSON response to the request
+        dict: Dict representing the JSON response to the request that adding the file reference.
 
     Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
-    print('Adding file: {}'.format(file_ref['fileName']))
-    response = http_requests.put(file_refs_url,
-                                 headers=auth_headers,
-                                 json=file_ref)
+    print('Adding file: {0} to the file reference.'.format(file_ref['fileName']))
+    response = http_requests.put(file_refs_url, headers=auth_headers, json=file_ref)
     return response.json()
 
 
-def get_subject_url(js, subject):
-    """Get the ingest service url for the given subject
+def link_analysis_protocol_to_analysis_process(link_url, analysis_protocol_url, http_requests):
+    """Make the analysis process to be associated with the analysis_protocol to let Ingest create the links.json.
 
     Args:
-        js (dict): the JSON response from the root ingest service url
-        entity (str): the name of the subject to look for (e.g.
-        'submissionEnvelope', 'add-file-reference')
+        link_url (str): The url for link protocols to processes.
+        analysis_protocol_url (str): The url for creating the analysis_protocol.
+        http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
-    Returns:
-        subject_url (str): A string giving the url for the given subject
+    Raises:
+        requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
-    subject_url = js['_links'][subject]['href'].split('{')[0]
-    print('Got url for {0}: {1}'.format(subject, subject_url))
-    return subject_url
-
-
-def get_input_bundle_uuid(analysis_json):
-    """Get the uuid of the input bundle used in the analysis
-
-    Args:
-        analysis_json (dict): metadata describing the analysis
-
-    Returns:
-        uuid (str): A string representing the input bundle uuid
-    """
-    bundle = analysis_json['input_bundles'][0]
-    uuid = bundle
-    print('Input bundle uuid {0}'.format(uuid))
-    return uuid
-
-
-def get_output_files(analysis_json, schema_url, analysis_file_version):
-    """Get the metadata describing the outputs of the analysis
-
-    Args:
-        analysis_json (dict): metadata describing the analysis
-        schema_url (str): URL for retrieving HCA metadata schemas
-        analysis_file_version (str): the schema version that file references will conform to
-
-    Returns:
-        output_refs (dict): A dict of metadata describing the output files produced by the analysis
-    """
-    outputs = analysis_json['outputs']
-    output_refs = []
-
-    for out in outputs:
-        output_ref = {}
-        file_name = out['file_core']['file_name']
-        output_ref['fileName'] = file_name
-        output_ref['content'] = {
-            'describedBy': '{}/type/file/{}/analysis_file'.format(schema_url, analysis_file_version),
-            'schema_type': 'file',
-            'file_core': {
-                'file_name': file_name,
-                'file_format': out['file_core']['file_format']
-            }
-        }
-        output_refs.append(output_ref)
-    return output_refs
+    link_headers = {'content-type': 'text/uri-list'}
+    response = http_requests.put(link_url, headers=link_headers, data=analysis_protocol_url)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--submit_url', required=True)
-    parser.add_argument('--analysis_json_path', required=True)
-    parser.add_argument('--schema_url', required=True, help='URL for retrieving HCA metadata schemas')
-    parser.add_argument('--analysis_file_version', required=True, help='The metadata schema version that the analysis files conform to')
+    parser.add_argument('--submit_url',
+                        required=True,
+                        help='The root url of the Ingest service for submissions.')
+    parser.add_argument('--analysis_process_path',
+                        required=True,
+                        help='Path to the analysis_process.json file.')
+    parser.add_argument('--analysis_protocol_path',
+                        required=True,
+                        help='Path to the analysis_protocol.json file.')
+    parser.add_argument('--schema_url',
+                        required=True,
+                        help='URL for retrieving HCA metadata schemas.')
+    parser.add_argument('--analysis_file_version',
+                        required=True,
+                        help='The metadata schema version that the output files(analysis_file) conform to.')
     args = parser.parse_args()
+
     schema_url = args.schema_url.strip('/')
-    run(args.submit_url, args.analysis_json_path, schema_url, args.analysis_file_version)
+
+    build_envelope(submit_url=args.submit_url,
+                   analysis_protocol_path=args.analysis_protocol_path,
+                   analysis_process_path=args.analysis_process_path,
+                   raw_schema_url=schema_url,
+                   analysis_file_version=args.analysis_file_version)
 
 
 if __name__ == '__main__':

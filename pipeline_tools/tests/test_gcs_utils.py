@@ -1,36 +1,32 @@
+import google.auth.credentials
 import io
-import unittest
-try:
-    # if python3
-    import unittest.mock as mock
-except ImportError:
-    # if python2
-    import mock
+import pytest
+import unittest.mock as mock
 
 from pipeline_tools import gcs_utils
 
 
-def _make_credentials():
-    import google.auth.credentials
-    return mock.Mock(spec=google.auth.credentials.Credentials)
+@pytest.fixture(scope='module')
+def test_data():
+    class Data:
+        PROJECT = 'PROJECT'
+        CREDENTIALS = mock.Mock(spec=google.auth.credentials.Credentials)
+        BUCKET_NAME = 'BUCKET_NAME'
+        client = mock.Mock(project=PROJECT, credentials=CREDENTIALS)
+        bucket = client.bucket(BUCKET_NAME)
+        blob_name = 'test_blob'
+        blob = bucket.blob(blob_name)
+
+    return Data
 
 
-class TestGCSUtils(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.PROJECT = 'PROJECT'
-        cls.CREDENTIALS = _make_credentials()
-        cls.BUCKET_NAME = 'BUCKET_NAME'
-        cls.client = mock.Mock(project=cls.PROJECT, credentials=cls.CREDENTIALS)
-        cls.bucket = cls.client.bucket(cls.BUCKET_NAME)
-        cls.blob_name = 'test_blob'
-        cls.blob = cls.bucket.blob(cls.blob_name)
+class TestGCSUtils(object):
 
     def test_get_filename_from_gs_link(self):
         """Test if get_filename_from_gs_link can get correct filename from google cloud storage link.
         """
         link = "gs://test_bucket_name/test_wdl_file.wdl"
-        self.assertEqual(gcs_utils.get_filename_from_gs_link(link), 'test_wdl_file.wdl')
+        assert gcs_utils.get_filename_from_gs_link(link) == 'test_wdl_file.wdl'
 
     def test_parse_bucket_blob_from_gs_link_one_slash(self):
         """Test if parse_bucket_blob_from_gs_link can correctly parse bucket name and blob name
@@ -38,8 +34,8 @@ class TestGCSUtils(unittest.TestCase):
          """
         link = "gs://test_bucket_name/test_wdl_file.wdl"
         bucket_name, blob_name = gcs_utils.parse_bucket_blob_from_gs_link(link)
-        self.assertEqual(bucket_name, 'test_bucket_name')
-        self.assertEqual(blob_name, 'test_wdl_file.wdl')
+        assert bucket_name == 'test_bucket_name'
+        assert blob_name == 'test_wdl_file.wdl'
 
     def test_parse_bucket_blob_from_gs_link_extra_slashes(self):
         """Test if parse_bucket_blob_from_gs_link can correctly parse bucket name and blob name
@@ -47,28 +43,24 @@ class TestGCSUtils(unittest.TestCase):
         """
         link = "gs://test_bucket_name/special/test/wdl/file.wdl"
         bucket_name, blob_name = gcs_utils.parse_bucket_blob_from_gs_link(link)
-        self.assertEqual(bucket_name, 'test_bucket_name')
-        self.assertEqual(blob_name, 'special/test/wdl/file.wdl')
+        assert bucket_name == 'test_bucket_name'
+        assert blob_name == 'special/test/wdl/file.wdl'
 
-    def test_download_to_bytes_readable(self):
+    def test_download_to_bytes_readable(self, test_data):
         """Test if download_to_buffer correctly download blob and store it into Bytes Buffer."""
-        result = gcs_utils.download_to_buffer(self.bucket.blob(self.blob_name))
-        self.assertIsInstance(result, io.BytesIO)
+        result = gcs_utils.download_to_buffer(test_data.bucket.blob(test_data.blob_name))
+        assert isinstance(result, io.BytesIO)
 
-    def test_download_gcs_blob(self):
+    def test_download_gcs_blob(self, test_data):
         """Test if download_gcs_blob can correctly create destination file on the disk."""
         gcs_client = gcs_utils.GoogleCloudStorageClient(key_location="test_key", scopes=['test_scope'])
-        gcs_client.storage_client = self.client
-        result = gcs_utils.download_gcs_blob(gcs_client, self.BUCKET_NAME, self.blob_name)
-        self.assertIsInstance(result, io.BytesIO)
+        gcs_client.storage_client = test_data.client
+        result = gcs_utils.download_gcs_blob(gcs_client, test_data.BUCKET_NAME, test_data.blob_name)
+        assert isinstance(result, io.BytesIO)
 
     def test_lazyproperty_initialize_late_for_gcs_client(self):
         """Test if the LazyProperty decorator can work well with GoogleCloudStorageClient class."""
         gcs_client = gcs_utils.GoogleCloudStorageClient(key_location="test_key", scopes=['test_scope'])
-        self.assertIsNotNone(gcs_client)
-        self.assertEqual(gcs_client.key_location, "test_key")
-        self.assertEqual(gcs_client.scopes[0], "test_scope")
-
-
-if __name__ == '__main__':
-    unittest.main()
+        assert gcs_client is not None
+        assert gcs_client.key_location == "test_key"
+        assert gcs_client.scopes[0] == "test_scope"

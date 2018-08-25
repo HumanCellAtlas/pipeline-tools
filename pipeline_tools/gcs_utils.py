@@ -1,8 +1,8 @@
 """This module contains utility functions and classes to interact with Google Cloud Storage Service.
 """
+import google.auth
 import logging
 from google.cloud import storage
-import google.auth
 from io import BytesIO
 
 
@@ -84,6 +84,7 @@ class LazyProperty(object):
         on access, but once accessed, it would be cached and not re-initialized on
         each access.
     """
+
     def __init__(self, func):
         self.func = func
 

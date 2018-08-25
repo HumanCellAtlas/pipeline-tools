@@ -1,219 +1,180 @@
+import functools
+import typing
+from concurrent.futures import ThreadPoolExecutor
+from humancellatlas.data.metadata import Bundle
+
 from pipeline_tools import dcp_utils
 from pipeline_tools.http_requests import HttpRequests
 
 
-def get_sample_id(metadata, schema_version, sequencing_protocol_id=None):
-    """Return the sample id from the given metadata
+def get_bundle_object(bundle_uuid, bundle_version, manifest, metadata_files):
+    """Factory function to create a `humancellatlas.data.metadata.Bundle` object from bundle information and manifest.
 
     Args:
-        metadata (dict): metadata related to sample
-        schema_version (str): version of the metadata
+        bundle_uuid (str): The bundle uuid.
+        bundle_version (str): The bundle version.
+        manifest (list): A list of dictionaries represent the manifest JSON file.
+        metadata_files (dict): A dictionary mapping the file name of each metadata file in the bundle to the JSON
+                               contents of that file.
 
     Returns:
-        String giving the sample id
-
-    Raises:
-        NotImplementedError: if version is unsupported
+        humancellatlas.data.metadata.Bundle: A Bundle object contains all of the necessary information.
     """
-    version_prefix = get_version_prefix(schema_version)
-    if schema_version.startswith('4.'):
-        return _get_sample_id_v4(metadata)
-    elif schema_version.startswith('5.'):
-        return _get_sample_id_v5(metadata)
-    elif version_prefix >= 6:
-        return _get_sample_id_from_links(metadata, sequencing_protocol_id)
+    return Bundle(uuid=bundle_uuid,
+                  version=bundle_version,
+                  manifest=manifest,
+                  metadata_files=metadata_files)
+
+
+def get_sample_id(bundle):
+    """Return the sample id from the given bundle.
+
+    Args:
+        bundle (humancellatlas.data.metadata.Bundle): A Bundle object contains all of the necessary information.
+
+    Returns:
+        sample_id (str): String giving the sample id
+    """
+    sample_id = str(bundle.sequencing_input[0].document_id)
+    return sample_id
+
+
+def get_urls_to_files_for_ss2(bundle):
+    """Return the direct urls to the input fastq files for SmartSeq2 pipeline.
+
+    Args:
+        bundle (humancellatlas.data.metadata.Bundle): A Bundle object contains all of the necessary information.
+
+    Returns:
+         tuple: A tuple consisting of the url to the input fastq files, which are corresponding to read index 1 and 2
+         respectively.
+    """
+    fastq_1_url = fastq_2_url = None
+    sequence_files = bundle.sequencing_output
+
+    for sf in sequence_files:
+        if fastq_1_url and fastq_2_url:
+            return fastq_1_url, fastq_2_url  # early termination
+        if sf.read_index == 'read1':
+            fastq_1_url = sf.manifest_entry.url
+        if sf.read_index == 'read2':
+            fastq_2_url = sf.manifest_entry.url
+    return fastq_1_url, fastq_2_url
+
+
+def download_file(item, dss_url, http_requests=HttpRequests()):
+    """Download the metadata for a given bundle from the HCA data store (DSS).
+
+    This function borrows a lot of existing code from the `metadata-api` code base for consistency,
+    and this won't be required after migrating to use the HCA DSS Python API `dss_client` directly.
+
+    Args:
+        item (typing.ItemsView): A dictionary's ItemsView object consisting of file_name and the manifest_entry.
+        dss_url (str): The url for the DCP Data Storage Service.
+        http_requests (HttpRequests): The HttpRequests object to use.
+    """
+    file_name, manifest_entry = item
+    file_uuid = manifest_entry['uuid']
+    return file_name, dcp_utils.get_file_by_uuid(file_id=file_uuid, dss_url=dss_url, http_requests=http_requests)
+
+
+def get_metadata_files(metadata_files_dict, dss_url, num_workers=None):
+    """Get the dictionary mapping the file name of each metadata file in the bundle to the JSON contents of that file.
+
+    This function by default uses concurrent threads to accelerate the communication with Data Store service.
+
+    Args:
+        metadata_files_dict (dict): A dictionary maps filename to indexed file content among the bundle manifest,
+                                    this will only be used for preparing the metadata_files dictionary.
+        dss_url (str): The url for the DCP Data Storage Service.
+        num_workers(int or None): The size of the thread pool to use for downloading metadata files in parallel.
+                     If None, the default pool size will be used, typically a small multiple of the number of cores
+                     on the system executing this function. If 0, no thread pool will be used and all files will be
+                     downloaded sequentially by the current thread.
+
+    Returns:
+        metadata_files (dict): A dictionary mapping the file name of each metadata file in the bundle to the JSON
+                               contents of that file.
+    """
+    if num_workers == 0:
+        metadata_files = dict(
+                map(functools.partial(download_file, dss_url=dss_url, http_requests=HttpRequests()),
+                    metadata_files_dict.items())
+        )
     else:
-        raise NotImplementedError('Only implemented for v4 metadata and above.')
+        with ThreadPoolExecutor(num_workers) as tpe:
+            metadata_files = dict(
+                    tpe.map(functools.partial(download_file, dss_url=dss_url, http_requests=HttpRequests()),
+                            metadata_files_dict.items())
+            )
+    return metadata_files
 
 
-def _get_sample_id_from_links(links_json, sequencing_protocol_id):
-    def is_sequencing_protocol_link(link, sequencing_protocol_id):
-        return link['destination_id'] == sequencing_protocol_id and link['source_type'] == 'process'
-
-    def is_sample_link(link, process_id):
-        return link['source_type'] == 'biomaterial' and link['destination_id'] == process_id
-
-    links = links_json['links']
-    sequencing_protocols = list(filter(lambda x: is_sequencing_protocol_link(x, sequencing_protocol_id), links))
-    process_id = sequencing_protocols[0]['source_id']
-    sample_links = list(filter(lambda x: is_sample_link(x, process_id), links))
-    num_links = len(sample_links)
-    if num_links == 0:
-        raise ValueError('No sample link found')
-    elif num_links > 1:
-        raise ValueError('Expecting one sample link. {0} found'.format(num_links))
-    return sample_links[0]['source_id']
-
-
-def _get_sample_id_v5(links_json):
-    """Return sample id from links json
+def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_requests):
+    """Gather the necessary metadata for the ss2 input tsv.
 
     Args:
-        links_json (dict): links json
+        bundle_uuid (str): the bundle uuid.
+        bundle_version (str): the bundle version.
+        dss_url (str): the url for the DCP Data Storage Service.
+        http_requests (HttpRequests): the HttpRequests object to use.
 
     Returns:
-        String giving sample id
+        tuple: tuple of three strings; url for fastq 1, url for fastq 2, sample id
 
     Raises:
-        ValueError: if 0 or more than 1 sample link found
+        requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
     """
-    links = links_json['links']
-    def is_sample_link(link):
-        return link['source_type'] == 'biomaterial' and link['destination_type'] == 'sequencing_process'
-    sample_links = list(filter(lambda x: is_sample_link(x), links))
-    num_links = len(sample_links)
-    if num_links == 0:
-        raise ValueError('No sample link found')
-    elif num_links > 1:
-        raise ValueError('Expecting one sample link. {0} found'.format(num_links))
-    return sample_links[0]['source_id']
+
+    print("Getting bundle manifest for id {0}, version {1}".format(bundle_uuid, bundle_version))
+    manifest = dcp_utils.get_manifest(bundle_uuid=bundle_uuid,
+                                      bundle_version=bundle_version,
+                                      dss_url=dss_url,
+                                      http_requests=http_requests)['bundle']['files']
+
+    metadata_files_dict = {f['name']: f for f in manifest if f['indexed']}
+    metadata_files = get_metadata_files(metadata_files_dict=metadata_files_dict, dss_url=dss_url)
+
+    # construct the bundle object to get required fields
+    ss2_primary_bundle = get_bundle_object(bundle_uuid=bundle_uuid,
+                                           bundle_version=bundle_version,
+                                           manifest=manifest,
+                                           metadata_files=metadata_files)
+
+    sample_id = get_sample_id(ss2_primary_bundle)
+    fastq_1_url, fastq_2_url = get_urls_to_files_for_ss2(ss2_primary_bundle)
+    return fastq_1_url, fastq_2_url, sample_id
 
 
-def _get_sample_id_v4(assay_json):
-    """Return sample id from assay json"""
-    return assay_json["has_input"]
-
-
-def get_input_metadata_file_uuid(manifest_files, version):
-    """Get the uuid of the file containing metadata about pipeline input files,
-    e.g. assay.json in v4
+def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, input_tsv_name='inputs.tsv'):
+    """Create TSV of Smart-seq2 inputs.
 
     Args:
-        manifest_files (dict): file metadata
-        version (str): metadata version
+        bundle_uuid (str): The bundle uuid
+        bundle_version (str): The bundle version
+        dss_url (str): The url for the DCP Data Storage Service
+        input_tsv_name (str): The file name of the input TSV file. By default, it's set to 'inputs.tsv',
+                              which will be consumed by the pipelines.
 
     Returns:
-        String giving the uuid of the input metadata file
+        None: this function will write the TSV file of cloud paths for the input files.
 
     Raises:
-        NotImplementedError: if version is unsupported
+        requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
     """
-    if version.startswith('4.'):
-        return _get_input_metadata_file_uuid_v4(manifest_files)
-    return _get_input_metadata_file_uuid_v5_or_higher(manifest_files)
+    fastq_1_url, fastq_2_url, sample_id = _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url,
+                                                                         HttpRequests())
+
+    print('Creating input map')
+    with open(input_tsv_name, 'w') as f:
+        f.write('fastq_1\tfastq_2\tsample_id\n')
+        f.write('{0}\t{1}\t{2}\n'.format(fastq_1_url, fastq_2_url, sample_id))
+    print('Wrote input map to disk.')
 
 
-def _get_input_metadata_file_uuid_v5_or_higher(manifest_files):
-    """Get the uuid of the files.json file"""
-    return dcp_utils.get_file_uuid(manifest_files, 'file.json')
-
-
-def _get_input_metadata_file_uuid_v4(manifest_files):
-    """Get the uuid of the assay.json file"""
-    return dcp_utils.get_file_uuid(manifest_files, 'assay.json')
-
-
-def get_sample_id_file_uuid(manifest_files, version):
-    """Get the uuid of the file containing the sample id,
-    e.g. assay.json in v4
-
-    Args:
-        manifest_files (dict): file metadata
-        version (str): version of metadata
-
-    Returns:
-        String giving uuid of file containing sample id
-
-    Raises:
-        NotImplementedError: if metadata version is unsupported
-    """
-    if version.startswith('4.'):
-        return _get_sample_id_file_uuid_v4(manifest_files)
-    else:
-        return _get_sample_id_file_uuid_v5_or_higher(manifest_files)
-        # raise NotImplementedError('Only implemented for v4 and v5 metadata')
-
-
-def _get_sample_id_file_uuid_v5_or_higher(manifest_files):
-    """Get the uuid of the links.json file"""
-    return dcp_utils.get_file_uuid(manifest_files, 'links.json')
-
-
-def _get_sample_id_file_uuid_v4(manifest_files):
-    """Get the uuid of the assay.json file"""
-    return dcp_utils.get_file_uuid(manifest_files, 'assay.json')
-
-
-def get_smart_seq_2_fastq_names(metadata, version):
-    """Get the fastq file names from the given metadata
-
-    Args:
-        metadata (dict): file metadata
-        version (str): the metadata version
-
-    Returns:
-        tuple of two strings representing the two fastq names
-
-    Raises:
-        NotImplementedError: if metadata version is unsupported
-    """
-    version_prefix = int(version.split('.', 1)[0])
-    if version_prefix == 5 or version_prefix == 6:
-        return _get_smart_seq_2_fastq_names_v5_or_v6(metadata)
-    elif version_prefix == 4:
-        return _get_smart_seq_2_fastq_names_v4(metadata)
-    else:
-        raise NotImplementedError('Only implemented for v4 and v5 metadata')
-
-
-def _get_smart_seq_2_fastq_names_v5_or_v6(files_json):
-    """Returns fastq file names
-
-    Args:
-        files_json (dict): file metadata
-    
-    Returns:
-        tuple of two strings representing the two fastq names
-    """
-    index_to_name = {}
-    for f in files_json['files']:
-        index = f['content']['read_index']
-        file_name = f['content']['file_core']['file_name']
-        index_to_name[index] = file_name
-    return index_to_name['read1'], index_to_name['read2']
-
-
-def _get_smart_seq_2_fastq_names_v4(assay_json):
-    """Returns fastq file names
-
-    Args:
-        assay_json (dict): metadata about the assay
-    
-    Returns:
-        tuple of two strings representing the two fastq names
-    """
-    fastq_1_name = assay_json["content"]["seq"]["lanes"][0]["r1"]
-    fastq_2_name = assay_json["content"]["seq"]["lanes"][0]["r2"]
-    return fastq_1_name, fastq_2_name
-
-
-def get_optimus_lanes(metadata_json, version):
-    """Get the lane metadata
-
-    Args:
-        metadata_json (dict): metadata
-        version (str): the metadata version
-
-    Returns:
-        Dict of lane metadata 
-
-    Raises:
-        NotImplementedError: if metadata version is unsupported
-    """
-    if version.startswith('4.'):
-        return _get_optimus_lanes_v4(metadata_json)
-    else:
-        raise NotImplementedError('Only implemented for v4 metadata')
-
-
-def _get_optimus_lanes_v4(assay_json):
-    """Return the lane metadata from the assay json"""
-    lanes = assay_json['content']['seq']['lanes']
-    return lanes
-
-
-def get_optimus_inputs(lanes, manifest_files):
+def _get_optimus_inputs(lanes, manifest_files):
     """Returns metadata for optimus input files
+    FIXME: Update this function with the `metadata-api`, until then this function is broken and won't work!
 
     Args:
         lanes (dict): lane metadata
@@ -230,147 +191,9 @@ def get_optimus_inputs(lanes, manifest_files):
     return r1, r2, i1
 
 
-def is_v5_or_higher(name_to_meta):
-    """Return true if schema of bundle metadata is at least 5.0.0
-
-    Args:
-        name_to_meta (dict): mapping file names to file metadata
-
-    Returns:
-        True if bundle metadata schema is at least 5, False otherwise
-
-    Raises:
-        ValueError: if version can't be determined
-    """
-    if 'assay.json' in name_to_meta:
-        return False
-    elif 'file.json' in name_to_meta:
-        return True
-    else:
-        raise ValueError('No assay.json and no file.json. Cannot determine metadata schema version.')
-
-
-def detect_schema_version(file_json):
-    """Return the bundle's metadata schema version
-
-    Args:
-        file_json (dict): file metadata
-
-    Returns:
-        String giving the metadata schema version
-
-    Raises:
-        ValueError: if bundle contains no files
-    """
-    files = file_json['files']
-    if len(files) == 0:
-        raise ValueError('No files in bundle')
-    schema_url = files[0]['content']['describedBy']
-    version = schema_url.split('/')[-2]
-    return version
-
-
-def get_version_prefix(schema_version):
-    try:
-        return int(schema_version.split('.', 1)[0])
-    except ValueError:
-        raise ValueError('Invalid schema version')
-
-
-def get_metadata_to_process(manifest_files, dss_url, is_v5_or_higher, http_requests):
-    """Return the metadata json that we need to parse to set up pipeline inputs
-
-    Args:
-        manifest_files (dict): file metadata
-        dss_url (str): the url of the DCP Data Storage Service
-        is_v5_or_higher (bool): whether metadata is v5 or higher
-        http_requests (HttpRequests): the HttpRequests object to use
-
-    Returns:
-        Tuple of three items: inputs metadata dict, sample metadata dict, schema version string
-
-    Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
-    """
-    sequencing_protocol_id = None
-    if not is_v5_or_higher:
-        schema_version = '4.x'
-        inputs_metadata_file_uuid = dcp_utils.get_file_uuid(manifest_files, 'assay.json')
-        inputs_metadata_json = dcp_utils.get_file_by_uuid(inputs_metadata_file_uuid, dss_url, http_requests)
-        sample_id_file_json = inputs_metadata_json
-    else:
-        sample_id_file_uuid = dcp_utils.get_file_uuid(manifest_files, 'links.json')
-        inputs_metadata_file_uuid = dcp_utils.get_file_uuid(manifest_files, 'file.json')
-        inputs_metadata_json = dcp_utils.get_file_by_uuid(inputs_metadata_file_uuid, dss_url, http_requests)
-        schema_version = detect_schema_version(inputs_metadata_json)
-        sample_id_file_json = dcp_utils.get_file_by_uuid(sample_id_file_uuid, dss_url, http_requests)
-
-        version_prefix = get_version_prefix(schema_version)
-        if version_prefix >= 6:
-            protocol_uuid = dcp_utils.get_file_uuid(manifest_files, 'protocol.json')
-            protocol_json = dcp_utils.get_file_by_uuid(protocol_uuid, dss_url, http_requests)
-            sequencing_protocol = [protocol for protocol in protocol_json['protocols'] if 'sequencing_protocol' in protocol['content']['describedBy']]
-            sequencing_protocol_id = sequencing_protocol[0]['hca_ingest']['document_id']
-
-    return inputs_metadata_json, sample_id_file_json, schema_version, sequencing_protocol_id
-
-
-def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url):
-    """Create TSV of Smart-seq2 inputs
-
-    Args:
-        bundle_uuid (str): the bundle uuid
-        bundle_version (str): the bundle version
-        dss_url (str): the url for the DCP Data Storage Service
-
-    Returns:
-        TSV of cloud paths for the input files
-
-    Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
-    """
-    fastq_1_url, fastq_2_url, sample_id = _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, HttpRequests())
-
-    print("Creating input map")
-    with open("inputs.tsv", "w") as f:
-        f.write("fastq_1\tfastq_2\tsample_id\n")
-        f.write("{0}\t{1}\t{2}\n".format(fastq_1_url, fastq_2_url, sample_id))
-    print("Wrote input map")
-
-
-def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_requests):
-    """Gather the necessary metadata for the ss2 input tsv
-
-    Args:
-        bundle_uuid (str): the bundle uuid
-        bundle_version (str): the bundle version
-        dss_url (str): the url for the DCP Data Storage Service
-        http_requests (HttpRequests): the HttpRequests object to use
-
-    Returns:
-        tuple of three strings: url for fastq 1, url for fastq 2, sample id
-
-    Raises:
-        requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
-    """
-    # Get bundle manifest
-    print("Getting bundle manifest for id {0}, version {1}".format(bundle_uuid, bundle_version))
-    manifest = dcp_utils.get_manifest(bundle_uuid, bundle_version, dss_url, http_requests)
-    manifest_files = dcp_utils.get_manifest_file_dicts(manifest)
-
-    inputs_metadata_json, sample_id_file_json, schema_version, sequencing_protocol_id = get_metadata_to_process(
-        manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']), http_requests)
-
-    sample_id = get_sample_id(sample_id_file_json, schema_version, sequencing_protocol_id)
-    fastq_1_name, fastq_2_name = get_smart_seq_2_fastq_names(inputs_metadata_json, schema_version)
-    fastq_1_url = dcp_utils.get_file_url(manifest_files, fastq_1_name)
-    fastq_2_url = dcp_utils.get_file_url(manifest_files, fastq_2_name)
-
-    return fastq_1_url, fastq_2_url, sample_id
-
-
 def create_optimus_input_tsv(uuid, version, dss_url):
     """Create TSV of Optimus inputs
+    FIXME: Update this function with the `metadata-api`, until then this function is broken and won't work!
 
     Args:
         uuid (str): the bundle uuid
@@ -386,19 +209,19 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     manifest_files = dcp_utils.get_manifest_file_dicts(manifest)
 
     inputs_metadata_json, sample_id_file_json, schema_version = get_metadata_to_process(
-        manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']))
+            manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']))
 
     # Parse inputs from metadata and write to fastq_inputs
     print('Writing fastq inputs to fastq_inputs.tsv')
     sample_id = get_sample_id(sample_id_file_json, schema_version)
     lanes = get_optimus_lanes(inputs_metadata_json, schema_version)
-    r1, r2, i1 = get_optimus_inputs(lanes, manifest_files)
+    r1, r2, i1 = _get_optimus_inputs(lanes, manifest_files)
     fastq_inputs = [list(i) for i in zip(r1, r2, i1)]
     print(fastq_inputs)
 
     with open('fastq_inputs.tsv', 'w') as f:
         for line in fastq_inputs:
-            f.write('\t'.join(line) +'\n')
+            f.write('\t'.join(line) + '\n')
         print('Writing sample ID to inputs.tsv')
         f.write('{0}'.format(sample_id))
 

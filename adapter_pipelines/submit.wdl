@@ -2,6 +2,7 @@
 task get_metadata {
   String analysis_output_path
   String runtime_environment
+  String cromwell_url
   Int? retry_max_interval
   Float? retry_multiplier
   Int? retry_timeout
@@ -23,15 +24,16 @@ task get_metadata {
 
     get-analysis-metadata \
       --analysis_output_path ${analysis_output_path} \
-      --runtime_environment ${runtime_environment} \
+      --cromwell_url ${cromwell_url} \
       --use_caas ${use_caas}
   >>>
   runtime {
-    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:v0.19.0"
+    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:v0.25.0"
   }
   output {
     File metadata = "metadata.json"
     String workflow_id = read_string("workflow_id.txt")
+    String pipeline_version = read_string("pipeline_version.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
   }
@@ -40,13 +42,15 @@ task get_metadata {
 # Create the submission object in ingest
 task create_submission {
   String workflow_id
+  String pipeline_version
   File metadata_json
   String input_bundle_uuid
   String reference_bundle
   String run_type
   String method
   String schema_url
-  String schema_version
+  String analysis_process_schema_version
+  String analysis_protocol_schema_version
   String analysis_file_version
   Array[Object] inputs
   Array[String] outputs
@@ -71,10 +75,10 @@ task create_submission {
     # to be unbuffered. This is the same as "-u", more info: https://docs.python.org/3/using/cmdline.html#cmdoption-u
     export PYTHONUNBUFFERED=TRUE
 
-    # First, create the analysis.json
-    # Note that create-analysis-json can take a comma-separated list of bundles,
+    # First, create both analysis_process.json and analysis_protocol.json
+    # Note that create-analysis-metadata can take a comma-separated list of bundles,
     # but current workflows only take a single input bundle
-    create-analysis-json \
+    create-analysis-metadata \
       --analysis_id ${workflow_id} \
       --metadata_json ${metadata_json} \
       --input_bundles ${input_bundle_uuid} \
@@ -82,16 +86,19 @@ task create_submission {
       --run_type ${run_type} \
       --method ${method} \
       --schema_url ${schema_url} \
-      --schema_version ${schema_version} \
+      --analysis_process_schema_version ${analysis_process_schema_version} \
+      --analysis_protocol_schema_version ${analysis_protocol_schema_version} \
+      --pipeline_version ${pipeline_version} \
       --analysis_file_version ${analysis_file_version} \
       --inputs_file ${write_objects(inputs)} \
       --outputs_file ${write_lines(outputs)} \
       --format_map ${format_map}
 
-    # Now create the submission object
+    # Now build the submission object
     create-envelope \
       --submit_url ${submit_url} \
-      --analysis_json_path analysis.json \
+      --analysis_process_path analysis_process.json \
+      --analysis_protocol_path analysis_protocol.json \
       --schema_url ${schema_url} \
       --analysis_file_version ${analysis_file_version}
   >>>
@@ -100,7 +107,8 @@ task create_submission {
     docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
   }
   output {
-    File analysis_json = "analysis.json"
+    File analysis_process = "analysis_process.json"
+    File analysis_protocol = "analysis_protocol.json"
     String submission_url = read_string("submission_url.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
@@ -222,7 +230,9 @@ workflow submit {
   String reference_bundle
   String run_type
   String schema_url
-  String schema_version
+  String cromwell_url
+  String analysis_process_schema_version
+  String analysis_protocol_schema_version
   String analysis_file_version
   String method
   String runtime_environment
@@ -239,6 +249,7 @@ workflow submit {
     input:
       analysis_output_path = outputs[0],
       runtime_environment = runtime_environment,
+      cromwell_url = cromwell_url,
       use_caas=use_caas,
       record_http = record_http,
       retry_timeout = retry_timeout,
@@ -252,7 +263,8 @@ workflow submit {
       reference_bundle = reference_bundle,
       run_type = run_type,
       schema_url = schema_url,
-      schema_version = schema_version,
+      analysis_process_schema_version = analysis_process_schema_version,
+      analysis_protocol_schema_version = analysis_protocol_schema_version,
       analysis_file_version = analysis_file_version,
       method = method,
       submit_url = submit_url,
@@ -262,6 +274,7 @@ workflow submit {
       metadata_json = get_metadata.metadata,
       input_bundle_uuid = input_bundle_uuid,
       workflow_id = get_metadata.workflow_id,
+      pipeline_version = get_metadata.pipeline_version,
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
       retry_multiplier = retry_multiplier,
@@ -295,7 +308,8 @@ workflow submit {
   }
 
   output {
-    File analysis_json = create_submission.analysis_json
+    File analysis_process = create_submission.analysis_process
+    File analysis_protocol = create_submission.analysis_protocol
     Array[File] create_envelope_requests = create_submission.http_requests
     Array[File] create_envelope_responses = create_submission.http_responses
     Array[File] stage_and_confirm_requests = stage_files.http_requests
