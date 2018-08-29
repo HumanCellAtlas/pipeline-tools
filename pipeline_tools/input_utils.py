@@ -3,27 +3,8 @@ import typing
 from concurrent.futures import ThreadPoolExecutor
 from humancellatlas.data.metadata import Bundle
 
-from pipeline_tools import dcp_utils
+from pipeline_tools import dcp_utils, optimus_utils
 from pipeline_tools.http_requests import HttpRequests
-
-
-def get_bundle_object(bundle_uuid, bundle_version, manifest, metadata_files):
-    """Factory function to create a `humancellatlas.data.metadata.Bundle` object from bundle information and manifest.
-
-    Args:
-        bundle_uuid (str): The bundle uuid.
-        bundle_version (str): The bundle version.
-        manifest (list): A list of dictionaries represent the manifest JSON file.
-        metadata_files (dict): A dictionary mapping the file name of each metadata file in the bundle to the JSON
-                               contents of that file.
-
-    Returns:
-        humancellatlas.data.metadata.Bundle: A Bundle object contains all of the necessary information.
-    """
-    return Bundle(uuid=bundle_uuid,
-                  version=bundle_version,
-                  manifest=manifest,
-                  metadata_files=metadata_files)
 
 
 def get_sample_id(bundle):
@@ -110,6 +91,29 @@ def get_metadata_files(metadata_files_dict, dss_url, num_workers=None):
     return metadata_files
 
 
+def get_bundle_metadata(uuid, version, dss_url, http_requests):
+    """Factory function to create a `humancellatlas.data.metadata.Bundle` object from bundle information and manifest.
+
+    Args:
+        bundle_uuid (str): The bundle uuid.
+        bundle_version (str): The bundle version.
+        dss_url (str): Url of Data Storage System to query
+        http_requests (HttpRequests): An HttpRequests object.
+
+    Returns:
+        humancellatlas.data.metadata.Bundle: A bundle metadata object.
+    """
+    manifest = dcp_utils.get_manifest(bundle_uuid=uuid,
+                                      bundle_version=version,
+                                      dss_url=dss_url,
+                                      http_requests=http_requests)['bundle']['files']
+
+    metadata_files_dict = {f['name']: f for f in manifest if f['indexed']}
+    metadata_files = get_metadata_files(metadata_files_dict=metadata_files_dict, dss_url=dss_url)
+
+    return Bundle(uuid=uuid, version=version, manifest=manifest, metadata_files=metadata_files)
+
+
 def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_requests):
     """Gather the necessary metadata for the ss2 input tsv.
 
@@ -127,22 +131,13 @@ def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_re
     """
 
     print("Getting bundle manifest for id {0}, version {1}".format(bundle_uuid, bundle_version))
-    manifest = dcp_utils.get_manifest(bundle_uuid=bundle_uuid,
-                                      bundle_version=bundle_version,
-                                      dss_url=dss_url,
-                                      http_requests=http_requests)['bundle']['files']
+    primary_bundle = get_bundle_metadata(uuid=bundle_uuid,
+                                         version=bundle_version,
+                                         dss_url=dss_url,
+                                         http_requests=http_requests)
 
-    metadata_files_dict = {f['name']: f for f in manifest if f['indexed']}
-    metadata_files = get_metadata_files(metadata_files_dict=metadata_files_dict, dss_url=dss_url)
-
-    # construct the bundle object to get required fields
-    ss2_primary_bundle = get_bundle_object(bundle_uuid=bundle_uuid,
-                                           bundle_version=bundle_version,
-                                           manifest=manifest,
-                                           metadata_files=metadata_files)
-
-    sample_id = get_sample_id(ss2_primary_bundle)
-    fastq_1_url, fastq_2_url = get_urls_to_files_for_ss2(ss2_primary_bundle)
+    sample_id = get_sample_id(primary_bundle)
+    fastq_1_url, fastq_2_url = get_urls_to_files_for_ss2(primary_bundle)
     return fastq_1_url, fastq_2_url, sample_id
 
 
@@ -172,28 +167,8 @@ def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, input_tsv_name='i
     print('Wrote input map to disk.')
 
 
-def _get_optimus_inputs(lanes, manifest_files):
-    """Returns metadata for optimus input files
-    FIXME: Update this function with the `metadata-api`, until then this function is broken and won't work!
-
-    Args:
-        lanes (dict): lane metadata
-        manifest_files (dict): file metadata
-
-    Returns:
-        Three lists of urls, representing fastqs for r1, r2, and i1, respectively.
-    In each list, the first item is for the first lane, the second item is for the second lane, etc.
-    """
-    r1 = [manifest_files['name_to_meta'][lane['r1']]['url'] for lane in lanes]
-    r2 = [manifest_files['name_to_meta'][lane['r2']]['url'] for lane in lanes]
-    i1 = [manifest_files['name_to_meta'][lane['i1']]['url'] for lane in lanes]
-
-    return r1, r2, i1
-
-
 def create_optimus_input_tsv(uuid, version, dss_url):
     """Create TSV of Optimus inputs
-    FIXME: Update this function with the `metadata-api`, until then this function is broken and won't work!
 
     Args:
         uuid (str): the bundle uuid
@@ -202,27 +177,40 @@ def create_optimus_input_tsv(uuid, version, dss_url):
 
     Returns:
         TSV of input file cloud paths
+
+    Raises:
+        optimus_utils.LaneMissingFileError if any fastqs are missing
     """
     # Get bundle manifest
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
-    manifest = dcp_utils.get_manifest(uuid, version, dss_url)
-    manifest_files = dcp_utils.get_manifest_file_dicts(manifest)
+    primary_bundle = get_bundle_metadata(uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests())
 
-    inputs_metadata_json, sample_id_file_json, schema_version = get_metadata_to_process(
-            manifest_files, dss_url, is_v5_or_higher(manifest_files['name_to_meta']))
+    # Parse inputs from metadata
+    print('Gathering fastq inputs')
+    fastq_files = [f for f in primary_bundle.files.values() if f.file_format == 'fastq.gz']
+    lane_to_fastqs = optimus_utils.create_fastq_dict(fastq_files)
 
-    # Parse inputs from metadata and write to fastq_inputs
-    print('Writing fastq inputs to fastq_inputs.tsv')
-    sample_id = get_sample_id(sample_id_file_json, schema_version)
-    lanes = get_optimus_lanes(inputs_metadata_json, schema_version)
-    r1, r2, i1 = _get_optimus_inputs(lanes, manifest_files)
-    fastq_inputs = [list(i) for i in zip(r1, r2, i1)]
-    print(fastq_inputs)
+    # Stop if any fastqs are missing
+    optimus_utils.validate_lanes(lane_to_fastqs)
 
-    with open('fastq_inputs.tsv', 'w') as f:
-        for line in fastq_inputs:
-            f.write('\t'.join(line) + '\n')
-        print('Writing sample ID to inputs.tsv')
+    r1_urls = optimus_utils.get_fastqs_for_read_index(lane_to_fastqs, 'read1')
+    r2_urls = optimus_utils.get_fastqs_for_read_index(lane_to_fastqs, 'read2')
+    i1_urls = optimus_utils.get_fastqs_for_read_index(lane_to_fastqs, 'index1')
+
+    print('Writing r1.txt, r2.txt, and i1.txt')
+    with open('r1.txt', 'w') as f:
+        for url in r1_urls:
+            f.write(url + '\n')
+    with open('r2.txt', 'w') as f:
+        for url in r2_urls:
+            f.write(url + '\n')
+    with open('i1.txt', 'w') as f:
+        for url in i1_urls:
+            f.write(url + '\n')
+
+    sample_id = get_sample_id(primary_bundle)
+    print('Writing sample ID to sample_id.txt')
+    with open('sample_id.txt', 'w') as f:
         f.write('{0}'.format(sample_id))
 
-    print('Wrote input map')
+    print('Finished writing files')
