@@ -25,65 +25,6 @@ def get_analysis_workflow_id(analysis_output_path):
     return workflow_id
 
 
-def get_adapter_workflow_id(analysis_output_path):
-    """Parse the adapter workflow id from one of its analysis workflow output paths.
-
-    Args:
-        analysis_output_path (str): Path to workflow output file.
-
-    Returns:
-        workflow_id (str): String giving Cromwell UUID of the adapter workflow.
-    """
-    url = analysis_output_path
-    calls = url.split('/call-')
-    adapter_workflow_id = calls[0].split('/')[-1]
-    print('Got adapter workflow UUID: {0}'.format(adapter_workflow_id))
-    return adapter_workflow_id
-
-
-def get_adapter_workflow_version(cromwell_url,
-                                 adapter_workflow_id,
-                                 http_requests,
-                                 use_caas=False,
-                                 caas_key_file=None):
-    """Get the version of the adapter workflow from its workflow id and write the version to a file so that it is
-    available outside of the get_analysis task.
-
-    Args:
-        cromwell_url (str): Url to the cromwell environment the workflow was run in.
-        adapter_workflow_id (str): String giving Cromwell UUID of the adapter workflow.
-        http_requests: `http_requests.HttpRequests` instance, a wrapper around requests provides better retry and
-                       logging.
-        use_caas (bool): whether or not to use Cromwell-as-a-Service.
-        caas_key_file (str): path to CaaS service account JSON key file.
-
-    Raises:
-        requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
-    """
-
-    def log_before(workflow_id):
-        print('Getting the version for adapter workflow {}'.format(workflow_id))
-
-    cromwell_url = cromwell_url
-
-    if use_caas:
-        json_credentials = caas_key_file or "/cromwell-metadata/caas_key.json"
-        headers = cromwell_tools.generate_auth_header_from_key_file(json_credentials)
-        auth = None
-    else:
-        headers = None
-        auth = get_auth()
-    url = '{0}/query?id={1}&additionalQueryResultFields=labels'.format(cromwell_url, adapter_workflow_id)
-    response = http_requests.get(url, auth=auth, headers=headers, before=log_before(adapter_workflow_id))
-
-    workflow_labels = response.json().get('results')[0].get('labels')
-
-    workflow_version = workflow_labels.get('workflow-version') if workflow_labels else None
-
-    with open('pipeline_version.txt', 'w') as f:
-        f.write(workflow_version)
-
-
 def get_auth(credentials_file=None):
     """Parse cromwell username and password from credentials file.
 
@@ -154,14 +95,6 @@ def main():
                  http_requests=HttpRequests(),
                  use_caas=use_caas,
                  caas_key_file=args.caas_key_file)
-
-    # Get the pipeline version and write to file
-    adapter_workflow_id = get_adapter_workflow_id(analysis_output_path=args.analysis_output_path)
-    get_adapter_workflow_version(cromwell_url=args.cromwell_url,
-                                 adapter_workflow_id=adapter_workflow_id,
-                                 http_requests=HttpRequests(),
-                                 use_caas=use_caas,
-                                 caas_key_file=args.caas_key_file)
 
 
 if __name__ == '__main__':

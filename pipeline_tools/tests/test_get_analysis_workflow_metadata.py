@@ -4,7 +4,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from unittest.mock import patch
 
-from pipeline_tools import get_analysis_metadata
+from pipeline_tools import get_analysis_workflow_metadata
 from pipeline_tools.http_requests import HttpRequests
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
@@ -60,79 +60,23 @@ def mocked_generate_auth_header_from_key_file(foo_credentials):
     return {'Authorization': 'bearer 12345'}
 
 
-class TestGetAnalysisMetadata(object):
+class TestGetAnalysisWorkflowMetadata(object):
 
     def test_get_analysis_workflow_id(self, test_data, tmpdir):
         current_file_path = tmpdir.join('workflow_id.txt')
         analysis_output_path = test_data.analysis_output_path
 
         with tmpdir.as_cwd():  # this stops unittests from writing files and polluting the directory
-            result = get_analysis_metadata.get_analysis_workflow_id(analysis_output_path)
+            result = get_analysis_workflow_metadata.get_analysis_workflow_id(analysis_output_path)
         expected = 'analysis_subworkflow_id'
         assert result == expected
         assert current_file_path.read() == 'analysis_subworkflow_id'
 
-    def test_get_adapter_workflow_id(self, test_data):
-        analysis_output_path = test_data.analysis_output_path
-
-        result = get_analysis_metadata.get_adapter_workflow_id(analysis_output_path)
-        expected = 'adapter_workflow_id'
-        assert result == expected
-
     def test_get_auth(self):
         credentials_file = '{0}test_credentials.txt'.format(data_dir)
-        auth = get_analysis_metadata.get_auth(credentials_file)
+        auth = get_analysis_workflow_metadata.get_auth(credentials_file)
         expected_auth = HTTPBasicAuth('fake-user', 'fake-password')
         assert auth == expected_auth
-
-    def test_get_adapter_workflow_version_success(self, requests_mock, test_data, tmpdir):
-        current_file_path = tmpdir.join('pipeline_version.txt')
-
-        def _request_callback(request, context):
-            context.status_code = 200
-            return test_data.query_workflow_response_200
-
-        requests_mock.get(test_data.cromwell_query_url, json=_request_callback)
-        with patch('pipeline_tools.get_analysis_metadata.get_auth', side_effect=mocked_get_auth), \
-             tmpdir.as_cwd(), \
-             HttpRequestsManager():
-            get_analysis_metadata.get_adapter_workflow_version(test_data.base_url,
-                                                               test_data.workflow_id,
-                                                               HttpRequests(),
-                                                               use_caas=False)
-            assert requests_mock.call_count == 1
-            assert current_file_path.read() == 'testing-fake-version'
-
-    def test_get_adapter_workflow_version_using_caas(self, requests_mock, test_data, tmpdir):
-        current_file_path = tmpdir.join('pipeline_version.txt')
-
-        def _request_callback(request, context):
-            context.status_code = 200
-            return test_data.query_workflow_response_200
-
-        requests_mock.get(test_data.caas_query_url, json=_request_callback)
-        with patch('pipeline_tools.get_analysis_metadata.cromwell_tools.generate_auth_header_from_key_file',
-                   side_effect=mocked_generate_auth_header_from_key_file), tmpdir.as_cwd(), HttpRequestsManager():
-            get_analysis_metadata.get_adapter_workflow_version(test_data.caas_base_url,
-                                                               test_data.workflow_id,
-                                                               HttpRequests(),
-                                                               use_caas=True)
-        assert requests_mock.call_count == 1
-        assert current_file_path.read() == 'testing-fake-version'
-
-    def test_get_adapter_workflow_version_retries_on_failure(self, requests_mock, test_data):
-        def _request_callback(request, context):
-            context.status_code = 500
-            return {'status': 'error', 'message': 'Internal Server Error'}
-
-        requests_mock.get(test_data.cromwell_query_url, json=_request_callback)
-        with patch('pipeline_tools.get_analysis_metadata.get_auth', side_effect=mocked_get_auth), \
-             pytest.raises(requests.HTTPError), HttpRequestsManager():
-            get_analysis_metadata.get_adapter_workflow_version(test_data.base_url,
-                                                               test_data.workflow_id,
-                                                               HttpRequests(),
-                                                               use_caas=False)
-        assert requests_mock.call_count == 3
 
     def test_get_metadata_success(self, requests_mock, test_data, tmpdir):
         current_file_path = tmpdir.join('metadata.json')
@@ -144,13 +88,13 @@ class TestGetAnalysisMetadata(object):
             }
 
         requests_mock.get(test_data.cromwell_metadata_url, json=_request_callback)
-        with patch('pipeline_tools.get_analysis_metadata.get_auth', side_effect=mocked_get_auth), \
+        with patch('pipeline_tools.get_analysis_workflow_metadata.get_auth', side_effect=mocked_get_auth), \
              tmpdir.as_cwd(), \
              HttpRequestsManager():
-            get_analysis_metadata.get_metadata(test_data.base_url,
-                                               test_data.workflow_id,
-                                               HttpRequests(),
-                                               use_caas=False)
+            get_analysis_workflow_metadata.get_metadata(test_data.base_url,
+                                                        test_data.workflow_id,
+                                                        HttpRequests(),
+                                                        use_caas=False)
         assert requests_mock.call_count == 1
         assert current_file_path.read() is not None
 
@@ -164,12 +108,12 @@ class TestGetAnalysisMetadata(object):
             }
 
         requests_mock.get(test_data.caas_metadata_url, json=_request_callback)
-        with patch('pipeline_tools.get_analysis_metadata.cromwell_tools.generate_auth_header_from_key_file',
+        with patch('pipeline_tools.get_analysis_workflow_metadata.cromwell_tools.generate_auth_header_from_key_file',
                    side_effect=mocked_generate_auth_header_from_key_file), tmpdir.as_cwd(), HttpRequestsManager():
-            get_analysis_metadata.get_metadata(test_data.caas_base_url,
-                                               test_data.workflow_id,
-                                               HttpRequests(),
-                                               use_caas=True)
+            get_analysis_workflow_metadata.get_metadata(test_data.caas_base_url,
+                                                        test_data.workflow_id,
+                                                        HttpRequests(),
+                                                        use_caas=True)
         assert requests_mock.call_count == 1
         assert current_file_path.read() is not None
 
@@ -179,10 +123,10 @@ class TestGetAnalysisMetadata(object):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         requests_mock.get(test_data.cromwell_metadata_url, json=_request_callback)
-        with patch('pipeline_tools.get_analysis_metadata.get_auth', side_effect=mocked_get_auth), \
+        with patch('pipeline_tools.get_analysis_workflow_metadata.get_auth', side_effect=mocked_get_auth), \
              pytest.raises(requests.HTTPError), HttpRequestsManager():
-            get_analysis_metadata.get_metadata(test_data.base_url,
-                                               test_data.workflow_id,
-                                               HttpRequests(),
-                                               use_caas=False)
+            get_analysis_workflow_metadata.get_metadata(test_data.base_url,
+                                                        test_data.workflow_id,
+                                                        HttpRequests(),
+                                                        use_caas=False)
         assert requests_mock.call_count == 3
