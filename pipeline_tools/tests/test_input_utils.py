@@ -100,11 +100,3 @@ class TestInputUtils(object):
                                              dss_url='foo_url',
                                              input_tsv_name=file_path)
         assert file_path.read() == 'fastq_1\tfastq_2\tsample_id\n{0}\t{1}\t{2}\n'.format('url1', 'url2', 'fake_id')
-
-    def test_get_optimus_inputs(self):
-        # FIXME: Implement unittests after fixing the utility functions for Optimus
-        assert True
-
-    def test_create_optimus_input_tsv(self):
-        # FIXME: Implement unittests after fixing the utility functions for Optimus
-        assert True
