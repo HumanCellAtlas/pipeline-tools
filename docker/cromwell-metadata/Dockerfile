@@ -1,4 +1,4 @@
-FROM quay.io/humancellatlas/secondary-analysis-pipeline-tools:rex-change-pipeline-version-source
+FROM quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-get-pipeline-versions-from-wdls-than-cromwell-labels
 
 RUN mkdir /cromwell-metadata
 WORKDIR /cromwell-metadata

@@ -17,8 +17,10 @@
   "submit.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
   "submit.format_map": "gs://foo/format_map.json",
   "submit.submit_url": "http://api.ingest.staging.data.humancellatlas.org/",
-  "submit.method": "Ss2RsemSingleSample",
-  "submit.schema_version": "4.6.1",
+  "submit.method": "SmartSeq2SingleCell",
+  "submit.analysis_file_version": "5.3.4",
+  "submit.analysis_protocol_schema_version": "8.0.3",
+  "submit.analysis_process_schema_version": "8.0.3",
   "submit.run_type": "run",
   "submit.runtime_environment": "dev"
 }
