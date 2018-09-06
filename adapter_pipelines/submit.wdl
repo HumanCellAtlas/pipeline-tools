@@ -166,8 +166,8 @@ task stage_files {
     # Stage the files
     for f in "$${lb}unstaged_files[@]${rb}"
     do
-      echo "hca upload file $f"
-      hca upload file $f
+      echo "hca upload files $f"
+      hca upload files $f
     done
   >>>
 
