@@ -9,5 +9,6 @@
   "AdapterOptimus.analysis_file_version": "5.2.1",
   "AdapterOptimus.analysis_protocol_schema_version": "8.0.0",
   "AdapterOptimus.analysis_process_schema_version": "8.0.0",
-  "AdapterOptimus.run_type": "run"
+  "AdapterOptimus.run_type": "run",
+  "AdapterOptimus.add_md5s": false
 }

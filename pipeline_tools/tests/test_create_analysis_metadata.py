@@ -9,24 +9,32 @@ import pipeline_tools.create_analysis_metadata as cam
 @pytest.fixture(scope='module')
 def test_data():
     class Data:
-        output_url_to_md5 = {
-            'gs://foo/bar/Aligned.sortedByCoord.out.bam': '0123456789abcdef0123456789abcdef',
-            'gs://foo/bar/GSM1957573_rna_metrics': 'abcdef0123456789abcdef0123456789'
+        output_urls = {
+            'gs://foo/bar/Aligned.sortedByCoord.out.bam',
+            'gs://foo/bar/GSM1957573_rna_metrics'
         }
         extension_to_format = {
             '.bam': 'bam',
             '_metrics': 'metrics'
         }
-        output_dicts = [
+        outputs = [
             {
-                'name': 'Aligned.sortedByCoord.out.bam',
-                'format': 'bam',
-                'checksum': '0123456789abcdef0123456789abcdef'
+                'describedBy': 'http://schema.humancellatlas.org/type/file/4.5.6/analysis_file',
+                'schema_type': 'file',
+                'file_core': {
+                    'file_name': 'Aligned.sortedByCoord.out.bam',
+                    'file_format': 'bam',
+                    'checksum': '0123456789abcdef0123456789abcdef'
+                }
             },
             {
-                'name': 'GSM1957573_rna_metrics',
-                'format': 'metrics',
-                'checksum': 'abcdef0123456789abcdef0123456789'
+                'describedBy': 'http://schema.humancellatlas.org/type/file/4.5.6/analysis_file',
+                'schema_type': 'file',
+                'file_core': {
+                    'file_name': 'GSM1957573_rna_metrics',
+                    'file_format': 'metrics',
+                    'checksum': 'abcdef0123456789abcdef0123456789'
+                }
             }
         ]
         inputs = [
@@ -76,16 +84,14 @@ class TestCreateAnalysisMetadata(object):
                                                        input_bundles_string='foo_input_bundle1,foo_input_bundle2',
                                                        reference_bundle='foo_ref_bundle',
                                                        inputs=test_data.inputs,
-                                                       output_url_to_md5=test_data.output_url_to_md5,
-                                                       extension_to_format=test_data.extension_to_format,
-                                                       analysis_file_version='4.5.6',
+                                                       outputs=test_data.outputs,
                                                        run_type='foo_run_type')
 
         assert analysis_process.get('process_core').get('process_id') == '12345abcde'
         self.verify_inputs(analysis_process.get('inputs'), test_data)
 
         analysis_file_schema_url = '{}/type/file/4.5.6/analysis_file'.format(test_data.schema_url)
-        self.verify_outputs(analysis_process.get('outputs'), test_data.output_dicts, analysis_file_schema_url)
+        self.verify_outputs(analysis_process.get('outputs'), test_data.outputs, analysis_file_schema_url)
 
         self.verify_tasks(analysis_process.get('tasks'))
 
@@ -139,7 +145,7 @@ class TestCreateAnalysisMetadata(object):
         inputs = deepcopy(test_data.inputs)
         for i in inputs:
             i.pop('checksum', None)
-        inputs_with_md5s = cam.add_md5s(test_data.inputs, test_data.input_url_to_md5)
+        inputs_with_md5s = cam.add_md5s_to_inputs(test_data.inputs, test_data.input_url_to_md5)
         self.verify_inputs(inputs_with_md5s, test_data)
         # Verify that original dict was not modified
         assert len([i for i in inputs if 'checksum' in i]) == 0
@@ -182,9 +188,9 @@ class TestCreateAnalysisMetadata(object):
     def test_get_outputs(self, test_data):
         schema_version = 'good_version'
         schema_url = '{}/type/file/{}/analysis_file'.format(test_data.schema_url, schema_version)
-        outputs_json = cam.get_outputs(test_data.output_url_to_md5, test_data.extension_to_format,
+        outputs_json = cam.get_outputs(test_data.output_urls, test_data.extension_to_format,
                                        test_data.schema_url, schema_version)
-        self.verify_outputs(outputs_json, test_data.output_dicts, schema_url)
+        self.verify_outputs(outputs_json, test_data.outputs, schema_url, include_md5s=False)
 
     def test_get_analysis_protocol_core(self):
         pipeline_version = 'good_version'
@@ -216,17 +222,19 @@ class TestCreateAnalysisMetadata(object):
             assert inputs[0]['checksum'] == test_data.inputs[0]['checksum']
             assert inputs[1]['checksum'] == test_data.inputs[1]['checksum']
 
-    def verify_outputs(self, output_json, output_dicts, schema_url):
+    def verify_outputs(self, output_json, expected_outputs, schema_url, include_md5s=True):
         assert output_json[0]['describedBy'] == schema_url
         assert output_json[0]['schema_type'] == 'file'
-        assert output_json[0]['file_core']['file_format'] == output_dicts[0]['format']
-        assert output_json[0]['file_core']['file_name'] == output_dicts[0]['name']
-        assert output_json[0]['file_core']['checksum'] == output_dicts[0]['checksum']
+        assert output_json[0]['file_core']['file_format'] == expected_outputs[0]['file_core']['file_format']
+        assert output_json[0]['file_core']['file_name'] == expected_outputs[0]['file_core']['file_name']
+        if include_md5s:
+            assert output_json[0]['file_core']['checksum'] == expected_outputs[0]['file_core']['checksum']
         assert output_json[0]['describedBy'] == schema_url
         assert output_json[1]['schema_type'] == 'file'
-        assert output_json[1]['file_core']['file_format'] == output_dicts[1]['format']
-        assert output_json[1]['file_core']['file_name'] == output_dicts[1]['name']
-        assert output_json[1]['file_core']['checksum'] == output_dicts[1]['checksum']
+        assert output_json[1]['file_core']['file_format'] == expected_outputs[1]['file_core']['file_format']
+        assert output_json[1]['file_core']['file_name'] == expected_outputs[1]['file_core']['file_name']
+        if include_md5s:
+            assert output_json[1]['file_core']['checksum'] == expected_outputs[1]['file_core']['checksum']
 
     def verify_tasks(self, tasks):
         assert len(tasks) == 5

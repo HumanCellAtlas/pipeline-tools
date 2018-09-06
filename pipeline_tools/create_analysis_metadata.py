@@ -16,9 +16,7 @@ def create_analysis_process(raw_schema_url,
                             input_bundles_string,
                             reference_bundle,
                             inputs,
-                            output_url_to_md5,
-                            extension_to_format,
-                            analysis_file_version,
+                            outputs,
                             run_type):
     """Collect and create the information about the analysis process for submission to Ingest service.
 
@@ -42,9 +40,7 @@ def create_analysis_process(raw_schema_url,
                                 since it is required in the schema, but we are not using reference bundles yet. We
                                 should use the actual value here once it's applicable.
         inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
-        output_url_to_md5 (dict): A dict mapping workflow output urls to corresponding md5 hashes.
-        extension_to_format (dict): A dict mapping file extensions to file formats.
-        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
+        outputs (List[dict]): A list of dicts, where each dict gives metadata for an output file
         run_type (str): Indicator of whether the analysis actually ran or was just copied forward as an optimization.
                         Should be either "run" or "copy-forward".
 
@@ -69,10 +65,7 @@ def create_analysis_process(raw_schema_url,
         'reference_bundle': reference_bundle,
         'tasks': workflow_tasks,
         'inputs': inputs,
-        'outputs': get_outputs(output_url_to_md5=output_url_to_md5,
-                               extension_to_format=extension_to_format,
-                               schema_url=raw_schema_url,
-                               analysis_file_version=analysis_file_version),
+        'outputs': outputs,
         'analysis_run_type': run_type,
     }
     return analysis_process
@@ -132,6 +125,36 @@ def get_inputs(inputs_file):
     return inputs
 
 
+def get_outputs(output_urls, extension_to_format, schema_url, analysis_file_version):
+    """Creates outputs metadata array for analysis json.
+
+    TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
+    2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L445" so we can use the `metadata-api` directly to create
+    the analysis_file metadata file.
+
+    Args:
+        output_urls (List[str]): List of output gs urls
+        extension_to_format (dict): dict of file extensions to corresponding file formats
+        schema_url (str): URL for retrieving HCA metadata schemas
+        analysis_file_version (str): the version of the metadata schema that the output file json should conform to
+
+    Returns:
+        outputs (List[dict]): Array of dicts representing outputs metadata in the format required for the analysis json
+                              file
+    """
+    outputs = [
+        {
+            'describedBy': '{0}/type/file/{1}/analysis_file'.format(schema_url, analysis_file_version),
+            'schema_type': 'file',
+            'file_core': {
+                'file_name': output_url.split('/')[-1],
+                'file_format': get_file_format(output_url, extension_to_format)
+            }
+        } for output_url in sorted(output_urls)
+    ]
+    return outputs
+
+
 def get_input_urls(inputs):
     """Returns just the gs urls from the given list of inputs.
 
@@ -144,7 +167,7 @@ def get_input_urls(inputs):
     return [i['parameter_value'] for i in inputs if i['parameter_value'].startswith('gs://')]
 
 
-def add_md5s(inputs, input_url_to_md5):
+def add_md5s_to_inputs(inputs, input_url_to_md5):
     """Adds md5 hash for each file in the given list.
 
     Queries GCS for the md5 of each parameter whose value starts with 'gs://'.
@@ -166,6 +189,27 @@ def add_md5s(inputs, input_url_to_md5):
         else:
             inputs_with_md5.append(deepcopy(i))
     return inputs_with_md5
+
+
+def add_md5s_to_outputs(outputs, output_name_to_md5):
+    """Adds md5 hash for each file in the given list.
+
+    Queries GCS for the md5 of each parameter whose value starts with 'gs://'.
+
+    Args:
+        outputs (List[dict]): List of dicts containing output metadata
+        output_name_to_md5 (dict): Dict of file names to corresponding md5 hashes
+
+    Returns:
+        outputs_with_md5 (List[dict]): A list of dicts, where each dict contains metadata for an output file
+    """
+    outputs_with_md5 = []
+    for out in outputs:
+        name = out['file_core']['file_name']
+        output_with_md5 = deepcopy(out)
+        output_with_md5['file_core']['checksum'] = output_name_to_md5[name]
+        outputs_with_md5.append(output_with_md5)
+    return outputs_with_md5
 
 
 def get_md5s(output_urls, gcs_client):
@@ -336,39 +380,6 @@ def get_file_format(path, extension_to_format):
     return 'unknown'
 
 
-def get_outputs(output_url_to_md5, extension_to_format, schema_url, analysis_file_version):
-    """Creates outputs metadata array for analysis json.
-
-    TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
-    2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L445" so we can use the `metadata-api` directly to create
-    the analysis_file metadata file.
-
-    Args:
-        output_url_to_md5 (dict): dict of output gs urls to corresponding md5 hashes.
-        extension_to_format (dict): dict of file extensions to corresponding file formats.
-        schema_url (str): URL for retrieving HCA metadata schemas.
-        analysis_file_version (str): the version of the metadata schema that the output file json should conform to.
-
-    Returns:
-        outputs (List[dict]): Array of dicts representing outputs metadata in the format required for the analysis json
-                              file.
-    """
-    outputs = [
-        {
-            'describedBy': '{0}/type/file/{1}/analysis_file'.format(schema_url, analysis_file_version),
-            'schema_type': 'file',
-            'file_core': {
-                'file_name': output_url.split('/')[-1],
-                'file_format': get_file_format(output_url, extension_to_format),
-                'checksum': md5_hash
-            }
-        } for output_url, md5_hash in sorted(output_url_to_md5.items())
-    ]
-    print('The content of outputs are: ')
-    print(outputs)
-    return outputs
-
-
 def get_analysis_protocol_core(pipeline_version, **kwargs):
     """Creates protocol_core metadata for analysis_protocol.
 
@@ -448,25 +459,40 @@ def main():
     parser.add_argument('--format_map',
                         required=True,
                         help='JSON file providing map of file extensions to formats.')
+    parser.add_argument('--add_md5s',
+                        help='Set to "true" to add md5 checksums to file metadata')
     args = parser.parse_args()
 
     # Get the extension_to_format mapping
     with open(args.format_map) as f:
         extension_to_format = json.load(f)
 
-    # Get outputs and add MD5 checksum to them
+    schema_url = args.schema_url.strip('/')
+
+    # Get metadata for inputs and outputs
+    inputs = get_inputs(args.inputs_file)
     with open(args.outputs_file) as f:
         output_urls = f.read().splitlines()
-    client = storage.Client()
-    output_url_to_md5 = get_md5s(output_urls, client)
+    outputs = get_outputs(output_urls=output_urls,
+                          extension_to_format=extension_to_format,
+                          schema_url=schema_url,
+                          analysis_file_version=args.analysis_file_version)
+    print('The content of outputs are: ')
+    print(outputs)
 
-    # Get inputs and add MD5 checksum to them
-    inputs = get_inputs(args.inputs_file)
-    input_urls = get_input_urls(inputs)
-    input_url_to_md5 = get_md5s(input_urls, client)
-    inputs = add_md5s(inputs, input_url_to_md5)
+    # Add md5 checksums to input and output metadata if needed
+    # See https://github.com/HumanCellAtlas/secondary-analysis/issues/287 for why
+    # this is optional.
+    if args.add_md5s == 'true':
+        client = storage.Client()
 
-    schema_url = args.schema_url.strip('/')
+        input_urls = get_input_urls(inputs)
+        input_url_to_md5 = get_md5s(input_urls, client)
+        inputs = add_md5s_to_inputs(inputs, input_url_to_md5)
+
+        output_url_to_md5 = get_md5s(output_urls, client)
+        output_name_to_md5 = {url.split('/')[-1]: md5 for url, md5 in output_url_to_md5.items()}
+        outputs = add_md5s_to_outputs(outputs, output_name_to_md5)
 
     # Create analysis_process
     analysis_process = create_analysis_process(
@@ -477,9 +503,7 @@ def main():
             input_bundles_string=args.input_bundles,
             reference_bundle=args.reference_bundle,
             inputs=inputs,
-            output_url_to_md5=output_url_to_md5,
-            extension_to_format=extension_to_format,
-            analysis_file_version=args.analysis_file_version,
+            outputs=outputs,
             run_type=args.run_type)
 
     # Write analysis_process to file

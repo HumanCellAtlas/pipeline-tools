@@ -80,8 +80,9 @@ workflow AdapterSmartSeq2SingleCell{
   String runtime_environment
   # By default, don't record http requests, unless we override in inputs json
   Boolean record_http = false
-
   Int max_cromwell_retries = 0
+  Boolean add_md5s = false
+
   String pipeline_tools_version = "v0.26.0"
 
   call GetInputs as prep {
@@ -227,6 +228,7 @@ workflow AdapterSmartSeq2SingleCell{
       runtime_environment = runtime_environment,
       use_caas = use_caas,
       record_http = record_http,
-      pipeline_tools_version = pipeline_tools_version
+      pipeline_tools_version = pipeline_tools_version,
+      add_md5s = add_md5s
   }
 }
