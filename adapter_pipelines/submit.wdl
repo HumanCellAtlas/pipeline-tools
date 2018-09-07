@@ -62,6 +62,7 @@ task create_submission {
   Int? individual_request_timeout
   Boolean record_http
   String pipeline_tools_version
+  Boolean add_md5s
 
   command <<<
     export RECORD_HTTP_REQUESTS="${record_http}"
@@ -92,7 +93,8 @@ task create_submission {
       --analysis_file_version ${analysis_file_version} \
       --inputs_file ${write_objects(inputs)} \
       --outputs_file ${write_lines(outputs)} \
-      --format_map ${format_map}
+      --format_map ${format_map} \
+      --add_md5s ${add_md5s}
 
     # Now build the submission object
     create-envelope \
@@ -244,6 +246,7 @@ workflow submit {
   # By default, don't record http requests
   Boolean record_http = false
   String pipeline_tools_version
+  Boolean add_md5s
 
   call get_metadata {
     input:
@@ -280,7 +283,8 @@ workflow submit {
       retry_multiplier = retry_multiplier,
       retry_max_interval = retry_max_interval,
       record_http = record_http,
-      pipeline_tools_version = pipeline_tools_version
+      pipeline_tools_version = pipeline_tools_version,
+      add_md5s = add_md5s
   }
 
   call stage_files {

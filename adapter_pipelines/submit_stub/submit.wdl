@@ -31,6 +31,7 @@ workflow submit {
   # By default, don't record http requests
   Boolean record_http = false
   String pipeline_tools_version
+  Boolean add_md5s
 
   call submit_stub
 
