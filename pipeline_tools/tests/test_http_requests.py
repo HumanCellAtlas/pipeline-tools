@@ -40,6 +40,13 @@ class TestHttpRequests(object):
         except requests.HTTPError as e:
             pytest.fail(str(e))
 
+        try:
+            response = requests.Response()
+            response.status_code = 409
+            HttpRequests.check_status(response)
+        except requests.HTTPError as e:
+            pytest.fail(str(e))
+
     def test_get_retries_then_raises_exception_on_500(self, requests_mock):
         def callback(request, response):
             response.status_code = 500

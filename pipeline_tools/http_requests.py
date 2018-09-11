@@ -159,7 +159,12 @@ class HttpRequests(object):
             print('{0} {1}'.format(now, repr(error)))
 
             def is_retryable_status_code(error):
-                return isinstance(error, requests.HTTPError) and not (400 <= error.response.status_code <= 499)
+                if not isinstance(error, requests.HTTPError):
+                    return False
+                if error.response.status_code == 409:
+                    return True
+                else:
+                    return not (400 <= error.response.status_code <= 499)
 
             return is_retryable_status_code(error) or isinstance(error,
                                                                  (requests.ConnectionError, requests.ReadTimeout))
@@ -293,7 +298,7 @@ class HttpRequests(object):
 
     @staticmethod
     def check_status(response):
-        """Check that the response status code is in range 200-299.
+        """Check that the response status code is in range 200-299, or 409.
         Raises a ValueError and prints response_text if status is not in the expected range. Otherwise,
         just returns silently.
         Args:
@@ -311,7 +316,7 @@ class HttpRequests(object):
             check_status(301, 'bar') raises error
         """
         status = response.status_code
-        matches = 200 <= status <= 299
+        matches = 200 <= status <= 299 or status == 409
         if not matches:
             message = 'HTTP status code {0} is not in expected range 2xx. Response: {1}'.format(status, response.text)
             raise requests.HTTPError(message, response=response)
