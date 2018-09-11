@@ -159,7 +159,12 @@ class HttpRequests(object):
             print('{0} {1}'.format(now, repr(error)))
 
             def is_retryable_status_code(error):
-                return isinstance(error, requests.HTTPError) and not (400 <= error.response.status_code <= 499 and error.response.status_code != 409)
+                if not isinstance(error, requests.HTTPError):
+                    return False
+                if error.response.status_code == 409:
+                    return True
+                else:
+                    return not (400 <= error.response.status_code <= 499)
 
             return is_retryable_status_code(error) or isinstance(error,
                                                                  (requests.ConnectionError, requests.ReadTimeout))
