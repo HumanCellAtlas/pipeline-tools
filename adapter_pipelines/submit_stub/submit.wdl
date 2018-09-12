@@ -32,6 +32,7 @@ workflow submit {
   Boolean record_http = false
   String pipeline_tools_version
   Boolean add_md5s
+  Int max_retries
 
   call submit_stub
 
