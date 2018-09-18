@@ -1,4 +1,4 @@
-FROM quay.io/humancellatlas/secondary-analysis-pipeline-tools:cw-get-pipeline-versions-from-wdls-than-cromwell-labels
+FROM quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.29.0
 
 RUN mkdir /cromwell-metadata
 WORKDIR /cromwell-metadata
