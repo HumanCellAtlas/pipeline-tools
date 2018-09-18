@@ -46,7 +46,7 @@ The rest of the package consists of scripts that are meant to be invoked from th
 
 Usage
 =====
-get_analysis_metadata.py
+get_analysis_workflow_metadata.py
 ------------------------
 Utility function fetches required information for creating submission to Ingest service, such as the Cromwell workflow
 metadata, the UUID of the analysis workflow, and the version of the given pipeline.
@@ -55,7 +55,7 @@ Invoke it like this:
 
 .. code::
 
-    get-analysis-metadata \
+    get-analysis-workflow-metadata \
       --analysis_output_path ${analysis_output_path} \
       --cromwell_url ${cromwell_url} \
       --use_caas ${use_caas} \

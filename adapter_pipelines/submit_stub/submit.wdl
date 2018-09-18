@@ -33,6 +33,8 @@ workflow submit {
   String pipeline_tools_version
   Boolean add_md5s
   Int max_retries
+  # Version of the pipeline, should be included in the pipeline file
+  String pipeline_version
 
   call submit_stub
 

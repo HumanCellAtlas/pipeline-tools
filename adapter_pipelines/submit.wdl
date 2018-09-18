@@ -23,19 +23,18 @@ task get_metadata {
     # to be unbuffered. This is the same as "-u", more info: https://docs.python.org/3/using/cmdline.html#cmdoption-u
     export PYTHONUNBUFFERED=TRUE
 
-    get-analysis-metadata \
+    get-analysis-workflow-metadata \
       --analysis_output_path ${analysis_output_path} \
       --cromwell_url ${cromwell_url} \
       --use_caas ${use_caas}
   >>>
   runtime {
-    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:v1.0.0"
+    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:v1.1.0"
     maxRetries: max_retries
   }
   output {
     File metadata = "metadata.json"
     String workflow_id = read_string("workflow_id.txt")
-    String pipeline_version = read_string("pipeline_version.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
   }
@@ -252,6 +251,8 @@ workflow submit {
   String pipeline_tools_version
   Boolean add_md5s
   Int max_retries = 0
+  # Version of the pipeline, should be included in the pipeline file
+  String pipeline_version
 
   call get_metadata {
     input:
@@ -283,7 +284,7 @@ workflow submit {
       metadata_json = get_metadata.metadata,
       input_bundle_uuid = input_bundle_uuid,
       workflow_id = get_metadata.workflow_id,
-      pipeline_version = get_metadata.pipeline_version,
+      pipeline_version = pipeline_version,
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
       retry_multiplier = retry_multiplier,

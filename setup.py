@@ -28,7 +28,7 @@ setup(name='pipeline-tools',
       ],
       entry_points={
           'console_scripts': [
-              'get-analysis-metadata=pipeline_tools.get_analysis_metadata:main',
+              'get-analysis-workflow-metadata=pipeline_tools.get_analysis_workflow_metadata:main',
               'create-analysis-metadata=pipeline_tools.create_analysis_metadata:main',
               'create-envelope=pipeline_tools.create_envelope:main',
               'get-upload-urn=pipeline_tools.get_upload_urn:main',
