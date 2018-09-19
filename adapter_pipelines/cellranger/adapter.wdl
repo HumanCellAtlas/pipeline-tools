@@ -51,18 +51,25 @@ task rename_files {
     File i1
     String sample_id
     String lane
+    String pipeline_tools_version
 
     command <<<
       python <<CODE
       import subprocess
-      r1_name = '${sample_name}_S1_L00${lane}_R1_001.fastq.gz'
-      subprocess.check_output(['mv', '${r1}', '${r1_name}'])
+      r1_name = '${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
+      subprocess.check_output(['mv', '${r1}', r1_name])
+      with open('r1_name.txt', 'w') as f:
+        f.write(r1_name)
 
-      r2_name = '${sample_name}_S1_L00${lane}_R2_001.fastq.gz'
-      subprocess.check_output(['mv', '${r2}', '${r2_name}'])
+      r2_name = '${sample_id}_S1_L00${lane}_R2_001.fastq.gz'
+      subprocess.check_output(['mv', '${r2}', r2_name])
+      with open('r2_name.txt', 'w') as f:
+        f.write(r2_name)
 
-      i1_name = '${sample_name}_S1_L00${lane}_I1_001.fastq.gz'
-      subprocess.check_output(['mv', '${i1}', '${i1_name}'])
+      i1_name = '${sample_id}_S1_L00${lane}_I1_001.fastq.gz'
+      subprocess.check_output(['mv', '${i1}', i1_name])
+      with open('i1_name.txt', 'w') as f:
+        f.write(i1_name)
 
       CODE
       >>>
@@ -70,9 +77,9 @@ task rename_files {
         docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
       }
       output {
-        File r1_new = "${r1_name}"
-        File r2_new = "${r2_name}"
-        File i1_new = "${i1_name}"
+        File r1_new = read_string("r1_name.txt")
+        File r2_new = read_string("r2_name.txt")
+        File i1_new = read_string("i1_name.txt")
       }
 }
 
@@ -153,7 +160,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.29.0"
+  String pipeline_tools_version = "se-10x-adapter-wdl"
 
   call GetInputs {
     input:
@@ -173,20 +180,21 @@ workflow Adapter10xCount {
   # cromwell execution bucket but with the names cellranger expects.
   # Putting this in its own task lets us take advantage of automatic localizing
   # and delocalizing by Cromwell/JES to actually read and write stuff in buckets.
-  scatter(i in length(GetInputs.lanes)) {
+  scatter(i in range(length(GetInputs.lanes))) {
     call rename_files as prep {
       input:
-        r1 = GetInputs.r1[i],
-        r2 = GetInputs.r2[i],
-        i1 = GetInputs.i1[i],
-        sample_id = GetInputs.inputs.sample_id,
-        lane = GetInputs.lanes[i]
+        r1 = GetInputs.r1_fastq[i],
+        r2 = GetInputs.r2_fastq[i],
+        i1 = GetInputs.i1_fastq[i],
+        sample_id = GetInputs.sample_id,
+        lane = GetInputs.lanes[i],
+        pipeline_tools_version = pipeline_tools_version
       }
     }
 
   call CellRanger.CellRanger as analysis {
     input:
-      sample_id = GetInputs.inputs.sample_id,
+      sample_id = GetInputs.sample_id,
       fastqs = flatten([prep.r1_new, prep.r2_new, prep.i1_new]),
       reference_name = reference_name,
       transcriptome_tar_gz = transcriptome_tar_gz,
@@ -195,11 +203,11 @@ workflow Adapter10xCount {
 
   call inputs_for_submit {
     input:
-      fastqs = flatten([prep.r1_fastq, prep.r2_fastq, prep.i1_fastq]),
+      fastqs = flatten([GetInputs.r1_fastq, GetInputs.r2_fastq, GetInputs.i1_fastq]),
       other_inputs = [
         {
           "name": "sample_id",
-          "value": prep.sample_id
+          "value": GetInputs.sample_id
         },
         {
           "name": "reference_name",

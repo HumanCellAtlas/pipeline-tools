@@ -210,7 +210,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     with open('lanes.txt', 'w') as f:
         lane_numbers = sorted(lane_to_fastqs.keys())
         for l in lane_numbers:
-            f.write(l)
+            f.write(str(l))
 
     sample_id = get_sample_id(primary_bundle)
     print('Writing sample ID to sample_id.txt')
