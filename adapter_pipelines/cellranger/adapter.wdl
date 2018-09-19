@@ -39,15 +39,45 @@ task GetInputs {
     Array[File] r1_fastq = read_lines("r1.txt")
     Array[File] r2_fastq = read_lines("r2.txt")
     Array[File] i1_fastq = read_lines("i1.txt")
+    Array[Int] lanes = read_lines("lanes.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
   }
 }
 
+task rename_files {
+    File r1
+    File r2
+    File i1
+    String sample_id
+    String lane
+
+    command <<<
+      python <<CODE
+      import subprocess
+      r1_name = '${sample_name}_S1_L00${lane}_R1_001.fastq.gz'
+      subprocess.check_output(['mv', '${r1}', '${r1_name}'])
+
+      r2_name = '${sample_name}_S1_L00${lane}_R2_001.fastq.gz'
+      subprocess.check_output(['mv', '${r2}', '${r2_name}'])
+
+      i1_name = '${sample_name}_S1_L00${lane}_I1_001.fastq.gz'
+      subprocess.check_output(['mv', '${i1}', '${i1_name}'])
+
+      CODE
+      >>>
+      runtime {
+        docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+      }
+      output {
+        File r1_new = "${r1_name}"
+        File r2_new = "${r2_name}"
+        File i1_new = "${i1_name}"
+      }
+}
+
 task inputs_for_submit {
-    Array[File] r1_fastq
-    Array[File] r2_fastq
-    Array[File] i1_fastq
+    Array[File] fastqs
     Array[Object] other_inputs
     String pipeline_tools_version
 
@@ -58,9 +88,7 @@ task inputs_for_submit {
       inputs = []
 
       print('fastq_files')
-      inputs.append({"name": "r1_fastq", "value": "${sep=', ' r1_fastq}"})
-      inputs.append({"name": "r2_fastq", "value": "${sep=', ' r2_fastq}"})
-      inputs.append({"name": "i1_fastq", "value": "${sep=', ' i1_fastq}"})
+      inputs.append({"name": "fastqs", "value": "${sep=', ' fastqs}"})
 
       print('other inputs')
       with open('${write_objects(other_inputs)}') as f:
@@ -96,8 +124,6 @@ workflow Adapter10xCount {
   String bundle_uuid
   String bundle_version
 
-  String sample_id
-  Array[File] fastqs
   String reference_name
   File transcriptome_tar_gz
   Int? expect_cells
@@ -129,7 +155,7 @@ workflow Adapter10xCount {
 
   String pipeline_tools_version = "v0.29.0"
 
-  call GetInputs as prep {
+  call GetInputs {
     input:
       bundle_uuid = bundle_uuid,
       bundle_version = bundle_version,
@@ -142,10 +168,26 @@ workflow Adapter10xCount {
       pipeline_tools_version = pipeline_tools_version
   }
 
+  # Cellranger code in 10x count wdl requires files to be named a certain way.
+  # To accommodate that, rename_files copies the blue box files into the
+  # cromwell execution bucket but with the names cellranger expects.
+  # Putting this in its own task lets us take advantage of automatic localizing
+  # and delocalizing by Cromwell/JES to actually read and write stuff in buckets.
+  scatter(i in length(GetInputs.lanes)) {
+    call rename_files as prep {
+      input:
+        r1 = GetInputs.r1[i],
+        r2 = GetInputs.r2[i],
+        i1 = GetInputs.i1[i],
+        sample_id = GetInputs.inputs.sample_id,
+        lane = GetInputs.lanes[i]
+      }
+    }
+
   call CellRanger.CellRanger as analysis {
     input:
-      sample_id = prep.sample_id,
-      fastqs = [prep.r1_fastq, prep.r2_fastq, prep.i1_fastq],
+      sample_id = GetInputs.inputs.sample_id,
+      fastqs = flatten([prep.r1_new, prep.r2_new, prep.i1_new]),
       reference_name = reference_name,
       transcriptome_tar_gz = transcriptome_tar_gz,
       expect_cells = expect_cells
@@ -153,9 +195,7 @@ workflow Adapter10xCount {
 
   call inputs_for_submit {
     input:
-      r1_fastq = prep.r1_fastq,
-      r2_fastq = prep.r2_fastq,
-      i1_fastq = prep.i1_fastq,
+      fastqs = flatten([prep.r1_fastq, prep.r2_fastq, prep.i1_fastq]),
       other_inputs = [
         {
           "name": "sample_id",
