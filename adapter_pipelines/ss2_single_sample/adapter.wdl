@@ -83,7 +83,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "jx-ss2-bam-index"
+  String pipeline_tools_version = "v0.30.0"
 
   call GetInputs as prep {
     input:
