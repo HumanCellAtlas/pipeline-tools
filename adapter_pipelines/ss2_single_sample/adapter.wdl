@@ -83,7 +83,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.29.0"
+  String pipeline_tools_version = "v0.30.0"
 
   call GetInputs as prep {
     input:
@@ -177,39 +177,18 @@ workflow AdapterSmartSeq2SingleCell{
           "value": stranded
         }
       ],
-      outputs = [
+      outputs = flatten([[
         analysis.aligned_bam,
-        analysis.alignment_summary_metrics,
-        analysis.bait_bias_detail_metrics,
-        analysis.bait_bias_summary_metrics,
-        analysis.base_call_dist_metrics,
-        analysis.base_call_pdf,
-        analysis.dedup_metrics,
-        analysis.error_summary_metrics,
-        analysis.gc_bias_detail_metrics,
-        analysis.gc_bias_dist_pdf,
-        analysis.gc_bias_summary_metrics,
-        analysis.insert_size_hist,
+        analysis.bam_index,
         analysis.insert_size_metrics,
-        analysis.hisat2_log_file,
-        analysis.hisat2_met_file,
-        analysis.pre_adapter_details_metrics,
-        analysis.quality_by_cycle_metrics,
-        analysis.quality_by_cycle_pdf,
-        analysis.quality_distribution_dist_pdf,
         analysis.quality_distribution_metrics,
-        analysis.rna_coverage,
+        analysis.quality_by_cycle_metrics,
+        analysis.bait_bias_summary_metrics,
         analysis.rna_metrics,
         analysis.aligned_transcriptome_bam,
-        analysis.hisat2_transcriptome_log_file,
-        analysis.hisat2_transcriptome_met_file,
-        analysis.rsem_cnt_log,
         analysis.rsem_gene_results,
-        analysis.rsem_isoform_results,
-        analysis.rsem_model_log,
-        analysis.rsem_theta_log,
-        analysis.rsem_time_log
-      ],
+        analysis.rsem_isoform_results
+      ], analysis.group_results]),
       format_map = format_map,
       submit_url = submit_url,
       cromwell_url = cromwell_url,
