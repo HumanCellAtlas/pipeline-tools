@@ -55,18 +55,21 @@ task rename_files {
 
     command <<<
       python <<CODE
+      import os
       import subprocess
-      r1_name = '${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
+
+      work_dir = os.path.dirname('${r1}')
+      r1_name = work_dir + '/${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
       subprocess.check_output(['mv', '${r1}', r1_name])
       with open('r1_name.txt', 'w') as f:
         f.write(r1_name)
 
-      r2_name = '${sample_id}_S1_L00${lane}_R2_001.fastq.gz'
+      r2_name = work_dir + '/${sample_id}_S1_L00${lane}_R2_001.fastq.gz'
       subprocess.check_output(['mv', '${r2}', r2_name])
       with open('r2_name.txt', 'w') as f:
         f.write(r2_name)
 
-      i1_name = '${sample_id}_S1_L00${lane}_I1_001.fastq.gz'
+      i1_name = work_dir + '/${sample_id}_S1_L00${lane}_I1_001.fastq.gz'
       subprocess.check_output(['mv', '${i1}', i1_name])
       with open('i1_name.txt', 'w') as f:
         f.write(i1_name)
@@ -219,7 +222,7 @@ workflow Adapter10xCount {
         },
         {
           "name": "expect_cells",
-          "value": expect_cells
+          "value": expect_cells + ""
         }
       ],
       pipeline_tools_version = pipeline_tools_version
