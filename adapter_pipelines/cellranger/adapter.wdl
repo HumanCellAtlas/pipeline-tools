@@ -46,33 +46,28 @@ task GetInputs {
 }
 
 task rename_files {
+    # Array[File] r1
+    # Array[File] r2
+    # ...
     File r1
     File r2
     File i1
     String sample_id
-    String lane
+    String lane # Array
     String pipeline_tools_version
 
     command <<<
       python <<CODE
-      import os
       import subprocess
 
-      work_dir = os.path.dirname('${r1}')
-      r1_name = work_dir + '/${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
+      r1_name = '${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
       subprocess.check_output(['mv', '${r1}', r1_name])
-      with open('r1_name.txt', 'w') as f:
-        f.write(r1_name)
 
-      r2_name = work_dir + '/${sample_id}_S1_L00${lane}_R2_001.fastq.gz'
+      r2_name = '${sample_id}_S1_L00${lane}_R2_001.fastq.gz'
       subprocess.check_output(['mv', '${r2}', r2_name])
-      with open('r2_name.txt', 'w') as f:
-        f.write(r2_name)
 
-      i1_name = work_dir + '/${sample_id}_S1_L00${lane}_I1_001.fastq.gz'
+      i1_name = '${sample_id}_S1_L00${lane}_I1_001.fastq.gz'
       subprocess.check_output(['mv', '${i1}', i1_name])
-      with open('i1_name.txt', 'w') as f:
-        f.write(i1_name)
 
       CODE
       >>>
@@ -80,9 +75,9 @@ task rename_files {
         docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
       }
       output {
-        File r1_new = read_string("r1_name.txt")
-        File r2_new = read_string("r2_name.txt")
-        File i1_new = read_string("i1_name.txt")
+        File r1_new = "${sample_id}_S1_L00${lane}_R1_001.fastq.gz"
+        File r2_new = "${sample_id}_S1_L00${lane}_R2_001.fastq.gz"
+        File i1_new = "${sample_id}_S1_L00${lane}_I1_001.fastq.gz"
       }
 }
 
