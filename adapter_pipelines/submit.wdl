@@ -29,7 +29,7 @@ task get_metadata {
       --use_caas ${use_caas}
   >>>
   runtime {
-    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:v1.1.0"
+    docker: "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:v1.2.0"
     maxRetries: max_retries
   }
   output {
