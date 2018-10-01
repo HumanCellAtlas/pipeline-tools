@@ -36,7 +36,6 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
-    String sample_name = read_string("sample_name.txt")
     Array[File] r1_fastq = read_lines("r1.txt")
     Array[File] r2_fastq = read_lines("r2.txt")
     Array[File] i1_fastq = read_lines("i1.txt")
@@ -50,7 +49,7 @@ task rename_files {
     File r1
     File r2
     File i1
-    String sample_name
+    String sample_id
     String lane
     String pipeline_tools_version
 
@@ -59,13 +58,13 @@ task rename_files {
       import subprocess
 
 
-      r1_name = '${sample_name}_S1_L00${lane}_R1_001.fastq.gz'
+      r1_name = '${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
       subprocess.check_output(['mv', '${r1}', r1_name])
 
-      r2_name = '${sample_name}_S1_L00${lane}_R2_001.fastq.gz'
+      r2_name = '${sample_id}_S1_L00${lane}_R2_001.fastq.gz'
       subprocess.check_output(['mv', '${r2}', r2_name])
 
-      i1_name = '${sample_name}_S1_L00${lane}_I1_001.fastq.gz'
+      i1_name = '${sample_id}_S1_L00${lane}_I1_001.fastq.gz'
       subprocess.check_output(['mv', '${i1}', i1_name])
 
       CODE
@@ -74,9 +73,9 @@ task rename_files {
         docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
       }
       output {
-        File r1_new = "${sample_name}_S1_L00${lane}_R1_001.fastq.gz"
-        File r2_new = "${sample_name}_S1_L00${lane}_R2_001.fastq.gz"
-        File i1_new = "${sample_name}_S1_L00${lane}_I1_001.fastq.gz"
+        File r1_new = "${sample_id}_S1_L00${lane}_R1_001.fastq.gz"
+        File r2_new = "${sample_id}_S1_L00${lane}_R2_001.fastq.gz"
+        File i1_new = "${sample_id}_S1_L00${lane}_I1_001.fastq.gz"
       }
 }
 
@@ -183,7 +182,7 @@ workflow Adapter10xCount {
         r1 = GetInputs.r1_fastq[i],
         r2 = GetInputs.r2_fastq[i],
         i1 = GetInputs.i1_fastq[i],
-        sample_name = GetInputs.sample_name,
+        sample_id = GetInputs.sample_id,
         lane = GetInputs.lanes[i],
         pipeline_tools_version = pipeline_tools_version
       }

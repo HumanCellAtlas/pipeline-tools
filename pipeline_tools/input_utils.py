@@ -217,10 +217,4 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     with open('sample_id.txt', 'w') as f:
         f.write('{0}'.format(sample_id))
 
-    # Test using sample name instead of id
-    sample_name = fastq_files[0].manifest_entry['file_core']['file_name'].split('_')[0]
-    print('Writing sample name to sample_name.txt')
-    with open('sample_name.txt', 'w') as f:
-        f.write('{0}'.format(sample_name))
-
     print('Finished writing files')
