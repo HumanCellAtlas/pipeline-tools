@@ -58,6 +58,7 @@ task rename_files {
       python <<CODE
       import subprocess
 
+
       r1_name = '${sample_name}_S1_L00${lane}_R1_001.fastq.gz'
       subprocess.check_output(['mv', '${r1}', r1_name])
 
