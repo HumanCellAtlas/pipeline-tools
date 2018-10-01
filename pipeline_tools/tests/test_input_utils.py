@@ -1,7 +1,7 @@
 import json
 import os
 import pytest
-from humancellatlas.data.metadata import Bundle
+from humancellatlas.data.metadata.api import Bundle
 from unittest.mock import patch
 
 from pipeline_tools import input_utils
