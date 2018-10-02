@@ -57,7 +57,6 @@ task rename_files {
       python <<CODE
       import subprocess
 
-
       r1_name = '${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
       subprocess.check_output(['mv', '${r1}', r1_name])
 
@@ -181,6 +180,8 @@ workflow Adapter10xCount {
   # cromwell execution bucket but with the names cellranger expects.
   # Putting this in its own task lets us take advantage of automatic localizing
   # and delocalizing by Cromwell/JES to actually read and write stuff in buckets.
+  # TODO: Replace scatter with a for-loop inside of the task to avoid creating a
+  # VM for each set of files that needs to be renamed
   scatter(i in range(length(GetInputs.lanes))) {
     call rename_files as prep {
       input:
