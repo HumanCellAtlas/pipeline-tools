@@ -1,7 +1,7 @@
 import functools
 import typing
 from concurrent.futures import ThreadPoolExecutor
-from humancellatlas.data.metadata import Bundle
+from humancellatlas.data.metadata.api import Bundle
 
 from pipeline_tools import dcp_utils, optimus_utils
 from pipeline_tools.http_requests import HttpRequests

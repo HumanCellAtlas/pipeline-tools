@@ -42,7 +42,7 @@ setup(name='pipeline-tools',
           # FIXME: install hca-metadata-api from PyPI once it is available (shortly)
           # Pin to a specific commit of the hca-metadata-api so we won't be broken by changes to that repo before it's
           # available on PyPI
-          'git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b2#egg=hca-metadata-api-0.0.1'
+          'git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b4#egg=hca-metadata-api-0.0.1'
       ],
       include_package_data=True
       )
