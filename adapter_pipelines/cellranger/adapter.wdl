@@ -82,6 +82,7 @@ task rename_files {
 task inputs_for_submit {
     Array[File] fastqs
     Array[Object] other_inputs
+    Int? expect_cells
     String pipeline_tools_version
 
     command <<<
@@ -103,6 +104,10 @@ task inputs_for_submit {
                   input[key] = values[i]
               print(input)
               inputs.append(input)
+
+      print('expect cells')
+      if "${expect_cells}":
+          inputs.append({"name": "expect_cells", "value": "${expect_cells}"})
 
       print('write inputs.tsv')
       with open('inputs.tsv', 'w') as f:
@@ -212,12 +217,9 @@ workflow Adapter10xCount {
         {
           "name": "transcriptome_tar_gz",
           "value": transcriptome_tar_gz
-        },
-        {
-          "name": "expect_cells",
-          "value": expect_cells + ""
         }
       ],
+      expect_cells = expect_cells,
       pipeline_tools_version = pipeline_tools_version
   }
 
