@@ -1,4 +1,4 @@
-import "Optimus.wdl" as Optimus
+import "cellranger.wdl" as CellRanger
 import "submit.wdl" as submit_wdl
 
 
@@ -39,16 +39,39 @@ task GetInputs {
     Array[File] r1_fastq = read_lines("r1.txt")
     Array[File] r2_fastq = read_lines("r2.txt")
     Array[File] i1_fastq = read_lines("i1.txt")
+    Array[Int] lanes = read_lines("lanes.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
   }
 }
 
-task inputs_for_submit {
-    Array[File] r1_fastq
-    Array[File] r2_fastq
-    Array[File] i1_fastq
+task RenameFiles {
+    File r1
+    File r2
+    File i1
+    String sample_id
+    String lane
+    String pipeline_tools_version
+
+    command <<<
+      mv ${r1} '${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
+      mv ${r2} '${sample_id}_S1_L00${lane}_R2_001.fastq.gz'
+      mv ${i1} '${sample_id}_S1_L00${lane}_I1_001.fastq.gz'
+      >>>
+      runtime {
+        docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+      }
+      output {
+        File r1_new = "${sample_id}_S1_L00${lane}_R1_001.fastq.gz"
+        File r2_new = "${sample_id}_S1_L00${lane}_R2_001.fastq.gz"
+        File i1_new = "${sample_id}_S1_L00${lane}_I1_001.fastq.gz"
+      }
+}
+
+task InputsForSubmit {
+    Array[File] fastqs
     Array[Object] other_inputs
+    Int? expect_cells
     String pipeline_tools_version
 
     command <<<
@@ -58,9 +81,7 @@ task inputs_for_submit {
       inputs = []
 
       print('fastq_files')
-      inputs.append({"name": "r1_fastq", "value": "${sep=', ' r1_fastq}"})
-      inputs.append({"name": "r2_fastq", "value": "${sep=', ' r2_fastq}"})
-      inputs.append({"name": "i1_fastq", "value": "${sep=', ' i1_fastq}"})
+      inputs.append({"name": "fastqs", "value": "${sep=', ' fastqs}"})
 
       print('other inputs')
       with open('${write_objects(other_inputs)}') as f:
@@ -72,6 +93,10 @@ task inputs_for_submit {
                   input[key] = values[i]
               print(input)
               inputs.append(input)
+
+      print('expect cells')
+      if "${expect_cells}":
+          inputs.append({"name": "expect_cells", "value": "${expect_cells}"})
 
       print('write inputs.tsv')
       with open('inputs.tsv', 'w') as f:
@@ -92,15 +117,13 @@ task inputs_for_submit {
     }
 }
 
-workflow AdapterOptimus {
+workflow Adapter10xCount {
   String bundle_uuid
   String bundle_version
 
-  File whitelist  # 10x genomics cell barcode whitelist for 10x V2
-  File tar_star_reference  # star reference
-  File annotations_gtf  # gtf containing annotations for gene tagging
-  File ref_genome_fasta  # genome fasta file
-  String fastq_suffix = ".gz"  # add this suffix to fastq files for picard
+  String reference_name
+  File transcriptome_tar_gz
+  Int? expect_cells
 
   # Submission
   File format_map
@@ -129,7 +152,7 @@ workflow AdapterOptimus {
 
   String pipeline_tools_version = "v0.32.0"
 
-  call GetInputs as prep {
+  call GetInputs {
     input:
       bundle_uuid = bundle_uuid,
       bundle_version = bundle_version,
@@ -142,61 +165,75 @@ workflow AdapterOptimus {
       pipeline_tools_version = pipeline_tools_version
   }
 
-  call Optimus.Optimus as analysis {
+  # Cellranger code in 10x count wdl requires files to be named a certain way.
+  # To accommodate that, RenameFiles copies the blue box files into the
+  # cromwell execution bucket but with the names cellranger expects.
+  # Putting this in its own task lets us take advantage of automatic localizing
+  # and delocalizing by Cromwell/JES to actually read and write stuff in buckets.
+  # TODO: Replace scatter with a for-loop inside of the task to avoid creating a
+  # VM for each set of files that needs to be renamed
+  scatter(i in range(length(GetInputs.lanes))) {
+    call RenameFiles as prep {
+      input:
+        r1 = GetInputs.r1_fastq[i],
+        r2 = GetInputs.r2_fastq[i],
+        i1 = GetInputs.i1_fastq[i],
+        sample_id = GetInputs.sample_id,
+        lane = GetInputs.lanes[i],
+        pipeline_tools_version = pipeline_tools_version
+      }
+    }
+
+  # CellRanger gets the paths to the fastq directories from the array of fastqs,
+  # so the order of those files does not matter
+  call CellRanger.CellRanger as analysis {
     input:
-      r1_fastq = prep.r1_fastq,
-      r2_fastq = prep.r2_fastq,
-      i1_fastq = prep.i1_fastq,
-      sample_id = prep.sample_id,
-      whitelist = whitelist,
-      tar_star_reference = tar_star_reference,
-      annotations_gtf = annotations_gtf,
-      ref_genome_fasta = ref_genome_fasta,
-      fastq_suffix = fastq_suffix
+      sample_id = GetInputs.sample_id,
+      fastqs = flatten([prep.r1_new, prep.r2_new, prep.i1_new]),
+      reference_name = reference_name,
+      transcriptome_tar_gz = transcriptome_tar_gz,
+      expect_cells = expect_cells
   }
 
-  call inputs_for_submit {
+  call InputsForSubmit {
     input:
-      r1_fastq = prep.r1_fastq,
-      r2_fastq = prep.r2_fastq,
-      i1_fastq = prep.i1_fastq,
+      fastqs = flatten([GetInputs.r1_fastq, GetInputs.r2_fastq, GetInputs.i1_fastq]),
       other_inputs = [
         {
-          "name": "whitelist",
-          "value": whitelist
-        },
-        {
           "name": "sample_id",
-          "value": prep.sample_id
+          "value": GetInputs.sample_id
         },
         {
-          "name": "tar_star_reference",
-          "value": tar_star_reference
+          "name": "reference_name",
+          "value": reference_name
         },
         {
-          "name": "annotations_gtf",
-          "value": annotations_gtf
-        },
-        {
-          "name": "ref_genome_fasta",
-          "value": ref_genome_fasta
+          "name": "transcriptome_tar_gz",
+          "value": transcriptome_tar_gz
         }
       ],
+      expect_cells = expect_cells,
       pipeline_tools_version = pipeline_tools_version
   }
 
-  Array[Object] inputs = read_objects(inputs_for_submit.inputs)
+  Array[Object] inputs = read_objects(InputsForSubmit.inputs)
 
   call submit_wdl.submit {
     input:
       inputs = inputs,
       outputs = [
-        analysis.bam,
+        analysis.qc,
+        analysis.sorted_bam,
+        analysis.sorted_bam_index,
+        analysis.barcodes,
+        analysis.genes,
         analysis.matrix,
-        analysis.matrix_row_index,
-        analysis.matrix_col_index,
-        analysis.cell_metrics,
-        analysis.gene_metrics
+        analysis.filtered_gene_h5,
+        analysis.raw_gene_h5,
+        analysis.raw_barcodes,
+        analysis.raw_genes,
+        analysis.raw_matrix,
+        analysis.mol_info_h5
       ],
       format_map = format_map,
       submit_url = submit_url,
