@@ -150,7 +150,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.32.0"
+  String pipeline_tools_version = "v0.33.0"
 
   call GetInputs {
     input:
@@ -233,7 +233,8 @@ workflow Adapter10xCount {
         analysis.raw_barcodes,
         analysis.raw_genes,
         analysis.raw_matrix,
-        analysis.mol_info_h5
+        analysis.mol_info_h5,
+        analysis.web_summary
       ],
       format_map = format_map,
       submit_url = submit_url,
