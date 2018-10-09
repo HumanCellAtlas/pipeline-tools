@@ -14,5 +14,5 @@
   ".mtx$": "mtx",
   ".h5$": "h5",
   ".csv$": "csv",
-  ".zarr!": "zarr_format"
+  ".zattrs$": "matrix"
 }
