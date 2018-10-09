@@ -180,10 +180,12 @@ class TestCreateAnalysisMetadata(object):
 
     def test_get_file_format(self):
         assert cam.get_file_format('asdf', {}) == 'unknown'
-        assert cam.get_file_format('asdf.bam', {'.bam': 'bam'}) == 'bam'
-        assert cam.get_file_format('asdf.txt', {'.bam': 'bam'}) == 'unknown'
-        assert cam.get_file_format('asdf.bam', {'.bam': 'bam', '_metrics': 'metrics'}) == 'bam'
-        assert cam.get_file_format('asdf.foo_metrics', {'.bam': 'bam', '_metrics': 'metrics'}) == 'metrics'
+        assert cam.get_file_format('asdf.bam', {'.bam$': 'bam'}) == 'bam'
+        assert cam.get_file_format('asdf.txt', {'.bam$': 'bam'}) == 'unknown'
+        assert cam.get_file_format('asdf.bam', {'.bam$': 'bam', '_metrics': 'metrics'}) == 'bam'
+        assert cam.get_file_format('asdf.foo_metrics', {'.bam$': 'bam', '_metrics$': 'metrics'}) == 'metrics'
+        assert cam.get_file_format('asdf.zarr!expression_matrix!id!.zarray',
+                                   {'.bam$': 'bam', '_metrics$': 'metrics', '.zarr!': 'zarr_format'}) == 'zarr_format'
 
     def test_get_outputs(self, test_data):
         schema_version = 'good_version'

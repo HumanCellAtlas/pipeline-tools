@@ -7,6 +7,7 @@ from copy import deepcopy
 from csv import DictReader
 from google.cloud import storage
 from typing import List
+import re
 
 
 def create_analysis_process(raw_schema_url,
@@ -371,8 +372,9 @@ def get_file_format(path, extension_to_format):
     Returns:
         str: A string representing the format of the file, if not applicable, 'unknown' will be returned.
     """
+
     for ext in extension_to_format:
-        if path.endswith(ext):
+        if re.search(ext, path):
             file_format = extension_to_format[ext]
             print('file_format: {0}'.format(file_format))
             return file_format

@@ -83,7 +83,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.32.0"
+  String pipeline_tools_version = "v0.33.0"
 
   call GetInputs as prep {
     input:
@@ -188,7 +188,7 @@ workflow AdapterSmartSeq2SingleCell{
         analysis.aligned_transcriptome_bam,
         analysis.rsem_gene_results,
         analysis.rsem_isoform_results
-      ], analysis.group_results]),
+      ], analysis.group_results, analysis.zarr_output_files]),
       format_map = format_map,
       submit_url = submit_url,
       cromwell_url = cromwell_url,
