@@ -233,7 +233,8 @@ workflow Adapter10xCount {
         analysis.raw_barcodes,
         analysis.raw_genes,
         analysis.raw_matrix,
-        analysis.mol_info_h5
+        analysis.mol_info_h5,
+        analysis.web_summary
       ],
       format_map = format_map,
       submit_url = submit_url,
