@@ -256,6 +256,9 @@ workflow Adapter10xCount {
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
-      pipeline_version = analysis.pipeline_version
+      pipeline_version = analysis.pipeline_version,
+      # The sorted bam is the largest output. Other outputs will increase space by ~50%.
+      # Factor of 2 and addition of 50 GB gives some buffer.
+      disk_space = ceil(size(analysis.sorted_bam, "GB") * 2 + 50)
   }
 }
