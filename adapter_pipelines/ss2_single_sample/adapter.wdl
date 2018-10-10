@@ -210,6 +210,8 @@ workflow AdapterSmartSeq2SingleCell{
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
       max_retries = max_cromwell_retries,
-      pipeline_version = analysis.pipeline_version
+      pipeline_version = analysis.pipeline_version,
+      # The bam files are by far the largest outputs. The extra 5 GB should easily cover everything else.
+      disk_space = ceil(size(analysis.aligned_bam, "GB") + size(analysis.aligned_transcriptome_bam, "GB") + 5)
   }
 }
