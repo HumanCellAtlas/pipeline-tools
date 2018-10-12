@@ -243,7 +243,7 @@ workflow Adapter10xCount {
 
   # Rename analysis files so that all the file names are unique. For example, rename
   # "${sample_id}/outs/raw_gene_bc_matrices/${reference}/barcodes.tsv" to "raw_barcodes.tsv" so that
-  # it does not overwrite "${sample_id}/outs/raw_gene_bc_matrices/${reference}/barcodes.tsv"
+  # it does not overwrite "${sample_id}/outs/filtered_gene_bc_matrices/${reference}/barcodes.tsv"
   # when uploading files
   call RenameFiles as output_files {
     input:
