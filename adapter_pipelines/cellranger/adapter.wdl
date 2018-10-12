@@ -45,7 +45,7 @@ task GetInputs {
   }
 }
 
-task RenameFiles {
+task RenameFastqFiles {
     File r1
     File r2
     File i1
@@ -66,6 +66,31 @@ task RenameFiles {
         File r2_new = "${sample_id}_S1_L00${lane}_R2_001.fastq.gz"
         File i1_new = "${sample_id}_S1_L00${lane}_I1_001.fastq.gz"
       }
+}
+
+task RenameFiles {
+    Array[File] file_paths
+    Array[String] new_file_names
+    String pipeline_tools_version
+
+    command <<<
+      python -u <<CODE
+      import subprocess
+
+      files=["${sep='","' file_paths}"]
+      file_names=["${sep='","' new_file_names}"]
+
+      for idx, f in enumerate(files):
+          subprocess.check_output(['mv', f, file_names[idx]])
+
+      CODE
+    >>>
+    runtime {
+      docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+    }
+    output {
+      Array[File] outputs = new_file_names
+    }
 }
 
 task InputsForSubmit {
@@ -150,7 +175,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.33.0"
+  String pipeline_tools_version = "v0.35.0"
 
   call GetInputs {
     input:
@@ -166,14 +191,14 @@ workflow Adapter10xCount {
   }
 
   # Cellranger code in 10x count wdl requires files to be named a certain way.
-  # To accommodate that, RenameFiles copies the blue box files into the
+  # To accommodate that, RenameFastqFiles copies the blue box files into the
   # cromwell execution bucket but with the names cellranger expects.
   # Putting this in its own task lets us take advantage of automatic localizing
   # and delocalizing by Cromwell/JES to actually read and write stuff in buckets.
   # TODO: Replace scatter with a for-loop inside of the task to avoid creating a
   # VM for each set of files that needs to be renamed
   scatter(i in range(length(GetInputs.lanes))) {
-    call RenameFiles as prep {
+    call RenameFastqFiles as prep {
       input:
         r1 = GetInputs.r1_fastq[i],
         r2 = GetInputs.r2_fastq[i],
@@ -216,12 +241,23 @@ workflow Adapter10xCount {
       pipeline_tools_version = pipeline_tools_version
   }
 
+  # Rename analysis files so that all the file names are unique. For example, rename
+  # "${sample_id}/outs/raw_gene_bc_matrices/${reference}/barcodes.tsv" to "raw_barcodes.tsv" so that
+  # it does not overwrite "${sample_id}/outs/filtered_gene_bc_matrices/${reference}/barcodes.tsv"
+  # when uploading files
+  call RenameFiles as output_files {
+    input:
+      file_paths = [analysis.raw_barcodes, analysis.raw_genes, analysis.raw_matrix],
+      new_file_names = ["raw_barcodes.tsv", "raw_genes.tsv", "raw_matrix.mtx"],
+      pipeline_tools_version = pipeline_tools_version
+  }
+
   Array[Object] inputs = read_objects(InputsForSubmit.inputs)
 
   call submit_wdl.submit {
     input:
       inputs = inputs,
-      outputs = [
+      outputs = flatten([[
         analysis.qc,
         analysis.sorted_bam,
         analysis.sorted_bam_index,
@@ -230,12 +266,9 @@ workflow Adapter10xCount {
         analysis.matrix,
         analysis.filtered_gene_h5,
         analysis.raw_gene_h5,
-        analysis.raw_barcodes,
-        analysis.raw_genes,
-        analysis.raw_matrix,
         analysis.mol_info_h5,
         analysis.web_summary
-      ],
+      ], output_files.outputs]),
       format_map = format_map,
       submit_url = submit_url,
       cromwell_url = cromwell_url,
