@@ -68,24 +68,28 @@ task RenameFastqFiles {
       }
 }
 
-task RenameOutputsForSubmit {
-    File raw_barcodes
-    File raw_genes
-    File raw_matrix
+task RenameFiles {
+    Array[File] file_paths
+    Array[String] new_file_names
     String pipeline_tools_version
 
     command <<<
-      mv ${raw_barcodes} 'raw_barcodes.tsv'
-      mv ${raw_genes} 'raw_genes.tsv'
-      mv ${raw_matrix} 'raw_matrix.mtx'
+      python -u <<CODE
+      import subprocess
+
+      files=["${sep='","' file_paths}"]
+      file_names=["${sep='","' new_file_names}"]
+
+      for idx, f in enumerate(files):
+          subprocess.check_output(['mv', f, file_names[idx]])
+
+      CODE
     >>>
     runtime {
       docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
     }
     output {
-      File raw_barcodes_output = "raw_barcodes.tsv"
-      File raw_genes = "raw_genes.tsv"
-      File raw_matrix = "raw_matrix.mtx"
+      Array[File] outputs = new_file_names
     }
 }
 
@@ -237,11 +241,14 @@ workflow Adapter10xCount {
       pipeline_tools_version = pipeline_tools_version
   }
 
-  call RenameOutputsForSubmit as output_files {
+  # Rename analysis files so that all the file names are unique. For example, rename
+  # "${sample_id}/outs/raw_gene_bc_matrices/${reference}/barcodes.tsv" to "raw_barcodes.tsv" so that
+  # it does not overwrite "${sample_id}/outs/raw_gene_bc_matrices/${reference}/barcodes.tsv"
+  # when uploading files
+  call RenameFiles as output_files {
     input:
-      raw_barcodes = analysis.raw_barcodes,
-      raw_genes = analysis.raw_genes,
-      raw_matrix = analysis.raw_matrix,
+      file_paths = [analysis.raw_barcodes, analysis.raw_genes, analysis.raw_matrix],
+      new_file_names = ["raw_barcodes.tsv", "raw_genes.tsv", "raw_matrix.mtx"],
       pipeline_tools_version = pipeline_tools_version
   }
 
@@ -250,7 +257,7 @@ workflow Adapter10xCount {
   call submit_wdl.submit {
     input:
       inputs = inputs,
-      outputs = [
+      outputs = flatten([[
         analysis.qc,
         analysis.sorted_bam,
         analysis.sorted_bam_index,
@@ -259,12 +266,9 @@ workflow Adapter10xCount {
         analysis.matrix,
         analysis.filtered_gene_h5,
         analysis.raw_gene_h5,
-        output_files.raw_barcodes,
-        output_files.raw_genes,
-        output_files.raw_matrix,
         analysis.mol_info_h5,
         analysis.web_summary
-      ],
+      ], output_files.outputs]),
       format_map = format_map,
       submit_url = submit_url,
       cromwell_url = cromwell_url,
