@@ -32,9 +32,11 @@ workflow submit {
   Boolean record_http = false
   String pipeline_tools_version
   Boolean add_md5s
-  Int max_retries
+  Int max_retries = 0
   # Version of the pipeline, should be included in the pipeline file
   String pipeline_version
+  # Disk space to allocate for stage_files task
+  Int disk_space
 
   call submit_stub
 
