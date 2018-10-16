@@ -18,6 +18,25 @@ API documentation
    :members:
    :inherited-members:
 
+.. automodule:: pipeline_tools.create_analysis_metadata
+   :members:
+   :inherited-members:
+
+.. automodule:: pipeline_tools.create_envelope
+   :members:
+   :inherited-members:
+
+.. automodule:: pipeline_tools.get_analysis_workflow_metadata
+   :members:
+   :inherited-members:
+
+.. automodule:: pipeline_tools.get_upload_urn
+   :members:
+   :inherited-members:
+
+.. automodule:: pipeline_tools.optimus_utils
+   :members:
+   :inherited-members:
 
 Table of Contents
 =================
