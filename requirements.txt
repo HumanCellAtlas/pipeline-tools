@@ -2,6 +2,6 @@ requests==2.18.4
 google-cloud-storage==1.8.0
 tenacity==4.10.0
 git+git://github.com/broadinstitute/cromwell-tools.git@v0.5.0
-git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b4#egg=hca-metadata-api[dss]
 setuptools_scm==3.1.0
 setuptools==40.4.3
+git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b4#egg=hca-metadata-api[dss]
