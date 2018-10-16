@@ -175,7 +175,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.35.0"
+  String pipeline_tools_version = "v0.36.0"
 
   call GetInputs {
     input:
@@ -290,6 +290,7 @@ workflow Adapter10xCount {
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
       pipeline_version = analysis.pipeline_version,
+      max_retries = max_cromwell_retries,
       # The sorted bam is the largest output. Other outputs will increase space by ~50%.
       # Factor of 2 and addition of 50 GB gives some buffer.
       disk_space = ceil(size(analysis.sorted_bam, "GB") * 2 + 50)
