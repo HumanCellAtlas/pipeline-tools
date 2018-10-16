@@ -8,3 +8,6 @@ python:
   use_system_site_packages: false  # Set to true will let the virtualenv use the pre-installed packages such as numpy, which is not what we want
   setup_py_install: false
   pip_install: true
+  extra_requirements:
+          - tests
+          - docs

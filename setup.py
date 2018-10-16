@@ -27,6 +27,17 @@ setup(name='pipeline-tools',
           'tenacity>=4.10.0,<5',
           'google-cloud-storage>=1.10.0,<2',
       ],
+      extras_require={
+          'tests': [
+              'pytest>=3.6.3,<4',
+              'pytest-cov>=2.5.1,<3',
+          ],
+          'docs': [
+              'sphinx>=1.8.1,<2',
+              'sphinxcontrib-websupport>=1.0.1',
+              'sphinx_rtd_theme>=0.3.0',
+          ]
+      },
       entry_points={
           'console_scripts': [
               'get-analysis-workflow-metadata=pipeline_tools.get_analysis_workflow_metadata:main',
