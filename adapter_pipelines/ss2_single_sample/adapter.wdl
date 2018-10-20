@@ -79,7 +79,7 @@ workflow AdapterSmartSeq2SingleCell{
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
   # By default, don't record http requests, unless we override in inputs json
-  Boolean record_http = false
+  Boolean record_http = true
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
