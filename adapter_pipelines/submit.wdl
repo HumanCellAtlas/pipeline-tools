@@ -312,17 +312,17 @@ workflow submit {
       disk_space = disk_space
   }
 
-  call confirm_submission {
-    input:
-      ready_to_be_confirmed = stage_files.ready_to_be_confirmed,
-      submission_url = create_submission.submission_url,
-      retry_timeout = retry_timeout,
-      individual_request_timeout = individual_request_timeout,
-      retry_multiplier = retry_multiplier,
-      retry_max_interval = retry_max_interval,
-      record_http = record_http,
-      pipeline_tools_version = pipeline_tools_version
-  }
+  #call confirm_submission {
+  #  input:
+  #    ready_to_be_confirmed = stage_files.ready_to_be_confirmed,
+  #    submission_url = create_submission.submission_url,
+  #    retry_timeout = retry_timeout,
+  #    individual_request_timeout = individual_request_timeout,
+  #    retry_multiplier = retry_multiplier,
+  #    retry_max_interval = retry_max_interval,
+  #    record_http = record_http,
+  #    pipeline_tools_version = pipeline_tools_version
+  #}
 
   output {
     File analysis_process = create_submission.analysis_process
@@ -331,7 +331,7 @@ workflow submit {
     Array[File] create_envelope_responses = create_submission.http_responses
     Array[File] stage_and_confirm_requests = stage_files.http_requests
     Array[File] stage_and_confirm_responses = stage_files.http_responses
-    Array[File] confirm_submission_requests = confirm_submission.http_requests
-    Array[File] confirm_submission_responses = confirm_submission.http_responses
+    #Array[File] confirm_submission_requests = confirm_submission.http_requests
+    #Array[File] confirm_submission_responses = confirm_submission.http_responses
   }
 }
