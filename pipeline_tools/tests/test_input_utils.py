@@ -1,6 +1,7 @@
 import json
 import os
 import pytest
+import unittest.mock as mock
 from humancellatlas.data.metadata.api import Bundle
 from unittest.mock import patch
 
@@ -52,6 +53,44 @@ def test_ss2_bundle_vx(test_ss2_bundle_uuid_vx,
                   metadata_files=ss2_metadata_files_vx)
 
 
+@pytest.fixture(scope='module')
+def tenx_manifest_json_vx():
+    with open('{0}metadata/tenx_vx/manifest.json'.format(data_dir)) as f:
+        tenx_manifest_json_vx = json.load(f)
+    return tenx_manifest_json_vx
+
+
+@pytest.fixture(scope='module')
+def tenx_metadata_files_vx():
+    with open('{0}metadata/tenx_vx/metadata_files.json'.format(data_dir)) as f:
+        tenx_metadata_files_vx = json.load(f)
+    return tenx_metadata_files_vx
+
+
+@pytest.fixture(scope='module')
+def test_tenx_bundle_uuid_vx(tenx_manifest_json_vx):
+    return tenx_manifest_json_vx['bundle']['uuid']
+
+
+@pytest.fixture(scope='module')
+def test_tenx_bundle_version_vx(tenx_manifest_json_vx):
+    return tenx_manifest_json_vx['bundle']['version']
+
+
+@pytest.fixture(scope='module')
+def test_tenx_bundle_manifest_vx(tenx_manifest_json_vx):
+    return tenx_manifest_json_vx['bundle']['files']
+
+
+@pytest.fixture(scope='module')
+def test_tenx_bundle_vx(test_tenx_bundle_uuid_vx, test_tenx_bundle_version_vx, test_tenx_bundle_manifest_vx,
+                       tenx_metadata_files_vx):
+    return Bundle(uuid=test_tenx_bundle_uuid_vx,
+                  version=test_tenx_bundle_version_vx,
+                  manifest=test_tenx_bundle_manifest_vx,
+                  metadata_files=tenx_metadata_files_vx)
+
+
 class TestInputUtils(object):
 
     def test_get_sample_id(self, test_ss2_bundle_vx):
@@ -100,3 +139,34 @@ class TestInputUtils(object):
                                              dss_url='foo_url',
                                              input_tsv_name=file_path)
         assert file_path.read() == 'fastq_1\tfastq_2\tsample_id\n{0}\t{1}\t{2}\n'.format('url1', 'url2', 'fake_id')
+
+    @mock.patch('pipeline_tools.input_utils.get_bundle_metadata')
+    @mock.patch('pipeline_tools.input_utils.get_sample_id')
+    def test_get_cellranger_inputs(self, mock_sample_id, mock_bundle, test_tenx_bundle_vx):
+        mock_sample_id.return_value = 'fake_id'
+        mock_bundle.return_value = test_tenx_bundle_vx
+        input_utils.get_cellranger_inputs(uuid='bundle_uuid', version='bundle_version', dss_url='foo_url')
+        expected_fastqs = [
+            'gs://org-hca-dss-checkout-integration/bundles/3eebea0c-8b80-4007-a860-6802a215276d.2018-10-05T145809.216048Z/R1.fastq.gz',
+            'gs://org-hca-dss-checkout-integration/bundles/3eebea0c-8b80-4007-a860-6802a215276d.2018-10-05T145809.216048Z/R2.fastq.gz',
+            'gs://org-hca-dss-checkout-integration/bundles/3eebea0c-8b80-4007-a860-6802a215276d.2018-10-05T145809.216048Z/I1.fastq.gz'
+        ]
+        expected_fastq_names = ['fake_id_S1_L001_R1_001.fastq.gz', 'fake_id_S1_L001_R2_001.fastq.gz', 'fake_id_S1_L001_I1_001.fastq.gz']
+
+        with open('sample_id.txt') as f:
+            sample_id = f.read().strip()
+            assert sample_id == 'fake_id'
+
+        with open('fastqs.txt') as f:
+            actual_fastqs = f.readlines()
+        for idx, url in enumerate(actual_fastqs):
+            assert actual_fastqs[idx].strip() == expected_fastqs[idx]
+
+        with open('fastq_names.txt') as f:
+            actual_fastq_names = f.readlines()
+        for idx, url in enumerate(actual_fastq_names):
+            assert actual_fastq_names[idx].strip() == expected_fastq_names[idx]
+
+        os.remove('fastqs.txt')
+        os.remove('fastq_names.txt')
+        os.remove('sample_id.txt')
