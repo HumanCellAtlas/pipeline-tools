@@ -27,6 +27,9 @@ def test_data():
         with open('{0}analysis_protocol.json'.format(data_dir)) as f:
             analysis_protocol = json.load(f)
 
+        with open('{0}add_protocol_response.json'.format(data_dir)) as f:
+            add_analysis_protocol_response = json.load(f)
+
         analysis_protocol_id = analysis_protocol['protocol_core']['protocol_id']
         analysis_process_id = analysis_process['process_core']['process_id']
 
@@ -42,6 +45,10 @@ class TestCreateEnvelope(object):
     def test_get_subject_url_for_protocols(self, test_data):
         entity_url = submit.get_subject_url(test_data.links_json, 'protocols')
         assert entity_url == 'http://api.ingest.dev.data.humancellatlas.org/protocols'
+
+    def test_get_subject_url_for_protocol_entity(self, test_data):
+        entity_url = submit.get_subject_url(test_data.add_analysis_protocol_response, 'protocol')
+        assert entity_url == 'http://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54'
 
     def test_get_subject_url_for_envelopes(self, test_data):
         entity_url = submit.get_subject_url(test_data.links_json, 'submissionEnvelopes')

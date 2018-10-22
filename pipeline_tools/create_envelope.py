@@ -46,21 +46,23 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     with open(analysis_protocol_path) as f:
         analysis_protocol_dict = json.load(f)
 
+    # URL for getting and creating the analysis protocol, e.g.
+    # http://api.ingest.{deployment}.data.humancellatlas.org/submissionEnvelopes/{envelope_id}/protocols
     analysis_protocol_url = get_subject_url(endpoint_dict=envelope_dict, subject='protocols')
 
     # Check if an analysis_protocol already exists in the submission envelope from a previous attempt
     pipeline_version = analysis_protocol_dict['protocol_core']['protocol_id']
-    analysis_protocol = get_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
-                                              auth_headers=auth_headers,
-                                              protocol_id=pipeline_version,
-                                              http_requests=http_requests)
+    analysis_protocol_response = get_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
+                                                       auth_headers=auth_headers,
+                                                       protocol_id=pipeline_version,
+                                                       http_requests=http_requests)
 
     # Create analysis_protocol if this is the first attempt
-    if not analysis_protocol:
-        _analysis_protocol = add_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
-                                                   auth_headers=auth_headers,
-                                                   analysis_protocol=analysis_protocol_dict,
-                                                   http_requests=http_requests)
+    if not analysis_protocol_response:
+        analysis_protocol_response = add_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
+                                                           auth_headers=auth_headers,
+                                                           analysis_protocol=analysis_protocol_dict,
+                                                           http_requests=http_requests)
 
     # === 4. Create analysis_process ===
     with open(analysis_process_path) as f:
@@ -70,27 +72,32 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
 
     # Check if an analysis_process already exists in the submission envelope from a previous attempt
     analysis_workflow_id = analysis_process_dict['process_core']['process_id']
-    analysis_process = get_analysis_process(analysis_process_url=analysis_process_url,
-                                            auth_headers=auth_headers,
-                                            process_id=analysis_workflow_id,
-                                            http_requests=http_requests)
+    analysis_process_response = get_analysis_process(analysis_process_url=analysis_process_url,
+                                                     auth_headers=auth_headers,
+                                                     process_id=analysis_workflow_id,
+                                                     http_requests=http_requests)
 
     # Create analysis_process if this is the first attempt
-    if not analysis_process:
-        analysis_process = add_analysis_process(analysis_process_url=analysis_process_url,
-                                                auth_headers=auth_headers,
-                                                analysis_process=analysis_process_dict,
-                                                http_requests=http_requests)
+    if not analysis_process_response:
+        analysis_process_response = add_analysis_process(analysis_process_url=analysis_process_url,
+                                                         auth_headers=auth_headers,
+                                                         analysis_process=analysis_process_dict,
+                                                         http_requests=http_requests)
 
     # === 5. Link analysis_protocol to analysis_process ===
-    link_url = get_subject_url(endpoint_dict=analysis_process, subject='protocols')
-    print('Linking analysis_protocol to analysis_process at {0}'.format(link_url))
+    link_url = get_subject_url(endpoint_dict=analysis_process_response, subject='protocols')
+
+    # URL for linking the analysis protocol to analysis process, e.g.
+    # http://api.ingest.integration.data.humancellatlas.org/protocols/{protocol_document_id}
+    analysis_protocol_entity_url = get_subject_url(analysis_protocol_response, 'protocol')
+
+    print('Linking analysis_protocol {0} to analysis_process at {1}'.format(analysis_protocol_entity_url, link_url))
     link_analysis_protocol_to_analysis_process(link_url=link_url,
-                                               analysis_protocol_url=analysis_protocol_url,
+                                               analysis_protocol_url=analysis_protocol_entity_url,
                                                http_requests=http_requests)
 
     # === 6. Add input bundle references ===
-    input_bundles_url = get_subject_url(endpoint_dict=analysis_process, subject='add-input-bundles')
+    input_bundles_url = get_subject_url(endpoint_dict=analysis_process_response, subject='add-input-bundles')
     print('Adding input bundles at {0}'.format(input_bundles_url))
     add_input_bundles(input_bundles_url=input_bundles_url,
                       auth_headers=auth_headers,
@@ -98,7 +105,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
                       http_requests=http_requests)
 
     # === 7. Add file references ===
-    file_refs_url = get_subject_url(endpoint_dict=analysis_process, subject='add-file-reference')
+    file_refs_url = get_subject_url(endpoint_dict=analysis_process_response, subject='add-file-reference')
     print('Adding file references at {0}'.format(file_refs_url))
     output_files = get_output_files(analysis_process=analysis_process_dict,
                                     raw_schema_url=raw_schema_url,
@@ -191,6 +198,8 @@ def get_analysis_protocol(analysis_protocol_url, auth_headers, protocol_id, http
                 print('Found existing analysis_protocol for pipeline version {0} in {1}'.format(
                         protocol_id, analysis_protocol_url))
                 return protocol
+
+    print("Cannot find any existing analysis_protocol with id: {0}".format(protocol_id))
     return None
 
 
@@ -231,15 +240,15 @@ def add_analysis_protocol(analysis_protocol_url, auth_headers, analysis_protocol
         http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        analysis_protocol (dict): A dict represents the JSON response from adding the analysis protocol.
+        analysis_protocol_response (dict): A dict represents the JSON response from adding the analysis protocol.
 
     Raises:
         requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     print('Adding analysis_protocol at {0}'.format(analysis_protocol_url))
     response = http_requests.post(analysis_protocol_url, headers=auth_headers, json=analysis_protocol)
-    analysis_protocol = response.json()
-    return analysis_protocol
+    analysis_protocol_response = response.json()
+    return analysis_protocol_response
 
 
 def add_analysis_process(analysis_process_url, auth_headers, analysis_process, http_requests):
@@ -252,15 +261,15 @@ def add_analysis_process(analysis_process_url, auth_headers, analysis_process, h
         http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        analysis_process (dict): A dict represents the JSON response from adding the analysis process.
+        analysis_process_response (dict): A dict represents the JSON response from adding the analysis process.
 
     Raises:
         requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     print('Adding analysis_process at {0}'.format(analysis_process_url))
     response = http_requests.post(analysis_process_url, headers=auth_headers, json=analysis_process)
-    analysis_process = response.json()
-    return analysis_process
+    analysis_process_response = response.json()
+    return analysis_process_response
 
 
 def add_input_bundles(input_bundles_url, auth_headers, analysis_process, http_requests):
