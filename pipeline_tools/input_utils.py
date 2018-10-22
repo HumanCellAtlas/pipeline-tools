@@ -1,3 +1,4 @@
+import os
 import functools
 import typing
 from concurrent.futures import ThreadPoolExecutor
@@ -167,6 +168,7 @@ def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, input_tsv_name='i
     print('Wrote input map to disk.')
 
 
+# TODO: Rename this function since it no longer creates a tsv file
 def create_optimus_input_tsv(uuid, version, dss_url):
     """Create TSV of Optimus inputs
 
@@ -216,5 +218,61 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     print('Writing sample ID to sample_id.txt')
     with open('sample_id.txt', 'w') as f:
         f.write('{0}'.format(sample_id))
+
+    print('Finished writing files')
+
+
+def get_cellranger_input_files(uuid, version, dss_url):
+    """ Get inputs for cellranger count workflow
+
+    Args:
+        uuid (str): the bundle uuid
+        version (str): the bundle version
+        dss_url (str): the DCP Data Storage Service
+
+    Returns:
+        None
+
+    Raises:
+        optimus_utils.LaneMissingFileError: if any fastqs are missing
+    """
+    # Get bundle manifest
+    print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
+    primary_bundle = get_bundle_metadata(uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests())
+
+    sample_id = get_sample_id(primary_bundle)
+    print('Writing sample ID to sample_id.txt')
+    with open('sample_id.txt', 'w') as f:
+        f.write('{0}'.format(sample_id))
+
+    # Parse inputs from metadata
+    print('Gathering fastq inputs')
+    fastq_files = [f for f in primary_bundle.files.values() if f.file_format == 'fastq.gz']
+    lane_to_fastqs = optimus_utils.create_fastq_dict(fastq_files)
+
+    # Stop if any fastqs are missing
+    optimus_utils.validate_lanes(lane_to_fastqs)
+
+    read_indices = {
+        'read1': 'R1',
+        'read2': 'R2',
+        'index1': 'I1'
+    }
+    fastq_urls = []
+    fastq_names = []
+
+    for lane, reads in lane_to_fastqs.items():
+        for read_index, url in reads.items():
+            new_file_name = '{}_S1_L00{}_{}_001.fastq.gz'.format(sample_id, str(lane), read_indices[read_index])
+            fastq_names.append(new_file_name)
+            fastq_urls.append(url)
+
+    with open('fastqs.txt', 'w') as f:
+        for url in fastq_urls:
+            f.write(url + '\n')
+
+    with open('fastq_names.txt', 'w') as f:
+        for name in fastq_names:
+            f.write(name + '\n')
 
     print('Finished writing files')
