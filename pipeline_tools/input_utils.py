@@ -262,7 +262,7 @@ def get_cellranger_inputs(uuid, version, dss_url):
 
     for lane, reads in lane_to_fastqs.items():
         for read_index, url in reads.items():
-            new_file_name = '{}_S1_L00${}_{}_001.fastq.gz'.format(sample_id, str(lane), read_indices[read_index])
+            new_file_name = '{}_S1_L00{}_{}_001.fastq.gz'.format(sample_id, str(lane), read_indices[read_index])
             fastq_names.append(new_file_name)
             fastq_urls.append(url)
 
