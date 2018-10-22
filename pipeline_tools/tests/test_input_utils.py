@@ -145,7 +145,7 @@ class TestInputUtils(object):
     def test_get_cellranger_inputs(self, mock_sample_id, mock_bundle, test_tenx_bundle_vx):
         mock_sample_id.return_value = 'fake_id'
         mock_bundle.return_value = test_tenx_bundle_vx
-        input_utils.get_cellranger_inputs(uuid='bundle_uuid', version='bundle_version', dss_url='foo_url')
+        input_utils.get_cellranger_input_files(uuid='bundle_uuid', version='bundle_version', dss_url='foo_url')
         expected_fastqs = [
             'gs://org-hca-dss-checkout-integration/bundles/3eebea0c-8b80-4007-a860-6802a215276d.2018-10-05T145809.216048Z/R1.fastq.gz',
             'gs://org-hca-dss-checkout-integration/bundles/3eebea0c-8b80-4007-a860-6802a215276d.2018-10-05T145809.216048Z/R2.fastq.gz',

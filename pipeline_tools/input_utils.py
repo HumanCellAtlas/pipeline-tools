@@ -168,6 +168,7 @@ def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, input_tsv_name='i
     print('Wrote input map to disk.')
 
 
+# TODO: Rename this function since it no longer creates a tsv file
 def create_optimus_input_tsv(uuid, version, dss_url):
     """Create TSV of Optimus inputs
 
@@ -221,7 +222,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     print('Finished writing files')
 
 
-def get_cellranger_inputs(uuid, version, dss_url):
+def get_cellranger_input_files(uuid, version, dss_url):
     """ Get inputs for cellranger count workflow
 
     Args:
@@ -233,7 +234,7 @@ def get_cellranger_inputs(uuid, version, dss_url):
         None
 
     Raises:
-        optimus_utils.LaneMissingFileError if any fastqs are missing
+        optimus_utils.LaneMissingFileError: if any fastqs are missing
     """
     # Get bundle manifest
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))

@@ -24,7 +24,7 @@ task GetInputs {
     python -u <<CODE
     from pipeline_tools import input_utils
 
-    input_utils.get_cellranger_inputs(
+    input_utils.get_cellranger_input_files(
                     "${bundle_uuid}",
                     "${bundle_version}",
                     "${dss_url}")
