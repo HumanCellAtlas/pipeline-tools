@@ -89,7 +89,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
 
     # URL for linking the analysis protocol to analysis process, e.g.
     # http://api.ingest.integration.data.humancellatlas.org/protocols/{protocol_document_id}
-    analysis_protocol_entity_url = get_subject_url(analysis_protocol_response, 'protocol')
+    analysis_protocol_entity_url = get_subject_url(analysis_protocol_response, 'self')
 
     print('Linking analysis_protocol {0} to analysis_process at {1}'.format(analysis_protocol_entity_url, link_url))
     link_analysis_protocol_to_analysis_process(link_url=link_url,

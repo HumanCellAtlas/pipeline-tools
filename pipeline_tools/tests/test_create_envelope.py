@@ -47,7 +47,7 @@ class TestCreateEnvelope(object):
         assert entity_url == 'http://api.ingest.dev.data.humancellatlas.org/protocols'
 
     def test_get_subject_url_for_protocol_entity(self, test_data):
-        entity_url = submit.get_subject_url(test_data.add_analysis_protocol_response, 'protocol')
+        entity_url = submit.get_subject_url(test_data.add_analysis_protocol_response, 'self')
         assert entity_url == 'http://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54'
 
     def test_get_subject_url_for_envelopes(self, test_data):
