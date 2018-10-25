@@ -62,6 +62,7 @@ task RenameFiles {
     >>>
     runtime {
       docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+      disks: "local-disk 100 HDD"
     }
     output {
       Array[File] outputs = new_file_names
