@@ -1,4 +1,4 @@
 {
-  "monitoring_script": "gs://hca-dcp-mint-test-data/accessories/monitoring/smartseq2/monitor.sh",
+  "monitoring_script": "gs://hca-dcp-mint-test-data/accessories/monitoring/smartseq2/monitoring.sh",
   "read_from_cache": true
 }
