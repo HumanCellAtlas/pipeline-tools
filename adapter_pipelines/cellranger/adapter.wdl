@@ -70,7 +70,7 @@ task RenameFiles {
 }
 
 task InputsForSubmit {
-    Array[File] fastqs
+    Array[String] fastqs
     Array[Object] other_inputs
     Int? expect_cells
     String pipeline_tools_version
