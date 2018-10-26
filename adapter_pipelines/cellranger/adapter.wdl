@@ -62,6 +62,7 @@ task RenameFiles {
     >>>
     runtime {
       docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+      disks: "local-disk 100 HDD"
     }
     output {
       Array[File] outputs = new_file_names
@@ -69,7 +70,7 @@ task RenameFiles {
 }
 
 task InputsForSubmit {
-    Array[File] fastqs
+    Array[String] fastqs
     Array[Object] other_inputs
     Int? expect_cells
     String pipeline_tools_version
@@ -150,7 +151,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.38.0"
+  String pipeline_tools_version = "v0.39.0"
 
   call GetInputs {
     input:
