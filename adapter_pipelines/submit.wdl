@@ -29,7 +29,7 @@ task get_metadata {
       --use_caas ${use_caas}
   >>>
   runtime {
-    docker: (if runtime_environment == "production" then "gcr.io/hca-dcp-pipelines-prod/cromwell-metadata:" else "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:") + "v1.2.0"
+    docker: (if runtime_environment == "prod" then "gcr.io/hca-dcp-pipelines-prod/cromwell-metadata:" else "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:") + "v1.2.0"
     maxRetries: max_retries
   }
   output {
