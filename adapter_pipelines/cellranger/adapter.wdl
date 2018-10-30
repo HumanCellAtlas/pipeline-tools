@@ -151,7 +151,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.41.0"
+  String pipeline_tools_version = "se-add-cellranger-retries"
 
   call GetInputs {
     input:
@@ -183,7 +183,8 @@ workflow Adapter10xCount {
       fastqs = rename_fastqs.outputs,
       reference_name = reference_name,
       transcriptome_tar_gz = transcriptome_tar_gz,
-      expect_cells = expect_cells
+      expect_cells = expect_cells,
+      max_retries = max_cromwell_retries
   }
 
   call InputsForSubmit {
