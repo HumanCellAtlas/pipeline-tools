@@ -16,6 +16,7 @@ setup(name='pipeline-tools',
       packages=['pipeline_tools'],
       install_requires=[
           'cromwell-tools',
+          'google-auth>=1.6.1,<2',
           'google-cloud-storage>=1.8.0,<2',
           'hca>=4.5.0,<5',
           'hca-metadata-api',
