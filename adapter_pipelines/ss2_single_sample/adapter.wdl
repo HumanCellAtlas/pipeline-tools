@@ -47,7 +47,6 @@ workflow AdapterSmartSeq2SingleCell{
   String bundle_version
 
   # fixed parameters
-  File gtf_file
   File genome_ref_fasta
   File rrna_intervals
   File gene_ref_flat
@@ -100,7 +99,6 @@ workflow AdapterSmartSeq2SingleCell{
 
   call ss2.SmartSeq2SingleCell as analysis {
     input:
-      gtf_file = gtf_file,
       genome_ref_fasta = genome_ref_fasta,
       rrna_intervals = rrna_intervals,
       gene_ref_flat = gene_ref_flat,
@@ -135,10 +133,6 @@ workflow AdapterSmartSeq2SingleCell{
         {
           "name": "output_name",
           "value": prep.inputs.sample_id
-        },
-        {
-          "name": "gtf_file",
-          "value": gtf_file
         },
         {
           "name": "genome_ref_fasta",
