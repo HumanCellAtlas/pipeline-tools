@@ -25,30 +25,11 @@ def get_analysis_workflow_id(analysis_output_path):
 
 
 def get_headers():
+    credentials, project = google.auth.default()
+    if not credentials.valid:
+        credentials.refresh(google.auth.transport.requests.Request())
     headers = {}
-    scopes = [
-            'https://www.googleapis.com/auth/userinfo.email',
-            'https://www.googleapis.com/auth/userinfo.profile',
-            'email',
-            'openid',
-            'profile'
-        ]
-    credentials, project = google.auth.default(scopes=scopes)
-    credentials.refresh(google.auth.transport.requests.Request())
-    has_scopes = credentials.has_scopes(scopes)
-    print(credentials.service_account_email)
-    print('Trying to set scopes:')
-    print(scopes)
-    print('Default service account has scopes:')
-    print(has_scopes)
-    print(credentials.scopes)
-
-    scoped_credentials = credentials.create_scoped(scopes)
-    scoped_credentials.refresh(google.auth.transport.requests.Request())
-    print(scoped_credentials.token)
-    scoped_credentials.apply(headers)
-
-
+    credentials.apply(headers)
     return headers
 
 
@@ -70,7 +51,6 @@ def get_metadata(cromwell_url, workflow_id, http_requests):
         print('Getting metadata for workflow {}'.format(workflow_id))
 
     headers = get_headers()
-    print(headers)
     url = '{0}/{1}/metadata?expandSubWorkflows=true'.format(cromwell_url, workflow_id)
     response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
