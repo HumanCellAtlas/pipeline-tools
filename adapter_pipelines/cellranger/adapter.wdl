@@ -36,6 +36,7 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
+    Int expect_cells = read_string("expect_cells.txt")
     Array[File] fastqs = read_lines("fastqs.txt")
     Array[String] fastq_names = read_lines("fastq_names.txt")
     Array[File] http_requests = glob("request_*.txt")
@@ -124,7 +125,6 @@ workflow Adapter10xCount {
 
   String reference_name
   File transcriptome_tar_gz
-  Int? expect_cells
 
   # Submission
   File format_map
@@ -151,7 +151,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.42.1"
+  String pipeline_tools_version = "se-fix-expected-cell-counts"
 
   call GetInputs {
     input:
@@ -183,7 +183,7 @@ workflow Adapter10xCount {
       fastqs = rename_fastqs.outputs,
       reference_name = reference_name,
       transcriptome_tar_gz = transcriptome_tar_gz,
-      expect_cells = expect_cells,
+      expect_cells = GetInputs.expect_cells,
       max_retries = max_cromwell_retries
   }
 
@@ -204,7 +204,7 @@ workflow Adapter10xCount {
           "value": transcriptome_tar_gz
         }
       ],
-      expect_cells = expect_cells,
+      expect_cells = GetInputs.expect_cells,
       pipeline_tools_version = pipeline_tools_version
   }
 

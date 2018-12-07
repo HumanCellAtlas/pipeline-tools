@@ -2,10 +2,14 @@ import os
 import functools
 import typing
 from concurrent.futures import ThreadPoolExecutor
-from humancellatlas.data.metadata.api import Bundle
+from humancellatlas.data.metadata.api import Bundle, CellSuspension
 
 from pipeline_tools import dcp_utils, optimus_utils
 from pipeline_tools.http_requests import HttpRequests
+
+
+class MoreThanOneCellSuspensionError(Exception):
+    pass
 
 
 def get_sample_id(bundle):
@@ -19,6 +23,29 @@ def get_sample_id(bundle):
     """
     sample_id = str(bundle.sequencing_input[0].document_id)
     return sample_id
+
+
+def get_expected_cell_count(bundle):
+    """Return the total estimated cells from the given bundle, otherwise use the same default value as CellRanger
+    (3000 cells): https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/2.1/using/count
+
+    Args:
+        bundle (humancellatlas.data.metadata.Bundle): A Bundle object contains all of the necessary information.
+
+    Returns:
+        total_estimated_cells (int): Int giving the total number of estimated cells
+
+    Raises:
+        MoreThanOneCellSuspensionError: if the data bundle contains more than one cell_suspension.json file
+    """
+    cell_suspension = [f for f in bundle.biomaterials.values() if isinstance(f, CellSuspension)]
+    n_cell_suspension = len(cell_suspension)
+    if n_cell_suspension != 1:
+        raise MoreThanOneCellSuspensionError('The data bundle should contain exactly 1 cell_suspension.json file, ' +
+                                             'not {}'.format(n_cell_suspension))
+    default_estimated_cells = 3000
+    total_estimated_cells = cell_suspension[0].total_estimated_cells
+    return int(total_estimated_cells) if total_estimated_cells else default_estimated_cells
 
 
 def get_urls_to_files_for_ss2(bundle):
@@ -244,6 +271,11 @@ def get_cellranger_input_files(uuid, version, dss_url):
     print('Writing sample ID to sample_id.txt')
     with open('sample_id.txt', 'w') as f:
         f.write('{0}'.format(sample_id))
+
+    total_estimated_cells = get_expected_cell_count(primary_bundle)
+    print('Writing total estimated cells to expect_cells.txt')
+    with open('expect_cells.txt', 'w') as f:
+        f.write('{0}'.format(total_estimated_cells))
 
     # Parse inputs from metadata
     print('Gathering fastq inputs')
