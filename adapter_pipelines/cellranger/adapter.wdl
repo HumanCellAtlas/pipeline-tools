@@ -142,7 +142,6 @@ workflow Adapter10xCount {
   Int? retry_timeout
   Int? individual_request_timeout
   String reference_bundle
-  Boolean use_caas
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -252,7 +251,6 @@ workflow Adapter10xCount {
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
       runtime_environment = runtime_environment,
-      use_caas = use_caas,
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
