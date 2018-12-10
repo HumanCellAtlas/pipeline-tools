@@ -24,11 +24,6 @@
       "parameter_value": "4ee53206-80cd-4144-8c75-b62399a7ae99"
     },
     {
-      "checksum": "8778479ae676099e8dbd67d1d4838f53",
-      "parameter_name": "gtf_file",
-      "parameter_value": "fake-url/GRCh38_Gencode/gencode.v27.primary_assembly.annotation.gtf"
-    },
-    {
       "checksum": "49bdb80d21a64dcb16acfc941843356e",
       "parameter_name": "genome_ref_fasta",
       "parameter_value": "fake-url/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa"
