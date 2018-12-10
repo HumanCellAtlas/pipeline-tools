@@ -51,7 +51,7 @@ def test_data():
     return Data
 
 
-def mocked_get_headers():
+def mocked_get_auth_headers():
     return {'Authorization': 'bearer 12345'}
 
 
@@ -77,8 +77,8 @@ class TestGetAnalysisWorkflowMetadata(object):
             }
 
         requests_mock.get(test_data.caas_metadata_url, json=_request_callback)
-        with patch('pipeline_tools.get_analysis_workflow_metadata.get_headers',
-                   side_effect=mocked_get_headers), tmpdir.as_cwd(), HttpRequestsManager():
+        with patch('pipeline_tools.get_analysis_workflow_metadata.get_auth_headers',
+                   side_effect=mocked_get_auth_headers), tmpdir.as_cwd(), HttpRequestsManager():
             get_analysis_workflow_metadata.get_metadata(test_data.caas_base_url,
                                                         test_data.workflow_id,
                                                         HttpRequests())
@@ -91,8 +91,8 @@ class TestGetAnalysisWorkflowMetadata(object):
             return {'status': 'error', 'message': 'Internal Server Error'}
 
         requests_mock.get(test_data.cromwell_metadata_url, json=_request_callback)
-        with patch('pipeline_tools.get_analysis_workflow_metadata.get_headers',
-                   side_effect=mocked_get_headers), pytest.raises(requests.HTTPError), HttpRequestsManager():
+        with patch('pipeline_tools.get_analysis_workflow_metadata.get_auth_headers',
+                   side_effect=mocked_get_auth_headers), pytest.raises(requests.HTTPError), HttpRequestsManager():
             get_analysis_workflow_metadata.get_metadata(test_data.base_url,
                                                         test_data.workflow_id,
                                                         HttpRequests())

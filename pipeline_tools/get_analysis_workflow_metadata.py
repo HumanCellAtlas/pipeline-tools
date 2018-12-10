@@ -24,7 +24,15 @@ def get_analysis_workflow_id(analysis_output_path):
     return workflow_id
 
 
-def get_headers():
+def get_auth_headers():
+    """ Get a bearer token from the default google account credentials on the machine that executes 
+    this function. The credentials must have the scopes "https://www.googleapis.com/auth/userinfo.email"
+    and "https://www.googleapis.com/auth/userinfo.profile", which Cromwell will add automatically if 
+    it is confiugred to use the Pipelines API v2 backend.
+
+    Returns:
+        headers (dict): authorization header containing bearer token {'Authorization': 'bearer 12345'}
+    """
     credentials, project = google.auth.default()
     if not credentials.valid:
         credentials.refresh(google.auth.transport.requests.Request())
@@ -34,8 +42,9 @@ def get_headers():
 
 
 def get_metadata(cromwell_url, workflow_id, http_requests):
-    """Get metadata for analysis workflow from Cromwell-as-a-Service and write it to a JSON file. Retry the request with
-    exponentially increasing wait times if there is an error.
+    """Get metadata for analysis workflow from Cromwell and write it to a JSON file. This is only 
+    compatible with instances of Cromwell that use SAM for Identity Access Management (IAM), such 
+    as Cromwell-as-a-Service. 
 
     Args:
         cromwell_url (str): Url to the cromwell environment the workflow was run in.
@@ -50,7 +59,7 @@ def get_metadata(cromwell_url, workflow_id, http_requests):
     def log_before(workflow_id):
         print('Getting metadata for workflow {}'.format(workflow_id))
 
-    headers = get_headers()
+    headers = get_auth_headers()
     url = '{0}/{1}/metadata?expandSubWorkflows=true'.format(cromwell_url, workflow_id)
     response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
