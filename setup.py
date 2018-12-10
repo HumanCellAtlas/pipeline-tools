@@ -15,7 +15,6 @@ setup(name='pipeline-tools',
       license='BSD 3-clause "New" or "Revised" License',
       packages=['pipeline_tools'],
       install_requires=[
-          'cromwell-tools',
           'google-auth>=1.6.1,<2',
           'google-cloud-storage>=1.8.0,<2',
           'hca>=4.5.0,<5',
@@ -40,7 +39,6 @@ setup(name='pipeline-tools',
       },
       # FIXME: DEPRECATION: Dependency Links processing has been deprecated and will be removed in a future release.
       dependency_links=[
-          'git+git://github.com/broadinstitute/cromwell-tools.git@v0.5.0#egg=cromwell-tools-1.0.1',
           # FIXME: install hca-metadata-api from PyPI once it is available (shortly)
           # Pin to a specific commit of the hca-metadata-api so we won't be broken by changes to that repo before it's
           # available on PyPI

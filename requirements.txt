@@ -3,5 +3,4 @@ google-auth>=1.6.1,<2
 google-cloud-storage==1.8.0
 tenacity==4.10.0
 PyJWT==1.6.4
-git+git://github.com/broadinstitute/cromwell-tools.git@v0.5.0
 git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b4#egg=hca-metadata-api[dss]
