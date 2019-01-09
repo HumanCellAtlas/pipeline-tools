@@ -10,7 +10,7 @@ from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 @pytest.fixture(scope='module')
 def test_data():
     class Data:
-        envelope_url = 'http://api.ingest.integration.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_url = 'https://api.ingest.integration.data.humancellatlas.org/submissionEnvelopes/abcde'
         envelope_json = {
             'stagingDetails': {
                 'stagingAreaLocation': {
