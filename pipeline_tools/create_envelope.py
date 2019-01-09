@@ -3,12 +3,12 @@ import argparse
 import json
 from typing import List
 
-from pipeline_tools.dcp_utils import get_auth_token, make_auth_header
+from pipeline_tools import auth_utils
 from pipeline_tools.http_requests import HttpRequests
 
 
 def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, raw_schema_url,
-                   analysis_file_version):
+                   analysis_file_version, service_account_key_path):
     """Create the submission envelope in Ingest service.
 
     Args:
@@ -17,6 +17,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
         analysis_process_path (str): Path to the analysis_process json file.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
+        service_account_key_path (str): Path to
     """
     # Instantiate a HttpRequests object
     http_requests = HttpRequests()
@@ -26,10 +27,13 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     # to be safe, we are sending the token at each step, except the linking step, which requires a totally different
     # content-type in the header.
 
-    print('Fetching auth token from Auth0')
-    auth_token = get_auth_token(http_requests)
+    print('Generating JWT from service account')
+    with open(service_account_key_path) as f:
+        json_key = json.load(f)
+    signed_jwt = auth_utils.get_service_jwt(json_key)
+    print(signed_jwt)
     print('Making auth headers')
-    auth_headers = make_auth_header(auth_token)
+    auth_headers = auth_utils.get_auth_header(signed_jwt)
 
     # === 1. Get envelope url ===
     envelope_url = get_envelope_url(submit_url, auth_headers, http_requests)
@@ -379,6 +383,9 @@ def main():
     parser.add_argument('--analysis_file_version',
                         required=True,
                         help='The metadata schema version that the output files(analysis_file) conform to.')
+    parser.add_argument('--service_account_key_path',
+                        required=True,
+                        help='Path to service account JSON key for generating JWT.')
     args = parser.parse_args()
 
     schema_url = args.schema_url.strip('/')
@@ -387,7 +394,8 @@ def main():
                    analysis_protocol_path=args.analysis_protocol_path,
                    analysis_process_path=args.analysis_process_path,
                    raw_schema_url=schema_url,
-                   analysis_file_version=args.analysis_file_version)
+                   analysis_file_version=args.analysis_file_version,
+                   service_account_key_path=args.service_account_key_path)
 
 
 if __name__ == '__main__':

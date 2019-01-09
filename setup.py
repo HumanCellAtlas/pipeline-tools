@@ -25,6 +25,7 @@ setup(name='pipeline-tools',
           'setuptools_scm>=2.0.0,<3',
           'tenacity>=4.10.0,<5',
           'google-cloud-storage>=1.10.0,<2',
+          'PyJWT==1.6.4'
       ],
       entry_points={
           'console_scripts': [

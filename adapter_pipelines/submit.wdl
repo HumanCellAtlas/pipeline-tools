@@ -64,6 +64,7 @@ task create_submission {
   Boolean record_http
   String pipeline_tools_version
   Boolean add_md5s
+  File service_account_key_path
 
   command <<<
     export RECORD_HTTP_REQUESTS="${record_http}"
@@ -103,7 +104,8 @@ task create_submission {
       --analysis_process_path analysis_process.json \
       --analysis_protocol_path analysis_protocol.json \
       --schema_url ${schema_url} \
-      --analysis_file_version ${analysis_file_version}
+      --analysis_file_version ${analysis_file_version} \
+      --service_account_key_path ${service_account_key_path}
   >>>
 
   runtime {
@@ -257,6 +259,7 @@ workflow submit {
   String pipeline_version
   # Disk space to allocate for stage_files task
   Int disk_space
+  File service_account_key_path
 
   call get_metadata {
     input:
@@ -295,7 +298,8 @@ workflow submit {
       retry_max_interval = retry_max_interval,
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
-      add_md5s = add_md5s
+      add_md5s = add_md5s,
+      service_account_key_path = service_account_key_path
   }
 
   call stage_files {
