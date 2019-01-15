@@ -177,18 +177,21 @@ workflow AdapterSmartSeq2SingleCell{
           "value": stranded
         }
       ],
-      outputs = flatten([[
-        analysis.aligned_bam,
-        analysis.bam_index,
-        analysis.insert_size_metrics,
-        analysis.quality_distribution_metrics,
-        analysis.quality_by_cycle_metrics,
-        analysis.bait_bias_summary_metrics,
-        analysis.rna_metrics,
-        analysis.aligned_transcriptome_bam,
-        analysis.rsem_gene_results,
-        analysis.rsem_isoform_results
-      ], analysis.group_results, analysis.zarr_output_files]),
+      outputs = flatten(
+        select_all(
+          [[analysis.aligned_bam,
+            analysis.bam_index,
+            analysis.insert_size_metrics,
+            analysis.quality_distribution_metrics,
+            analysis.quality_by_cycle_metrics,
+            analysis.bait_bias_summary_metrics,
+            analysis.rna_metrics,
+            analysis.aligned_transcriptome_bam,
+            analysis.rsem_gene_results,
+            analysis.rsem_isoform_results
+           ], analysis.group_results, analysis.zarr_output_files]
+        )
+      ),
       format_map = format_map,
       submit_url = submit_url,
       cromwell_url = cromwell_url,
