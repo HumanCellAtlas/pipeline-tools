@@ -21,17 +21,17 @@
   "validationErrors" : null,
   "_links" : {
     "self" : {
-      "href" : "http://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54"
+      "href" : "https://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54"
     },
     "protocol" : {
-      "href" : "http://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54",
+      "href" : "https://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54",
       "title" : "A single protocol"
     },
     "validating" : {
-      "href" : "http://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54/validatingEvent"
+      "href" : "https://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54/validatingEvent"
     },
     "submissionEnvelopes" : {
-      "href" : "http://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54/submissionEnvelopes",
+      "href" : "https://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54/submissionEnvelopes",
       "title" : "Access or create new submission envelopes"
     }
   }

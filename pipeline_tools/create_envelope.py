@@ -47,7 +47,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
         analysis_protocol_dict = json.load(f)
 
     # URL for getting and creating the analysis protocol, e.g.
-    # http://api.ingest.{deployment}.data.humancellatlas.org/submissionEnvelopes/{envelope_id}/protocols
+    # https://api.ingest.{deployment}.data.humancellatlas.org/submissionEnvelopes/{envelope_id}/protocols
     analysis_protocol_url = get_subject_url(endpoint_dict=envelope_dict, subject='protocols')
 
     # Check if an analysis_protocol already exists in the submission envelope from a previous attempt
@@ -88,7 +88,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     link_url = get_subject_url(endpoint_dict=analysis_process_response, subject='protocols')
 
     # URL for linking the analysis protocol to analysis process, e.g.
-    # http://api.ingest.integration.data.humancellatlas.org/protocols/{protocol_document_id}
+    # https://api.ingest.integration.data.humancellatlas.org/protocols/{protocol_document_id}
     analysis_protocol_entity_url = get_subject_url(analysis_protocol_response, 'self')
 
     print('Linking analysis_protocol {0} to analysis_process at {1}'.format(analysis_protocol_entity_url, link_url))
