@@ -75,7 +75,6 @@ workflow AdapterSmartSeq2SingleCell{
   Int? individual_request_timeout
   String reference_bundle
   Boolean use_caas
-  File service_account_key_path
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -215,7 +214,6 @@ workflow AdapterSmartSeq2SingleCell{
       add_md5s = add_md5s,
       max_retries = max_cromwell_retries,
       pipeline_version = analysis.pipeline_version,
-      service_account_key_path = service_account_key_path,
       # The bam files are by far the largest outputs. The extra 5 GB should easily cover everything else.
       disk_space = ceil(size(analysis.aligned_bam, "GB") + size(analysis.aligned_transcriptome_bam, "GB") + 5)
   }

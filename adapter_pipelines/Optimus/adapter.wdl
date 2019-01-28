@@ -119,7 +119,6 @@ workflow AdapterOptimus {
   Int? individual_request_timeout
   String reference_bundle
   Boolean use_caas
-  File service_account_key_path
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -219,7 +218,6 @@ workflow AdapterOptimus {
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
-      pipeline_version = analysis.pipeline_version,
-      service_account_key_path = service_account_key_path
+      pipeline_version = analysis.pipeline_version
   }
 }

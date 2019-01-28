@@ -143,7 +143,6 @@ workflow Adapter10xCount {
   Int? individual_request_timeout
   String reference_bundle
   Boolean use_caas
-  File service_account_key_path
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -259,7 +258,6 @@ workflow Adapter10xCount {
       add_md5s = add_md5s,
       pipeline_version = analysis.pipeline_version,
       max_retries = max_cromwell_retries,
-      service_account_key_path = service_account_key_path,
       # The sorted bam is the largest output. Other outputs will increase space by ~50%.
       # Factor of 2 and addition of 50 GB gives some buffer.
       disk_space = ceil(size(analysis.sorted_bam, "GB") * 2 + 50)

@@ -8,6 +8,5 @@
   "Adapter10xCount.analysis_protocol_schema_version": "8.0.3",
   "Adapter10xCount.analysis_process_schema_version": "8.0.3",
   "Adapter10xCount.run_type": "run",
-  "Adapter10xCount.add_md5s": false,
-  "AdapterSmartSeq2SingleCell.service_account_key_path": "gs://broad-dsde-mint-test-credentials/caas_key.json"
+  "Adapter10xCount.add_md5s": false
 }

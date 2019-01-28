@@ -17,6 +17,5 @@
   "AdapterSmartSeq2SingleCell.analysis_protocol_schema_version": "8.0.3",
   "AdapterSmartSeq2SingleCell.analysis_process_schema_version": "8.0.3",
   "AdapterSmartSeq2SingleCell.run_type": "run",
-  "AdapterSmartSeq2SingleCell.add_md5s": false,
-  "AdapterSmartSeq2SingleCell.service_account_key_path": "gs://broad-dsde-mint-test-credentials/caas_key.json"
+  "AdapterSmartSeq2SingleCell.add_md5s": false
 }
