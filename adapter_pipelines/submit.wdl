@@ -65,6 +65,7 @@ task create_submission {
   String pipeline_tools_version
   Boolean add_md5s
   String runtime_environment
+  File service_account_key_path = "gs://broad-dsde-mint-${runtime_environment}-credentials/caas_key.json"
 
   command <<<
     export RECORD_HTTP_REQUESTS="${record_http}"
@@ -105,7 +106,8 @@ task create_submission {
       --analysis_protocol_path analysis_protocol.json \
       --schema_url ${schema_url} \
       --analysis_file_version ${analysis_file_version} \
-      --runtime_environment ${runtime_environment}
+      --runtime_environment ${runtime_environment} \
+      --service_account_key_path ${service_account_key_path}
   >>>
 
   runtime {
