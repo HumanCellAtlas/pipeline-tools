@@ -1,5 +1,6 @@
 {
   "monitoring_script": "gs://hca-dcp-mint-test-data/accessories/monitoring/optimus/monitor.sh",
   "read_from_cache":false,
-  "write_to_cache":false
+  "write_to_cache":false,
+  "backend": "PAPIv2"
 }

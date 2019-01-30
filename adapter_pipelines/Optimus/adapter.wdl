@@ -44,7 +44,7 @@ task GetInputs {
   }
 }
 
-task inputs_for_submit {
+task InputsForSubmit {
     Array[File] r1_fastq
     Array[File] r2_fastq
     Array[File] i1_fastq
@@ -154,7 +154,7 @@ workflow AdapterOptimus {
       fastq_suffix = fastq_suffix
   }
 
-  call inputs_for_submit {
+  call InputsForSubmit {
     input:
       r1_fastq = prep.r1_fastq,
       r2_fastq = prep.r2_fastq,
@@ -184,19 +184,22 @@ workflow AdapterOptimus {
       pipeline_tools_version = pipeline_tools_version
   }
 
-  Array[Object] inputs = read_objects(inputs_for_submit.inputs)
+  Array[Object] inputs = read_objects(InputsForSubmit.inputs)
 
   call submit_wdl.submit {
     input:
       inputs = inputs,
-      outputs = [
-        analysis.bam,
-        analysis.matrix,
-        analysis.matrix_row_index,
-        analysis.matrix_col_index,
-        analysis.cell_metrics,
-        analysis.gene_metrics
-      ],
+      outputs = flatten(
+        select_all(
+          [[analysis.bam,
+            analysis.matrix,
+            analysis.matrix_row_index,
+            analysis.matrix_col_index,
+            analysis.cell_metrics,
+            analysis.gene_metrics
+        ], analysis.zarr_output_files]
+        )
+      ),
       format_map = format_map,
       submit_url = submit_url,
       cromwell_url = cromwell_url,
