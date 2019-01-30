@@ -64,6 +64,8 @@ task create_submission {
   Boolean record_http
   String pipeline_tools_version
   Boolean add_md5s
+  String runtime_environment
+  File service_account_key_path = "gs://broad-dsde-mint-${runtime_environment}-credentials/caas_key.json"
 
   command <<<
     export RECORD_HTTP_REQUESTS="${record_http}"
@@ -103,7 +105,9 @@ task create_submission {
       --analysis_process_path analysis_process.json \
       --analysis_protocol_path analysis_protocol.json \
       --schema_url ${schema_url} \
-      --analysis_file_version ${analysis_file_version}
+      --analysis_file_version ${analysis_file_version} \
+      --runtime_environment ${runtime_environment} \
+      --service_account_key_path ${service_account_key_path}
   >>>
 
   runtime {
@@ -295,7 +299,8 @@ workflow submit {
       retry_max_interval = retry_max_interval,
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
-      add_md5s = add_md5s
+      add_md5s = add_md5s,
+      runtime_environment = runtime_environment
   }
 
   call stage_files {
