@@ -1,8 +1,7 @@
 import argparse
 import json
-from cromwell_tools import cromwell_tools
-from requests.auth import HTTPBasicAuth
-
+import google.auth
+import google.auth.transport.requests
 from pipeline_tools.http_requests import HttpRequests
 
 
@@ -25,34 +24,33 @@ def get_analysis_workflow_id(analysis_output_path):
     return workflow_id
 
 
-def get_auth(credentials_file=None):
-    """Parse cromwell username and password from credentials file.
-
-    Args:
-        credentials_file (str): Path to the file containing cromwell authentication credentials.
+def get_auth_headers():
+    """ Get a bearer token from the default google account credentials on the machine that executes 
+    this function. The credentials must have the scopes "https://www.googleapis.com/auth/userinfo.email"
+    and "https://www.googleapis.com/auth/userinfo.profile", which Cromwell will add automatically if 
+    it is confiugred to use the Pipelines API v2 backend.
 
     Returns:
-        requests.auth.HTTPBasicAuth: An object to be used for cromwell requests.
+        headers (dict): authorization header containing bearer token {'Authorization': 'bearer 12345'}
     """
-    credentials_file = credentials_file or '/cromwell-metadata/cromwell_credentials.txt'
-    with open(credentials_file) as f:
-        credentials = f.read().split()
-    user = credentials[0]
-    password = credentials[1]
-    return HTTPBasicAuth(user, password)
+    credentials, project = google.auth.default()
+    if not credentials.valid:
+        credentials.refresh(google.auth.transport.requests.Request())
+    headers = {}
+    credentials.apply(headers)
+    return headers
 
 
-def get_metadata(cromwell_url, workflow_id, http_requests, use_caas=False, caas_key_file=None):
-    """Get metadata for analysis workflow from Cromwell and write it to a JSON file. Retry the request with
-    exponentially increasing wait times if there is an error.
+def get_metadata(cromwell_url, workflow_id, http_requests):
+    """Get metadata for analysis workflow from Cromwell and write it to a JSON file. This is only 
+    compatible with instances of Cromwell that use SAM for Identity Access Management (IAM), such 
+    as Cromwell-as-a-Service. 
 
     Args:
         cromwell_url (str): Url to the cromwell environment the workflow was run in.
         workflow_id (str): The analysis workflow id.
         http_requests: `http_requests.HttpRequests` instance, a wrapper around requests provides better retry and
                        logging.
-        use_caas (bool): Whether or not to use Cromwell-as-a-Service.
-        caas_key_file (str): Path to CaaS service account JSON key file.
 
     Raises:
         requests.HTTPError: For 4xx errors or 5xx errors beyond the timeout
@@ -61,17 +59,9 @@ def get_metadata(cromwell_url, workflow_id, http_requests, use_caas=False, caas_
     def log_before(workflow_id):
         print('Getting metadata for workflow {}'.format(workflow_id))
 
-    cromwell_url = cromwell_url
-
-    if use_caas:
-        json_credentials = caas_key_file or "/cromwell-metadata/caas_key.json"
-        headers = cromwell_tools.generate_auth_header_from_key_file(json_credentials)
-        auth = None
-    else:
-        headers = None
-        auth = get_auth()
+    headers = get_auth_headers()
     url = '{0}/{1}/metadata?expandSubWorkflows=true'.format(cromwell_url, workflow_id)
-    response = http_requests.get(url, auth=auth, headers=headers, before=log_before(workflow_id))
+    response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
         json.dump(response.json(), f, indent=2)
 
@@ -80,11 +70,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--analysis_output_path', required=True)
     parser.add_argument('--cromwell_url', required=True)
-    parser.add_argument('--use_caas', required=True)
-    parser.add_argument('--caas_key_file', required=False, default=None)
     args = parser.parse_args()
-
-    use_caas = True if args.use_caas.lower() == 'true' else False
 
     print('Using analysis output path: {0}'.format(args.analysis_output_path))
 
@@ -92,9 +78,7 @@ def main():
     workflow_id = get_analysis_workflow_id(analysis_output_path=args.analysis_output_path)
     get_metadata(cromwell_url=args.cromwell_url,
                  workflow_id=workflow_id,
-                 http_requests=HttpRequests(),
-                 use_caas=use_caas,
-                 caas_key_file=args.caas_key_file)
+                 http_requests=HttpRequests())
 
 
 if __name__ == '__main__':
