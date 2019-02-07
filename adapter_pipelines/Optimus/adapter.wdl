@@ -219,6 +219,9 @@ workflow AdapterOptimus {
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
-      pipeline_version = analysis.pipeline_version
+      pipeline_version = analysis.pipeline_version,
+      # The disk space value here is still an experiment value, need to 
+      # be optimized based on historical data by CBs
+      disk_space = ceil(size(analysis.bam, "GB") * 2 + 50)
   }
 }
