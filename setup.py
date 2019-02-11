@@ -15,6 +15,7 @@ setup(name='pipeline-tools',
       license='BSD 3-clause "New" or "Revised" License',
       packages=['pipeline_tools'],
       install_requires=[
+          'arrow>=0.12.1',
           'google-auth>=1.6.1,<2',
           'google-cloud-storage>=1.8.0,<2',
           'hca>=4.5.0,<5',
