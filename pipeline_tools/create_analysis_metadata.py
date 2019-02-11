@@ -363,17 +363,17 @@ def get_workflow_tasks(workflow_metadata):
     return sorted_output_tasks
 
 
-def format_timestamp(datetime_string):
-    """ Standardize Cromwell timestamps to follow the date-time JSON format required by the analysis process schema
+def format_timestamp(timestamp):
+    """ Standardize Cromwell timestamps to follow the date-time JSON format required by the analysis process schema.
 
     Args:
-        datetime_string (str): A datetime string in any format
+        timestamp (str): A datetime string in any format
     Returns:
-        formatted_datetime_string (str): A datetime string in the format 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+        formatted_timestamp (str): A datetime string in the format 'YYYY-MM-DDTHH:mm:ss.SSSZ'
 
     """
-    if datetime_string:
-        d = arrow.get(datetime_string)
+    if timestamp:
+        d = arrow.get(timestamp)
         formatted_date = d.format('YYYY-MM-DDTHH:mm:ss.SSS')
         return '{}Z'.format(formatted_date)
 
