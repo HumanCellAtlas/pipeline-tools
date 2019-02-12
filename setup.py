@@ -17,7 +17,7 @@ setup(name='pipeline-tools',
       install_requires=[
           'arrow>=0.12.1',
           'google-auth>=1.6.1,<2',
-          'google-cloud-storage>=1.8.0,<2',
+          'google-cloud-storage>=1.10.0,<2',
           'hca>=4.5.0,<5',
           'hca-metadata-api',
           'mock>=2.0.0,<3',
@@ -25,7 +25,6 @@ setup(name='pipeline-tools',
           'requests-mock>=1.5.2,<2',
           'setuptools_scm>=2.0.0,<3',
           'tenacity>=4.10.0,<5',
-          'google-cloud-storage>=1.10.0,<2',
           'PyJWT==1.6.4'
       ],
       entry_points={
