@@ -1,6 +1,7 @@
-requests==2.20.0
+arrow>=0.12.1
+requests>=2.20.0,<3
 google-auth>=1.6.1,<2
-google-cloud-storage==1.8.0
+google-cloud-storage>=1.10.0,<2
 tenacity==4.10.0
 PyJWT==1.6.4
 git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b4#egg=hca-metadata-api[dss]
