@@ -19,13 +19,13 @@ setup(name='pipeline-tools',
           'google-auth>=1.6.1,<2',
           'google-cloud-storage>=1.10.0,<2',
           'hca>=4.5.0,<5',
-          'hca-metadata-api',
           'mock>=2.0.0,<3',
           'requests>=2.20.0,<3',
           'requests-mock>=1.5.2,<2',
           'setuptools_scm>=2.0.0,<3',
           'tenacity>=4.10.0,<5',
-          'PyJWT==1.6.4'
+          'PyJWT==1.6.4',
+          'hca-metadata-api @ git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b4'
       ],
       entry_points={
           'console_scripts': [
@@ -37,12 +37,5 @@ setup(name='pipeline-tools',
               'confirm-submission=pipeline_tools.confirm_submission:main'
           ]
       },
-      # FIXME: DEPRECATION: Dependency Links processing has been deprecated and will be removed in a future release.
-      dependency_links=[
-          # FIXME: install hca-metadata-api from PyPI once it is available (shortly)
-          # Pin to a specific commit of the hca-metadata-api so we won't be broken by changes to that repo before it's
-          # available on PyPI
-          'git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b4#egg=hca-metadata-api-0.0.1'
-      ],
       include_package_data=True
       )
