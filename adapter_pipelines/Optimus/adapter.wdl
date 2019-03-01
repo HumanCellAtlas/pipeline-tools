@@ -126,7 +126,7 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "se-upgrade-cromwell-tools-version"
+  String pipeline_tools_version = "v0.46.2"
 
   call GetInputs as prep {
     input:
