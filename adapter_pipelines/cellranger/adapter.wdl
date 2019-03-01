@@ -90,11 +90,11 @@ task InputsForSubmit {
           keys = f.readline().strip().split('\t')
           for line in f:
               values = line.strip().split('\t')
-              input = {}
+              input_map = {}
               for i, key in enumerate(keys):
-                  input[key] = values[i]
-              print(input)
-              inputs.append(input)
+                  input_map[key] = values[i]
+              print(input_map)
+              inputs.append(input_map)
 
       print('expect cells')
       if "${expect_cells}":

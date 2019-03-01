@@ -38,7 +38,7 @@ task GetInputs {
     String sample_id = read_string("sample_id.txt")
     Array[File] r1_fastq = read_lines("r1.txt")
     Array[File] r2_fastq = read_lines("r2.txt")
-    Array[File] i1_fastq = read_lines("i1.txt")
+    Array[File]? i1_fastq = read_lines("i1.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
   }
@@ -61,21 +61,21 @@ task InputsForSubmit {
       inputs.append({"name": "r1_fastq", "value": "${sep=', ' r1_fastq}"})
       inputs.append({"name": "r2_fastq", "value": "${sep=', ' r2_fastq}"})
 
-      i1_fastq = "${sep=', ' i1_fastq}"
-      if i1_fastq:
-          print('I1 fastq {i1_fastq} is provided'.format(i1_fastq))
-          inputs.append({"name": "i1_fastq", "value": i1_fastq})
+      i1_fastq_value = "${sep=', ' i1_fastq}"
+      if i1_fastq_value:
+          print('I1 fastq {} provided'.format(i1_fastq_value))
+          inputs.append({"name": "i1_fastq", "value": i1_fastq_value})
 
       print('other inputs')
       with open('${write_objects(other_inputs)}') as f:
           keys = f.readline().strip().split('\t')
           for line in f:
               values = line.strip().split('\t')
-              input = {}
+              input_map = {}
               for i, key in enumerate(keys):
-                  input[key] = values[i]
-              print(input)
-              inputs.append(input)
+                  input_map[key] = values[i]
+              print(input_map)
+              inputs.append(input_map)
 
       print('write inputs.tsv')
       with open('inputs.tsv', 'w') as f:
