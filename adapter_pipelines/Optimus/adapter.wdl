@@ -45,9 +45,9 @@ task GetInputs {
 }
 
 task InputsForSubmit {
-    Array[File] r1_fastq
-    Array[File] r2_fastq
-    Array[File] i1_fastq
+    Array[String] r1_fastq
+    Array[String] r2_fastq
+    Array[String]? i1_fastq
     Array[Object] other_inputs
     String pipeline_tools_version
 
@@ -60,7 +60,11 @@ task InputsForSubmit {
       print('fastq_files')
       inputs.append({"name": "r1_fastq", "value": "${sep=', ' r1_fastq}"})
       inputs.append({"name": "r2_fastq", "value": "${sep=', ' r2_fastq}"})
-      inputs.append({"name": "i1_fastq", "value": "${sep=', ' i1_fastq}"})
+
+      i1_fastq = "${sep=', ' i1_fastq}"
+      if i1_fastq:
+          print('I1 fastq {i1_fastq} is provided'.format(i1_fastq))
+          inputs.append({"name": "i1_fastq", "value": i1_fastq})
 
       print('other inputs')
       with open('${write_objects(other_inputs)}') as f:
@@ -126,7 +130,11 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
+<<<<<<< HEAD
   String pipeline_tools_version = "v0.46.2"
+=======
+  String pipeline_tools_version = "rex-adapter-optimus"
+>>>>>>> a933de3... Fix a bug with the GetInputsforSubmit task in AdapterOptimus.
 
   call GetInputs as prep {
     input:
