@@ -15,12 +15,10 @@ data_dir = os.path.split(__file__)[0] + '/data/'
 def test_data():
     class Data:
         workflow_id = 'id'
-        base_url = 'https://cromwell.mint-environment.broadinstitute.org/api/workflows/v1'
-        caas_base_url = 'https://cromwell.caas-dev.broadinstitute.org/api/workflows/v1'
-        cromwell_metadata_url = '{}/{}/metadata?expandSubWorkflows=true'.format(base_url, workflow_id)
-        caas_metadata_url = '{}/{}/metadata?expandSubWorkflows=true'.format(caas_base_url, workflow_id)
-        cromwell_query_url = '{0}/query?id={1}&additionalQueryResultFields=labels'.format(base_url, workflow_id)
-        caas_query_url = '{0}/query?id={1}&additionalQueryResultFields=labels'.format(caas_base_url, workflow_id)
+        base_url = 'https://cromwell.mint-environment.broadinstitute.org'
+        caas_base_url = 'https://cromwell.caas-dev.broadinstitute.org'
+        cromwell_metadata_url = '{}/api/workflows/v1/{}/metadata?expandSubWorkflows=true'.format(base_url, workflow_id)
+        caas_metadata_url = '{}/api/workflows/v1/{}/metadata?expandSubWorkflows=true'.format(caas_base_url, workflow_id)
         analysis_output_path = 'gs://broad-dsde-mint-dev-cromwell-execution/cromwell-executions' \
                                '/AdapterSmartSeq2SingleCell/adapter_workflow_id/call-analysis/SmartSeq2SingleCell' \
                                '/analysis_subworkflow_id/call-qc/RunHisat2Pipeline/qc_workflow_id/call-Hisat2' \

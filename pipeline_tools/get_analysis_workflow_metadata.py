@@ -60,7 +60,8 @@ def get_metadata(cromwell_url, workflow_id, http_requests):
         print('Getting metadata for workflow {}'.format(workflow_id))
 
     headers = get_auth_headers()
-    url = '{0}/{1}/metadata?expandSubWorkflows=true'.format(cromwell_url, workflow_id)
+    base_url = cromwell_url.strip('/')
+    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(base_url, workflow_id)
     response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
         json.dump(response.json(), f, indent=2)
