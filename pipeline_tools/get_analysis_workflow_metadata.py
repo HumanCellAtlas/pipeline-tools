@@ -59,24 +59,19 @@ def get_metadata(cromwell_url, workflow_id, http_requests):
     def log_before(workflow_id):
         print('Getting metadata for workflow {}'.format(workflow_id))
 
-    cromwell_url = cromwell_url
+    headers = get_auth_headers()
 
-    if use_caas:
-        json_credentials = caas_key_file or "/cromwell-metadata/caas_key.json"
-        headers = cromwell_tools.generate_auth_header_from_key_file(json_credentials)
-        auth = None
-        # There is an issue with the current CromIAM that huge response content can
-        # break the gzip compressing and session, which will raise an error:
-        # `requests.exceptions.ChunkedEncodingError`. Check here: 
-        # https://github.com/broadinstitute/cromwell/issues/4708 for the details. 
-        # As a workaround, we need to pass `Accept-Encoding: identity` to the header
-        # to force disabling the compressing
-        headers['Accept-Encoding'] = 'identity'
-    else:
-        headers = None
-        auth = get_auth()
-    url = '{0}/{1}/metadata?expandSubWorkflows=true'.format(cromwell_url, workflow_id)
-    response = http_requests.get(url, auth=auth, headers=headers, before=log_before(workflow_id))
+    # There is an issue with the current CromIAM that huge response content can
+    # break the gzip compressing and session, which will raise an error:
+    # `requests.exceptions.ChunkedEncodingError`. Check here:
+    # https://github.com/broadinstitute/cromwell/issues/4708 for the details.
+    # As a workaround, we need to pass `Accept-Encoding: identity` to the header
+    # to force disabling the compressing
+    headers['Accept-Encoding'] = 'identity'
+        
+    base_url = cromwell_url.strip('/')
+    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(base_url, workflow_id)
+    response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
         json.dump(response.json(), f, indent=2)
 
