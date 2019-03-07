@@ -36,9 +36,10 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
-    Array[File] r1_fastq = read_lines("r1.txt")
-    Array[File] r2_fastq = read_lines("r2.txt")
-    Array[File]? i1_fastq = read_lines("i1.txt")
+    Array[String] r1_fastq = read_lines("r1.txt")
+    Array[String] r2_fastq = read_lines("r2.txt")
+    File i1_file = "i1.txt"
+    Array[String] i1_fastq = if(ceil(size(i1_file)) == 0) then [] else read_lines(i1_file)
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
   }
@@ -47,7 +48,7 @@ task GetInputs {
 task InputsForSubmit {
     Array[String] r1_fastq
     Array[String] r2_fastq
-    Array[String]? i1_fastq
+    Array[String] i1_fastq
     Array[Object] other_inputs
     String pipeline_tools_version
 
@@ -105,6 +106,11 @@ workflow AdapterOptimus {
   File annotations_gtf  # gtf containing annotations for gene tagging
   File ref_genome_fasta  # genome fasta file
   String fastq_suffix = ".gz"  # add this suffix to fastq files for picard
+  
+  # Note: This "Empty" is a workaround in WDL-draft to simulate a "None" type
+  # once the official "None" type is introduced (probably in WDL 2.0)
+  # we should consider replace this workaround
+  Array[File]? Empty
 
   # Submission
   File format_map
@@ -153,7 +159,7 @@ workflow AdapterOptimus {
     input:
       r1_fastq = prep.r1_fastq,
       r2_fastq = prep.r2_fastq,
-      i1_fastq = prep.i1_fastq,
+      i1_fastq = if (length(prep.i1_fastq) <= 0) then Empty else prep.i1_fastq,
       sample_id = prep.sample_id,
       whitelist = whitelist,
       tar_star_reference = tar_star_reference,
