@@ -24,7 +24,7 @@ task GetInputs {
     python -u <<CODE
     from pipeline_tools import input_utils
 
-    input_utils.create_optimus_input_tsv(
+    input_utils.get_cellranger_input_files(
                     "${bundle_uuid}",
                     "${bundle_version}",
                     "${dss_url}")
@@ -36,36 +36,12 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
-    Array[File] r1_fastq = read_lines("r1.txt")
-    Array[File] r2_fastq = read_lines("r2.txt")
-    Array[File] i1_fastq = read_lines("i1.txt")
-    Array[Int] lanes = read_lines("lanes.txt")
+    Int expect_cells = read_string("expect_cells.txt")
+    Array[File] fastqs = read_lines("fastqs.txt")
+    Array[String] fastq_names = read_lines("fastq_names.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
   }
-}
-
-task RenameFastqFiles {
-    File r1
-    File r2
-    File i1
-    String sample_id
-    String lane
-    String pipeline_tools_version
-
-    command <<<
-      mv ${r1} '${sample_id}_S1_L00${lane}_R1_001.fastq.gz'
-      mv ${r2} '${sample_id}_S1_L00${lane}_R2_001.fastq.gz'
-      mv ${i1} '${sample_id}_S1_L00${lane}_I1_001.fastq.gz'
-      >>>
-      runtime {
-        docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
-      }
-      output {
-        File r1_new = "${sample_id}_S1_L00${lane}_R1_001.fastq.gz"
-        File r2_new = "${sample_id}_S1_L00${lane}_R2_001.fastq.gz"
-        File i1_new = "${sample_id}_S1_L00${lane}_I1_001.fastq.gz"
-      }
 }
 
 task RenameFiles {
@@ -87,6 +63,7 @@ task RenameFiles {
     >>>
     runtime {
       docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+      disks: "local-disk 100 HDD"
     }
     output {
       Array[File] outputs = new_file_names
@@ -94,7 +71,7 @@ task RenameFiles {
 }
 
 task InputsForSubmit {
-    Array[File] fastqs
+    Array[String] fastqs
     Array[Object] other_inputs
     Int? expect_cells
     String pipeline_tools_version
@@ -148,7 +125,6 @@ workflow Adapter10xCount {
 
   String reference_name
   File transcriptome_tar_gz
-  Int? expect_cells
 
   # Submission
   File format_map
@@ -166,7 +142,6 @@ workflow Adapter10xCount {
   Int? retry_timeout
   Int? individual_request_timeout
   String reference_bundle
-  Boolean use_caas
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -175,7 +150,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.35.0"
+  String pipeline_tools_version = "v0.46.2"
 
   call GetInputs {
     input:
@@ -190,39 +165,30 @@ workflow Adapter10xCount {
       pipeline_tools_version = pipeline_tools_version
   }
 
-  # Cellranger code in 10x count wdl requires files to be named a certain way.
-  # To accommodate that, RenameFastqFiles copies the blue box files into the
-  # cromwell execution bucket but with the names cellranger expects.
-  # Putting this in its own task lets us take advantage of automatic localizing
-  # and delocalizing by Cromwell/JES to actually read and write stuff in buckets.
-  # TODO: Replace scatter with a for-loop inside of the task to avoid creating a
-  # VM for each set of files that needs to be renamed
-  scatter(i in range(length(GetInputs.lanes))) {
-    call RenameFastqFiles as prep {
-      input:
-        r1 = GetInputs.r1_fastq[i],
-        r2 = GetInputs.r2_fastq[i],
-        i1 = GetInputs.i1_fastq[i],
-        sample_id = GetInputs.sample_id,
-        lane = GetInputs.lanes[i],
-        pipeline_tools_version = pipeline_tools_version
-      }
-    }
+  # Rename the fastq files to the format required by CellRanger:
+  #  {sample_id}_S1_L001_R1_001.fastq.gz'
+  call RenameFiles as rename_fastqs {
+    input:
+      file_paths = GetInputs.fastqs,
+      new_file_names = GetInputs.fastq_names,
+      pipeline_tools_version = pipeline_tools_version
+  }
 
   # CellRanger gets the paths to the fastq directories from the array of fastqs,
   # so the order of those files does not matter
   call CellRanger.CellRanger as analysis {
     input:
       sample_id = GetInputs.sample_id,
-      fastqs = flatten([prep.r1_new, prep.r2_new, prep.i1_new]),
+      fastqs = rename_fastqs.outputs,
       reference_name = reference_name,
       transcriptome_tar_gz = transcriptome_tar_gz,
-      expect_cells = expect_cells
+      expect_cells = GetInputs.expect_cells,
+      max_retries = max_cromwell_retries
   }
 
   call InputsForSubmit {
     input:
-      fastqs = flatten([GetInputs.r1_fastq, GetInputs.r2_fastq, GetInputs.i1_fastq]),
+      fastqs = GetInputs.fastqs,
       other_inputs = [
         {
           "name": "sample_id",
@@ -237,7 +203,7 @@ workflow Adapter10xCount {
           "value": transcriptome_tar_gz
         }
       ],
-      expect_cells = expect_cells,
+      expect_cells = GetInputs.expect_cells,
       pipeline_tools_version = pipeline_tools_version
   }
 
@@ -285,11 +251,11 @@ workflow Adapter10xCount {
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
       runtime_environment = runtime_environment,
-      use_caas = use_caas,
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
       pipeline_version = analysis.pipeline_version,
+      max_retries = max_cromwell_retries,
       # The sorted bam is the largest output. Other outputs will increase space by ~50%.
       # Factor of 2 and addition of 50 GB gives some buffer.
       disk_space = ceil(size(analysis.sorted_bam, "GB") * 2 + 50)

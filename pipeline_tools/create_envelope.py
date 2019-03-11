@@ -3,12 +3,12 @@ import argparse
 import json
 from typing import List
 
-from pipeline_tools.dcp_utils import get_auth_token, make_auth_header
+from pipeline_tools import auth_utils
 from pipeline_tools.http_requests import HttpRequests
 
 
 def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, raw_schema_url,
-                   analysis_file_version):
+                   analysis_file_version, runtime_environment, service_account_key_path):
     """Create the submission envelope in Ingest service.
 
     Args:
@@ -17,6 +17,8 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
         analysis_process_path (str): Path to the analysis_process json file.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
+        runtime_environment (str): Environment where the pipeline is running ('dev', 'test', 'staging' or 'prod').
+        service_account_key_path (str): Path to the JSON service account key for generating a JWT.
     """
     # Instantiate a HttpRequests object
     http_requests = HttpRequests()
@@ -26,10 +28,9 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     # to be safe, we are sending the token at each step, except the linking step, which requires a totally different
     # content-type in the header.
 
-    print('Fetching auth token from Auth0')
-    auth_token = get_auth_token(http_requests)
     print('Making auth headers')
-    auth_headers = make_auth_header(auth_token)
+    dcp_auth_client = auth_utils.DCPAuthClient(service_account_key_path, runtime_environment)
+    auth_headers = dcp_auth_client.get_auth_header()
 
     # === 1. Get envelope url ===
     envelope_url = get_envelope_url(submit_url, auth_headers, http_requests)
@@ -46,21 +47,23 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     with open(analysis_protocol_path) as f:
         analysis_protocol_dict = json.load(f)
 
+    # URL for getting and creating the analysis protocol, e.g.
+    # https://api.ingest.{deployment}.data.humancellatlas.org/submissionEnvelopes/{envelope_id}/protocols
     analysis_protocol_url = get_subject_url(endpoint_dict=envelope_dict, subject='protocols')
 
     # Check if an analysis_protocol already exists in the submission envelope from a previous attempt
     pipeline_version = analysis_protocol_dict['protocol_core']['protocol_id']
-    analysis_protocol = get_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
-                                              auth_headers=auth_headers,
-                                              protocol_id=pipeline_version,
-                                              http_requests=http_requests)
+    analysis_protocol_response = get_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
+                                                       auth_headers=auth_headers,
+                                                       protocol_id=pipeline_version,
+                                                       http_requests=http_requests)
 
     # Create analysis_protocol if this is the first attempt
-    if not analysis_protocol:
-        _analysis_protocol = add_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
-                                                   auth_headers=auth_headers,
-                                                   analysis_protocol=analysis_protocol_dict,
-                                                   http_requests=http_requests)
+    if not analysis_protocol_response:
+        analysis_protocol_response = add_analysis_protocol(analysis_protocol_url=analysis_protocol_url,
+                                                           auth_headers=auth_headers,
+                                                           analysis_protocol=analysis_protocol_dict,
+                                                           http_requests=http_requests)
 
     # === 4. Create analysis_process ===
     with open(analysis_process_path) as f:
@@ -70,27 +73,32 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
 
     # Check if an analysis_process already exists in the submission envelope from a previous attempt
     analysis_workflow_id = analysis_process_dict['process_core']['process_id']
-    analysis_process = get_analysis_process(analysis_process_url=analysis_process_url,
-                                            auth_headers=auth_headers,
-                                            process_id=analysis_workflow_id,
-                                            http_requests=http_requests)
+    analysis_process_response = get_analysis_process(analysis_process_url=analysis_process_url,
+                                                     auth_headers=auth_headers,
+                                                     process_id=analysis_workflow_id,
+                                                     http_requests=http_requests)
 
     # Create analysis_process if this is the first attempt
-    if not analysis_process:
-        analysis_process = add_analysis_process(analysis_process_url=analysis_process_url,
-                                                auth_headers=auth_headers,
-                                                analysis_process=analysis_process_dict,
-                                                http_requests=http_requests)
+    if not analysis_process_response:
+        analysis_process_response = add_analysis_process(analysis_process_url=analysis_process_url,
+                                                         auth_headers=auth_headers,
+                                                         analysis_process=analysis_process_dict,
+                                                         http_requests=http_requests)
 
     # === 5. Link analysis_protocol to analysis_process ===
-    link_url = get_subject_url(endpoint_dict=analysis_process, subject='protocols')
-    print('Linking analysis_protocol to analysis_process at {0}'.format(link_url))
+    link_url = get_subject_url(endpoint_dict=analysis_process_response, subject='protocols')
+
+    # URL for linking the analysis protocol to analysis process, e.g.
+    # https://api.ingest.integration.data.humancellatlas.org/protocols/{protocol_document_id}
+    analysis_protocol_entity_url = get_subject_url(analysis_protocol_response, 'self')
+
+    print('Linking analysis_protocol {0} to analysis_process at {1}'.format(analysis_protocol_entity_url, link_url))
     link_analysis_protocol_to_analysis_process(link_url=link_url,
-                                               analysis_protocol_url=analysis_protocol_url,
+                                               analysis_protocol_url=analysis_protocol_entity_url,
                                                http_requests=http_requests)
 
     # === 6. Add input bundle references ===
-    input_bundles_url = get_subject_url(endpoint_dict=analysis_process, subject='add-input-bundles')
+    input_bundles_url = get_subject_url(endpoint_dict=analysis_process_response, subject='add-input-bundles')
     print('Adding input bundles at {0}'.format(input_bundles_url))
     add_input_bundles(input_bundles_url=input_bundles_url,
                       auth_headers=auth_headers,
@@ -98,7 +106,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
                       http_requests=http_requests)
 
     # === 7. Add file references ===
-    file_refs_url = get_subject_url(endpoint_dict=analysis_process, subject='add-file-reference')
+    file_refs_url = get_subject_url(endpoint_dict=analysis_process_response, subject='add-file-reference')
     print('Adding file references at {0}'.format(file_refs_url))
     output_files = get_output_files(analysis_process=analysis_process_dict,
                                     raw_schema_url=raw_schema_url,
@@ -191,6 +199,8 @@ def get_analysis_protocol(analysis_protocol_url, auth_headers, protocol_id, http
                 print('Found existing analysis_protocol for pipeline version {0} in {1}'.format(
                         protocol_id, analysis_protocol_url))
                 return protocol
+
+    print("Cannot find any existing analysis_protocol with id: {0}".format(protocol_id))
     return None
 
 
@@ -231,15 +241,15 @@ def add_analysis_protocol(analysis_protocol_url, auth_headers, analysis_protocol
         http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        analysis_protocol (dict): A dict represents the JSON response from adding the analysis protocol.
+        analysis_protocol_response (dict): A dict represents the JSON response from adding the analysis protocol.
 
     Raises:
         requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     print('Adding analysis_protocol at {0}'.format(analysis_protocol_url))
     response = http_requests.post(analysis_protocol_url, headers=auth_headers, json=analysis_protocol)
-    analysis_protocol = response.json()
-    return analysis_protocol
+    analysis_protocol_response = response.json()
+    return analysis_protocol_response
 
 
 def add_analysis_process(analysis_process_url, auth_headers, analysis_process, http_requests):
@@ -252,15 +262,15 @@ def add_analysis_process(analysis_process_url, auth_headers, analysis_process, h
         http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
 
     Returns:
-        analysis_process (dict): A dict represents the JSON response from adding the analysis process.
+        analysis_process_response (dict): A dict represents the JSON response from adding the analysis process.
 
     Raises:
         requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     print('Adding analysis_process at {0}'.format(analysis_process_url))
     response = http_requests.post(analysis_process_url, headers=auth_headers, json=analysis_process)
-    analysis_process = response.json()
-    return analysis_process
+    analysis_process_response = response.json()
+    return analysis_process_response
 
 
 def add_input_bundles(input_bundles_url, auth_headers, analysis_process, http_requests):
@@ -370,6 +380,12 @@ def main():
     parser.add_argument('--analysis_file_version',
                         required=True,
                         help='The metadata schema version that the output files(analysis_file) conform to.')
+    parser.add_argument('--runtime_environment',
+                        required=True,
+                        help='Environment where the pipeline is running ("dev", "test", "staging" or "prod").')
+    parser.add_argument('--service_account_key_path',
+                        required=True,
+                        help='Path to the JSON service account key for generating a JWT.')
     args = parser.parse_args()
 
     schema_url = args.schema_url.strip('/')
@@ -378,7 +394,9 @@ def main():
                    analysis_protocol_path=args.analysis_protocol_path,
                    analysis_process_path=args.analysis_process_path,
                    raw_schema_url=schema_url,
-                   analysis_file_version=args.analysis_file_version)
+                   analysis_file_version=args.analysis_file_version,
+                   runtime_environment=args.runtime_environment,
+                   service_account_key_path=args.service_account_key_path)
 
 
 if __name__ == '__main__':

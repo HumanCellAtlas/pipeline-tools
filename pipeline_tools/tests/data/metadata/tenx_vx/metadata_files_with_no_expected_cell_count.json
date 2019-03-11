@@ -1,0 +1,533 @@
+{
+    "cell_suspension_0.json": {
+        "biomaterial_core": {
+          "biomaterial_id": "Q4_DEMO-cellsus_SAMN02797092",
+          "biosd_biomaterial": "SAMN00000000",
+          "genotype": "DRB1 0401 protective allele",
+          "insdc_biomaterial": "SRS0000000",
+          "ncbi_taxon_id": [
+            9606
+          ]
+        },
+        "cell_morphology": {
+          "cell_morphology": "adherent cells, form single layer colonies",
+          "cell_size": "20-30",
+          "cell_size_unit": {
+            "ontology": "UO:0000018",
+            "ontology_label": "nanometer",
+            "text": "nm"
+          },
+          "cell_viability_method": "Fluorescein diacetate hydrolysis assay",
+          "cell_viability_result": "pass",
+          "percent_cell_viability": 85.3,
+          "percent_necrosis": 10
+        },
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/biomaterial/8.6.1/cell_suspension",
+        "genus_species": [
+          {
+            "ontology": "NCBITaxon:9606",
+            "ontology_label": "Homo sapiens",
+            "text": "Homo sapiens"
+          }
+        ],
+        "growth_conditions": {
+          "drug_treatment": "100 ug/mL ampicillin",
+          "feeder_layer_type": "feeder-dependent, mouse embryonic fibroblast cells",
+          "growth_medium": "lysogeny broth (LB) medium",
+          "mycoplasma_testing_results": "pass",
+          "passage_number": 22
+        },
+        "provenance": {
+          "document_id": "021d111b-4941-4e33-a2d1-8c3478f0cbd7",
+          "submission_date": "2018-10-05T14:47:34.397Z",
+          "update_date": "2018-10-05T14:47:37.746Z"
+        },
+        "schema_type": "biomaterial"
+      },
+    "collection_protocol_0.json": {
+        "collection_method": {
+          "ontology": "EFO:0009124",
+          "ontology_label": "organ extraction",
+          "text": "organ extraction"
+        },
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/protocol/biomaterial_collection/8.2.6/collection_protocol",
+        "protocol_core": {
+          "document": "my_cool_protocol.pdf",
+          "protocol_description": "A general description of the protocol.",
+          "protocol_id": "collection_protocol1",
+          "protocol_name": "A short, descriptive name for the protocol that need not be unique.",
+          "protocols_io_doi": "10.17504/protocols.io.mgjc3un",
+          "publication_doi": "10.1101/193219"
+        },
+        "protocol_reagents": [
+          {
+            "catalog_number": "20014279",
+            "expiry_date": "2018-01-31",
+            "kit_titer": "Titer: Specification is 3.0x10^7",
+            "lot_number": "10001A",
+            "manufacturer": "Illumina",
+            "retail_name": "SureCell WTA 3' Library Prep Kit"
+          }
+        ],
+        "provenance": {
+          "document_id": "af9aded0-96ec-497f-b2b7-bbf903119ac1",
+          "submission_date": "2018-10-05T14:47:34.445Z",
+          "update_date": "2018-10-05T14:47:41.190Z"
+        },
+        "schema_type": "protocol"
+      },
+    "dissociation_protocol_0.json":
+      {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/protocol/biomaterial_collection/5.0.3/dissociation_protocol",
+        "dissociation_method": {
+          "ontology": "EFO:0009108",
+          "ontology_label": "fluorescence-activated cell sorting",
+          "text": "fluorescence-activated cell sorting"
+        },
+        "protocol_core": {
+          "protocol_description": "single cell",
+          "protocol_id": "dissociation_1",
+          "protocol_name": "a FACS method to separate cells"
+        },
+        "provenance": {
+          "document_id": "8ec370a0-69f6-4d9b-a500-aa13108d3843",
+          "submission_date": "2018-10-05T14:47:34.479Z",
+          "update_date": "2018-10-05T14:47:41.142Z"
+        },
+        "schema_type": "protocol"
+      },
+    "donor_organism_0.json":
+      {
+        "biomaterial_core": {
+          "biomaterial_description": "A general description of a biomaterial",
+          "biomaterial_id": "Q4_DEMO-donor_MGH30",
+          "biomaterial_name": "Q4 DEMO donor MGH30",
+          "biosd_biomaterial": "SAMN00000000",
+          "genotype": "DRB1 0401 protective allele",
+          "insdc_biomaterial": "SRS0000000",
+          "ncbi_taxon_id": [
+            9606
+          ]
+        },
+        "death": {
+          "cause_of_death": "motor vehicle accident",
+          "cold_perfused": false,
+          "days_on_ventilator": 4,
+          "hardy_scale": 0,
+          "organ_donation_death_type": "Donation after circulatory death (DCD)",
+          "time_of_death": "2016-01-21T00:00:00Z"
+        },
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/biomaterial/10.1.2/donor_organism",
+        "diseases": [
+          {
+            "ontology": "MONDO:0001932",
+            "ontology_label": "atrophic vulva",
+            "text": "atrophic vulva"
+          }
+        ],
+        "genus_species": [
+          {
+            "ontology": "NCBITaxon:9606",
+            "ontology_label": "Homo sapiens",
+            "text": "Homo sapiens"
+          }
+        ],
+        "gestational_age": "5-7",
+        "height": "160",
+        "height_unit": {
+          "ontology": "UO:0000015",
+          "ontology_label": "centimeter",
+          "text": "cm"
+        },
+        "human_specific": {
+          "body_mass_index": 36.4,
+          "ethnicity": [
+            {
+              "ontology": "HANCESTRO:0005",
+              "ontology_label": "European",
+              "text": "European"
+            }
+          ]
+        },
+        "is_living": "no",
+        "medical_history": {
+          "alcohol_history": "3-6 units/day",
+          "medication": "Naproxen 500mg/day, ",
+          "nutritional_state": "normal",
+          "smoking_history": "Smoker, 20/day for 25 years, stopped 2000"
+        },
+        "normothermic_regional_perfusion": "yes",
+        "organism_age": "20",
+        "organism_age_unit": {
+          "ontology": "UO:0000036",
+          "ontology_label": "year",
+          "text": "year"
+        },
+        "provenance": {
+          "document_id": "183a2079-1510-45df-9efd-be26be10efc0",
+          "submission_date": "2018-10-05T14:47:34.381Z",
+          "update_date": "2018-10-05T14:47:38.094Z"
+        },
+        "schema_type": "biomaterial",
+        "sex": "male",
+        "weight": "60",
+        "weight_unit": {
+          "ontology": "UO:0000009",
+          "ontology_label": "kilogram",
+          "text": "kg"
+        }
+      },
+    "enrichment_protocol_0.json":
+      {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/protocol/biomaterial_collection/2.2.5/enrichment_protocol",
+        "enrichment_method": {
+          "ontology": "EFO:0009108",
+          "ontology_label": "fluorescence-activated cell sorting",
+          "text": "fluorescence-activated cell sorting"
+        },
+        "markers": "CD4+ CD8-",
+        "max_size_selected": 90,
+        "min_size_selected": 70,
+        "protocol_core": {
+          "protocol_id": "enrichment1",
+          "protocol_name": "an enrichment method to enrich for cells",
+          "protocols_io_doi": "10.17504/protocols.io.mgjc3un",
+          "publication_doi": "10.1101/193219"
+        },
+        "provenance": {
+          "document_id": "ba50a06a-9677-40c5-be22-0df8f963d673",
+          "submission_date": "2018-10-05T14:47:34.501Z",
+          "update_date": "2018-10-05T14:47:41.139Z"
+        },
+        "schema_type": "protocol"
+      },
+    "library_preparation_protocol_0.json":
+      {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/protocol/sequencing/4.3.3/library_preparation_protocol",
+        "end_bias": "full length",
+        "input_nucleic_acid_molecule": {
+          "ontology": "OBI:0000869",
+          "ontology_label": "polyA RNA",
+          "text": "polyA RNA"
+        },
+        "library_construction_approach": {
+          "ontology": "EFO:0009310",
+          "ontology_label": "10X v2 sequencing",
+          "text": "10x v2"
+        },
+        "library_preamplification_method": {
+          "ontology": "EFO:0004182",
+          "ontology_label": "Rapid Amplification of cDNA Ends",
+          "text": "Rapid Amplification of cDNA Ends"
+        },
+        "primer": "poly-dT",
+        "protocol_core": {
+          "document": "my_cool_protocol.pdf",
+          "protocol_id": "preparation1",
+          "protocol_name": "Preparing RNA for sequencing by 10x",
+          "protocols_io_doi": "10.17504/protocols.io.mgjc3un",
+          "publication_doi": "10.1101/193219"
+        },
+        "provenance": {
+          "document_id": "7fa4f1e6-fa10-46eb-88e8-ebdadbf3eeab",
+          "submission_date": "2018-10-05T14:47:34.472Z",
+          "update_date": "2018-10-05T14:47:41.190Z"
+        },
+        "schema_type": "protocol",
+        "strand": "unstranded",
+        "umi_barcode": {
+          "barcode_length": 16,
+          "barcode_offset": 0,
+          "barcode_read": "Read 1"
+        }
+      },
+    "links.json":
+      {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/system/1.1.3/links",
+        "links": [
+          {
+            "input_type": "biomaterial",
+            "inputs": [
+              "021d111b-4941-4e33-a2d1-8c3478f0cbd7"
+            ],
+            "output_type": "file",
+            "outputs": [
+              "cf61547f-df59-4835-9300-8174b0ddb8d1",
+              "f32072e7-fcf9-44be-826c-b0346e774a16",
+              "5c97f770-3552-4b36-8511-797700e87ce9"
+            ],
+            "process": "fa45b52c-ff71-4e91-8adf-c3180bee6454",
+            "protocols": [
+              {
+                "protocol_id": "7fa4f1e6-fa10-46eb-88e8-ebdadbf3eeab",
+                "protocol_type": "library_preparation_protocol"
+              },
+              {
+                "protocol_id": "02ef7f1f-39e8-4e81-9f4e-260bcd1621bf",
+                "protocol_type": "sequencing_protocol"
+              }
+            ]
+          },
+          {
+            "input_type": "biomaterial",
+            "inputs": [
+              "f1bf7167-5948-4d55-9090-1f30a39fc564"
+            ],
+            "output_type": "biomaterial",
+            "outputs": [
+              "021d111b-4941-4e33-a2d1-8c3478f0cbd7"
+            ],
+            "process": "f6100dbc-4e08-4ee8-a0ed-ebbafc8793c9",
+            "protocols": [
+              {
+                "protocol_id": "8ec370a0-69f6-4d9b-a500-aa13108d3843",
+                "protocol_type": "dissociation_protocol"
+              },
+              {
+                "protocol_id": "ba50a06a-9677-40c5-be22-0df8f963d673",
+                "protocol_type": "enrichment_protocol"
+              }
+            ]
+          },
+          {
+            "input_type": "biomaterial",
+            "inputs": [
+              "183a2079-1510-45df-9efd-be26be10efc0"
+            ],
+            "output_type": "biomaterial",
+            "outputs": [
+              "f1bf7167-5948-4d55-9090-1f30a39fc564"
+            ],
+            "process": "6b6fe0ab-e710-4506-bf78-df9ed33f43e6",
+            "protocols": [
+              {
+                "protocol_id": "af9aded0-96ec-497f-b2b7-bbf903119ac1",
+                "protocol_type": "collection_protocol"
+              }
+            ]
+          }
+        ],
+        "schema_type": "link_bundle",
+        "schema_version": "1.1.3"
+      },
+    "process_0.json": {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/process/6.0.2/process",
+        "process_core": {
+          "process_id": "bundle1"
+        },
+        "provenance": {
+          "document_id": "fa45b52c-ff71-4e91-8adf-c3180bee6454",
+          "submission_date": "2018-10-05T14:47:34.545Z",
+          "update_date": "2018-10-05T14:47:37.828Z"
+        },
+        "schema_type": "process"
+      },
+    "process_1.json": {
+      "describedBy": "http://schema.integration.data.humancellatlas.org/type/process/6.0.2/process",
+      "process_core": {
+        "process_id": "process_id_1"
+      },
+      "provenance": {
+        "document_id": "6b6fe0ab-e710-4506-bf78-df9ed33f43e6",
+        "submission_date": "2018-10-05T14:47:34.524Z",
+        "update_date": "2018-10-05T14:47:38.000Z"
+      },
+      "schema_type": "process"
+    },
+    "process_2.json": {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/process/6.0.2/process",
+        "process_core": {
+          "process_id": "process_id_2"
+        },
+        "provenance": {
+          "document_id": "f6100dbc-4e08-4ee8-a0ed-ebbafc8793c9",
+          "submission_date": "2018-10-05T14:47:34.534Z",
+          "update_date": "2018-10-05T14:47:41.666Z"
+        },
+        "schema_type": "process"
+      },
+    "project_0.json": {
+        "array_express_investigation": "E-AAAA-00",
+        "contributors": [
+          {
+            "address": "0000 Main Street, Nowheretown, MA, 12091",
+            "contact_name": "John,D,Doe. ",
+            "corresponding_contributor": false,
+            "country": "USA",
+            "email": "dummy@email.com",
+            "institution": "EMBL-EBI",
+            "laboratory": "Department of Biology",
+            "orcid_id": "0000-1111-2222-3333",
+            "phone": "(+1) 234-555-6789",
+            "project_role": "principal investigator"
+          }
+        ],
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/project/9.0.3/project",
+        "funders": [
+          {
+            "funder_name": "Biotechnology and Biological Sciences Research Council (BBSRC)",
+            "grant_id": "BB/P0000001/1",
+            "grant_title": "A title of a grant proposal."
+          }
+        ],
+        "geo_series": "GSE00000",
+        "insdc_project": "SRP000000",
+        "insdc_study": "PRJNA000000",
+        "project_core": {
+          "project_description": "Q4_DEMO-We report transcriptomes from 430 single glioblastoma cells isolated from 5 individual tumors and 102 single cells from gliomasphere cells lines generated using SMART-seq. In addition, we report population RNA-seq from the five tumors as well as RNA-seq from cell lines derived from 3 tumors (MGH26, MGH28, MGH31) cultured under serum free (GSC) and differentiated (DGC) conditions. This dataset highlights intratumoral heterogeneity with regards to the expression of de novo derived transcriptional modules and established subtype classifiers. Overall design: Operative specimens from five glioblastoma patients (MGH26, MGH28, MGH29, MGH30, MGH31) were acutely dissociated, depleted for CD45+ inflammatory cells and then sorted as single cells (576 samples). Population controls for each tumor were isolated by sorting 2000-10000 cells and processed in parallel (5 population control samples). Single cells from two established cell lines, GBM6 and GBM8, were also sorted as single cells (192 samples). SMART-seq protocol was implemented to generate single cell full length transcriptomes (modified from Shalek, et al Nature 2013) and sequenced using 25 bp paired end reads. Single cell cDNA libraries for MGH30 were resequenced using 100 bp paired end reads to allow for isoform and splice junction reconstruction (96 samples, annotated MGH30L). Cells were also cultured in serum free conditions to generate gliomasphere cell lines for MGH26, MGH28, and MGH31 (GSC) which were then differentiated using 10% serum (DGC). Population RNA-seq was performed on these samples (3 GSC, 3 DGC, 6 total). The initial dataset included 875 RNA-seq libraries (576 single glioblastoma cells, 96 resequenced MGH30L, 192 single gliomasphere cells, 5 tumor population controls, 6 population libraries from GSC and DGC samples). Data was processed as described below using RSEM for quantification of gene expression. 5,948 genes with the highest composite expression either across all single cells combined (average log2(TPM)>4.5) or within a single tumor (average log2(TPM)>6 in at least one tumor) were included. Cells expressing less than 2,000 of these 5,948 genes were excluded. The final processed dataset then included 430 primary single cell glioblastoma transcriptomes, 102 single cell transcriptomes from cell lines(GBM6,GBM8), 5 population controls (1 for each tumor), and 6 population libraries from cell lines derived from the tumors (GSC and DGC for MGH26, MGH28 and MGH31). The final matrix (GBM_data_matrix.txt) therefore contains 5948 rows (genes) quantified in 543 samples (columns). Please note that the samples which are not included in the data processing are indicated in the sample description field.",
+          "project_short_name": "Q4_DEMO-project_PRJNA248302",
+          "project_title": "Q4_DEMO-Single cell RNA-seq of primary human glioblastomas"
+        },
+        "provenance": {
+          "document_id": "9080b7a6-e1e9-45e4-a68e-353cd1438a0f",
+          "submission_date": "2018-10-05T14:47:34.373Z",
+          "update_date": "2018-10-05T14:47:37.827Z"
+        },
+        "publications": [
+          {
+            "authors": [
+              "Doe JD, Doe JJ"
+            ],
+            "doi": "10.1016/j.cell.2016.07.054",
+            "pmid": 27565351,
+            "publication_title": "A title of a publication goes here.",
+            "publication_url": "https://europepmc.org"
+          }
+        ],
+        "schema_type": "project"
+      },
+    "sequence_file_0.json": {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/file/6.5.2/sequence_file",
+        "file_core": {
+          "file_format": "fastq.gz",
+          "file_name": "R1.fastq.gz"
+        },
+        "insdc_run": [
+          "SRR0000000"
+        ],
+        "lane_index": 1,
+        "provenance": {
+          "document_id": "cf61547f-df59-4835-9300-8174b0ddb8d1",
+          "submission_date": "2018-10-05T14:47:34.407Z",
+          "update_date": "2018-10-05T14:55:11.777Z"
+        },
+        "read_index": "read1",
+        "read_length": 51,
+        "schema_type": "file"
+      },
+    "sequence_file_1.json": {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/file/6.5.2/sequence_file",
+        "file_core": {
+          "file_format": "fastq.gz",
+          "file_name": "R2.fastq.gz"
+        },
+        "insdc_run": [
+          "SRR0000000"
+        ],
+        "lane_index": 1,
+        "provenance": {
+          "document_id": "f32072e7-fcf9-44be-826c-b0346e774a16",
+          "submission_date": "2018-10-05T14:47:34.415Z",
+          "update_date": "2018-10-05T14:55:12.907Z"
+        },
+        "read_index": "read2",
+        "read_length": 51,
+        "schema_type": "file"
+      },
+    "sequence_file_2.json": {
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/file/6.5.2/sequence_file",
+        "file_core": {
+          "file_format": "fastq.gz",
+          "file_name": "I1.fastq.gz"
+        },
+        "insdc_run": [
+          "SRR0000000"
+        ],
+        "lane_index": 1,
+        "provenance": {
+          "document_id": "5c97f770-3552-4b36-8511-797700e87ce9",
+          "submission_date": "2018-10-05T14:47:34.437Z",
+          "update_date": "2018-10-05T14:55:09.267Z"
+        },
+        "read_index": "index1",
+        "read_length": 51,
+        "schema_type": "file"
+    },
+    "sequencing_protocol_0.json": {
+        "10x": {
+          "drop_uniformity": false,
+          "fastq_method": "Cellranger mkfastq",
+          "fastq_method_version": "Cellranger 2.1.1",
+          "pooled_channels": 4
+        },
+        "describedBy": "http://schema.integration.data.humancellatlas.org/type/protocol/sequencing/9.0.2/sequencing_protocol",
+        "instrument_manufacturer_model": {
+          "ontology": "EFO:0008565",
+          "text": "Illumina HiSeq 2500"
+        },
+        "local_machine_name": "Machine1",
+        "paired_end": false,
+        "protocol_core": {
+          "protocol_id": "assay_1",
+          "protocol_name": "a sequencing protocol"
+        },
+        "provenance": {
+          "document_id": "02ef7f1f-39e8-4e81-9f4e-260bcd1621bf",
+          "submission_date": "2018-10-05T14:47:34.458Z",
+          "update_date": "2018-10-05T14:47:37.758Z"
+        },
+        "schema_type": "protocol",
+        "sequencing_approach": {
+          "ontology": "EFO:0008441",
+          "ontology_label": "full length single cell RNA sequencing",
+          "text": "full length single cell RNA sequencing"
+        }
+      },
+    "specimen_from_organism_0.json": {
+          "biomaterial_core": {
+            "biomaterial_id": "Q4_DEMO-sample_SAMN02797092",
+            "biomaterial_name": "Q4_DEMO-Single cell mRNA-seq_MGH30_A01",
+            "biosd_biomaterial": "SAMN00000000",
+            "genotype": "DRB1 0401 protective allele",
+            "insdc_biomaterial": "SRS0000000",
+            "ncbi_taxon_id": [
+              9606
+            ]
+          },
+          "describedBy": "http://schema.integration.data.humancellatlas.org/type/biomaterial/6.3.3/specimen_from_organism",
+          "diseases": [
+            {
+              "ontology": "MONDO:0001932",
+              "ontology_label": "atrophic vulva",
+              "text": "atrophic vulva"
+            }
+          ],
+          "genus_species": [
+            {
+              "ontology": "NCBITaxon:9606",
+              "ontology_label": "Homo sapiens",
+              "text": "Homo sapiens"
+            }
+          ],
+          "organ": {
+            "ontology": "UBERON:0000955",
+            "ontology_label": "brain",
+            "text": "brain"
+          },
+          "organ_part": {
+            "ontology": "UBERON:0001876",
+            "ontology_label": "amygdala",
+            "text": "amygdala"
+          },
+          "provenance": {
+            "document_id": "f1bf7167-5948-4d55-9090-1f30a39fc564",
+            "submission_date": "2018-10-05T14:47:34.389Z",
+            "update_date": "2018-10-05T14:47:38.100Z"
+          },
+          "schema_type": "biomaterial",
+          "state_of_specimen": {
+            "autolysis_score": "none",
+            "gross_description": "normal color and size"
+          }
+        }
+}

@@ -16,7 +16,7 @@
   "submit.input_bundle_uuid": "274e8e51-76b7-4fe6-b766-65df0a4e85bb",
   "submit.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
   "submit.format_map": "gs://foo/format_map.json",
-  "submit.submit_url": "http://api.ingest.staging.data.humancellatlas.org/",
+  "submit.submit_url": "https://api.ingest.staging.data.humancellatlas.org/",
   "submit.method": "SmartSeq2SingleCell",
   "submit.analysis_file_version": "5.3.4",
   "submit.analysis_protocol_schema_version": "8.0.3",

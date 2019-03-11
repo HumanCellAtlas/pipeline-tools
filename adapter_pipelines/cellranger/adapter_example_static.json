@@ -1,7 +1,6 @@
 {
   "Adapter10xCount.reference_name": "GRCh38",
   "Adapter10xCount.transcriptome_tar_gz": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar",
-  "Adapter10xCount.expect_cells": 5000,
   "Adapter10xCount.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
   "Adapter10xCount.format_map": "gs://hca-dcp-mint-test-data/adapters/file_format_map.json",
   "Adapter10xCount.method": "10x",

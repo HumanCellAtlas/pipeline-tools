@@ -1,0 +1,38 @@
+{
+  "content" : {
+    "computational_method" : "SmartSeq2SingleCell",
+    "describedBy" : "http://schema.integration.data.humancellatlas.org/type/protocol/analysis/8.0.3/analysis_protocol",
+    "protocol_core" : {
+      "protocol_id" : "smartseq2_v2.1.0"
+    },
+    "protocol_type" : {
+      "text" : "analysis"
+    },
+    "schema_type" : "protocol"
+  },
+  "submissionDate" : "2018-10-20T21:00:39.156Z",
+  "updateDate" : "2018-10-20T21:00:39.156Z",
+  "user" : null,
+  "lastModifiedUser" : null,
+  "uuid" : null,
+  "events" : [ ],
+  "accession" : null,
+  "validationState" : "Draft",
+  "validationErrors" : null,
+  "_links" : {
+    "self" : {
+      "href" : "https://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54"
+    },
+    "protocol" : {
+      "href" : "https://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54",
+      "title" : "A single protocol"
+    },
+    "validating" : {
+      "href" : "https://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54/validatingEvent"
+    },
+    "submissionEnvelopes" : {
+      "href" : "https://api.ingest.integration.data.humancellatlas.org/protocols/5bcb9777593d3c0007227a54/submissionEnvelopes",
+      "title" : "Access or create new submission envelopes"
+    }
+  }
+}

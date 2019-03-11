@@ -1,47 +1,47 @@
 {
   "_links": {
     "projects": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/projects{?page,size,sort}",
+      "href": "https://api.ingest.dev.data.humancellatlas.org/projects{?page,size,sort}",
       "templated": true,
       "title": "Access or create projects. Creation can only be done inside a submission envelope"
     },
     "schemas": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/schemas{?page,size,sort}",
+      "href": "https://api.ingest.dev.data.humancellatlas.org/schemas{?page,size,sort}",
       "templated": true
     },
     "bundleManifests": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/bundleManifests{?page,size,sort}",
+      "href": "https://api.ingest.dev.data.humancellatlas.org/bundleManifests{?page,size,sort}",
       "templated": true,
       "title": "Access or create bundle manifests (describing which submitted contents went into which bundle in the datastore)"
     },
     "protocols": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/protocols{?page,size,sort}",
+      "href": "https://api.ingest.dev.data.humancellatlas.org/protocols{?page,size,sort}",
       "templated": true,
       "title": "Access or create protocols"
     },
     "biomaterials": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/biomaterials{?page,size,sort,projection}",
+      "href": "https://api.ingest.dev.data.humancellatlas.org/biomaterials{?page,size,sort,projection}",
       "templated": true
     },
     "processes": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/processes{?page,size,sort,projection}",
+      "href": "https://api.ingest.dev.data.humancellatlas.org/processes{?page,size,sort,projection}",
       "templated": true
     },
     "files": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/files{?page,size,sort}",
+      "href": "https://api.ingest.dev.data.humancellatlas.org/files{?page,size,sort}",
       "templated": true,
       "title": "Access or create, within a submission envelope, a new assay"
     },
     "submissionEnvelopes": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes{?page,size,sort}",
+      "href": "https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes{?page,size,sort}",
       "templated": true,
       "title": "Access or create new submission envelopes"
     },
     "user": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/user"
+      "href": "https://api.ingest.dev.data.humancellatlas.org/user"
     },
     "profile": {
-      "href": "http://api.ingest.dev.data.humancellatlas.org/profile"
+      "href": "https://api.ingest.dev.data.humancellatlas.org/profile"
     }
   }
 }

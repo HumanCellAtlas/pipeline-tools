@@ -74,7 +74,6 @@ workflow AdapterSmartSeq2SingleCell{
   Int? retry_timeout
   Int? individual_request_timeout
   String reference_bundle
-  Boolean use_caas
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -83,7 +82,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.35.0"
+  String pipeline_tools_version = "v0.46.2"
 
   call GetInputs as prep {
     input:
@@ -177,18 +176,21 @@ workflow AdapterSmartSeq2SingleCell{
           "value": stranded
         }
       ],
-      outputs = flatten([[
-        analysis.aligned_bam,
-        analysis.bam_index,
-        analysis.insert_size_metrics,
-        analysis.quality_distribution_metrics,
-        analysis.quality_by_cycle_metrics,
-        analysis.bait_bias_summary_metrics,
-        analysis.rna_metrics,
-        analysis.aligned_transcriptome_bam,
-        analysis.rsem_gene_results,
-        analysis.rsem_isoform_results
-      ], analysis.group_results, analysis.zarr_output_files]),
+      outputs = flatten(
+        select_all(
+          [[analysis.aligned_bam,
+            analysis.bam_index,
+            analysis.insert_size_metrics,
+            analysis.quality_distribution_metrics,
+            analysis.quality_by_cycle_metrics,
+            analysis.bait_bias_summary_metrics,
+            analysis.rna_metrics,
+            analysis.aligned_transcriptome_bam,
+            analysis.rsem_gene_results,
+            analysis.rsem_isoform_results
+           ], analysis.group_results, analysis.zarr_output_files]
+        )
+      ),
       format_map = format_map,
       submit_url = submit_url,
       cromwell_url = cromwell_url,
@@ -205,7 +207,6 @@ workflow AdapterSmartSeq2SingleCell{
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
       runtime_environment = runtime_environment,
-      use_caas = use_caas,
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,

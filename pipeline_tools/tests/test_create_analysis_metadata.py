@@ -253,3 +253,21 @@ class TestCreateAnalysisMetadata(object):
         assert first_task['cpus'] == 1
         assert first_task['disk_size'] == 'local-disk 10 HDD'
         assert first_task['docker_image'] == 'humancellatlas/picard:2.10.10'
+
+    def test_format_timestamp_without_seconds(self):
+        timestamp = '2019-02-11T01:15Z'
+        formatted_datetime = cam.format_timestamp(timestamp)
+        expected_datetime = '2019-02-11T01:15:00.000Z'
+        assert formatted_datetime == expected_datetime
+
+    def test_format_timestamp_without_milliseconds(self):
+        timestamp = '2019-02-11T01:15:00Z'
+        formatted_timestamp = cam.format_timestamp(timestamp)
+        expected_timestamp = '2019-02-11T01:15:00.000Z'
+        assert formatted_timestamp == expected_timestamp
+
+    def test_formatting_correct_timestamp(self):
+        timestamp = '2019-02-11T01:15:00.000Z'
+        formatted_timestamp = cam.format_timestamp(timestamp)
+        expected_timestamp = '2019-02-11T01:15:00.000Z'
+        assert formatted_timestamp == expected_timestamp
