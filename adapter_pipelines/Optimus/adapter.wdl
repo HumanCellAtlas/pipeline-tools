@@ -36,18 +36,19 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
-    Array[File] r1_fastq = read_lines("r1.txt")
-    Array[File] r2_fastq = read_lines("r2.txt")
-    Array[File] i1_fastq = read_lines("i1.txt")
+    Array[String] r1_fastq = read_lines("r1.txt")
+    Array[String] r2_fastq = read_lines("r2.txt")
+    File i1_file = "i1.txt"
+    Array[String] i1_fastq = if(ceil(size(i1_file)) == 0) then [] else read_lines(i1_file)
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
   }
 }
 
-task inputs_for_submit {
-    Array[File] r1_fastq
-    Array[File] r2_fastq
-    Array[File] i1_fastq
+task InputsForSubmit {
+    Array[String] r1_fastq
+    Array[String] r2_fastq
+    Array[String] i1_fastq
     Array[Object] other_inputs
     String pipeline_tools_version
 
@@ -60,18 +61,22 @@ task inputs_for_submit {
       print('fastq_files')
       inputs.append({"name": "r1_fastq", "value": "${sep=', ' r1_fastq}"})
       inputs.append({"name": "r2_fastq", "value": "${sep=', ' r2_fastq}"})
-      inputs.append({"name": "i1_fastq", "value": "${sep=', ' i1_fastq}"})
+
+      i1_fastq_value = "${sep=', ' i1_fastq}"
+      if i1_fastq_value:
+          print('I1 fastq {} provided'.format(i1_fastq_value))
+          inputs.append({"name": "i1_fastq", "value": i1_fastq_value})
 
       print('other inputs')
       with open('${write_objects(other_inputs)}') as f:
           keys = f.readline().strip().split('\t')
           for line in f:
               values = line.strip().split('\t')
-              input = {}
+              input_map = {}
               for i, key in enumerate(keys):
-                  input[key] = values[i]
-              print(input)
-              inputs.append(input)
+                  input_map[key] = values[i]
+              print(input_map)
+              inputs.append(input_map)
 
       print('write inputs.tsv')
       with open('inputs.tsv', 'w') as f:
@@ -101,6 +106,14 @@ workflow AdapterOptimus {
   File annotations_gtf  # gtf containing annotations for gene tagging
   File ref_genome_fasta  # genome fasta file
   String fastq_suffix = ".gz"  # add this suffix to fastq files for picard
+  
+  # Note: This "None" is a workaround in WDL-draft to simulate a "None" type
+  # once the official "None" type is introduced (probably in WDL 2.0)
+  # we should consider replace this dummy None with the built-in None!
+  # 
+  # Also, to properly use this dummy None, we should avoid passing in any
+  # inputs that could possibly override this
+  Array[File]? None
 
   # Submission
   File format_map
@@ -126,7 +139,7 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.46.2"
+  String pipeline_tools_version = "v0.47.0"
 
   call GetInputs as prep {
     input:
@@ -145,7 +158,7 @@ workflow AdapterOptimus {
     input:
       r1_fastq = prep.r1_fastq,
       r2_fastq = prep.r2_fastq,
-      i1_fastq = prep.i1_fastq,
+      i1_fastq = if (length(prep.i1_fastq) <= 0) then None else prep.i1_fastq,
       sample_id = prep.sample_id,
       whitelist = whitelist,
       tar_star_reference = tar_star_reference,
@@ -154,7 +167,7 @@ workflow AdapterOptimus {
       fastq_suffix = fastq_suffix
   }
 
-  call inputs_for_submit {
+  call InputsForSubmit {
     input:
       r1_fastq = prep.r1_fastq,
       r2_fastq = prep.r2_fastq,
@@ -184,19 +197,22 @@ workflow AdapterOptimus {
       pipeline_tools_version = pipeline_tools_version
   }
 
-  Array[Object] inputs = read_objects(inputs_for_submit.inputs)
+  Array[Object] inputs = read_objects(InputsForSubmit.inputs)
 
   call submit_wdl.submit {
     input:
       inputs = inputs,
-      outputs = [
-        analysis.bam,
-        analysis.matrix,
-        analysis.matrix_row_index,
-        analysis.matrix_col_index,
-        analysis.cell_metrics,
-        analysis.gene_metrics
-      ],
+      outputs = flatten(
+        select_all(
+          [[analysis.bam,
+            analysis.matrix,
+            analysis.matrix_row_index,
+            analysis.matrix_col_index,
+            analysis.cell_metrics,
+            analysis.gene_metrics
+        ], analysis.zarr_output_files]
+        )
+      ),
       format_map = format_map,
       submit_url = submit_url,
       cromwell_url = cromwell_url,
@@ -216,6 +232,9 @@ workflow AdapterOptimus {
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
-      pipeline_version = analysis.pipeline_version
+      pipeline_version = analysis.pipeline_version,
+      # The disk space value here is still an experiment value, need to 
+      # be optimized based on historical data by CBs
+      disk_space = ceil(size(analysis.bam, "GB") * 2 + 50)
   }
 }

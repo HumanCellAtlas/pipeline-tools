@@ -208,7 +208,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
         TSV of input file cloud paths
 
     Raises:
-        optimus_utils.LaneMissingFileError if any fastqs are missing
+        optimus_utils.LaneMissingFileError if any non-optional fastqs are missing
     """
     # Get bundle manifest
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
@@ -226,20 +226,19 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     r2_urls = optimus_utils.get_fastqs_for_read_index(lane_to_fastqs, 'read2')
     i1_urls = optimus_utils.get_fastqs_for_read_index(lane_to_fastqs, 'index1')
 
-    print('Writing r1.txt, r2.txt, and i1.txt')
+    print('Writing r1.txt, r2.txt, and optionally i1.txt')
     with open('r1.txt', 'w') as f:
         for url in r1_urls:
             f.write(url + '\n')
     with open('r2.txt', 'w') as f:
         for url in r2_urls:
             f.write(url + '\n')
+    
+    # Always generate the i1.txt, if there are no i1 fastq files,
+    # the content of this file will be empty
     with open('i1.txt', 'w') as f:
         for url in i1_urls:
             f.write(url + '\n')
-    with open('lanes.txt', 'w') as f:
-        lane_numbers = sorted(lane_to_fastqs.keys())
-        for l in lane_numbers:
-            f.write(str(l))
 
     sample_id = get_sample_id(primary_bundle)
     print('Writing sample ID to sample_id.txt')
