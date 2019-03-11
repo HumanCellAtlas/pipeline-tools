@@ -3,12 +3,12 @@ import argparse
 import json
 from typing import List
 
-from pipeline_tools.dcp_utils import get_auth_token, make_auth_header
+from pipeline_tools import auth_utils
 from pipeline_tools.http_requests import HttpRequests
 
 
 def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, raw_schema_url,
-                   analysis_file_version):
+                   analysis_file_version, runtime_environment, service_account_key_path):
     """Create the submission envelope in Ingest service.
 
     Args:
@@ -17,6 +17,8 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
         analysis_process_path (str): Path to the analysis_process json file.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
+        runtime_environment (str): Environment where the pipeline is running ('dev', 'test', 'staging' or 'prod').
+        service_account_key_path (str): Path to the JSON service account key for generating a JWT.
     """
     # Instantiate a HttpRequests object
     http_requests = HttpRequests()
@@ -26,10 +28,9 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     # to be safe, we are sending the token at each step, except the linking step, which requires a totally different
     # content-type in the header.
 
-    print('Fetching auth token from Auth0')
-    auth_token = get_auth_token(http_requests)
     print('Making auth headers')
-    auth_headers = make_auth_header(auth_token)
+    dcp_auth_client = auth_utils.DCPAuthClient(service_account_key_path, runtime_environment)
+    auth_headers = dcp_auth_client.get_auth_header()
 
     # === 1. Get envelope url ===
     envelope_url = get_envelope_url(submit_url, auth_headers, http_requests)
@@ -47,7 +48,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
         analysis_protocol_dict = json.load(f)
 
     # URL for getting and creating the analysis protocol, e.g.
-    # http://api.ingest.{deployment}.data.humancellatlas.org/submissionEnvelopes/{envelope_id}/protocols
+    # https://api.ingest.{deployment}.data.humancellatlas.org/submissionEnvelopes/{envelope_id}/protocols
     analysis_protocol_url = get_subject_url(endpoint_dict=envelope_dict, subject='protocols')
 
     # Check if an analysis_protocol already exists in the submission envelope from a previous attempt
@@ -88,7 +89,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     link_url = get_subject_url(endpoint_dict=analysis_process_response, subject='protocols')
 
     # URL for linking the analysis protocol to analysis process, e.g.
-    # http://api.ingest.integration.data.humancellatlas.org/protocols/{protocol_document_id}
+    # https://api.ingest.integration.data.humancellatlas.org/protocols/{protocol_document_id}
     analysis_protocol_entity_url = get_subject_url(analysis_protocol_response, 'self')
 
     print('Linking analysis_protocol {0} to analysis_process at {1}'.format(analysis_protocol_entity_url, link_url))
@@ -379,6 +380,12 @@ def main():
     parser.add_argument('--analysis_file_version',
                         required=True,
                         help='The metadata schema version that the output files(analysis_file) conform to.')
+    parser.add_argument('--runtime_environment',
+                        required=True,
+                        help='Environment where the pipeline is running ("dev", "test", "staging" or "prod").')
+    parser.add_argument('--service_account_key_path',
+                        required=True,
+                        help='Path to the JSON service account key for generating a JWT.')
     args = parser.parse_args()
 
     schema_url = args.schema_url.strip('/')
@@ -387,7 +394,9 @@ def main():
                    analysis_protocol_path=args.analysis_protocol_path,
                    analysis_process_path=args.analysis_process_path,
                    raw_schema_url=schema_url,
-                   analysis_file_version=args.analysis_file_version)
+                   analysis_file_version=args.analysis_file_version,
+                   runtime_environment=args.runtime_environment,
+                   service_account_key_path=args.service_account_key_path)
 
 
 if __name__ == '__main__':

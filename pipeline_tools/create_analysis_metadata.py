@@ -8,6 +8,7 @@ from csv import DictReader
 from google.cloud import storage
 from typing import List
 import re
+import arrow
 
 
 def create_analysis_process(raw_schema_url,
@@ -60,8 +61,8 @@ def create_analysis_process(raw_schema_url,
         'schema_type': SCHEMA_TYPE,
         'process_core': get_analysis_process_core(analysis_workflow_id=analysis_id),
         'process_type': get_analysis_process_type(),
-        'timestamp_start_utc': workflow_metadata.get('start'),
-        'timestamp_stop_utc': workflow_metadata.get('end'),
+        'timestamp_start_utc': format_timestamp(workflow_metadata.get('start')),
+        'timestamp_stop_utc': format_timestamp(workflow_metadata.get('end')),
         'input_bundles': input_bundles_string.split(','),
         'reference_bundle': reference_bundle,
         'tasks': workflow_tasks,
@@ -352,14 +353,29 @@ def get_workflow_tasks(workflow_metadata):
                 'disk_size': runtime['disks'],
                 'docker_image': runtime['docker'],
                 'zone': runtime['zones'],
-                'start_time': task['start'],
-                'stop_time': task['end'],
+                'start_time': format_timestamp(task['start']),
+                'stop_time': format_timestamp(task['end']),
                 'log_out': task['stdout'],
                 'log_err': task['stderr']
             }
             output_tasks.append(out_task)
     sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
     return sorted_output_tasks
+
+
+def format_timestamp(timestamp):
+    """ Standardize Cromwell timestamps to follow the date-time JSON format required by the analysis process schema.
+
+    Args:
+        timestamp (str): A datetime string in any format
+    Returns:
+        formatted_timestamp (str): A datetime string in the format 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+
+    """
+    if timestamp:
+        d = arrow.get(timestamp)
+        formatted_date = d.format('YYYY-MM-DDTHH:mm:ss.SSS')
+        return '{}Z'.format(formatted_date)
 
 
 def get_file_format(path, extension_to_format):

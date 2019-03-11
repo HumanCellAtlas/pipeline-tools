@@ -23,7 +23,6 @@ workflow submit {
   String analysis_file_version
   String method
   String runtime_environment
-  Boolean use_caas
   Int? retry_max_interval
   Float? retry_multiplier
   Int? retry_timeout

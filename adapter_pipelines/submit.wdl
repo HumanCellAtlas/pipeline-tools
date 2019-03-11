@@ -7,8 +7,8 @@ task get_metadata {
   Float? retry_multiplier
   Int? retry_timeout
   Int? individual_request_timeout
-  Boolean use_caas
   Boolean record_http
+  String pipeline_tools_version
   Int max_retries = 0
 
   command <<<
@@ -25,11 +25,10 @@ task get_metadata {
 
     get-analysis-workflow-metadata \
       --analysis_output_path ${analysis_output_path} \
-      --cromwell_url ${cromwell_url} \
-      --use_caas ${use_caas}
+      --cromwell_url ${cromwell_url}
   >>>
   runtime {
-    docker: (if runtime_environment == "prod" then "gcr.io/hca-dcp-pipelines-prod/cromwell-metadata:" else "gcr.io/broad-dsde-mint-${runtime_environment}/cromwell-metadata:") + "v1.2.0"
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
     maxRetries: max_retries
   }
   output {
@@ -64,6 +63,8 @@ task create_submission {
   Boolean record_http
   String pipeline_tools_version
   Boolean add_md5s
+  String runtime_environment
+  File service_account_key_path = "gs://broad-dsde-mint-${runtime_environment}-credentials/caas_key.json"
 
   command <<<
     export RECORD_HTTP_REQUESTS="${record_http}"
@@ -103,7 +104,9 @@ task create_submission {
       --analysis_process_path analysis_process.json \
       --analysis_protocol_path analysis_protocol.json \
       --schema_url ${schema_url} \
-      --analysis_file_version ${analysis_file_version}
+      --analysis_file_version ${analysis_file_version} \
+      --runtime_environment ${runtime_environment} \
+      --service_account_key_path ${service_account_key_path}
   >>>
 
   runtime {
@@ -247,7 +250,6 @@ workflow submit {
   Float? retry_multiplier
   Int? retry_timeout
   Int? individual_request_timeout
-  Boolean use_caas
   # By default, don't record http requests
   Boolean record_http = false
   String pipeline_tools_version
@@ -263,12 +265,12 @@ workflow submit {
       analysis_output_path = outputs[0],
       runtime_environment = runtime_environment,
       cromwell_url = cromwell_url,
-      use_caas=use_caas,
       record_http = record_http,
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
       retry_multiplier = retry_multiplier,
       retry_max_interval = retry_max_interval,
+      pipeline_tools_version = pipeline_tools_version,
       max_retries = max_retries
   }
 
@@ -295,7 +297,8 @@ workflow submit {
       retry_max_interval = retry_max_interval,
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
-      add_md5s = add_md5s
+      add_md5s = add_md5s,
+      runtime_environment = runtime_environment
   }
 
   call stage_files {

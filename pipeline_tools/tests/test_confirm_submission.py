@@ -10,7 +10,7 @@ from .http_requests_manager import HttpRequestsManager
 class TestConfirmSubmission(object):
 
     def test_wait_for_valid_status_success(self, requests_mock):
-        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_url = 'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
 
         def _request_callback(request, context):
             context.status_code = 200
@@ -24,7 +24,7 @@ class TestConfirmSubmission(object):
         assert requests_mock.call_count == 1
 
     def test_wait_for_valid_status_retries_if_not_valid(self, requests_mock):
-        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_url = 'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
 
         def _request_callback(request, context):
             context.status_code = 200
@@ -36,7 +36,7 @@ class TestConfirmSubmission(object):
         assert requests_mock.call_count == 3
 
     def test_wait_for_valid_status_retries_on_error(self, requests_mock):
-        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_url = 'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
 
         def _request_callback(request, context):
             context.status_code = 500
@@ -48,7 +48,7 @@ class TestConfirmSubmission(object):
         assert requests_mock.call_count == 3
 
     def test_wait_for_valid_status_retries_on_read_timeout_error(self, requests_mock):
-        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_url = 'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
 
         def _request_callback(request, context):
             context.status_code = 500
@@ -60,7 +60,7 @@ class TestConfirmSubmission(object):
         assert requests_mock.call_count == 3
 
     def test_confirm_success(self, requests_mock):
-        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_url = 'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
 
         def _request_callback(request, context):
             context.status_code = 200
@@ -72,7 +72,7 @@ class TestConfirmSubmission(object):
         assert requests_mock.call_count == 1
 
     def test_confirm_retries_on_error(self, requests_mock):
-        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_url = 'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
 
         def _request_callback(request, context):
             context.status_code = 500
@@ -84,7 +84,7 @@ class TestConfirmSubmission(object):
         assert requests_mock.call_count == 3
 
     def test_confirm_retries_on_read_timeout_error(self, requests_mock):
-        envelope_url = 'http://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        envelope_url = 'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
 
         def _request_callback(request, context):
             context.status_code = 500

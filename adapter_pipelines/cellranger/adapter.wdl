@@ -36,6 +36,7 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
+    Int expect_cells = read_string("expect_cells.txt")
     Array[File] fastqs = read_lines("fastqs.txt")
     Array[String] fastq_names = read_lines("fastq_names.txt")
     Array[File] http_requests = glob("request_*.txt")
@@ -89,11 +90,11 @@ task InputsForSubmit {
           keys = f.readline().strip().split('\t')
           for line in f:
               values = line.strip().split('\t')
-              input = {}
+              input_map = {}
               for i, key in enumerate(keys):
-                  input[key] = values[i]
-              print(input)
-              inputs.append(input)
+                  input_map[key] = values[i]
+              print(input_map)
+              inputs.append(input_map)
 
       print('expect cells')
       if "${expect_cells}":
@@ -124,7 +125,6 @@ workflow Adapter10xCount {
 
   String reference_name
   File transcriptome_tar_gz
-  Int? expect_cells
 
   # Submission
   File format_map
@@ -142,7 +142,6 @@ workflow Adapter10xCount {
   Int? retry_timeout
   Int? individual_request_timeout
   String reference_bundle
-  Boolean use_caas
 
   # Set runtime environment such as "dev" or "staging" or "prod" so submit task could choose proper docker image to use
   String runtime_environment
@@ -151,7 +150,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.42.1"
+  String pipeline_tools_version = "v0.47.0"
 
   call GetInputs {
     input:
@@ -183,7 +182,7 @@ workflow Adapter10xCount {
       fastqs = rename_fastqs.outputs,
       reference_name = reference_name,
       transcriptome_tar_gz = transcriptome_tar_gz,
-      expect_cells = expect_cells,
+      expect_cells = GetInputs.expect_cells,
       max_retries = max_cromwell_retries
   }
 
@@ -204,7 +203,7 @@ workflow Adapter10xCount {
           "value": transcriptome_tar_gz
         }
       ],
-      expect_cells = expect_cells,
+      expect_cells = GetInputs.expect_cells,
       pipeline_tools_version = pipeline_tools_version
   }
 
@@ -252,7 +251,6 @@ workflow Adapter10xCount {
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
       runtime_environment = runtime_environment,
-      use_caas = use_caas,
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
