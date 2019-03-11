@@ -107,10 +107,13 @@ workflow AdapterOptimus {
   File ref_genome_fasta  # genome fasta file
   String fastq_suffix = ".gz"  # add this suffix to fastq files for picard
   
-  # Note: This "Empty" is a workaround in WDL-draft to simulate a "None" type
+  # Note: This "None" is a workaround in WDL-draft to simulate a "None" type
   # once the official "None" type is introduced (probably in WDL 2.0)
-  # we should consider replace this workaround
-  Array[File]? Empty
+  # we should consider replace this dummy None with the built-in None!
+  # 
+  # Also, to properly use this dummy None, we should avoid passing in any
+  # inputs that could possibly override this
+  Array[File]? None
 
   # Submission
   File format_map
@@ -136,11 +139,7 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-<<<<<<< HEAD
-  String pipeline_tools_version = "v0.46.2"
-=======
-  String pipeline_tools_version = "rex-adapter-optimus"
->>>>>>> a933de3... Fix a bug with the GetInputsforSubmit task in AdapterOptimus.
+  String pipeline_tools_version = "v0.47.0"
 
   call GetInputs as prep {
     input:
@@ -159,7 +158,7 @@ workflow AdapterOptimus {
     input:
       r1_fastq = prep.r1_fastq,
       r2_fastq = prep.r2_fastq,
-      i1_fastq = if (length(prep.i1_fastq) <= 0) then Empty else prep.i1_fastq,
+      i1_fastq = if (length(prep.i1_fastq) <= 0) then None else prep.i1_fastq,
       sample_id = prep.sample_id,
       whitelist = whitelist,
       tar_star_reference = tar_star_reference,
