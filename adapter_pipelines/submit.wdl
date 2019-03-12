@@ -103,6 +103,7 @@ task create_submission {
       --submit_url ${submit_url} \
       --analysis_process_path analysis_process.json \
       --analysis_protocol_path analysis_protocol.json \
+      --outputs_file_path outputs.json \
       --schema_url ${schema_url} \
       --analysis_file_version ${analysis_file_version} \
       --runtime_environment ${runtime_environment} \
