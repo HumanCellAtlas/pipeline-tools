@@ -116,6 +116,7 @@ task create_submission {
   output {
     File analysis_process = "analysis_process.json"
     File analysis_protocol = "analysis_protocol.json"
+    File outputs_files = "outputs.json"
     String submission_url = read_string("submission_url.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")
