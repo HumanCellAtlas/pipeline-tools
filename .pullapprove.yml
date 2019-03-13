@@ -36,7 +36,7 @@ groups:
 #      teams:
 #      - pipelines-computational-biologists
 
-#notifications:
-#- when: pullapprove.approved
-#  if: "author_association == 'CONTRIBUTOR'"
-#  comment: "The review is completed. Thanks @{{ author }}."
+notifications:
+- when: pullapprove.approved
+  if: "author_association == 'CONTRIBUTOR'"
+  comment: "The review is completed. Thanks @{{ author }}."
