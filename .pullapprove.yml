@@ -5,10 +5,10 @@ pullapprove_conditions:
   unmet_status: failure
   explanation: "Tests must pass before review starts"
 
-- condition: "'*travis*' in statuses.successful"
+- condition: "'*Travis*' in statuses.successful"
   unmet_status: failure
   explanation: "Tests must pass before review starts"
-  
+
 groups:
   pullapprove-admins:
     conditions:
