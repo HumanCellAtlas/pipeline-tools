@@ -114,7 +114,7 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ou
         outputs_dict = json.load(f)
 
     # TODO: parallelize this to speed up
-    for file_ref in output_files:  # TODO: parallelize this to speed up
+    for file_ref in outputs_dict:  # TODO: parallelize this to speed up
         add_file_reference(file_ref=file_ref,
                            file_refs_url=file_refs_url,
                            auth_headers=auth_headers,
