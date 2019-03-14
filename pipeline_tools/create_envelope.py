@@ -7,14 +7,15 @@ from pipeline_tools import auth_utils
 from pipeline_tools.http_requests import HttpRequests
 
 
-def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, raw_schema_url,
-                   analysis_file_version, runtime_environment, service_account_key_path):
+def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, outputs_file_path, 
+                   raw_schema_url, analysis_file_version, runtime_environment, service_account_key_path):
     """Create the submission envelope in Ingest service.
 
     Args:
         submit_url (str): URL of Ingest service to perform the submission.
         analysis_protocol_path (str): Path to the analysis_protocol json file.
         analysis_process_path (str): Path to the analysis_process json file.
+        outputs_file_path (str): Path to the outputs json file.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
         runtime_environment (str): Environment where the pipeline is running ('dev', 'test', 'staging' or 'prod').
@@ -108,12 +109,12 @@ def build_envelope(submit_url, analysis_protocol_path, analysis_process_path, ra
     # === 7. Add file references ===
     file_refs_url = get_subject_url(endpoint_dict=analysis_process_response, subject='add-file-reference')
     print('Adding file references at {0}'.format(file_refs_url))
-    output_files = get_output_files(analysis_process=analysis_process_dict,
-                                    raw_schema_url=raw_schema_url,
-                                    analysis_file_version=analysis_file_version)
+    
+    with open(outputs_file_path) as f:
+        outputs_dict = json.load(f)
 
     # TODO: parallelize this to speed up
-    for file_ref in output_files:  # TODO: parallelize this to speed up
+    for file_ref in outputs_dict:  # TODO: parallelize this to speed up
         add_file_reference(file_ref=file_ref,
                            file_refs_url=file_refs_url,
                            auth_headers=auth_headers,
@@ -296,38 +297,6 @@ def add_input_bundles(input_bundles_url, auth_headers, analysis_process, http_re
     return response.json()
 
 
-def get_output_files(analysis_process, raw_schema_url, analysis_file_version):
-    """Get the metadata describing the outputs of the analysis process.
-
-    TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
-    2e2f4db5bb16/src/humancellatlas/data/metadata/__init__.py#L445" so we can use the `metadata-api` directly to create
-    the analysis_file metadata file.
-
-    Args:
-        analysis_process (dict): A dict representing the analysis_process json file to be submitted.
-        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
-        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
-
-    Returns:
-        output_refs (List[dict]): A list of metadata dicts describing the output files produced by the analysis_process.
-    """
-    outputs = analysis_process['outputs']
-    output_refs = [
-        {
-            'fileName': out['file_core']['file_name'],
-            'content': {
-                'describedBy': '{0}/type/file/{1}/analysis_file'.format(raw_schema_url, analysis_file_version),
-                'schema_type': 'file',
-                'file_core': {
-                    'file_name': out['file_core']['file_name'],
-                    'file_format': out['file_core']['file_format']
-                }
-            }
-        } for out in outputs
-    ]
-    return output_refs
-
-
 def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
     """Add a file reference to the analysis metadata in a submission envelope.
 
@@ -343,7 +312,7 @@ def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
     Raises:
         requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
-    print('Adding file: {0} to the file reference.'.format(file_ref['fileName']))
+    print('Adding file: {0} to the file reference.'.format(file_ref['file_core']['file_name']))
     response = http_requests.put(file_refs_url, headers=auth_headers, json=file_ref)
     return response.json()
 
@@ -371,6 +340,9 @@ def main():
     parser.add_argument('--analysis_process_path',
                         required=True,
                         help='Path to the analysis_process.json file.')
+    parser.add_argument('--outputs_file_path',
+                        required=True,
+                        help='Path to the outputs.json file.')                
     parser.add_argument('--analysis_protocol_path',
                         required=True,
                         help='Path to the analysis_protocol.json file.')
@@ -393,6 +365,7 @@ def main():
     build_envelope(submit_url=args.submit_url,
                    analysis_protocol_path=args.analysis_protocol_path,
                    analysis_process_path=args.analysis_process_path,
+                   outputs_file_path=args.outputs_file_path,
                    raw_schema_url=schema_url,
                    analysis_file_version=args.analysis_file_version,
                    runtime_environment=args.runtime_environment,

@@ -103,6 +103,7 @@ task create_submission {
       --submit_url ${submit_url} \
       --analysis_process_path analysis_process.json \
       --analysis_protocol_path analysis_protocol.json \
+      --outputs_file_path outputs.json \
       --schema_url ${schema_url} \
       --analysis_file_version ${analysis_file_version} \
       --runtime_environment ${runtime_environment} \
@@ -115,6 +116,7 @@ task create_submission {
   output {
     File analysis_process = "analysis_process.json"
     File analysis_protocol = "analysis_protocol.json"
+    File outputs_files = "outputs.json"
     String submission_url = read_string("submission_url.txt")
     Array[File] http_requests = glob("request_*.txt")
     Array[File] http_responses = glob("response_*.txt")

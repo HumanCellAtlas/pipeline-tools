@@ -84,14 +84,10 @@ class TestCreateAnalysisMetadata(object):
                                                        input_bundles_string='foo_input_bundle1,foo_input_bundle2',
                                                        reference_bundle='foo_ref_bundle',
                                                        inputs=test_data.inputs,
-                                                       outputs=test_data.outputs,
                                                        run_type='foo_run_type')
 
         assert analysis_process.get('process_core').get('process_id') == '12345abcde'
         self.verify_inputs(analysis_process.get('inputs'), test_data)
-
-        analysis_file_schema_url = '{}/type/file/4.5.6/analysis_file'.format(test_data.schema_url)
-        self.verify_outputs(analysis_process.get('outputs'), test_data.outputs, analysis_file_schema_url)
 
         self.verify_tasks(analysis_process.get('tasks'))
 
