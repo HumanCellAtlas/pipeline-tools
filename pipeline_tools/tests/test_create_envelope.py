@@ -310,18 +310,6 @@ class TestCreateEnvelope(object):
             submit.add_input_bundles(input_bundles_url, test_data.headers, test_data.analysis_process, HttpRequests())
         assert requests_mock.call_count == 3
 
-    def test_get_output_files(self, test_data):
-        schema_version = 'version_232'
-        analysis_file_schema_url = 'https://schema.humancellatlas.org/type/file/{}/analysis_file'.format(schema_version)
-
-        outputs = submit.get_output_files(test_data.analysis_process, analysis_file_schema_url, schema_version)
-        expected_outputs = test_data.analysis_process['outputs']
-        assert len(outputs) == len(expected_outputs)
-        assert outputs[0]['fileName'] == expected_outputs[0]['file_core']['file_name']
-        assert outputs[0]['content']['schema_type'] == expected_outputs[0]['schema_type']
-        assert outputs[0]['content']['file_core']['file_name'] == expected_outputs[0]['file_core']['file_name']
-        assert outputs[0]['content']['file_core']['file_format'] == expected_outputs[0]['file_core']['file_format']
-
     def test_add_file_reference(self, requests_mock, test_data):
         file_refs_url = 'https://api.ingest.dev.data.humancellatlas.org/processes/abcde/fileReference'
 
@@ -331,16 +319,15 @@ class TestCreateEnvelope(object):
 
         requests_mock.put(file_refs_url, json=_request_callback)
         file_ref = {
-            'fileName': 'aligned_bam',
-            'content': {
-                'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
-                'schema_type': 'file',
-                'file_core': {
-                    'file_name': 'test',
-                    'file_format': 'bam'
-                }
+            'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
+            'schema_type': 'file',
+            'file_core': {
+                'file_name': 'test',
+                'file_format': 'bam',
+                'checksum': '0123456789abcdef0123456789abcdef'
             }
         }
+
         with HttpRequestsManager():
             submit.add_file_reference(file_ref, file_refs_url, test_data.headers, HttpRequests())
         assert requests_mock.call_count == 1
@@ -354,14 +341,12 @@ class TestCreateEnvelope(object):
 
         requests_mock.put(file_refs_url, json=_request_callback)
         file_ref = {
-            'fileName': 'aligned_bam',
-            'content': {
-                'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
-                'schema_type': 'file',
-                'file_core': {
-                    'file_name': 'test',
-                    'file_format': 'bam'
-                }
+            'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
+            'schema_type': 'file',
+            'file_core': {
+                'file_name': 'test',
+                'file_format': 'bam',
+                'checksum': '0123456789abcdef0123456789abcdef'
             }
         }
         with pytest.raises(requests.HTTPError), HttpRequestsManager():
@@ -377,14 +362,12 @@ class TestCreateEnvelope(object):
 
         requests_mock.put(file_refs_url, json=_request_callback)
         file_ref = {
-            'fileName': 'aligned_bam',
-            'content': {
-                'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
-                'schema_type': 'file',
-                'file_core': {
-                    'file_name': 'test',
-                    'file_format': 'bam'
-                }
+            'describedBy': 'https://schema.humancellatlas.org/type/file/schema_version/analysis_file',
+            'schema_type': 'file',
+            'file_core': {
+                'file_name': 'test',
+                'file_format': 'bam',
+                'checksum': '0123456789abcdef0123456789abcdef'
             }
         }
         with pytest.raises(requests.ReadTimeout), HttpRequestsManager():

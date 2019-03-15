@@ -18,7 +18,6 @@ def create_analysis_process(raw_schema_url,
                             input_bundles_string,
                             reference_bundle,
                             inputs,
-                            outputs,
                             run_type):
     """Collect and create the information about the analysis process for submission to Ingest service.
 
@@ -42,7 +41,6 @@ def create_analysis_process(raw_schema_url,
                                 since it is required in the schema, but we are not using reference bundles yet. We
                                 should use the actual value here once it's applicable.
         inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
-        outputs (List[dict]): A list of dicts, where each dict gives metadata for an output file
         run_type (str): Indicator of whether the analysis actually ran or was just copied forward as an optimization.
                         Should be either "run" or "copy-forward".
 
@@ -67,7 +65,6 @@ def create_analysis_process(raw_schema_url,
         'reference_bundle': reference_bundle,
         'tasks': workflow_tasks,
         'inputs': inputs,
-        'outputs': outputs,
         'analysis_run_type': run_type,
     }
     return analysis_process
@@ -495,8 +492,6 @@ def main():
                           extension_to_format=extension_to_format,
                           schema_url=schema_url,
                           analysis_file_version=args.analysis_file_version)
-    print('The content of outputs are: ')
-    print(outputs)
 
     # Add md5 checksums to input and output metadata if needed
     # See https://github.com/HumanCellAtlas/secondary-analysis/issues/287 for why
@@ -512,6 +507,11 @@ def main():
         output_name_to_md5 = {url.split('/')[-1]: md5 for url, md5 in output_url_to_md5.items()}
         outputs = add_md5s_to_outputs(outputs, output_name_to_md5)
 
+    # Write outputs to file
+    print('Writing outputs.json to disk...')
+    with open('outputs.json', 'w') as f:
+        json.dump(outputs, f, indent=2, sort_keys=True)
+
     # Create analysis_process
     analysis_process = create_analysis_process(
             raw_schema_url=schema_url,
@@ -521,7 +521,6 @@ def main():
             input_bundles_string=args.input_bundles,
             reference_bundle=args.reference_bundle,
             inputs=inputs,
-            outputs=outputs,
             run_type=args.run_type)
 
     # Write analysis_process to file
