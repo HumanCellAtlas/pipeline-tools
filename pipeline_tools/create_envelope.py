@@ -312,12 +312,12 @@ def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
     Raises:
         requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
-    file_name = file_ref['file_core']['file_name']
-    print('Adding file: {0} to the file reference.'.format(file_name))
+    # Format payload for ingest file reference API endpoint
     file_payload = {
-        'fileName': file_name,
+        'fileName': file_ref['file_core']['file_name'],
         'content': file_ref
     }
+    print('Adding file reference: {}'.format(file_payload))
     response = http_requests.put(file_refs_url, headers=auth_headers, json=file_payload)
     return response.json()
 
