@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.org/HumanCellAtlas/pipeline-tools.svg?branch=master)](https://travis-ci.org/HumanCellAtlas/pipeline-tools)
 [![Documentation Status](https://readthedocs.org/projects/pipeline-tools/badge/?version=latest)](http://pipeline-tools.readthedocs.io/en/latest/?badge=latest)
+[![Snyk Vulnerabilities for GitHub Repo (Specific Manifest)](https://img.shields.io/snyk/vulnerabilities/github/HumanCellAtlas/pipeline-tools/requirements.txt.svg?label=Snyk%20Vulnerabilities&logo=Snyk)](https://snyk.io/test/github/HumanCellAtlas/pipeline-tools?targetFile=requirements.txt)
+[![Snyk Vulnerabilities for GitHub Repo (Specific Manifest)](https://img.shields.io/snyk/vulnerabilities/github/HumanCellAtlas/pipeline-tools/test-requirements.txt.svg?label=Snyk%20Test%20Requirment%20Vulnerabilities&logo=Snyk)](https://snyk.io/test/github/HumanCellAtlas/pipeline-tools?targetFile=test-requirements.txt)
+
 
 
 This repository contains Python code and pipelines for interacting with the Human Cell Atlas Data Coordination Platform (DCP). They are used by the Secondary Analysis Service.
