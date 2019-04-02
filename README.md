@@ -1,7 +1,7 @@
 # pipeline-tools
 
 [![Travis (.org) branch](https://img.shields.io/travis/HumanCellAtlas/pipeline-tools/master.svg?label=Unit%20Test%20on%20Travis%20CI%20&style=flat-square&logo=Travis)](https://travis-ci.org/HumanCellAtlas/pipeline-tools)
-[![Read the Docs (version)](https://img.shields.io/readthedocs/pipeline-tools/stable.svg?label=ReadtheDocs%3A%20Latest&logo=Read%20the%20Docs&style=flat-square)](http://pipeline-tools.readthedocs.io/en/latest/?badge=latest)
+[![Read the Docs (version)](https://img.shields.io/readthedocs/pipeline-tools/latest.svg?label=ReadtheDocs%3A%20Latest&logo=Read%20the%20Docs&style=flat-square)](http://pipeline-tools.readthedocs.io/en/latest/?badge=latest)
 [![GitHub release](https://img.shields.io/github/release/HumanCellAtlas/pipeline-tools.svg?label=Latest%20Release&style=flat-square&colorB=green)](https://github.com/HumanCellAtlas/pipeline-tools/releases)
 [![Snyk Vulnerabilities for GitHub Repo (Specific Manifest)](https://img.shields.io/snyk/vulnerabilities/github/HumanCellAtlas/pipeline-tools/requirements.txt.svg?label=Snyk%20Vulnerabilities&logo=Snyk)](https://snyk.io/test/github/HumanCellAtlas/pipeline-tools?targetFile=requirements.txt)
 [![Snyk Vulnerabilities for GitHub Repo (Specific Manifest)](https://img.shields.io/snyk/vulnerabilities/github/HumanCellAtlas/pipeline-tools/test-requirements.txt.svg?label=Snyk%20Test%20Requirment%20Vulnerabilities&logo=Snyk)](https://snyk.io/test/github/HumanCellAtlas/pipeline-tools?targetFile=test-requirements.txt)
