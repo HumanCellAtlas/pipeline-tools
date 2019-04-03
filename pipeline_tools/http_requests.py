@@ -102,7 +102,7 @@ class HttpRequests(object):
 
     def get(self, *args, **kwargs):
         """Calls requests.get function.
-        
+
         In addition to calling requests.get, this function will record the request
         and response if the HttpRequests object's should_record attribute is True.
 
@@ -122,7 +122,7 @@ class HttpRequests(object):
 
     def put(self, *args, **kwargs):
         """Calls requests.put function.
-        
+
         In addition to calling requests.put, this function will record the request
         and response if the HttpRequests object's should_record attribute is True.
 
@@ -143,7 +143,7 @@ class HttpRequests(object):
 
     def post(self, *args, **kwargs):
         """Calls requests.post function.
-        
+
         In addition to calling requests.post, this function will record the request
         and response if the HttpRequests object's should_record attribute is True.
 
