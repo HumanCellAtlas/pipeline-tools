@@ -68,9 +68,11 @@ def get_metadata(cromwell_url, workflow_id, http_requests):
     # As a workaround, we need to pass `Accept-Encoding: identity` to the header
     # to force disabling the compressing
     headers['Accept-Encoding'] = 'identity'
-        
+
     base_url = cromwell_url.strip('/')
-    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(base_url, workflow_id)
+    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(
+        base_url, workflow_id
+    )
 
     response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
@@ -86,10 +88,14 @@ def main():
     print('Using analysis output path: {0}'.format(args.analysis_output_path))
 
     # Get the workflow id and metadata, write them to files
-    workflow_id = get_analysis_workflow_id(analysis_output_path=args.analysis_output_path)
-    get_metadata(cromwell_url=args.cromwell_url,
-                 workflow_id=workflow_id,
-                 http_requests=HttpRequests())
+    workflow_id = get_analysis_workflow_id(
+        analysis_output_path=args.analysis_output_path
+    )
+    get_metadata(
+        cromwell_url=args.cromwell_url,
+        workflow_id=workflow_id,
+        http_requests=HttpRequests(),
+    )
 
 
 if __name__ == '__main__':

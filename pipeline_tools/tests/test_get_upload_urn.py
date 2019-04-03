@@ -12,44 +12,27 @@ def test_data():
     class Data:
         envelope_url = 'https://api.ingest.integration.data.humancellatlas.org/submissionEnvelopes/abcde'
         envelope_json = {
-            'stagingDetails': {
-                'stagingAreaLocation': {
-                    'value': 'test_urn'
-                }
-            }
+            'stagingDetails': {'stagingAreaLocation': {'value': 'test_urn'}}
         }
 
     return Data
 
 
 class TestGetStagingUrn(object):
-
     def test_get_upload_urn_empty_js(self):
         js = {}
         assert getter.get_upload_urn(js) is None
 
     def test_get_upload_urn_null_details(self):
-        js = {
-            'stagingDetails': None
-        }
+        js = {'stagingDetails': None}
         assert getter.get_upload_urn(js) is None
 
     def test_get_upload_urn_null_location(self):
-        js = {
-            'stagingDetails': {
-                'stagingAreaLocation': None
-            }
-        }
+        js = {'stagingDetails': {'stagingAreaLocation': None}}
         assert getter.get_upload_urn(js) is None
 
     def test_get_upload_urn_null_value(self):
-        js = {
-            'stagingDetails': {
-                'stagingAreaLocation': {
-                    'value': None
-                }
-            }
-        }
+        js = {'stagingDetails': {'stagingAreaLocation': {'value': None}}}
         assert getter.get_upload_urn(js) is None
 
     def test_get_upload_urn_valid_value(self, test_data):

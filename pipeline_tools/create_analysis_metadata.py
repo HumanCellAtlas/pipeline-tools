@@ -11,14 +11,16 @@ import re
 import arrow
 
 
-def create_analysis_process(raw_schema_url,
-                            metadata_file,
-                            analysis_process_schema_version,
-                            analysis_id,
-                            input_bundles_string,
-                            reference_bundle,
-                            inputs,
-                            run_type):
+def create_analysis_process(
+    raw_schema_url,
+    metadata_file,
+    analysis_process_schema_version,
+    analysis_id,
+    input_bundles_string,
+    reference_bundle,
+    inputs,
+    run_type,
+):
     """Collect and create the information about the analysis process for submission to Ingest service.
 
     Based the design of this HCA metadata type, analysis_process will vary between each analysis run, even if they share
@@ -53,9 +55,11 @@ def create_analysis_process(raw_schema_url,
     workflow_tasks = get_workflow_tasks(workflow_metadata)
 
     analysis_process = {
-        'describedBy': get_analysis_described_by(schema_url=raw_schema_url,
-                                                 schema_type=SCHEMA_TYPE,
-                                                 schema_version=analysis_process_schema_version),
+        'describedBy': get_analysis_described_by(
+            schema_url=raw_schema_url,
+            schema_type=SCHEMA_TYPE,
+            schema_version=analysis_process_schema_version,
+        ),
         'schema_type': SCHEMA_TYPE,
         'process_core': get_analysis_process_core(analysis_workflow_id=analysis_id),
         'process_type': get_analysis_process_type(),
@@ -70,7 +74,9 @@ def create_analysis_process(raw_schema_url,
     return analysis_process
 
 
-def create_analysis_protocol(raw_schema_url, analysis_protocol_schema_version, pipeline_version, method):
+def create_analysis_protocol(
+    raw_schema_url, analysis_protocol_schema_version, pipeline_version, method
+):
     """Collect and create the information about the analysis protocol for submission to Ingest service.
 
     Based the design of this HCA metadata type, one analysis_protocol will be shared by every analysis run for a given
@@ -97,9 +103,11 @@ def create_analysis_protocol(raw_schema_url, analysis_protocol_schema_version, p
     SCHEMA_TYPE = 'protocol'
 
     analysis_protocol = {
-        'describedBy': get_analysis_described_by(schema_url=raw_schema_url,
-                                                 schema_type=SCHEMA_TYPE,
-                                                 schema_version=analysis_protocol_schema_version),
+        'describedBy': get_analysis_described_by(
+            schema_url=raw_schema_url,
+            schema_type=SCHEMA_TYPE,
+            schema_version=analysis_protocol_schema_version,
+        ),
         'schema_type': SCHEMA_TYPE,
         'protocol_core': get_analysis_protocol_core(pipeline_version=pipeline_version),
         'computational_method': method,
@@ -119,7 +127,12 @@ def get_inputs(inputs_file):
     """
     with open(inputs_file) as f:
         f.readline()  # skip header
-        reader = DictReader(f, lineterminator='\n', delimiter='\t', fieldnames=['parameter_name', 'parameter_value'])
+        reader = DictReader(
+            f,
+            lineterminator='\n',
+            delimiter='\t',
+            fieldnames=['parameter_name', 'parameter_value'],
+        )
         inputs = [line for line in reader]
     return inputs
 
@@ -143,13 +156,16 @@ def get_outputs(output_urls, extension_to_format, schema_url, analysis_file_vers
     """
     outputs = [
         {
-            'describedBy': '{0}/type/file/{1}/analysis_file'.format(schema_url, analysis_file_version),
+            'describedBy': '{0}/type/file/{1}/analysis_file'.format(
+                schema_url, analysis_file_version
+            ),
             'schema_type': 'file',
             'file_core': {
                 'file_name': output_url.split('/')[-1],
-                'file_format': get_file_format(output_url, extension_to_format)
-            }
-        } for output_url in sorted(output_urls)
+                'file_format': get_file_format(output_url, extension_to_format),
+            },
+        }
+        for output_url in sorted(output_urls)
     ]
     return outputs
 
@@ -163,7 +179,9 @@ def get_input_urls(inputs):
     Returns:
         (List[str]): list of gs urls
     """
-    return [i['parameter_value'] for i in inputs if i['parameter_value'].startswith('gs://')]
+    return [
+        i['parameter_value'] for i in inputs if i['parameter_value'].startswith('gs://')
+    ]
 
 
 def add_md5s_to_inputs(inputs, input_url_to_md5):
@@ -270,9 +288,8 @@ def get_analysis_described_by(schema_url, schema_type, schema_version):
                                     "describedBy" field in the analysis metadata.
     """
     schema_url_reference = '{schema_url}/type/{schema_type}/analysis/{schema_version}/analysis_{schema_type}'.format(
-            schema_url=schema_url,
-            schema_type=schema_type,
-            schema_version=schema_version)
+        schema_url=schema_url, schema_type=schema_type, schema_version=schema_version
+    )
     return schema_url_reference
 
 
@@ -340,7 +357,9 @@ def get_workflow_tasks(workflow_metadata):
         task = calls[long_task_name][0]
 
         if task.get('subWorkflowMetadata'):
-            output_tasks.extend(get_workflow_tasks(task['subWorkflowMetadata']))  # recursively parse tasks
+            output_tasks.extend(
+                get_workflow_tasks(task['subWorkflowMetadata'])
+            )  # recursively parse tasks
         else:
             runtime = task['runtimeAttributes']
             out_task = {
@@ -353,7 +372,7 @@ def get_workflow_tasks(workflow_metadata):
                 'start_time': format_timestamp(task['start']),
                 'stop_time': format_timestamp(task['end']),
                 'log_out': task['stdout'],
-                'log_err': task['stderr']
+                'log_err': task['stderr'],
             }
             output_tasks.append(out_task)
     sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
@@ -430,52 +449,77 @@ def get_analysis_protocol_type():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--analysis_id',
-                        required=True,
-                        help='Cromwell UUID of the analysis workflow.')
-    parser.add_argument('--metadata_json',
-                        required=True,
-                        help='Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.')
-    parser.add_argument('--input_bundles',
-                        required=True,
-                        help='A comma-separated list of the DSS bundles used as inputs for the analysis workflow.')
-    parser.add_argument('--reference_bundle',
-                        required=True,
-                        help='To refer to the DSS resource bundle used for this workflow, once such things exist')
-    parser.add_argument('--run_type',
-                        required=True,
-                        help='Should always be "run" for now, may be "copy-forward" in some cases in future')
-    parser.add_argument('--method',
-                        required=True,
-                        help='Supposed to be method store url, for now can be url for wdl in skylab, or the name of'
-                             ' the analysis workflow.')
-    parser.add_argument('--schema_url',
-                        required=True,
-                        help='URL for retrieving HCA metadata schemas.')
-    parser.add_argument('--analysis_process_schema_version',
-                        required=True,
-                        help='Version of the metadata schema that the analysis_process conforms to.')
-    parser.add_argument('--analysis_protocol_schema_version',
-                        required=True,
-                        help='Version of the metadata schema that the analysis_protocol conforms to.')
-    parser.add_argument('--pipeline_version',
-                        required=True,
-                        help='The version of the pipeline, currently provided by the label of the adapter workflow'
-                             ' around the analysis workflow.')
-    parser.add_argument('--analysis_file_version',
-                        required=True,
-                        help='The metadata schema version that the output files(analysis_file) conform to.')
-    parser.add_argument('--inputs_file',
-                        required=True,
-                        help='Path to tsv file containing info about inputs.')
-    parser.add_argument('--outputs_file',
-                        required=True,
-                        help='Path to JSON file containing info about outputs.')
-    parser.add_argument('--format_map',
-                        required=True,
-                        help='JSON file providing map of file extensions to formats.')
-    parser.add_argument('--add_md5s',
-                        help='Set to "true" to add md5 checksums to file metadata')
+    parser.add_argument(
+        '--analysis_id', required=True, help='Cromwell UUID of the analysis workflow.'
+    )
+    parser.add_argument(
+        '--metadata_json',
+        required=True,
+        help='Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.',
+    )
+    parser.add_argument(
+        '--input_bundles',
+        required=True,
+        help='A comma-separated list of the DSS bundles used as inputs for the analysis workflow.',
+    )
+    parser.add_argument(
+        '--reference_bundle',
+        required=True,
+        help='To refer to the DSS resource bundle used for this workflow, once such things exist',
+    )
+    parser.add_argument(
+        '--run_type',
+        required=True,
+        help='Should always be "run" for now, may be "copy-forward" in some cases in future',
+    )
+    parser.add_argument(
+        '--method',
+        required=True,
+        help='Supposed to be method store url, for now can be url for wdl in skylab, or the name of'
+        ' the analysis workflow.',
+    )
+    parser.add_argument(
+        '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
+    )
+    parser.add_argument(
+        '--analysis_process_schema_version',
+        required=True,
+        help='Version of the metadata schema that the analysis_process conforms to.',
+    )
+    parser.add_argument(
+        '--analysis_protocol_schema_version',
+        required=True,
+        help='Version of the metadata schema that the analysis_protocol conforms to.',
+    )
+    parser.add_argument(
+        '--pipeline_version',
+        required=True,
+        help='The version of the pipeline, currently provided by the label of the adapter workflow'
+        ' around the analysis workflow.',
+    )
+    parser.add_argument(
+        '--analysis_file_version',
+        required=True,
+        help='The metadata schema version that the output files(analysis_file) conform to.',
+    )
+    parser.add_argument(
+        '--inputs_file',
+        required=True,
+        help='Path to tsv file containing info about inputs.',
+    )
+    parser.add_argument(
+        '--outputs_file',
+        required=True,
+        help='Path to JSON file containing info about outputs.',
+    )
+    parser.add_argument(
+        '--format_map',
+        required=True,
+        help='JSON file providing map of file extensions to formats.',
+    )
+    parser.add_argument(
+        '--add_md5s', help='Set to "true" to add md5 checksums to file metadata'
+    )
     args = parser.parse_args()
 
     # Get the extension_to_format mapping
@@ -488,10 +532,12 @@ def main():
     inputs = get_inputs(args.inputs_file)
     with open(args.outputs_file) as f:
         output_urls = f.read().splitlines()
-    outputs = get_outputs(output_urls=output_urls,
-                          extension_to_format=extension_to_format,
-                          schema_url=schema_url,
-                          analysis_file_version=args.analysis_file_version)
+    outputs = get_outputs(
+        output_urls=output_urls,
+        extension_to_format=extension_to_format,
+        schema_url=schema_url,
+        analysis_file_version=args.analysis_file_version,
+    )
 
     # Add md5 checksums to input and output metadata if needed
     # See https://github.com/HumanCellAtlas/secondary-analysis/issues/287 for why
@@ -504,7 +550,9 @@ def main():
         inputs = add_md5s_to_inputs(inputs, input_url_to_md5)
 
         output_url_to_md5 = get_md5s(output_urls, client)
-        output_name_to_md5 = {url.split('/')[-1]: md5 for url, md5 in output_url_to_md5.items()}
+        output_name_to_md5 = {
+            url.split('/')[-1]: md5 for url, md5 in output_url_to_md5.items()
+        }
         outputs = add_md5s_to_outputs(outputs, output_name_to_md5)
 
     # Write outputs to file
@@ -514,14 +562,15 @@ def main():
 
     # Create analysis_process
     analysis_process = create_analysis_process(
-            raw_schema_url=schema_url,
-            metadata_file=args.metadata_json,
-            analysis_process_schema_version=args.analysis_process_schema_version,
-            analysis_id=args.analysis_id,
-            input_bundles_string=args.input_bundles,
-            reference_bundle=args.reference_bundle,
-            inputs=inputs,
-            run_type=args.run_type)
+        raw_schema_url=schema_url,
+        metadata_file=args.metadata_json,
+        analysis_process_schema_version=args.analysis_process_schema_version,
+        analysis_id=args.analysis_id,
+        input_bundles_string=args.input_bundles,
+        reference_bundle=args.reference_bundle,
+        inputs=inputs,
+        run_type=args.run_type,
+    )
 
     # Write analysis_process to file
     print('Writing analysis_process.json to disk...')
@@ -530,10 +579,10 @@ def main():
 
     # Create analysis_protocol
     analysis_protocol = create_analysis_protocol(
-            raw_schema_url=schema_url,
-            analysis_protocol_schema_version=args.analysis_protocol_schema_version,
-            pipeline_version=args.pipeline_version,
-            method=args.method
+        raw_schema_url=schema_url,
+        analysis_protocol_schema_version=args.analysis_protocol_schema_version,
+        pipeline_version=args.pipeline_version,
+        method=args.method,
     )
 
     # Write analysis_protocol to file

@@ -19,7 +19,8 @@ def get_file_by_uuid(file_id, dss_url, http_requests):
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     url = '{dss_url}/files/{file_id}?replica=gcp'.format(
-            dss_url=dss_url, file_id=file_id)
+        dss_url=dss_url, file_id=file_id
+    )
     logging.info('GET {0}'.format(url))
     response = http_requests.get(url)
     logging.info(response.status_code)
@@ -59,7 +60,8 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls=true'.format(
-            dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version)
+        dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version
+    )
     logging.info('GET {0}'.format(url))
     response = http_requests.get(url)
     logging.info(response.status_code)
@@ -68,12 +70,14 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
     return manifest
 
 
-def get_auth_token(http_requests,
-                   url="https://danielvaughan.eu.auth0.com/oauth/token",
-                   client_id="Zdsog4nDAnhQ99yiKwMQWAPc2qUDlR99",
-                   client_secret="t-OAE-GQk_nZZtWn-QQezJxDsLXmU7VSzlAh9cKW5vb87i90qlXGTvVNAjfT9weF",
-                   audience="http://localhost:8080",
-                   grant_type="client_credentials"):
+def get_auth_token(
+    http_requests,
+    url="https://danielvaughan.eu.auth0.com/oauth/token",
+    client_id="Zdsog4nDAnhQ99yiKwMQWAPc2qUDlR99",
+    client_secret="t-OAE-GQk_nZZtWn-QQezJxDsLXmU7VSzlAh9cKW5vb87i90qlXGTvVNAjfT9weF",
+    audience="http://localhost:8080",
+    grant_type="client_credentials",
+):
     """Request and get the access token for a trusted client from Auth0.
 
     .. note::
@@ -97,14 +101,12 @@ def get_auth_token(http_requests,
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
     url = url
-    headers = {
-        "content-type": "application/json"
-    }
+    headers = {"content-type": "application/json"}
     payload = {
         "client_id": client_id,
         "client_secret": client_secret,
         "audience": audience,
-        "grant_type": grant_type
+        "grant_type": grant_type,
     }
     response = http_requests.post(url=url, headers=headers, json=payload)
     response.raise_for_status()
@@ -128,6 +130,8 @@ def make_auth_header(auth_token):
 
     headers = {
         "Content-type": "application/json",
-        "Authorization": "{token_type} {access_token}".format(token_type=token_type, access_token=access_token)
+        "Authorization": "{token_type} {access_token}".format(
+            token_type=token_type, access_token=access_token
+        ),
     }
     return headers

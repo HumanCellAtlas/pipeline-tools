@@ -10,7 +10,6 @@ from .http_requests_manager import HttpRequestsManager
 
 
 class TestHttpRequests(object):
-
     def test_check_status_bad_codes(self):
         with pytest.raises(requests.HTTPError):
             response = requests.Response()
@@ -215,7 +214,10 @@ class TestHttpRequests(object):
         assert HttpRequests._get_next_file_suffix(['a_002.txt', 'a_010.txt']) == '011'
 
     def test_get_next_file_suffix_unsorted(self):
-        assert HttpRequests._get_next_file_suffix(['a_002.txt', 'a_004.txt', 'a_003.txt']) == '005'
+        assert (
+            HttpRequests._get_next_file_suffix(['a_002.txt', 'a_004.txt', 'a_003.txt'])
+            == '005'
+        )
 
     def test_attributes_initialized_for_empty_strings(self):
         with HttpRequestsManager():
@@ -231,7 +233,7 @@ class TestHttpRequests(object):
             assert hr.record_dir == '.'
             assert hr.retry_timeout == 7200
             assert hr.individual_request_timeout == 60
-            assert hr.retry_max_tries == 1E4
+            assert hr.retry_max_tries == 1e4
             assert hr.retry_multiplier == 1
             assert hr.retry_max_interval == 60
             assert hr.individual_request_timeout == 60

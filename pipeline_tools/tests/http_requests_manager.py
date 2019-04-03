@@ -20,8 +20,15 @@ class HttpRequestsManager(TemporaryDirectory):
             individual_request_timeout (float): time out any request that takes longer than this number of seconds
     """
 
-    def __init__(self, should_record=True, max_tries=3, retry_multiplier=0.01, timeout=1, max_interval=10,
-                 individual_request_timeout=1):
+    def __init__(
+        self,
+        should_record=True,
+        max_tries=3,
+        retry_multiplier=0.01,
+        timeout=1,
+        max_interval=10,
+        individual_request_timeout=1,
+    ):
         """Sets self.should_record attribute.
 
         Args:
@@ -51,7 +58,9 @@ class HttpRequestsManager(TemporaryDirectory):
         os.environ[http_requests.RETRY_TIMEOUT] = str(self.timeout)
         os.environ[http_requests.RETRY_MULTIPLIER] = str(self.retry_multiplier)
         os.environ[http_requests.RETRY_MAX_INTERVAL] = str(self.max_interval)
-        os.environ[http_requests.INDIVIDUAL_REQUEST_TIMEOUT] = str(self.individual_request_timeout)
+        os.environ[http_requests.INDIVIDUAL_REQUEST_TIMEOUT] = str(
+            self.individual_request_timeout
+        )
         if self.should_record:
             os.environ[http_requests.RECORD_HTTP_REQUESTS] = 'true'
         return self.name

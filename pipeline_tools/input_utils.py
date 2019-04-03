@@ -38,14 +38,20 @@ def get_expected_cell_count(bundle):
     Raises:
         MoreThanOneCellSuspensionError: if the data bundle contains more than one cell_suspension.json file
     """
-    cell_suspension = [f for f in bundle.biomaterials.values() if isinstance(f, CellSuspension)]
+    cell_suspension = [
+        f for f in bundle.biomaterials.values() if isinstance(f, CellSuspension)
+    ]
     n_cell_suspension = len(cell_suspension)
     if n_cell_suspension != 1:
-        raise MoreThanOneCellSuspensionError('The data bundle should contain exactly 1 cell_suspension.json file, ' +
-                                             'not {}'.format(n_cell_suspension))
+        raise MoreThanOneCellSuspensionError(
+            'The data bundle should contain exactly 1 cell_suspension.json file, '
+            + 'not {}'.format(n_cell_suspension)
+        )
     default_estimated_cells = 3000
     total_estimated_cells = cell_suspension[0].total_estimated_cells
-    return int(total_estimated_cells) if total_estimated_cells else default_estimated_cells
+    return (
+        int(total_estimated_cells) if total_estimated_cells else default_estimated_cells
+    )
 
 
 def get_urls_to_files_for_ss2(bundle):
@@ -84,7 +90,12 @@ def download_file(item, dss_url, http_requests=HttpRequests()):
     """
     file_name, manifest_entry = item
     file_uuid = manifest_entry['uuid']
-    return file_name, dcp_utils.get_file_by_uuid(file_id=file_uuid, dss_url=dss_url, http_requests=http_requests)
+    return (
+        file_name,
+        dcp_utils.get_file_by_uuid(
+            file_id=file_uuid, dss_url=dss_url, http_requests=http_requests
+        ),
+    )
 
 
 def get_metadata_files(metadata_files_dict, dss_url, num_workers=None):
@@ -107,14 +118,22 @@ def get_metadata_files(metadata_files_dict, dss_url, num_workers=None):
     """
     if num_workers == 0:
         metadata_files = dict(
-                map(functools.partial(download_file, dss_url=dss_url, http_requests=HttpRequests()),
-                    metadata_files_dict.items())
+            map(
+                functools.partial(
+                    download_file, dss_url=dss_url, http_requests=HttpRequests()
+                ),
+                metadata_files_dict.items(),
+            )
         )
     else:
         with ThreadPoolExecutor(num_workers) as tpe:
             metadata_files = dict(
-                    tpe.map(functools.partial(download_file, dss_url=dss_url, http_requests=HttpRequests()),
-                            metadata_files_dict.items())
+                tpe.map(
+                    functools.partial(
+                        download_file, dss_url=dss_url, http_requests=HttpRequests()
+                    ),
+                    metadata_files_dict.items(),
+                )
             )
     return metadata_files
 
@@ -131,15 +150,21 @@ def get_bundle_metadata(uuid, version, dss_url, http_requests):
     Returns:
         humancellatlas.data.metadata.Bundle: A bundle metadata object.
     """
-    manifest = dcp_utils.get_manifest(bundle_uuid=uuid,
-                                      bundle_version=version,
-                                      dss_url=dss_url,
-                                      http_requests=http_requests)['bundle']['files']
+    manifest = dcp_utils.get_manifest(
+        bundle_uuid=uuid,
+        bundle_version=version,
+        dss_url=dss_url,
+        http_requests=http_requests,
+    )['bundle']['files']
 
     metadata_files_dict = {f['name']: f for f in manifest if f['indexed']}
-    metadata_files = get_metadata_files(metadata_files_dict=metadata_files_dict, dss_url=dss_url)
+    metadata_files = get_metadata_files(
+        metadata_files_dict=metadata_files_dict, dss_url=dss_url
+    )
 
-    return Bundle(uuid=uuid, version=version, manifest=manifest, metadata_files=metadata_files)
+    return Bundle(
+        uuid=uuid, version=version, manifest=manifest, metadata_files=metadata_files
+    )
 
 
 def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_requests):
@@ -158,18 +183,26 @@ def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_re
         requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
     """
 
-    print("Getting bundle manifest for id {0}, version {1}".format(bundle_uuid, bundle_version))
-    primary_bundle = get_bundle_metadata(uuid=bundle_uuid,
-                                         version=bundle_version,
-                                         dss_url=dss_url,
-                                         http_requests=http_requests)
+    print(
+        "Getting bundle manifest for id {0}, version {1}".format(
+            bundle_uuid, bundle_version
+        )
+    )
+    primary_bundle = get_bundle_metadata(
+        uuid=bundle_uuid,
+        version=bundle_version,
+        dss_url=dss_url,
+        http_requests=http_requests,
+    )
 
     sample_id = get_sample_id(primary_bundle)
     fastq_1_url, fastq_2_url = get_urls_to_files_for_ss2(primary_bundle)
     return fastq_1_url, fastq_2_url, sample_id
 
 
-def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, input_tsv_name='inputs.tsv'):
+def create_ss2_input_tsv(
+    bundle_uuid, bundle_version, dss_url, input_tsv_name='inputs.tsv'
+):
     """Create TSV of Smart-seq2 inputs.
 
     Args:
@@ -185,8 +218,9 @@ def create_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, input_tsv_name='i
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
     """
-    fastq_1_url, fastq_2_url, sample_id = _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url,
-                                                                         HttpRequests())
+    fastq_1_url, fastq_2_url, sample_id = _get_content_for_ss2_input_tsv(
+        bundle_uuid, bundle_version, dss_url, HttpRequests()
+    )
 
     print('Creating input map')
     with open(input_tsv_name, 'w') as f:
@@ -212,11 +246,15 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     """
     # Get bundle manifest
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
-    primary_bundle = get_bundle_metadata(uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests())
+    primary_bundle = get_bundle_metadata(
+        uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests()
+    )
 
     # Parse inputs from metadata
     print('Gathering fastq inputs')
-    fastq_files = [f for f in primary_bundle.files.values() if f.file_format == 'fastq.gz']
+    fastq_files = [
+        f for f in primary_bundle.files.values() if f.file_format == 'fastq.gz'
+    ]
     lane_to_fastqs = optimus_utils.create_fastq_dict(fastq_files)
 
     # Stop if any fastqs are missing
@@ -233,7 +271,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     with open('r2.txt', 'w') as f:
         for url in r2_urls:
             f.write(url + '\n')
-    
+
     # Always generate the i1.txt, if there are no i1 fastq files,
     # the content of this file will be empty
     with open('i1.txt', 'w') as f:
@@ -264,7 +302,9 @@ def get_cellranger_input_files(uuid, version, dss_url):
     """
     # Get bundle manifest
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
-    primary_bundle = get_bundle_metadata(uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests())
+    primary_bundle = get_bundle_metadata(
+        uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests()
+    )
 
     sample_id = get_sample_id(primary_bundle)
     print('Writing sample ID to sample_id.txt')
@@ -278,23 +318,23 @@ def get_cellranger_input_files(uuid, version, dss_url):
 
     # Parse inputs from metadata
     print('Gathering fastq inputs')
-    fastq_files = [f for f in primary_bundle.files.values() if f.file_format == 'fastq.gz']
+    fastq_files = [
+        f for f in primary_bundle.files.values() if f.file_format == 'fastq.gz'
+    ]
     lane_to_fastqs = optimus_utils.create_fastq_dict(fastq_files)
 
     # Stop if any fastqs are missing
     optimus_utils.validate_lanes(lane_to_fastqs)
 
-    read_indices = {
-        'read1': 'R1',
-        'read2': 'R2',
-        'index1': 'I1'
-    }
+    read_indices = {'read1': 'R1', 'read2': 'R2', 'index1': 'I1'}
     fastq_urls = []
     fastq_names = []
 
     for lane, reads in lane_to_fastqs.items():
         for read_index, url in reads.items():
-            new_file_name = '{}_S1_L00{}_{}_001.fastq.gz'.format(sample_id, str(lane), read_indices[read_index])
+            new_file_name = '{}_S1_L00{}_{}_001.fastq.gz'.format(
+                sample_id, str(lane), read_indices[read_index]
+            )
             fastq_names.append(new_file_name)
             fastq_urls.append(url)
 
