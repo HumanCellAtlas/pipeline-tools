@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import argparse
 import json
-from typing import List
 
 from pipeline_tools import auth_utils
 from pipeline_tools.http_requests import HttpRequests

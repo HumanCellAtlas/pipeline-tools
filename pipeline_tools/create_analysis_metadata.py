@@ -6,7 +6,6 @@ import json
 from copy import deepcopy
 from csv import DictReader
 from google.cloud import storage
-from typing import List
 import re
 import arrow
 

@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 """Utilities for preparing Optimus inputs.
 """
 

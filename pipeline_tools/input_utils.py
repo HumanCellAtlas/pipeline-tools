@@ -1,6 +1,4 @@
-import os
 import functools
-import typing
 from concurrent.futures import ThreadPoolExecutor
 from humancellatlas.data.metadata.api import Bundle, CellSuspension
 
