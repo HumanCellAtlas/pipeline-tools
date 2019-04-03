@@ -12,9 +12,9 @@ jobs:
     - stage: Linting Test
       script: 
         # Check Black code style compliance
-        - black pipeline-tools/ --skip-string-normalization --check
+        - black pipeline_tools/ --skip-string-normalization --check
         # Check PEP-8 compliance
-        - flake8 pipeline-tools/
+        - flake8 pipeline_tools/
 
     # The unit test is a bit more expensive so run it only
     # if the linting test passes
