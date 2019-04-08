@@ -1,10 +1,26 @@
 language: python
+
 python:
-- '3.6'
+  - '3.6'
+
 # Get latest setuptools below because metadata-api installation fails without at least 40.1.0
-install: pip install -U setuptools && pip install -r requirements.txt -r test-requirements.txt
-env:
-script: pytest -v
+install: "pip install -U setuptools && pip install -r requirements.txt -r test-requirements.txt"
+
+jobs:
+  include:
+    # The linting test is fast and cheap so run it first
+    - stage: Linting Test
+      script: 
+        # Check Black code style compliance
+        - black pipeline_tools/ --skip-string-normalization --check
+        # Check PEP-8 compliance
+        - flake8
+
+    # The unit test is a bit more expensive so run it only
+    # if the linting test passes
+    - stage: Unit Test
+      script: pytest -v
+
 notifications:
   slack:
     on_success: change

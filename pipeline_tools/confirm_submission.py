@@ -22,6 +22,7 @@ def wait_for_valid_status(envelope_url, http_requests):
         requests.HTTPError: if 4xx error or 5xx error past timeout
         tenacity.RetryError: if status is invalid past timeout
     """
+
     def log_before(envelope_url):
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print('{0} Getting status for {1}'.format(now, envelope_url))
@@ -32,13 +33,10 @@ def wait_for_valid_status(envelope_url, http_requests):
         print('submissionState: {}'.format(status))
         return status != 'Valid'
 
-    response = (
-        http_requests
-        .get(
-            envelope_url,
-            before=log_before(envelope_url),
-            retry=retry_if_result(status_is_invalid)
-        )
+    response = http_requests.get(
+        envelope_url,
+        before=log_before(envelope_url),
+        retry=retry_if_result(status_is_invalid),
     )
     return True
 
@@ -57,11 +55,10 @@ def confirm(envelope_url, http_requests):
         requests.HTTPError: if the response status indicates an error
     """
     print('Confirming submission')
-    headers = {
-        'Content-type': 'application/json'
-    }
-    response = http_requests.put('{}/submissionEvent'.format(envelope_url),
-                                 headers=headers)
+    headers = {'Content-type': 'application/json'}
+    response = http_requests.put(
+        '{}/submissionEvent'.format(envelope_url), headers=headers
+    )
     text = response.text
     print(text)
     return text

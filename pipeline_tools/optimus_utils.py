@@ -1,7 +1,6 @@
-from typing import Dict, List
-
 """Utilities for preparing Optimus inputs.
 """
+
 
 def create_fastq_dict(fastq_files):
     """Create dictionary mapping each lane to the corresponding fastq files.
@@ -122,7 +121,9 @@ def validate_lanes(lane_to_fastqs):
         msg = 'One or more lanes is missing a fastq file.\n'
         for lane in lanes:
             format_str = 'Lane {0}: read1: {1}, read2: {2}, index1: {3}\n'
-            msg += format_str.format(lane, lane_to_read1[lane], lane_to_read2[lane], lane_to_index1[lane])
+            msg += format_str.format(
+                lane, lane_to_read1[lane], lane_to_read2[lane], lane_to_index1[lane]
+            )
         raise LaneMissingFileError(msg)
 
 
