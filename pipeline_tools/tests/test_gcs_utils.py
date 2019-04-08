@@ -21,7 +21,6 @@ def test_data():
 
 
 class TestGCSUtils(object):
-
     def test_get_filename_from_gs_link(self):
         """Test if get_filename_from_gs_link can get correct filename from google cloud storage link.
         """
@@ -48,19 +47,27 @@ class TestGCSUtils(object):
 
     def test_download_to_bytes_readable(self, test_data):
         """Test if download_to_buffer correctly download blob and store it into Bytes Buffer."""
-        result = gcs_utils.download_to_buffer(test_data.bucket.blob(test_data.blob_name))
+        result = gcs_utils.download_to_buffer(
+            test_data.bucket.blob(test_data.blob_name)
+        )
         assert isinstance(result, io.BytesIO)
 
     def test_download_gcs_blob(self, test_data):
         """Test if download_gcs_blob can correctly create destination file on the disk."""
-        gcs_client = gcs_utils.GoogleCloudStorageClient(key_location="test_key", scopes=['test_scope'])
+        gcs_client = gcs_utils.GoogleCloudStorageClient(
+            key_location="test_key", scopes=['test_scope']
+        )
         gcs_client.storage_client = test_data.client
-        result = gcs_utils.download_gcs_blob(gcs_client, test_data.BUCKET_NAME, test_data.blob_name)
+        result = gcs_utils.download_gcs_blob(
+            gcs_client, test_data.BUCKET_NAME, test_data.blob_name
+        )
         assert isinstance(result, io.BytesIO)
 
     def test_lazyproperty_initialize_late_for_gcs_client(self):
         """Test if the LazyProperty decorator can work well with GoogleCloudStorageClient class."""
-        gcs_client = gcs_utils.GoogleCloudStorageClient(key_location="test_key", scopes=['test_scope'])
+        gcs_client = gcs_utils.GoogleCloudStorageClient(
+            key_location="test_key", scopes=['test_scope']
+        )
         assert gcs_client is not None
         assert gcs_client.key_location == "test_key"
         assert gcs_client.scopes[0] == "test_scope"

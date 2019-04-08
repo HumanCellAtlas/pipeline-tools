@@ -6,7 +6,9 @@ import random
 
 
 ManifestEntry = namedtuple('ManifestEntry', ['url'])
-BundleFile = namedtuple('BundleFile', ['file_format', 'lane_index', 'read_index', 'manifest_entry'])
+BundleFile = namedtuple(
+    'BundleFile', ['file_format', 'lane_index', 'read_index', 'manifest_entry']
+)
 # Although file lists are defined in a specific order below (to make it easier to read),
 # we want to make sure functionality does not depend on that order, so we randomly shuffle
 # the lists before running the tests. Seeding the random number generator here with
@@ -17,12 +19,14 @@ r = random.Random(12)
 
 @pytest.fixture
 def valid_files_with_index():
-    files = [BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
-             BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
-             BundleFile('fastq.gz', 5, 'index1', ManifestEntry('gs://5/i1.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz'))]
+    files = [
+        BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'index1', ManifestEntry('gs://5/i1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz')),
+    ]
     r.shuffle(files)
     return files
 
@@ -33,33 +37,37 @@ def valid_files_with_index_dict():
         5: {
             'read1': 'gs://5/r1.fastq.gz',
             'read2': 'gs://5/r2.fastq.gz',
-            'index1': 'gs://5/i1.fastq.gz'
+            'index1': 'gs://5/i1.fastq.gz',
         },
         7: {
             'read1': 'gs://7/r1.fastq.gz',
             'read2': 'gs://7/r2.fastq.gz',
-            'index1': 'gs://7/i1.fastq.gz'
-        }
+            'index1': 'gs://7/i1.fastq.gz',
+        },
     }
 
 
 @pytest.fixture
 def valid_files_no_index():
-    files = [BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
-             BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz'))]
+    files = [
+        BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
+    ]
     r.shuffle(files)
     return files
 
 
 @pytest.fixture
 def invalid_files_one_lane_indexed():
-    files = [BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
-             BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz'))]
+    files = [
+        BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz')),
+    ]
     r.shuffle(files)
     return files
 
@@ -67,39 +75,42 @@ def invalid_files_one_lane_indexed():
 @pytest.fixture
 def invalid_files_one_lane_indexed_dict():
     return {
-        5: {
-            'read1': 'gs://5/r1.fastq.gz',
-            'read2': 'gs://5/r2.fastq.gz'
-        },
+        5: {'read1': 'gs://5/r1.fastq.gz', 'read2': 'gs://5/r2.fastq.gz'},
         7: {
             'read1': 'gs://7/r1.fastq.gz',
             'read2': 'gs://7/r2.fastq.gz',
-            'index1': 'gs://7/i1.fastq.gz'
-        }
+            'index1': 'gs://7/i1.fastq.gz',
+        },
     }
 
 
 @pytest.fixture
 def invalid_files_missing_read1():
-    files = [BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
-             BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz'))]
+    files = [
+        BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
+    ]
     r.shuffle(files)
     return files
 
 
 @pytest.fixture
 def invalid_files_missing_read2():
-    files = [BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
-             BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz'))]
+    files = [
+        BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz')),
+    ]
     r.shuffle(files)
     return files
 
 
-def test_create_fastq_dict(valid_files_with_index,
-                           valid_files_with_index_dict,
-                           invalid_files_one_lane_indexed,
-                           invalid_files_one_lane_indexed_dict):
+def test_create_fastq_dict(
+    valid_files_with_index,
+    valid_files_with_index_dict,
+    invalid_files_one_lane_indexed,
+    invalid_files_one_lane_indexed_dict,
+):
     fastq_dict = optimus_utils.create_fastq_dict(valid_files_with_index)
     assert fastq_dict == valid_files_with_index_dict
 
@@ -119,7 +130,9 @@ def test_validate_lanes_requires_read2(invalid_files_missing_read2):
         optimus_utils.validate_lanes(fastq_dict)
 
 
-def test_validate_lanes_rejects_mixing_indexed_and_non_indexed_lanes(invalid_files_one_lane_indexed):
+def test_validate_lanes_rejects_mixing_indexed_and_non_indexed_lanes(
+    invalid_files_one_lane_indexed
+):
     fastq_dict = optimus_utils.create_fastq_dict(invalid_files_one_lane_indexed)
     with pytest.raises(optimus_utils.LaneMissingFileError):
         optimus_utils.validate_lanes(fastq_dict)

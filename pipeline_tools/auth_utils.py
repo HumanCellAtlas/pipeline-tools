@@ -16,14 +16,19 @@ class DCPAuthClient(object):
 
     @property
     def audience(self):
-        if not any(deployment in self.trusted_google_project for deployment in DCPAuthClient.dev_deployments):
+        if not any(
+            deployment in self.trusted_google_project
+            for deployment in DCPAuthClient.dev_deployments
+        ):
             return "https://data.humancellatlas.org/"
         return "https://dev.data.humancellatlas.org/"
 
     @property
     def token(self):
         credentials = DCPAuthClient._from_json(self.path_to_json_key)
-        token = DCPAuthClient.get_service_jwt(service_credentials=credentials, audience=self.audience)
+        token = DCPAuthClient.get_service_jwt(
+            service_credentials=credentials, audience=self.audience
+        )
         return token
 
     @staticmethod
@@ -41,13 +46,19 @@ class DCPAuthClient(object):
             'aud': audience,
             'iat': iat,
             'exp': exp,
-            'https://auth.data.humancellatlas.org/email': service_credentials["client_email"],
+            'https://auth.data.humancellatlas.org/email': service_credentials[
+                "client_email"
+            ],
             'https://auth.data.humancellatlas.org/group': 'hca',
-            'scope': ["openid", "email", "offline_access"]
+            'scope': ["openid", "email", "offline_access"],
         }
         additional_headers = {'kid': service_credentials["private_key_id"]}
-        signed_jwt = jwt.encode(payload, service_credentials["private_key"], headers=additional_headers,
-                                algorithm='RS256').decode()
+        signed_jwt = jwt.encode(
+            payload,
+            service_credentials["private_key"],
+            headers=additional_headers,
+            algorithm='RS256',
+        ).decode()
         return signed_jwt
 
     def get_auth_header(self):

@@ -4,7 +4,13 @@ import re
 import requests
 from datetime import datetime
 from requests.packages.urllib3.util import retry as retry_utils
-from tenacity import retry, retry_if_exception, stop_after_attempt, stop_after_delay, wait_exponential
+from tenacity import (
+    retry,
+    retry_if_exception,
+    stop_after_attempt,
+    stop_after_delay,
+    wait_exponential,
+)
 
 
 HTTP_RECORD_DIR = 'HTTP_RECORD_DIR'
@@ -80,20 +86,23 @@ class HttpRequests(object):
         self.retry_max_tries = self._get_param(RETRY_MAX_TRIES, '10000', int)
         self.retry_multiplier = self._get_param(RETRY_MULTIPLIER, '1', float)
         self.retry_max_interval = self._get_param(RETRY_MAX_INTERVAL, '60', float)
-        self.individual_request_timeout = self._get_param(INDIVIDUAL_REQUEST_TIMEOUT, '60', float)
+        self.individual_request_timeout = self._get_param(
+            INDIVIDUAL_REQUEST_TIMEOUT, '60', float
+        )
 
     @staticmethod
     def _get_param(name, default, convert_fn=lambda x: x):
         param_str = os.environ.get(name, default)
 
         # handle case where environment var is set to empty string
-        if not param_str: param_str = default
+        if not param_str:
+            param_str = default
 
         return convert_fn(param_str)
 
     def get(self, *args, **kwargs):
         """Calls requests.get function.
-        
+
         In addition to calling requests.get, this function will record the request
         and response if the HttpRequests object's should_record attribute is True.
 
@@ -113,7 +122,7 @@ class HttpRequests(object):
 
     def put(self, *args, **kwargs):
         """Calls requests.put function.
-        
+
         In addition to calling requests.put, this function will record the request
         and response if the HttpRequests object's should_record attribute is True.
 
@@ -134,7 +143,7 @@ class HttpRequests(object):
 
     def post(self, *args, **kwargs):
         """Calls requests.post function.
-        
+
         In addition to calling requests.post, this function will record the request
         and response if the HttpRequests object's should_record attribute is True.
 
@@ -166,8 +175,9 @@ class HttpRequests(object):
                 else:
                     return not (400 <= error.response.status_code <= 499)
 
-            return is_retryable_status_code(error) or isinstance(error,
-                                                                 (requests.ConnectionError, requests.ReadTimeout))
+            return is_retryable_status_code(error) or isinstance(
+                error, (requests.ConnectionError, requests.ReadTimeout)
+            )
 
         if 'retry' in kwargs:
             retry = kwargs['retry'] | retry_if_exception(is_retryable)
@@ -181,16 +191,17 @@ class HttpRequests(object):
             before = None
 
         kwargs['timeout'] = self.individual_request_timeout
-        return (
-            self
-                ._http_request
-                .retry_with(
-                    retry=retry,
-                    before=before,
-                    wait=wait_exponential(multiplier=self.retry_multiplier, max=self.retry_max_interval),
-                    stop=(stop_after_delay(self.retry_timeout) | stop_after_attempt(self.retry_max_tries))
-            )(self, *args, **kwargs)
-        )
+        return self._http_request.retry_with(
+            retry=retry,
+            before=before,
+            wait=wait_exponential(
+                multiplier=self.retry_multiplier, max=self.retry_max_interval
+            ),
+            stop=(
+                stop_after_delay(self.retry_timeout)
+                | stop_after_attempt(self.retry_max_tries)
+            ),
+        )(self, *args, **kwargs)
 
     @retry(reraise=True)
     def _http_request(self, *args, **kwargs):
@@ -235,7 +246,9 @@ class HttpRequests(object):
                     request_body = kwargs.get('json', '{}')
                 else:
                     request_body = args[1]
-            with open(self.record_dir + '/request_' + request_file_suffix + '.txt', 'w') as f:
+            with open(
+                self.record_dir + '/request_' + request_file_suffix + '.txt', 'w'
+            ) as f:
                 f.write(http_method.upper() + ' ' + url + '\n')
                 f.write('{0}\n'.format(request_body))
 
@@ -247,9 +260,13 @@ class HttpRequests(object):
 
         # Record response details
         if self.should_record:
-            response_files = glob.glob(self.record_dir + '/response_[0-9][0-9][0-9].txt')
+            response_files = glob.glob(
+                self.record_dir + '/response_[0-9][0-9][0-9].txt'
+            )
             response_file_suffix = HttpRequests._get_next_file_suffix(response_files)
-            with open(self.record_dir + '/response_' + response_file_suffix + '.txt', 'w') as f:
+            with open(
+                self.record_dir + '/response_' + response_file_suffix + '.txt', 'w'
+            ) as f:
                 f.write('{}\n'.format(response.status_code))
                 f.write('{}\n'.format(response.text))
 
@@ -318,5 +335,7 @@ class HttpRequests(object):
         status = response.status_code
         matches = 200 <= status <= 299 or status == 409
         if not matches:
-            message = 'HTTP status code {0} is not in expected range 2xx. Response: {1}'.format(status, response.text)
+            message = 'HTTP status code {0} is not in expected range 2xx. Response: {1}'.format(
+                status, response.text
+            )
             raise requests.HTTPError(message, response=response)

@@ -21,6 +21,7 @@ def run(envelope_url, http_requests):
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
         tenacity.RetryError: if urn is missing beyond timeout
     """
+
     def urn_is_none(response):
         envelope_js = response.json()
         urn = get_upload_urn(envelope_js)
@@ -28,13 +29,7 @@ def run(envelope_url, http_requests):
         print('{0} Upload urn: {1}'.format(now, urn))
         return urn is None
 
-    response = (
-        http_requests
-        .get(
-            envelope_url,
-            retry=retry_if_result(urn_is_none)
-        )
-    )
+    response = http_requests.get(envelope_url, retry=retry_if_result(urn_is_none))
     urn = get_upload_urn(response.json())
     return urn
 
@@ -70,7 +65,7 @@ def main():
         message = 'Timed out while trying to get urn.'
         raise ValueError(message)
     with open('upload_urn.txt', 'w') as f:
-      f.write(urn)
+        f.write(urn)
 
 
 if __name__ == '__main__':

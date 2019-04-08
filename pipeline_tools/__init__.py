@@ -3,6 +3,7 @@ detect the version of pipeline_tools package from any git tags, commit hash code
  is either installed from PyPI or installed via git directly."""
 
 from pkg_resources import get_distribution, DistributionNotFound
+
 try:
     __version__ = get_distribution(__name__).version
 except DistributionNotFound:

@@ -25,9 +25,9 @@ def get_analysis_workflow_id(analysis_output_path):
 
 
 def get_auth_headers():
-    """ Get a bearer token from the default google account credentials on the machine that executes 
+    """ Get a bearer token from the default google account credentials on the machine that executes
     this function. The credentials must have the scopes "https://www.googleapis.com/auth/userinfo.email"
-    and "https://www.googleapis.com/auth/userinfo.profile", which Cromwell will add automatically if 
+    and "https://www.googleapis.com/auth/userinfo.profile", which Cromwell will add automatically if
     it is confiugred to use the Pipelines API v2 backend.
 
     Returns:
@@ -42,9 +42,9 @@ def get_auth_headers():
 
 
 def get_metadata(cromwell_url, workflow_id, http_requests):
-    """Get metadata for analysis workflow from Cromwell and write it to a JSON file. This is only 
-    compatible with instances of Cromwell that use SAM for Identity Access Management (IAM), such 
-    as Cromwell-as-a-Service. 
+    """Get metadata for analysis workflow from Cromwell and write it to a JSON file. This is only
+    compatible with instances of Cromwell that use SAM for Identity Access Management (IAM), such
+    as Cromwell-as-a-Service.
 
     Args:
         cromwell_url (str): Url to the cromwell environment the workflow was run in.
@@ -68,9 +68,11 @@ def get_metadata(cromwell_url, workflow_id, http_requests):
     # As a workaround, we need to pass `Accept-Encoding: identity` to the header
     # to force disabling the compressing
     headers['Accept-Encoding'] = 'identity'
-        
+
     base_url = cromwell_url.strip('/')
-    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(base_url, workflow_id)
+    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(
+        base_url, workflow_id
+    )
 
     response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
@@ -86,10 +88,14 @@ def main():
     print('Using analysis output path: {0}'.format(args.analysis_output_path))
 
     # Get the workflow id and metadata, write them to files
-    workflow_id = get_analysis_workflow_id(analysis_output_path=args.analysis_output_path)
-    get_metadata(cromwell_url=args.cromwell_url,
-                 workflow_id=workflow_id,
-                 http_requests=HttpRequests())
+    workflow_id = get_analysis_workflow_id(
+        analysis_output_path=args.analysis_output_path
+    )
+    get_metadata(
+        cromwell_url=args.cromwell_url,
+        workflow_id=workflow_id,
+        http_requests=HttpRequests(),
+    )
 
 
 if __name__ == '__main__':

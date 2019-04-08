@@ -5,7 +5,6 @@ from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
 
 class TestHttpRequestsManager(object):
-
     def test_enter_creates_directory(self):
         with HttpRequestsManager() as temp_dir:
             assert os.path.isdir(temp_dir) is True
