@@ -209,7 +209,8 @@ workflow AdapterOptimus {
             analysis.matrix_row_index,
             analysis.matrix_col_index,
             analysis.cell_metrics,
-            analysis.gene_metrics
+            analysis.gene_metrics,
+            analysis.cell_calls,
         ], analysis.zarr_output_files]
         )
       ),
