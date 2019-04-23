@@ -61,7 +61,7 @@ def get_metadata(cromwell_url, workflow_id, http_requests, use_caas=False, caas_
     def log_before(workflow_id):
         print('Getting metadata for workflow {}'.format(workflow_id))
 
-    cromwell_url = cromwell_url + '/api/workflows/v1`
+    cromwell_url = cromwell_url
 
     if use_caas:
         json_credentials = caas_key_file or "/cromwell-metadata/caas_key.json"
