@@ -2,7 +2,7 @@
 task get_metadata {
   String analysis_output_path
   String runtime_environment
-  String cromwell_url
+  String cromwell_url 
   Int? retry_max_interval
   Float? retry_multiplier
   Int? retry_timeout
@@ -25,7 +25,7 @@ task get_metadata {
 
     get-analysis-workflow-metadata \
       --analysis_output_path ${analysis_output_path} \
-      --cromwell_url ${cromwell_url} \
+      --cromwell_url "https://cromwell.caas-prod.broadinstitute.org/api/workflows/v1" \
       --use_caas ${use_caas}
   >>>
   runtime {
