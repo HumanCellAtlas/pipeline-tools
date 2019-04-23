@@ -111,7 +111,7 @@ task create_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.45.0_PAPIv1"
   }
   output {
     File analysis_process = "analysis_process.json"
@@ -181,7 +181,7 @@ task stage_files {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.45.0_PAPIv1"
     disks: "local-disk ${disk_space} HDD"
     maxRetries: max_retries
   }
@@ -223,7 +223,7 @@ task confirm_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:v0.45.0_PAPIv1"
   }
 
   output {
