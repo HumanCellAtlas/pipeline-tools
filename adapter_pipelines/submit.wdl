@@ -251,7 +251,6 @@ workflow submit {
   Float? retry_multiplier
   Int? retry_timeout
   Int? individual_request_timeout
-  Boolean use_caas = true
   # By default, don't record http requests
   Boolean record_http = false
   String pipeline_tools_version
@@ -267,7 +266,7 @@ workflow submit {
       analysis_output_path = outputs[0],
       runtime_environment = runtime_environment,
       cromwell_url = cromwell_url,
-      use_caas=use_caas,
+      use_caas=true,
       record_http = record_http,
       retry_timeout = retry_timeout,
       individual_request_timeout = individual_request_timeout,
