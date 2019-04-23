@@ -7,7 +7,7 @@ task get_metadata {
   Float? retry_multiplier
   Int? retry_timeout
   Int? individual_request_timeout
-  Boolean use_caas
+  Boolean use_caas = true
   Boolean record_http
   Int max_retries = 0
 
