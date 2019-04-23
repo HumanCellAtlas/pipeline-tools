@@ -251,7 +251,7 @@ workflow submit {
   Float? retry_multiplier
   Int? retry_timeout
   Int? individual_request_timeout
-  Boolean use_caas
+  Boolean use_caas = true
   # By default, don't record http requests
   Boolean record_http = false
   String pipeline_tools_version
