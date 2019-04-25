@@ -2,7 +2,7 @@ import argparse
 import json
 import google.auth
 import google.auth.transport.requests
-from pipeline_tools.http_requests import HttpRequests
+from pipeline_tools.shared.http_requests import HttpRequests
 
 
 def get_analysis_workflow_id(analysis_output_path):
