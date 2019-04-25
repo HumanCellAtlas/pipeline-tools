@@ -139,7 +139,7 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.48.2"
+  String pipeline_tools_version = "se-update-hca-cli-version"
 
   call GetInputs as prep {
     input:
