@@ -3,12 +3,13 @@ import pytest
 import requests
 from unittest.mock import patch
 
-from pipeline_tools import get_analysis_workflow_metadata
-from pipeline_tools.http_requests import HttpRequests
+from pipeline_tools.shared.submission import get_analysis_workflow_metadata
+from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
+from pathlib import Path
 
 
-data_dir = os.path.split(__file__)[0] + '/data/'
+data_dir = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/data/'
 
 
 @pytest.fixture(scope='module')
@@ -81,7 +82,7 @@ class TestGetAnalysisWorkflowMetadata(object):
 
         requests_mock.get(test_data.caas_metadata_url, json=_request_callback)
         with patch(
-            'pipeline_tools.get_analysis_workflow_metadata.get_auth_headers',
+            'pipeline_tools.shared.submission.get_analysis_workflow_metadata.get_auth_headers',
             side_effect=mocked_get_auth_headers,
         ), tmpdir.as_cwd(), HttpRequestsManager():
             get_analysis_workflow_metadata.get_metadata(
@@ -97,7 +98,7 @@ class TestGetAnalysisWorkflowMetadata(object):
 
         requests_mock.get(test_data.cromwell_metadata_url, json=_request_callback)
         with patch(
-            'pipeline_tools.get_analysis_workflow_metadata.get_auth_headers',
+            'pipeline_tools.shared.submission.get_analysis_workflow_metadata.get_auth_headers',
             side_effect=mocked_get_auth_headers,
         ), pytest.raises(requests.HTTPError), HttpRequestsManager():
             get_analysis_workflow_metadata.get_metadata(

@@ -3,7 +3,8 @@ import os
 import pytest
 from copy import deepcopy
 
-import pipeline_tools.create_analysis_metadata as cam
+import pipeline_tools.shared.submission.create_analysis_metadata as cam
+from pathlib import Path
 
 
 @pytest.fixture(scope='module')
@@ -60,7 +61,9 @@ def test_data():
 @pytest.fixture
 def data_file():
     def _data_file(file_name):
-        return os.path.split(__file__)[0] + '/data/' + file_name
+        return (
+            f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/data/{file_name}'
+        )
 
     return _data_file
 

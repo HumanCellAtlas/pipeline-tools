@@ -1,7 +1,7 @@
 import os
 
 from tempfile import TemporaryDirectory
-from pipeline_tools import http_requests
+from pipeline_tools.shared import http_requests
 
 
 class HttpRequestsManager(TemporaryDirectory):

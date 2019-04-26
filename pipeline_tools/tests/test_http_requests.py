@@ -4,9 +4,9 @@ import pytest
 import requests
 import requests_mock as req_mock
 
-from pipeline_tools import http_requests
-from pipeline_tools.http_requests import HttpRequests
-from .http_requests_manager import HttpRequestsManager
+from pipeline_tools.shared import http_requests
+from pipeline_tools.shared.http_requests import HttpRequests
+from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
 
 class TestHttpRequests(object):

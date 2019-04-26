@@ -3,12 +3,13 @@ import os
 import pytest
 import requests
 
-import pipeline_tools.create_envelope as submit
-from pipeline_tools.http_requests import HttpRequests
+import pipeline_tools.shared.submission.create_envelope as submit
+from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
+from pathlib import Path
 
 
-data_dir = os.path.split(__file__)[0] + '/data/'
+data_dir = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/data/'
 
 
 @pytest.fixture(scope='module')

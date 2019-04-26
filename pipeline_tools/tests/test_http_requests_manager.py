@@ -1,6 +1,6 @@
 import os
 
-from pipeline_tools import http_requests
+from pipeline_tools.shared import http_requests
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
 
