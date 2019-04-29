@@ -161,7 +161,7 @@ def get_outputs(output_urls, extension_to_format, schema_url, analysis_file_vers
             'schema_type': 'file',
             'file_core': {
                 'file_name': output_url.split('/')[-1],
-                'file_format': get_file_format(output_url, extension_to_format),
+                'format': get_file_format(output_url, extension_to_format),
             },
         }
         for output_url in sorted(output_urls)
