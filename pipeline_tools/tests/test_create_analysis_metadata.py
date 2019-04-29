@@ -20,7 +20,7 @@ def test_data():
                 'schema_type': 'file',
                 'file_core': {
                     'file_name': 'Aligned.sortedByCoord.out.bam',
-                    'file_format': 'bam',
+                    'format': 'bam',
                     'checksum': '0123456789abcdef0123456789abcdef',
                 },
             },
@@ -29,7 +29,7 @@ def test_data():
                 'schema_type': 'file',
                 'file_core': {
                     'file_name': 'GSM1957573_rna_metrics',
-                    'file_format': 'metrics',
+                    'format': 'metrics',
                     'checksum': 'abcdef0123456789abcdef0123456789',
                 },
             },
@@ -257,8 +257,8 @@ class TestCreateAnalysisMetadata(object):
         assert output_json[0]['describedBy'] == schema_url
         assert output_json[0]['schema_type'] == 'file'
         assert (
-            output_json[0]['file_core']['file_format']
-            == expected_outputs[0]['file_core']['file_format']
+            output_json[0]['file_core']['format']
+            == expected_outputs[0]['file_core']['format']
         )
         assert (
             output_json[0]['file_core']['file_name']
@@ -272,8 +272,8 @@ class TestCreateAnalysisMetadata(object):
         assert output_json[0]['describedBy'] == schema_url
         assert output_json[1]['schema_type'] == 'file'
         assert (
-            output_json[1]['file_core']['file_format']
-            == expected_outputs[1]['file_core']['file_format']
+            output_json[1]['file_core']['format']
+            == expected_outputs[1]['file_core']['format']
         )
         assert (
             output_json[1]['file_core']['file_name']

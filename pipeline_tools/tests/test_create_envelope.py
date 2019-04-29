@@ -443,7 +443,7 @@ class TestCreateEnvelope(object):
             'schema_type': 'file',
             'file_core': {
                 'file_name': 'test',
-                'file_format': 'bam',
+                'format': 'bam',
                 'checksum': '0123456789abcdef0123456789abcdef',
             },
         }
@@ -467,7 +467,7 @@ class TestCreateEnvelope(object):
             'schema_type': 'file',
             'file_core': {
                 'file_name': 'test',
-                'file_format': 'bam',
+                'format': 'bam',
                 'checksum': '0123456789abcdef0123456789abcdef',
             },
         }
@@ -492,7 +492,7 @@ class TestCreateEnvelope(object):
             'schema_type': 'file',
             'file_core': {
                 'file_name': 'test',
-                'file_format': 'bam',
+                'format': 'bam',
                 'checksum': '0123456789abcdef0123456789abcdef',
             },
         }
