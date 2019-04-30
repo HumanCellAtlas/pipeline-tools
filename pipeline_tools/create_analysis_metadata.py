@@ -61,7 +61,7 @@ def create_analysis_process(
         ),
         'schema_type': SCHEMA_TYPE,
         'process_core': get_analysis_process_core(analysis_workflow_id=analysis_id),
-        'process_type': get_analysis_process_type(),
+        'type': get_analysis_process_type(),
         'timestamp_start_utc': format_timestamp(workflow_metadata.get('start')),
         'timestamp_stop_utc': format_timestamp(workflow_metadata.get('end')),
         'input_bundles': input_bundles_string.split(','),
@@ -110,7 +110,7 @@ def create_analysis_protocol(
         'schema_type': SCHEMA_TYPE,
         'protocol_core': get_analysis_protocol_core(pipeline_version=pipeline_version),
         'computational_method': method,
-        'protocol_type': get_analysis_protocol_type(),
+        'type': get_analysis_protocol_type(),
     }
     return analysis_protocol
 
@@ -161,7 +161,7 @@ def get_outputs(output_urls, extension_to_format, schema_url, analysis_file_vers
             'schema_type': 'file',
             'file_core': {
                 'file_name': output_url.split('/')[-1],
-                'file_format': get_file_format(output_url, extension_to_format),
+                'format': get_file_format(output_url, extension_to_format),
             },
         }
         for output_url in sorted(output_urls)
