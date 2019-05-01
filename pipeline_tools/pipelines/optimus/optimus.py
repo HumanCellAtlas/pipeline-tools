@@ -16,7 +16,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
         TSV of input file cloud paths
 
     Raises:
-        optimus_utils.LaneMissingFileError if any non-optional fastqs are missing
+        tenx_utils.LaneMissingFileError if any non-optional fastqs are missing
     """
     # Get bundle manifest
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))

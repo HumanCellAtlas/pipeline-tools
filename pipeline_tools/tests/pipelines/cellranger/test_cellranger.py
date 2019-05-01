@@ -92,7 +92,7 @@ class TestCellRanger(object):
         mock_sample_id.return_value = 'fake_id'
         mock_bundle.return_value = test_tenx_bundle_vx
         with HttpRequestsManager():
-            cellranger.get_cellranger_input_files(
+            cellranger.create_cellranger_input_tsv(
                 uuid='bundle_uuid', version='bundle_version', dss_url='foo_url'
             )
         expected_fastqs = [

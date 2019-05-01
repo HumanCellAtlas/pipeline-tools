@@ -4,7 +4,7 @@ from pipeline_tools.shared.http_requests import HttpRequests
 from humancellatlas.data.metadata.api import CellSuspension
 
 
-def get_cellranger_input_files(uuid, version, dss_url):
+def create_cellranger_input_tsv(uuid, version, dss_url):
     """ Get inputs for cellranger count workflow
 
     Args:
@@ -16,7 +16,7 @@ def get_cellranger_input_files(uuid, version, dss_url):
         None
 
     Raises:
-        optimus_utils.LaneMissingFileError: if any fastqs are missing
+        tenx_utils.LaneMissingFileError: if any fastqs are missing
     """
     # Get bundle manifest
     print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
