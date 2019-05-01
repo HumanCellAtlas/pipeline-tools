@@ -22,12 +22,12 @@ task GetInputs {
 
     # Force the binary layer of the stdout and stderr streams to be unbuffered.
     python -u <<CODE
-    from pipeline_tools import input_utils
+    from pipeline_tools.pipelines.optimus import optimus
 
-    input_utils.create_optimus_input_tsv(
-                    "${bundle_uuid}",
-                    "${bundle_version}",
-                    "${dss_url}")
+    optimus.create_optimus_input_tsv(
+                "${bundle_uuid}",
+                "${bundle_version}",
+                "${dss_url}")
 
     CODE
   >>>
@@ -139,7 +139,7 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "rex-purge-file-strucutre-experimentally"
+  String pipeline_tools_version = "v0.50.0"
 
   call GetInputs as prep {
     input:

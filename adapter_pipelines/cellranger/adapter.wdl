@@ -22,12 +22,12 @@ task GetInputs {
 
     # Force the binary layer of the stdout and stderr streams to be unbuffered.
     python -u <<CODE
-    from pipeline_tools import input_utils
+    from pipeline_tools.pipelines.cellranger import cellranger
 
-    input_utils.get_cellranger_input_files(
-                    "${bundle_uuid}",
-                    "${bundle_version}",
-                    "${dss_url}")
+    cellranger.create_cellranger_input_tsv(
+                  "${bundle_uuid}",
+                  "${bundle_version}",
+                  "${dss_url}")
 
     CODE
   >>>
@@ -150,7 +150,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "rex-purge-file-strucutre-experimentally"
+  String pipeline_tools_version = "v0.50.0"
 
   call GetInputs {
     input:

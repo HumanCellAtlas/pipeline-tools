@@ -22,12 +22,12 @@ task GetInputs {
 
     # Force the binary layer of the stdout and stderr streams to be unbuffered.
     python -u <<CODE
-    from pipeline_tools import input_utils
+    from pipeline_tools.pipelines.smartseq2 import smartseq2
 
-    input_utils.create_ss2_input_tsv(
-                    "${bundle_uuid}",
-                    "${bundle_version}",
-                    "${dss_url}")
+    smartseq2.create_ss2_input_tsv(
+                  "${bundle_uuid}",
+                  "${bundle_version}",
+                  "${dss_url}")
 
     CODE
   >>>
@@ -82,7 +82,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "rex-purge-file-strucutre-experimentally"
+  String pipeline_tools_version = "v0.50.0"
 
   call GetInputs as prep {
     input:
