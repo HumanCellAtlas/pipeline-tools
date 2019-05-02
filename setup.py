@@ -25,7 +25,7 @@ setup(name='pipeline-tools',
           'setuptools_scm>=2.0.0,<3',
           'tenacity>=4.10.0,<5',
           'PyJWT==1.6.4',
-          'hca-metadata-api @ git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b4'
+          'hca-metadata-api @ git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b15'
       ],
       entry_points={
           'console_scripts': [
