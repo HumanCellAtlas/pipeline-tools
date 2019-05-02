@@ -150,7 +150,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "se-update-metadata-api-version"
+  String pipeline_tools_version = "v0.49.1"
 
   call GetInputs {
     input:
