@@ -1,8 +1,8 @@
 import pytest
 import requests
 
-from pipeline_tools import dcp_utils
-from pipeline_tools.http_requests import HttpRequests
+from pipeline_tools.shared import dcp_utils
+from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
 

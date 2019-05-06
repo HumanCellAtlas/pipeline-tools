@@ -1,6 +1,6 @@
 import pytest
 
-from pipeline_tools import get_files_to_upload
+from pipeline_tools.shared.submission import get_files_to_upload
 
 
 @pytest.fixture(scope='module')

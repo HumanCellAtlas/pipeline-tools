@@ -1,6 +1,6 @@
 import pytest
 
-from pipeline_tools import optimus_utils
+from pipeline_tools.shared import tenx_utils
 from collections import namedtuple
 import random
 
@@ -111,50 +111,50 @@ def test_create_fastq_dict(
     invalid_files_one_lane_indexed,
     invalid_files_one_lane_indexed_dict,
 ):
-    fastq_dict = optimus_utils.create_fastq_dict(valid_files_with_index)
+    fastq_dict = tenx_utils.create_fastq_dict(valid_files_with_index)
     assert fastq_dict == valid_files_with_index_dict
 
-    fastq_dict = optimus_utils.create_fastq_dict(invalid_files_one_lane_indexed)
+    fastq_dict = tenx_utils.create_fastq_dict(invalid_files_one_lane_indexed)
     assert fastq_dict == invalid_files_one_lane_indexed_dict
 
 
 def test_validate_lanes_requires_read1(invalid_files_missing_read1):
-    fastq_dict = optimus_utils.create_fastq_dict(invalid_files_missing_read1)
-    with pytest.raises(optimus_utils.LaneMissingFileError):
-        optimus_utils.validate_lanes(fastq_dict)
+    fastq_dict = tenx_utils.create_fastq_dict(invalid_files_missing_read1)
+    with pytest.raises(tenx_utils.LaneMissingFileError):
+        tenx_utils.validate_lanes(fastq_dict)
 
 
 def test_validate_lanes_requires_read2(invalid_files_missing_read2):
-    fastq_dict = optimus_utils.create_fastq_dict(invalid_files_missing_read2)
-    with pytest.raises(optimus_utils.LaneMissingFileError):
-        optimus_utils.validate_lanes(fastq_dict)
+    fastq_dict = tenx_utils.create_fastq_dict(invalid_files_missing_read2)
+    with pytest.raises(tenx_utils.LaneMissingFileError):
+        tenx_utils.validate_lanes(fastq_dict)
 
 
 def test_validate_lanes_rejects_mixing_indexed_and_non_indexed_lanes(
     invalid_files_one_lane_indexed
 ):
-    fastq_dict = optimus_utils.create_fastq_dict(invalid_files_one_lane_indexed)
-    with pytest.raises(optimus_utils.LaneMissingFileError):
-        optimus_utils.validate_lanes(fastq_dict)
+    fastq_dict = tenx_utils.create_fastq_dict(invalid_files_one_lane_indexed)
+    with pytest.raises(tenx_utils.LaneMissingFileError):
+        tenx_utils.validate_lanes(fastq_dict)
 
 
 def test_validate_lanes_accepts_lanes_when_all_indexed(valid_files_with_index):
-    fastq_dict = optimus_utils.create_fastq_dict(valid_files_with_index)
-    optimus_utils.validate_lanes(fastq_dict)
+    fastq_dict = tenx_utils.create_fastq_dict(valid_files_with_index)
+    tenx_utils.validate_lanes(fastq_dict)
 
 
 def test_validate_lanes_accepts_lanes_when_none_indexed(valid_files_no_index):
-    fastq_dict = optimus_utils.create_fastq_dict(valid_files_no_index)
-    optimus_utils.validate_lanes(fastq_dict)
+    fastq_dict = tenx_utils.create_fastq_dict(valid_files_no_index)
+    tenx_utils.validate_lanes(fastq_dict)
 
 
 def test_get_fastqs_for_read_index(valid_files_with_index):
-    fastq_dict = optimus_utils.create_fastq_dict(valid_files_with_index)
-    fastqs = optimus_utils.get_fastqs_for_read_index(fastq_dict, 'read1')
+    fastq_dict = tenx_utils.create_fastq_dict(valid_files_with_index)
+    fastqs = tenx_utils.get_fastqs_for_read_index(fastq_dict, 'read1')
     assert fastqs == ['gs://5/r1.fastq.gz', 'gs://7/r1.fastq.gz']
 
-    fastqs = optimus_utils.get_fastqs_for_read_index(fastq_dict, 'read2')
+    fastqs = tenx_utils.get_fastqs_for_read_index(fastq_dict, 'read2')
     assert fastqs == ['gs://5/r2.fastq.gz', 'gs://7/r2.fastq.gz']
 
-    fastqs = optimus_utils.get_fastqs_for_read_index(fastq_dict, 'index1')
+    fastqs = tenx_utils.get_fastqs_for_read_index(fastq_dict, 'index1')
     assert fastqs == ['gs://5/i1.fastq.gz', 'gs://7/i1.fastq.gz']

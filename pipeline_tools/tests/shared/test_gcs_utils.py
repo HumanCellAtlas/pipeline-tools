@@ -3,7 +3,7 @@ import io
 import pytest
 import unittest.mock as mock
 
-from pipeline_tools import gcs_utils
+from pipeline_tools.shared import gcs_utils
 
 
 @pytest.fixture(scope='module')

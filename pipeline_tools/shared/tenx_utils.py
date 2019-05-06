@@ -1,4 +1,4 @@
-"""Utilities for preparing Optimus inputs.
+"""Utilities for preparing inputs for 10x pipelines, e.g. optimus and cellranger.
 """
 
 

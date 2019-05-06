@@ -3,7 +3,7 @@
 import argparse
 from tenacity import retry_if_result, RetryError
 from datetime import datetime
-from pipeline_tools.http_requests import HttpRequests
+from pipeline_tools.shared.http_requests import HttpRequests
 
 
 def wait_for_valid_status(envelope_url, http_requests):

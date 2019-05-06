@@ -1,6 +1,6 @@
 import logging
 
-from pipeline_tools.http_requests import HttpRequests  # noqa
+from pipeline_tools.shared.http_requests import HttpRequests  # noqa
 
 
 def get_file_by_uuid(file_id, dss_url, http_requests):

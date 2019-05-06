@@ -2,9 +2,9 @@ import pytest
 import requests
 from tenacity import RetryError
 
-from pipeline_tools import confirm_submission
-from pipeline_tools.http_requests import HttpRequests
-from .http_requests_manager import HttpRequestsManager
+from pipeline_tools.shared.submission import confirm_submission
+from pipeline_tools.shared.http_requests import HttpRequests
+from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
 
 class TestConfirmSubmission(object):

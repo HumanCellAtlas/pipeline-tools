@@ -2,8 +2,8 @@
 import argparse
 import json
 
-from pipeline_tools import auth_utils
-from pipeline_tools.http_requests import HttpRequests
+from pipeline_tools.shared import auth_utils
+from pipeline_tools.shared.http_requests import HttpRequests
 
 
 def build_envelope(

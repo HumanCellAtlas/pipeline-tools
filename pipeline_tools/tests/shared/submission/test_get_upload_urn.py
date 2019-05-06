@@ -2,8 +2,8 @@ import pytest
 import requests
 from tenacity import RetryError
 
-import pipeline_tools.get_upload_urn as getter
-from pipeline_tools.http_requests import HttpRequests
+import pipeline_tools.shared.submission.get_upload_urn as getter
+from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 
 
