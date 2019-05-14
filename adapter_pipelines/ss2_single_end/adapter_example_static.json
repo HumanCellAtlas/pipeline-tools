@@ -1,0 +1,20 @@
+{
+  "AdapterSmartSeq2SingleCellUnpaired.hisat2_ref_trans_name": "gencode_v27_trans_rsem",
+  "AdapterSmartSeq2SingleCellUnpaired.rrna_intervals": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode.v27.rRNA.interval_list",
+  "AdapterSmartSeq2SingleCellUnpaired.star_ref_index": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary.tar",
+  "AdapterSmartSeq2SingleCellUnpaired.hisat2_ref_index": "gs://hca-dcp-mint-test-data/reference/HISAT2/genome_snp_tran.tar.gz",
+  "AdapterSmartSeq2SingleCellUnpaired.genome_ref_fasta": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa",
+  "AdapterSmartSeq2SingleCellUnpaired.hisat2_ref_trans_index": "gs://hca-dcp-mint-test-data/reference/HISAT2/gencode_v27_trans_rsem.tar.gz",
+  "AdapterSmartSeq2SingleCellUnpaired.rsem_ref_index": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar",
+  "AdapterSmartSeq2SingleCellUnpaired.gene_ref_flat": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt",
+  "AdapterSmartSeq2SingleCellUnpaired.hisat2_ref_name": "genome_snp_tran",
+  "AdapterSmartSeq2SingleCellUnpaired.stranded":"NONE",
+  "AdapterSmartSeq2SingleCellUnpaired.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
+  "AdapterSmartSeq2SingleCellUnpaired.format_map": "gs://hca-dcp-mint-test-data/adapters/file_format_map.json",
+  "AdapterSmartSeq2SingleCellUnpaired.method": "SmartSeq2SingleCell",
+  "AdapterSmartSeq2SingleCellUnpaired.analysis_file_version": "6.0.0",
+  "AdapterSmartSeq2SingleCellUnpaired.analysis_protocol_schema_version": "9.0.0",
+  "AdapterSmartSeq2SingleCellUnpaired.analysis_process_schema_version": "11.0.1",
+  "AdapterSmartSeq2SingleCellUnpaired.run_type": "run",
+  "AdapterSmartSeq2SingleCellUnpaired.add_md5s": false
+}
