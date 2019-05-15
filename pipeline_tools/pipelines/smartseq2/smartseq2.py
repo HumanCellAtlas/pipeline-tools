@@ -90,7 +90,7 @@ def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_re
 def create_ss2_se_input_tsv(
     bundle_uuid, bundle_version, dss_url, input_tsv_name='inputs.tsv'
 ):
-    """Create TSV of Smart-seq2 inputs.
+    """Create TSV of Smart-seq2-SingleEnd inputs.
 
     Args:
         bundle_uuid (str): The bundle uuid
