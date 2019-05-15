@@ -98,7 +98,6 @@ workflow AdapterSmartSeq2SingleCellUnpaired {
 
   call ss2.SmartSeq2SingleCellUnpaired as analysis {
     input:
-      gtf_file = gtf_file,
       genome_ref_fasta = genome_ref_fasta,
       rrna_intervals = rrna_intervals,
       gene_ref_flat = gene_ref_flat,
