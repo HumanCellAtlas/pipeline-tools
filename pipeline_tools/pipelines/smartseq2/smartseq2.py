@@ -135,7 +135,9 @@ def get_urls_to_files_for_ss2_se(bundle):
             return sf.manifest_entry.url
 
 
-def _get_content_for_ss2_se_input_tsv(bundle_uuid, bundle_version, dss_url, http_requests):
+def _get_content_for_ss2_se_input_tsv(
+    bundle_uuid, bundle_version, dss_url, http_requests
+):
     """Gather the necessary metadata for the ss2 input tsv.
 
     Args:
