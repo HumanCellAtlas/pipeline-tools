@@ -130,12 +130,9 @@ def get_urls_to_files_for_ss2_se(bundle):
     sequence_files = bundle.sequencing_output
 
     for sf in sequence_files:
-        if fastq_url:
-            return fastq_url
         # In single-end reads, the one fastq is called read1
         if sf.read_index == 'read1':
-            fastq_url = sf.manifest_entry.url
-    return fastq_url
+            return sf.manifest_entry.url
 
 
 def _get_content_for_ss2_se_input_tsv(bundle_uuid, bundle_version, dss_url, http_requests):
