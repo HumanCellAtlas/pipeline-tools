@@ -126,7 +126,7 @@ def get_urls_to_files_for_ss2_se(bundle):
          tuple: A tuple consisting of the url to the input fastq file
          respectively.
     """
-    fastq_url = None
+
     sequence_files = bundle.sequencing_output
 
     for sf in sequence_files:
