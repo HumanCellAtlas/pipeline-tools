@@ -96,7 +96,7 @@ workflow AdapterSmartSeq2SingleCellUnpaired {
       pipeline_tools_version = pipeline_tools_version
   }
 
-  call ss2.SmartSeq2SingleCell as analysis {
+  call ss2.SmartSeq2SingleCellUnpaired as analysis {
     input:
       gtf_file = gtf_file,
       genome_ref_fasta = genome_ref_fasta,
