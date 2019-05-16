@@ -18,11 +18,12 @@
   "AdapterSmartSeq2SingleCellUnpaired.run_type": "run",
   "AdapterSmartSeq2SingleCellUnpaired.add_md5s": false,
 
-  "AdapterSmartSeq2SingleCellUnpaired.env": "test",
+  "AdapterSmartSeq2SingleCellUnpaired.runtime_environment": "test",
   "AdapterSmartSeq2SingleCellUnpaired.dss_url": "https://dss.integration.data.humancellatlas.org/v1",
   "AdapterSmartSeq2SingleCellUnpaired.schema_url": "https://schema.integration.data.humancellatlas.org/",
   "AdapterSmartSeq2SingleCellUnpaired.submit_url": "https://api.ingest.integration.data.humancellatlas.org/",
   "AdapterSmartSeq2SingleCellUnpaired.max_cromwell_retries": "1",
   "AdapterSmartSeq2SingleCellUnpaired.bundle_uuid": "fff98262-db28-408a-b06d-633d8f5d2cf7",
-  "AdapterSmartSeq2SingleCellUnpaired.bundle_version": "2018-12-03T172048.201761Z"
+  "AdapterSmartSeq2SingleCellUnpaired.bundle_version": "2018-12-03T172048.201761Z",
+  "AdapterSmartSeq2SingleCellUnpaired.cromwell_url": "https://cromwell.caas-prod.broadinstitute.org"
 }

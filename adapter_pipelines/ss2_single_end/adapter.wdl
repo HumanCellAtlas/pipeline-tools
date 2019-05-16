@@ -81,7 +81,7 @@ workflow AdapterSmartSeq2SingleCellUnpaired {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.51.0"
+  String pipeline_tools_version = "surge-single-end-ss2"
 
   call GetInputs as prep {
     input:
