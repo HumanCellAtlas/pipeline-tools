@@ -17,6 +17,10 @@ class TestHttpRequests(object):
             HttpRequests.check_status(response)
         with pytest.raises(requests.HTTPError):
             response = requests.Response()
+            response.status_code = 409
+            HttpRequests.check_status(response)
+        with pytest.raises(requests.HTTPError):
+            response = requests.Response()
             response.status_code = 500
             HttpRequests.check_status(response)
         with pytest.raises(requests.HTTPError):
@@ -35,13 +39,6 @@ class TestHttpRequests(object):
         try:
             response = requests.Response()
             response.status_code = 202
-            HttpRequests.check_status(response)
-        except requests.HTTPError as e:
-            pytest.fail(str(e))
-
-        try:
-            response = requests.Response()
-            response.status_code = 409
             HttpRequests.check_status(response)
         except requests.HTTPError as e:
             pytest.fail(str(e))
