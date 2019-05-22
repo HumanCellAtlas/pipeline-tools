@@ -1,4 +1,4 @@
-import "SmartSeq2SingleSample.wdl" as ss2
+import "SmartSeq2SingleSampleUnpaired.wdl" as ss2
 import "submit.wdl" as submit_wdl
 
 
@@ -24,7 +24,7 @@ task GetInputs {
     python -u <<CODE
     from pipeline_tools.pipelines.smartseq2 import smartseq2
 
-    smartseq2.create_ss2_input_tsv(
+    smartseq2.create_ss2_se_input_tsv(
                   "${bundle_uuid}",
                   "${bundle_version}",
                   "${dss_url}")
@@ -41,7 +41,7 @@ task GetInputs {
   }
 }
 
-workflow AdapterSmartSeq2SingleCell{
+workflow AdapterSmartSeq2SingleCellUnpaired {
   # variable parameters provided by the notification sent by the data storage service
   String bundle_uuid
   String bundle_version
@@ -96,7 +96,7 @@ workflow AdapterSmartSeq2SingleCell{
       pipeline_tools_version = pipeline_tools_version
   }
 
-  call ss2.SmartSeq2SingleCell as analysis {
+  call ss2.SmartSeq2SingleCellUnpaired as analysis {
     input:
       genome_ref_fasta = genome_ref_fasta,
       rrna_intervals = rrna_intervals,
@@ -109,8 +109,7 @@ workflow AdapterSmartSeq2SingleCell{
       stranded = stranded,
       sample_name = prep.inputs.sample_id,
       output_name = prep.inputs.sample_id,
-      fastq1 = prep.inputs.fastq_1,
-      fastq2 = prep.inputs.fastq_2,
+      fastq = prep.inputs.fastq,
       max_retries = max_cromwell_retries
   }
 
@@ -118,12 +117,8 @@ workflow AdapterSmartSeq2SingleCell{
     input:
       inputs = [
         {
-          "name": "fastq1",
-          "value": prep.inputs.fastq_1
-        },
-        {
-          "name": "fastq2",
-          "value": prep.inputs.fastq_2
+          "name": "fastq",
+          "value": prep.inputs.fastq
         },
         {
           "name": "sample_name",
@@ -174,7 +169,6 @@ workflow AdapterSmartSeq2SingleCell{
         select_all(
           [[analysis.aligned_bam,
             analysis.bam_index,
-            analysis.insert_size_metrics,
             analysis.quality_distribution_metrics,
             analysis.quality_by_cycle_metrics,
             analysis.bait_bias_summary_metrics,
