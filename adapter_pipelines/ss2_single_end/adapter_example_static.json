@@ -9,21 +9,12 @@
   "AdapterSmartSeq2SingleCellUnpaired.gene_ref_flat": "gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt",
   "AdapterSmartSeq2SingleCellUnpaired.hisat2_ref_name": "genome_snp_tran",
   "AdapterSmartSeq2SingleCellUnpaired.stranded":"NONE",
-  "AdapterSmartSeq2SingleCellUnpaired.reference_bundle": "bf51d668-3e14-4843-9bc7-5d676fdf0e01",
+  "AdapterSmartSeq2SingleCellUnpaired.reference_bundle": "00000000-0000-0000-0000-000000000000",
   "AdapterSmartSeq2SingleCellUnpaired.format_map": "gs://hca-dcp-mint-test-data/adapters/file_format_map.json",
   "AdapterSmartSeq2SingleCellUnpaired.method": "SmartSeq2SingleCell",
   "AdapterSmartSeq2SingleCellUnpaired.analysis_file_version": "6.0.0",
   "AdapterSmartSeq2SingleCellUnpaired.analysis_protocol_schema_version": "9.0.0",
   "AdapterSmartSeq2SingleCellUnpaired.analysis_process_schema_version": "11.0.1",
   "AdapterSmartSeq2SingleCellUnpaired.run_type": "run",
-  "AdapterSmartSeq2SingleCellUnpaired.add_md5s": false,
-
-  "AdapterSmartSeq2SingleCellUnpaired.runtime_environment": "test",
-  "AdapterSmartSeq2SingleCellUnpaired.dss_url": "https://dss.integration.data.humancellatlas.org/v1",
-  "AdapterSmartSeq2SingleCellUnpaired.schema_url": "https://schema.integration.data.humancellatlas.org/",
-  "AdapterSmartSeq2SingleCellUnpaired.submit_url": "https://api.ingest.integration.data.humancellatlas.org/",
-  "AdapterSmartSeq2SingleCellUnpaired.max_cromwell_retries": "1",
-  "AdapterSmartSeq2SingleCellUnpaired.bundle_uuid": "fff98262-db28-408a-b06d-633d8f5d2cf7",
-  "AdapterSmartSeq2SingleCellUnpaired.bundle_version": "2018-12-03T172048.201761Z",
-  "AdapterSmartSeq2SingleCellUnpaired.cromwell_url": "https://cromwell.caas-prod.broadinstitute.org"
+  "AdapterSmartSeq2SingleCellUnpaired.add_md5s": false
 }
