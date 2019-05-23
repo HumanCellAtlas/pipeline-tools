@@ -333,7 +333,7 @@ class HttpRequests(object):
             check_status(301, 'bar') raises error
         """
         status = response.status_code
-        matches = 200 <= status <= 299 or status == 409
+        matches = 200 <= status <= 299
         if not matches:
             message = 'HTTP status code {0} is not in expected range 2xx. Response: {1}'.format(
                 status, response.text
