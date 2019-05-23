@@ -150,7 +150,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "se-update-retry-logic"
+  String pipeline_tools_version = "v0.51.1"
 
   call GetInputs {
     input:
