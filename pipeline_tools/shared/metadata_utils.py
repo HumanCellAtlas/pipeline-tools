@@ -49,14 +49,16 @@ def get_sample_id(bundle):
 
 def get_ncbi_taxon_id(bundle: Bundle):
     """Returns the ncbi_taxon_id for the Bundle, which identifies the sample organism
-    
+
     Args:
         bundle (humancellatlas.data.metadata.Bundle): A Bundle object contains all of the necessary information.
 
     Returns:
         ncbi_taxon_id (int): integer value of the ncbi_taxon_id
     """
-    donorOrganisms = [b for b in bundle.biomaterials.values() if isinstance(b, DonorOrganism)]
+    donorOrganisms = [
+        b for b in bundle.biomaterials.values() if isinstance(b, DonorOrganism)
+    ]
     return donorOrganisms[0].ncbi_taxon_id
 
 

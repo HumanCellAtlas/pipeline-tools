@@ -20,18 +20,18 @@ def create_ss2_input_tsv(
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
     """
-    fastq_1_url, fastq_2_url, sample_id = _get_content_for_ss2_input_tsv(
+    fastq_1_url, fastq_2_url, sample_id, ncbi_taxon_id = _get_content_for_ss2_input_tsv(
         bundle_uuid, bundle_version, dss_url, HttpRequests()
     )
-    
+
     tsv_headers = ['fastq_1', 'fastq_2', 'sample_id']
     tsv_values = [fastq_1_url, fastq_2_url, sample_id]
-    
-    species_references = references[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
+
+    species_references = references[ncbi_taxon_id]
     for key, value in species_references.items():
         tsv_headers.append(key)
         tsv_values.append(value)
-    
+
     print('Creating input map')
     with open(input_tsv_name, 'w') as f:
         f.write('\t'.join(tsv_headers) + '\n')
@@ -190,6 +190,6 @@ references = {
         'rsem_ref_index': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar',
         'gene_ref_flat': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt',
         'hisat2_ref_name': 'genome_snp_tran',
-        'stranded': 'NONE'
-    },
+        'stranded': 'NONE',
+    }
 }

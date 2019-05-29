@@ -50,7 +50,9 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
 
     for lane, reads in lane_to_fastqs.items():
         for read_index, url in reads.items():
-            new_file_name = f"{sample_id}_S1_L00{str(lane)}_{read_indices[read_index]}_001.fastq.gz"
+            new_file_name = (
+                f"{sample_id}_S1_L00{str(lane)}_{read_indices[read_index]}_001.fastq.gz"
+            )
             fastq_names.append(new_file_name)
             fastq_urls.append(url)
 
@@ -61,7 +63,7 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
     with open('fastq_names.txt', 'w') as f:
         for name in fastq_names:
             f.write(name + '\n')
-            
+
     species_references = references[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
     print('Writing species references')
     for key, value in species_references.items():
@@ -108,6 +110,6 @@ references = {
     # human
     9606: {
         'reference_name': 'GRCh38',
-        'transcriptome_tar_gz': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar'
-    },
+        'transcriptome_tar_gz': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar',
+    }
 }

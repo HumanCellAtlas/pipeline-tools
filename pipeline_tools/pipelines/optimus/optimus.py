@@ -56,22 +56,22 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     print('Writing sample ID to sample_id.txt')
     with open('sample_id.txt', 'w') as f:
         f.write(f"{sample_id}")
-        
+
     species_references = references[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
     print('Writing species references')
     for key, value in species_references.items():
         with open(f"{key}.txt", 'w') as f:
             f.write(f"{value}")
-            
+
     print('Finished writing files')
 
 
 references = {
     # human
     9606: {
-        'tar_star_reference':'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar',
-        'annotations_gtf':'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz',
-        'ref_genome_fasta':'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa',
+        'tar_star_reference': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar',
+        'annotations_gtf': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz',
+        'ref_genome_fasta': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa',
     },
     # mouse
     10090: {
