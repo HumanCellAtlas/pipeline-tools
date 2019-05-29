@@ -23,11 +23,19 @@ def create_ss2_input_tsv(
     fastq_1_url, fastq_2_url, sample_id = _get_content_for_ss2_input_tsv(
         bundle_uuid, bundle_version, dss_url, HttpRequests()
     )
-
+    
+    tsv_headers = ['fastq_1', 'fastq_2', 'sample_id']
+    tsv_values = [fastq_1_url, fastq_2_url, sample_id]
+    
+    species_references = references[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
+    for key, value in species_references.items():
+        tsv_headers.append(key)
+        tsv_values.append(value)
+    
     print('Creating input map')
     with open(input_tsv_name, 'w') as f:
-        f.write('fastq_1\tfastq_2\tsample_id\n')
-        f.write('{0}\t{1}\t{2}\n'.format(fastq_1_url, fastq_2_url, sample_id))
+        f.write('\t'.join(tsv_headers) + '\n')
+        f.write('\t'.join(tsv_values) + '\n')
     print('Wrote input map to disk.')
 
 
@@ -64,7 +72,7 @@ def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_re
         http_requests (HttpRequests): the HttpRequests object to use.
 
     Returns:
-        tuple: tuple of three strings; url for fastq 1, url for fastq 2, sample id
+        tuple: tuple of three strings and an int; url for fastq 1, url for fastq 2, sample id, ncbi taxon id
 
     Raises:
         requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
@@ -84,7 +92,8 @@ def _get_content_for_ss2_input_tsv(bundle_uuid, bundle_version, dss_url, http_re
 
     sample_id = metadata_utils.get_sample_id(primary_bundle)
     fastq_1_url, fastq_2_url = get_urls_to_files_for_ss2(primary_bundle)
-    return fastq_1_url, fastq_2_url, sample_id
+    ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(primary_bundle)
+    return fastq_1_url, fastq_2_url, sample_id, ncbi_taxon_id
 
 
 def create_ss2_se_input_tsv(
@@ -168,3 +177,19 @@ def _get_content_for_ss2_se_input_tsv(
     sample_id = metadata_utils.get_sample_id(primary_bundle)
     fastq_url = get_urls_to_files_for_ss2_se(primary_bundle)
     return fastq_url, sample_id
+
+
+references = {
+    # human
+    9606: {
+        'hisat2_ref_trans_name': 'gencode_v27_trans_rsem',
+        'rrna_intervals': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode.v27.rRNA.interval_list',
+        'hisat2_ref_index': 'gs://hca-dcp-mint-test-data/reference/HISAT2/genome_snp_tran.tar.gz',
+        'genome_ref_fasta': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa',
+        'hisat2_ref_trans_index': 'gs://hca-dcp-mint-test-data/reference/HISAT2/gencode_v27_trans_rsem.tar.gz',
+        'rsem_ref_index': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar',
+        'gene_ref_flat': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt',
+        'hisat2_ref_name': 'genome_snp_tran',
+        'stranded': 'NONE'
+    },
+}

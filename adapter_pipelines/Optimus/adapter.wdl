@@ -36,6 +36,9 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
+    File tar_star_reference = read_string("tar_star_reference.txt") # star reference
+    File annotations_gtf = read_string("annotations_gtf.txt") # gtf containing annotations for gene tagging
+    File ref_genome_fasta = read_string("ref_genome_fasta.txt") # genome fasta file
     Array[String] r1_fastq = read_lines("r1.txt")
     Array[String] r2_fastq = read_lines("r2.txt")
     File i1_file = "i1.txt"
@@ -102,9 +105,6 @@ workflow AdapterOptimus {
   String bundle_version
 
   File whitelist  # 10x genomics cell barcode whitelist for 10x V2
-  File tar_star_reference  # star reference
-  File annotations_gtf  # gtf containing annotations for gene tagging
-  File ref_genome_fasta  # genome fasta file
   String fastq_suffix = ".gz"  # add this suffix to fastq files for picard
   
   # Note: This "None" is a workaround in WDL-draft to simulate a "None" type
@@ -183,15 +183,15 @@ workflow AdapterOptimus {
         },
         {
           "name": "tar_star_reference",
-          "value": tar_star_reference
+          "value": prep.tar_star_reference
         },
         {
           "name": "annotations_gtf",
-          "value": annotations_gtf
+          "value": prep.annotations_gtf
         },
         {
           "name": "ref_genome_fasta",
-          "value": ref_genome_fasta
+          "value": prep.ref_genome_fasta
         }
       ],
       pipeline_tools_version = pipeline_tools_version

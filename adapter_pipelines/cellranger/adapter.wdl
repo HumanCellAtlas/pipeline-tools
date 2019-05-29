@@ -36,6 +36,8 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
+    String reference_name = read_string("reference_name.txt")
+    File transcriptome_tar_gz = read_string("transcriptome_tar_gz.txt")
     Int expect_cells = read_string("expect_cells.txt")
     Array[File] fastqs = read_lines("fastqs.txt")
     Array[String] fastq_names = read_lines("fastq_names.txt")
@@ -123,9 +125,6 @@ workflow Adapter10xCount {
   String bundle_uuid
   String bundle_version
 
-  String reference_name
-  File transcriptome_tar_gz
-
   # Submission
   File format_map
   String dss_url
@@ -196,11 +195,11 @@ workflow Adapter10xCount {
         },
         {
           "name": "reference_name",
-          "value": reference_name
+          "value": GetInputs.reference_name
         },
         {
           "name": "transcriptome_tar_gz",
-          "value": transcriptome_tar_gz
+          "value": GetInputs.transcriptome_tar_gz
         }
       ],
       expect_cells = GetInputs.expect_cells,

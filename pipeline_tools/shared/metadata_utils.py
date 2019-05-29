@@ -1,5 +1,5 @@
 from pipeline_tools.shared import dcp_utils
-from humancellatlas.data.metadata.api import Bundle
+from humancellatlas.data.metadata.api import Bundle, DonorOrganism
 from pipeline_tools.shared.http_requests import HttpRequests
 import functools
 from concurrent.futures import ThreadPoolExecutor
@@ -45,6 +45,19 @@ def get_sample_id(bundle):
     """
     sample_id = str(bundle.sequencing_input[0].document_id)
     return sample_id
+
+
+def get_ncbi_taxon_id(bundle: Bundle):
+    """Returns the ncbi_taxon_id for the Bundle, which identifies the sample organism
+    
+    Args:
+        bundle (humancellatlas.data.metadata.Bundle): A Bundle object contains all of the necessary information.
+
+    Returns:
+        ncbi_taxon_id (int): integer value of the ncbi_taxon_id
+    """
+    donorOrganisms = [b for b in bundle.biomaterials.values() if isinstance(b, DonorOrganism)]
+    return donorOrganisms[0].ncbi_taxon_id
 
 
 def download_file(item, dss_url, http_requests=HttpRequests()):

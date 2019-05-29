@@ -19,7 +19,7 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
         tenx_utils.LaneMissingFileError: if any fastqs are missing
     """
     # Get bundle manifest
-    print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
+    print(f"Getting bundle manifest for id {uuid}, version {version}")
     primary_bundle = metadata_utils.get_bundle_metadata(
         uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests()
     )
@@ -27,12 +27,12 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
     sample_id = metadata_utils.get_sample_id(primary_bundle)
     print('Writing sample ID to sample_id.txt')
     with open('sample_id.txt', 'w') as f:
-        f.write('{0}'.format(sample_id))
+        f.write(sample_id)
 
     total_estimated_cells = get_expected_cell_count(primary_bundle)
     print('Writing total estimated cells to expect_cells.txt')
     with open('expect_cells.txt', 'w') as f:
-        f.write('{0}'.format(total_estimated_cells))
+        f.write(str(total_estimated_cells))
 
     # Parse inputs from metadata
     print('Gathering fastq inputs')
@@ -50,9 +50,7 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
 
     for lane, reads in lane_to_fastqs.items():
         for read_index, url in reads.items():
-            new_file_name = '{}_S1_L00{}_{}_001.fastq.gz'.format(
-                sample_id, str(lane), read_indices[read_index]
-            )
+            new_file_name = f"{sample_id}_S1_L00{str(lane)}_{read_indices[read_index]}_001.fastq.gz"
             fastq_names.append(new_file_name)
             fastq_urls.append(url)
 
@@ -63,6 +61,12 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
     with open('fastq_names.txt', 'w') as f:
         for name in fastq_names:
             f.write(name + '\n')
+            
+    species_references = references[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
+    print('Writing species references')
+    for key, value in species_references.items():
+        with open(f"{key}.txt", 'w') as f:
+            f.write(f"{value}")
 
     print('Finished writing files')
 
@@ -87,7 +91,7 @@ def get_expected_cell_count(bundle):
     if n_cell_suspension != 1:
         raise MoreThanOneCellSuspensionError(
             'The data bundle should contain exactly 1 cell_suspension.json file, '
-            + 'not {}'.format(n_cell_suspension)
+            + f"not {n_cell_suspension}"
         )
     default_estimated_cells = 3000
     total_estimated_cells = cell_suspension[0].total_estimated_cells
@@ -98,3 +102,12 @@ def get_expected_cell_count(bundle):
 
 class MoreThanOneCellSuspensionError(Exception):
     pass
+
+
+references = {
+    # human
+    9606: {
+        'reference_name': 'GRCh38',
+        'transcriptome_tar_gz': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar'
+    },
+}
