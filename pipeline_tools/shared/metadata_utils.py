@@ -59,7 +59,7 @@ def get_ncbi_taxon_id(bundle: Bundle):
     donorOrganisms = [
         b for b in bundle.biomaterials.values() if isinstance(b, DonorOrganism)
     ]
-    return donorOrganisms[0].ncbi_taxon_id
+    return donorOrganisms[0].ncbi_taxon_id[0]
 
 
 def download_file(item, dss_url, http_requests=HttpRequests()):
