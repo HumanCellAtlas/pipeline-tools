@@ -1,6 +1,7 @@
 from pipeline_tools.shared import dcp_utils
-from humancellatlas.data.metadata.api import Bundle, DonorOrganism
+from humancellatlas.data.metadata.api import Bundle, CellSuspension
 from pipeline_tools.shared.http_requests import HttpRequests
+from pipeline_tools.shared.exceptions import Unsupported
 import functools
 from concurrent.futures import ThreadPoolExecutor
 
@@ -56,10 +57,16 @@ def get_ncbi_taxon_id(bundle: Bundle):
     Returns:
         ncbi_taxon_id (int): integer value of the ncbi_taxon_id
     """
-    donorOrganisms = [
-        b for b in bundle.biomaterials.values() if isinstance(b, DonorOrganism)
+    cellSuspensions = [
+        cs for cs in bundle.biomaterials.values() if isinstance(cs, CellSuspension)
     ]
-    return donorOrganisms[0].ncbi_taxon_id[0]
+    if len(cellSuspensions) != 1:
+        raise(Unsupported('Multiple cell suspensions detected in bundle.'))
+    cellSuspension = cellSuspensions[0]
+    first_taxon_id = cellSuspension.ncbi_taxon_id[0]
+    elif any([taxon_id != first_taxon_id for taxon_id in cellSuspension.ncbi_taxon_id]):
+        raise(Unsupported('Multiple distinct species detected in bundle.'))
+    return first_taxon_id
 
 
 def download_file(item, dss_url, http_requests=HttpRequests()):
