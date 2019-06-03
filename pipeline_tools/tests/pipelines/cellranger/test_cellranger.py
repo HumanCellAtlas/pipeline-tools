@@ -15,14 +15,14 @@ data_dir = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/data/'
 
 @pytest.fixture(scope='module')
 def tenx_manifest_json_vx():
-    with open('{0}metadata/tenx_vx/manifest.json'.format(data_dir)) as f:
+    with open(f"{data_dir}metadata/tenx_vx/manifest.json") as f:
         tenx_manifest_json_vx = json.load(f)
     return tenx_manifest_json_vx
 
 
 @pytest.fixture(scope='module')
 def tenx_metadata_files_vx():
-    with open('{0}metadata/tenx_vx/metadata_files.json'.format(data_dir)) as f:
+    with open(f"{data_dir}metadata/tenx_vx/metadata_files.json") as f:
         tenx_metadata_files_vx = json.load(f)
     return tenx_metadata_files_vx
 
@@ -30,9 +30,7 @@ def tenx_metadata_files_vx():
 @pytest.fixture(scope='module')
 def tenx_metadata_files_vx_with_no_expected_cell_count():
     with open(
-        '{0}metadata/tenx_vx/metadata_files_with_no_expected_cell_count.json'.format(
-            data_dir
-        )
+        f"{data_dir}metadata/tenx_vx/metadata_files_with_no_expected_cell_count.json"
     ) as f:
         tenx_metadata_files_vx_with_no_expected_cell_count = json.load(f)
     return tenx_metadata_files_vx_with_no_expected_cell_count
@@ -86,11 +84,13 @@ def test_tenx_bundle_vx_with_no_expected_cell_count(
 class TestCellRanger(object):
     @mock.patch('pipeline_tools.shared.metadata_utils.get_bundle_metadata')
     @mock.patch('pipeline_tools.shared.metadata_utils.get_sample_id')
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
     def test_get_cellranger_inputs(
-        self, mock_sample_id, mock_bundle, test_tenx_bundle_vx
+        self, mock_sample_id, mock_bundle, test_tenx_bundle_vx, mock_ncbi_taxon_id
     ):
         mock_sample_id.return_value = 'fake_id'
         mock_bundle.return_value = test_tenx_bundle_vx
+        mock_ncbi_taxon_id.return_value = 9606
         with HttpRequestsManager():
             cellranger.create_cellranger_input_tsv(
                 uuid='bundle_uuid', version='bundle_version', dss_url='foo_url'
@@ -106,6 +106,8 @@ class TestCellRanger(object):
             'fake_id_S1_L001_I1_001.fastq.gz',
         ]
         expected_total_estimated_cells = 10000
+        expected_reference_name = 'GRCh38'
+        expected_transcriptome_tar_gz = 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar'
 
         with open('sample_id.txt') as f:
             sample_id = f.read().strip()
@@ -125,10 +127,20 @@ class TestCellRanger(object):
         for idx, url in enumerate(actual_fastq_names):
             assert actual_fastq_names[idx].strip() == expected_fastq_names[idx]
 
+        with open('reference_name.txt') as f:
+            actual_ref_name = f.read().strip()
+            assert actual_ref_name == expected_reference_name
+
+        with open('transcriptome_tar_gz.txt') as f:
+            actual_transcriptome_tar_gz = f.read().strip()
+            assert actual_transcriptome_tar_gz == expected_transcriptome_tar_gz
+
         os.remove('fastqs.txt')
         os.remove('fastq_names.txt')
         os.remove('sample_id.txt')
         os.remove('expect_cells.txt')
+        os.remove('reference_name.txt')
+        os.remove('transcriptome_tar_gz.txt')
 
     def test_get_expected_cell_count(self, test_tenx_bundle_vx):
         total_estimated_cells = cellranger.get_expected_cell_count(test_tenx_bundle_vx)

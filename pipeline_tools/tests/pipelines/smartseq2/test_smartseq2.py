@@ -15,15 +15,21 @@ data_dir = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/data/'
 
 
 @pytest.fixture(scope='module')
+def ss2_tsv_contents():
+    with open(f"{data_dir}expected_ss2.tsv") as f:
+        tsv_contents = f.read()
+    return tsv_contents
+
+@pytest.fixture(scope='module')
 def ss2_manifest_json_vx():
-    with open('{0}metadata/ss2_vx/manifest.json'.format(data_dir)) as f:
+    with open(f"{data_dir}metadata/ss2_vx/manifest.json") as f:
         ss2_manifest_json_vx = json.load(f)
     return ss2_manifest_json_vx
 
 
 @pytest.fixture(scope='module')
 def ss2_metadata_files_vx():
-    with open('{0}metadata/ss2_vx/metadata_files.json'.format(data_dir)) as f:
+    with open(f"{data_dir}metadata/ss2_vx/metadata_files.json") as f:
         ss2_metadata_files_vx = json.load(f)
     return ss2_metadata_files_vx
 
@@ -65,7 +71,7 @@ class TestSmartSeq2(object):
         def mocked_get_content_for_ss2_input_tsv(
             bundle_uuid, bundle_version, dss_url, http_requests
         ):
-            return 'url1', 'url2', 'fake_id'
+            return 'url1', 'url2', 'fake_id', 9606
 
         file_path = tmpdir.join('inputs.tsv')
         with patch(
@@ -78,9 +84,7 @@ class TestSmartSeq2(object):
                 dss_url='foo_url',
                 input_tsv_name=file_path,
             )
-        assert file_path.read() == 'fastq_1\tfastq_2\tsample_id\n{0}\t{1}\t{2}\n'.format(
-            'url1', 'url2', 'fake_id'
-        )
+        assert file_path.read() == ss2_tsv_contents()
 
     def test_get_urls_to_files_for_ss2(
         self, test_ss2_bundle_vx, test_ss2_bundle_manifest_vx
