@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 
 from pipeline_tools.pipelines.smartseq2 import smartseq2
+from pipeline_tools.shared.reference_id import ReferenceId
 
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 from pathlib import Path
@@ -76,7 +77,7 @@ class TestSmartSeq2(object):
         def mocked_get_content_for_ss2_input_tsv(
             bundle_uuid, bundle_version, dss_url, http_requests
         ):
-            return 'url1', 'url2', 'fake_id', 9606
+            return 'url1', 'url2', 'fake_id', ReferenceId.Human.value
 
         file_path = tmpdir.join('inputs.tsv')
         with patch(

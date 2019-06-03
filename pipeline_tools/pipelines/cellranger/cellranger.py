@@ -2,6 +2,7 @@ from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared import tenx_utils
 from pipeline_tools.shared.http_requests import HttpRequests
 from humancellatlas.data.metadata.api import CellSuspension
+from pipeline_tools.shared.reference_id import ReferenceId
 
 
 def create_cellranger_input_tsv(uuid, version, dss_url):
@@ -107,8 +108,7 @@ class MoreThanOneCellSuspensionError(Exception):
 
 
 references = {
-    # human
-    9606: {
+    ReferenceId.Human.value: {
         'reference_name': 'GRCh38',
         'transcriptome_tar_gz': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar',
     }

@@ -6,6 +6,7 @@ from humancellatlas.data.metadata.api import Bundle
 
 
 from pipeline_tools.pipelines.optimus import optimus
+from pipeline_tools.shared.reference_id import ReferenceId
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 from pathlib import Path
 
@@ -91,7 +92,7 @@ class TestOptimus(object):
     ):
         mock_sample_id.return_value = 'fake_id'
         mock_bundle.return_value = test_tenx_bundle_vx
-        mock_ncbi_taxon_id.return_value = 9606
+        mock_ncbi_taxon_id.return_value = ReferenceId.Human.value
         with HttpRequestsManager():
             optimus.create_optimus_input_tsv(
                 uuid='bundle_uuid', version='bundle_version', dss_url='foo_url'
