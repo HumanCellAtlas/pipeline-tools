@@ -1,12 +1,12 @@
 import json
 import os
-
+import pytest
+import unittest.mock as mock
 from humancellatlas.data.metadata.api import Bundle
 
 
 from pipeline_tools.pipelines.optimus import optimus
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
-import pytest
 from pathlib import Path
 
 

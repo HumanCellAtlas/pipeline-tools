@@ -20,6 +20,7 @@ def ss2_tsv_contents():
         tsv_contents = f.read()
     return tsv_contents
 
+
 @pytest.fixture(scope='module')
 def ss2_manifest_json_vx():
     with open(f"{data_dir}metadata/ss2_vx/manifest.json") as f:
