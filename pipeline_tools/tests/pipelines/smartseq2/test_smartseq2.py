@@ -67,7 +67,7 @@ def test_ss2_bundle_vx(
 
 class TestSmartSeq2(object):
     def test_create_ss2_input_tsv(
-        self, tmpdir, test_ss2_bundle_uuid_vx, test_ss2_bundle_version_vx
+        self, tmpdir, test_ss2_bundle_uuid_vx, test_ss2_bundle_version_vx, ss2_tsv_contents
     ):
         def mocked_get_content_for_ss2_input_tsv(
             bundle_uuid, bundle_version, dss_url, http_requests
@@ -85,7 +85,7 @@ class TestSmartSeq2(object):
                 dss_url='foo_url',
                 input_tsv_name=file_path,
             )
-        assert file_path.read() == ss2_tsv_contents()
+        assert file_path.read() == ss2_tsv_contents
 
     def test_get_urls_to_files_for_ss2(
         self, test_ss2_bundle_vx, test_ss2_bundle_manifest_vx

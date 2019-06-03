@@ -82,11 +82,12 @@ def test_tenx_bundle_vx_with_no_expected_cell_count(
 
 
 class TestCellRanger(object):
+    # mock.patch should be in reverse order relative to the arguments
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
     @mock.patch('pipeline_tools.shared.metadata_utils.get_bundle_metadata')
     @mock.patch('pipeline_tools.shared.metadata_utils.get_sample_id')
-    @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
     def test_get_cellranger_inputs(
-        self, mock_sample_id, mock_bundle, test_tenx_bundle_vx, mock_ncbi_taxon_id
+        self, mock_sample_id, mock_bundle, mock_ncbi_taxon_id, test_tenx_bundle_vx
     ):
         mock_sample_id.return_value = 'fake_id'
         mock_bundle.return_value = test_tenx_bundle_vx

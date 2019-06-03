@@ -135,7 +135,7 @@ class TestMetadataUtils(object):
 
     def test_get_ncbi_taxon_id(self, test_ss2_bundle_vx):
         ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(test_ss2_bundle_vx)
-        assert ncbi_taxon_id == '9606'
+        assert ncbi_taxon_id == 9606
 
     def test_download_file(self, requests_mock, test_ss2_bundle_manifest_vx):
         manifest_dict = {'project.json': test_ss2_bundle_manifest_vx[0]}
