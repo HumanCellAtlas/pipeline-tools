@@ -119,7 +119,8 @@ class TestOptimus(object):
         os.remove('annotations_gtf.txt')
         os.remove('ref_genome_fasta.txt')
 
+
 def assert_file_contents(actual_file, expected_contents):
-            with open(actual_file) as f:
-                actual = f.read().strip()
-                assert actual == expected_contents
+    with open(actual_file) as f:
+        actual = f.read().strip()
+        assert actual == expected_contents
