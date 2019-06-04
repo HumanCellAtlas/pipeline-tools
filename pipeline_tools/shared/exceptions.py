@@ -1,2 +1,2 @@
-class UnsupportedException(Exception):
+class UnsupportedOrganismException(Exception):
     pass
