@@ -28,7 +28,7 @@ def create_ss2_input_tsv(
     tsv_headers = ['fastq_1', 'fastq_2', 'sample_id']
     tsv_values = [fastq_1_url, fastq_2_url, sample_id]
 
-    species_references = references[ncbi_taxon_id]
+    species_references = REFERENCES[ncbi_taxon_id]
     for key, value in species_references.items():
         tsv_headers.append(key)
         tsv_values.append(value)
@@ -180,7 +180,7 @@ def _get_content_for_ss2_se_input_tsv(
     return fastq_url, sample_id
 
 
-references = {
+REFERENCES = {
     ReferenceId.Human.value: {
         'hisat2_ref_trans_name': 'gencode_v27_trans_rsem',
         'rrna_intervals': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode.v27.rRNA.interval_list',

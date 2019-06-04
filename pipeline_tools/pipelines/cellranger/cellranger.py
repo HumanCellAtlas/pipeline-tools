@@ -65,7 +65,7 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
         for name in fastq_names:
             f.write(name + '\n')
 
-    species_references = references[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
+    species_references = REFERENCES[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
     print('Writing species references')
     for key, value in species_references.items():
         with open(f"{key}.txt", 'w') as f:
@@ -107,7 +107,7 @@ class MoreThanOneCellSuspensionError(Exception):
     pass
 
 
-references = {
+REFERENCES = {
     ReferenceId.Human.value: {
         'reference_name': 'GRCh38',
         'transcriptome_tar_gz': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar',

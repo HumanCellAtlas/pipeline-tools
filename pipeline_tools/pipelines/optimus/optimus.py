@@ -58,7 +58,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     with open('sample_id.txt', 'w') as f:
         f.write(f"{sample_id}")
 
-    species_references = references[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
+    species_references = REFERENCES[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
     print('Writing species references')
     for key, value in species_references.items():
         with open(f"{key}.txt", 'w') as f:
@@ -67,7 +67,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     print('Finished writing files')
 
 
-references = {
+REFERENCES = {
     ReferenceId.Human.value: {
         'tar_star_reference': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar',
         'annotations_gtf': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz',

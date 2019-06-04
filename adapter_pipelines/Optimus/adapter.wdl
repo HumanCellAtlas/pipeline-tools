@@ -139,7 +139,7 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.51.1"
+  String pipeline_tools_version = "yanc_support_animal_references"
 
   call GetInputs as prep {
     input:
@@ -161,9 +161,9 @@ workflow AdapterOptimus {
       i1_fastq = if (length(prep.i1_fastq) <= 0) then None else prep.i1_fastq,
       sample_id = prep.sample_id,
       whitelist = whitelist,
-      tar_star_reference = tar_star_reference,
-      annotations_gtf = annotations_gtf,
-      ref_genome_fasta = ref_genome_fasta,
+      tar_star_reference = prep.tar_star_reference,
+      annotations_gtf = prep.annotations_gtf,
+      ref_genome_fasta = prep.ref_genome_fasta,
       fastq_suffix = fastq_suffix
   }
 

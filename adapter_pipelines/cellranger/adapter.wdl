@@ -149,7 +149,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.51.1"
+  String pipeline_tools_version = "yanc_support_animal_references"
 
   call GetInputs {
     input:
@@ -179,8 +179,8 @@ workflow Adapter10xCount {
     input:
       sample_id = GetInputs.sample_id,
       fastqs = rename_fastqs.outputs,
-      reference_name = reference_name,
-      transcriptome_tar_gz = transcriptome_tar_gz,
+      reference_name = GetInputs.reference_name,
+      transcriptome_tar_gz = GetInputs.transcriptome_tar_gz,
       expect_cells = GetInputs.expect_cells,
       max_retries = max_cromwell_retries
   }

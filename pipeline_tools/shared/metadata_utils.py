@@ -61,11 +61,11 @@ def get_ncbi_taxon_id(bundle: Bundle):
         cs for cs in bundle.biomaterials.values() if isinstance(cs, CellSuspension)
     ]
     if len(cellSuspensions) != 1:
-        raise (UnsupportedOrganismException('Multiple cell suspensions detected in bundle.'))
+        raise UnsupportedOrganismException('Multiple cell suspensions detected in bundle.')
     cellSuspension = cellSuspensions[0]
     first_taxon_id = cellSuspension.ncbi_taxon_id[0]
     if any([taxon_id != first_taxon_id for taxon_id in cellSuspension.ncbi_taxon_id]):
-        raise (UnsupportedOrganismException('Multiple distinct species detected in bundle.'))
+        raise UnsupportedOrganismException('Multiple distinct species detected in bundle.')
     return first_taxon_id
 
 

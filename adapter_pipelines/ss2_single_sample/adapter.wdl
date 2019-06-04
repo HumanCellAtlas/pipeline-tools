@@ -70,7 +70,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.51.0"
+  String pipeline_tools_version = "yanc_support_animal_references"
 
   call GetInputs as prep {
     input:
