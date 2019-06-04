@@ -4,6 +4,20 @@ from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.shared.reference_id import ReferenceId
 
 
+REFERENCES = {
+    ReferenceId.Human.value: {
+        'tar_star_reference': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar',
+        'annotations_gtf': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz',
+        'ref_genome_fasta': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa',
+    },
+    ReferenceId.Mouse.value: {
+        'tar_star_reference': 'gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar',
+        'annotations_gtf': 'gs://hca-dcp-mint-test-data/yanc-test/gencode.vM21.annotation.gtf.gz',
+        'ref_genome_fasta': 'gs://hca-dcp-mint-test-data/yanc-test/GRCm38.primary_assembly.genome.fa',
+    },
+}
+
+
 # TODO: Rename this function since it no longer creates a tsv file
 def create_optimus_input_tsv(uuid, version, dss_url):
     """Create TSV of Optimus inputs
@@ -67,17 +81,3 @@ def create_optimus_input_tsv(uuid, version, dss_url):
             f.write(f"{value}")
 
     print('Finished writing files')
-
-
-REFERENCES = {
-    ReferenceId.Human.value: {
-        'tar_star_reference': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar',
-        'annotations_gtf': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz',
-        'ref_genome_fasta': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa',
-    },
-    ReferenceId.Mouse.value: {
-        'tar_star_reference': 'gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar',
-        'annotations_gtf': 'gs://hca-dcp-mint-test-data/yanc-test/gencode.vM21.annotation.gtf.gz',
-        'ref_genome_fasta': 'gs://hca-dcp-mint-test-data/yanc-test/GRCm38.primary_assembly.genome.fa',
-    },
-}

@@ -5,6 +5,14 @@ from humancellatlas.data.metadata.api import CellSuspension
 from pipeline_tools.shared.reference_id import ReferenceId
 
 
+REFERENCES = {
+    ReferenceId.Human.value: {
+        'reference_name': 'GRCh38',
+        'transcriptome_tar_gz': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar',
+    }
+}
+
+
 def create_cellranger_input_tsv(uuid, version, dss_url):
     """ Get inputs for cellranger count workflow
 
@@ -107,11 +115,3 @@ def get_expected_cell_count(bundle):
 
 class MoreThanOneCellSuspensionError(Exception):
     pass
-
-
-REFERENCES = {
-    ReferenceId.Human.value: {
-        'reference_name': 'GRCh38',
-        'transcriptome_tar_gz': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_GencodeV27_Primary_CellRanger.tar',
-    }
-}
