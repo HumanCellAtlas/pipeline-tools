@@ -1,7 +1,7 @@
 from pipeline_tools.shared import dcp_utils
 from humancellatlas.data.metadata.api import Bundle, CellSuspension
 from pipeline_tools.shared.http_requests import HttpRequests
-from pipeline_tools.shared.exceptions import UnsupportedException
+from pipeline_tools.shared.exceptions import UnsupportedOrganismException
 import functools
 from concurrent.futures import ThreadPoolExecutor
 
