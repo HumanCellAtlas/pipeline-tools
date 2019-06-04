@@ -139,7 +139,7 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "yanc_support_animal_references"
+  String pipeline_tools_version = "yanc-support-animal-references"
 
   call GetInputs as prep {
     input:
