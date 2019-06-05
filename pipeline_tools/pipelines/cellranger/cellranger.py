@@ -37,7 +37,9 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
     # Parse inputs from metadata
     print('Gathering fastq inputs')
     fastq_files = [
-        f for f in primary_bundle.files.values() if f.file_format == 'fastq.gz'
+        f
+        for f in primary_bundle.files.values()
+        if f.file_format in ('fastq.gz', 'fastq')
     ]
     lane_to_fastqs = tenx_utils.create_fastq_dict(fastq_files)
 
