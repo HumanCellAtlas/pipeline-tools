@@ -44,7 +44,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     fastq_files = [
         f
         for f in primary_bundle.files.values()
-        if f.file_format in ('fastq.gz', 'fastq')
+        if str(f.format).lower() in ('fastq.gz', 'fastq')
     ]
     lane_to_fastqs = tenx_utils.create_fastq_dict(fastq_files)
 
@@ -74,9 +74,11 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     with open('sample_id.txt', 'w') as f:
         f.write(f"{sample_id}")
 
-    species_references = REFERENCES[metadata_utils.get_ncbi_taxon_id(primary_bundle)]
-    print('Writing species references')
+    ref_id = ReferenceId(metadata_utils.get_ncbi_taxon_id(primary_bundle))
+    species_references = REFERENCES[ref_id.value]
+    print(f"Writing species references for {ref_id.name}")
     for key, value in species_references.items():
+        print(f"Writing {key}.txt")
         with open(f"{key}.txt", 'w') as f:
             f.write(f"{value}")
 
