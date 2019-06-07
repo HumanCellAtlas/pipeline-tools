@@ -1,0 +1,2 @@
+class UnsupportedOrganismException(Exception):
+    pass

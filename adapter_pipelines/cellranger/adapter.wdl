@@ -36,6 +36,8 @@ task GetInputs {
   }
   output {
     String sample_id = read_string("sample_id.txt")
+    String reference_name = read_string("reference_name.txt")
+    File transcriptome_tar_gz = read_string("transcriptome_tar_gz.txt")
     Int expect_cells = read_string("expect_cells.txt")
     Array[File] fastqs = read_lines("fastqs.txt")
     Array[String] fastq_names = read_lines("fastq_names.txt")
@@ -123,9 +125,6 @@ workflow Adapter10xCount {
   String bundle_uuid
   String bundle_version
 
-  String reference_name
-  File transcriptome_tar_gz
-
   # Submission
   File format_map
   String dss_url
@@ -150,7 +149,7 @@ workflow Adapter10xCount {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.52.0"
+  String pipeline_tools_version = "v0.53.0"
 
   call GetInputs {
     input:
@@ -180,8 +179,8 @@ workflow Adapter10xCount {
     input:
       sample_id = GetInputs.sample_id,
       fastqs = rename_fastqs.outputs,
-      reference_name = reference_name,
-      transcriptome_tar_gz = transcriptome_tar_gz,
+      reference_name = GetInputs.reference_name,
+      transcriptome_tar_gz = GetInputs.transcriptome_tar_gz,
       expect_cells = GetInputs.expect_cells,
       max_retries = max_cromwell_retries
   }
@@ -196,11 +195,11 @@ workflow Adapter10xCount {
         },
         {
           "name": "reference_name",
-          "value": reference_name
+          "value": GetInputs.reference_name
         },
         {
           "name": "transcriptome_tar_gz",
-          "value": transcriptome_tar_gz
+          "value": GetInputs.transcriptome_tar_gz
         }
       ],
       expect_cells = GetInputs.expect_cells,

@@ -46,17 +46,6 @@ workflow AdapterSmartSeq2SingleCell{
   String bundle_uuid
   String bundle_version
 
-  # fixed parameters
-  File genome_ref_fasta
-  File rrna_intervals
-  File gene_ref_flat
-  File hisat2_ref_index
-  File hisat2_ref_trans_index
-  File rsem_ref_index
-  File hisat2_ref_name
-  File hisat2_ref_trans_name
-  String stranded
-
   # submission parameters
   File format_map
   String dss_url
@@ -81,7 +70,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.52.0"
+  String pipeline_tools_version = "v0.53.0"
 
   call GetInputs as prep {
     input:
@@ -98,15 +87,15 @@ workflow AdapterSmartSeq2SingleCell{
 
   call ss2.SmartSeq2SingleCell as analysis {
     input:
-      genome_ref_fasta = genome_ref_fasta,
-      rrna_intervals = rrna_intervals,
-      gene_ref_flat = gene_ref_flat,
-      hisat2_ref_index = hisat2_ref_index,
-      hisat2_ref_trans_index = hisat2_ref_trans_index,
-      rsem_ref_index = rsem_ref_index,
-      hisat2_ref_name = hisat2_ref_name,
-      hisat2_ref_trans_name = hisat2_ref_trans_name,
-      stranded = stranded,
+      genome_ref_fasta = prep.inputs.genome_ref_fasta,
+      rrna_intervals = prep.inputs.rrna_intervals,
+      gene_ref_flat = prep.inputs.gene_ref_flat,
+      hisat2_ref_index = prep.inputs.hisat2_ref_index,
+      hisat2_ref_trans_index = prep.inputs.hisat2_ref_trans_index,
+      rsem_ref_index = prep.inputs.rsem_ref_index,
+      hisat2_ref_name = prep.inputs.hisat2_ref_name,
+      hisat2_ref_trans_name = prep.inputs.hisat2_ref_trans_name,
+      stranded = prep.inputs.stranded,
       sample_name = prep.inputs.sample_id,
       output_name = prep.inputs.sample_id,
       fastq1 = prep.inputs.fastq_1,
@@ -135,39 +124,39 @@ workflow AdapterSmartSeq2SingleCell{
         },
         {
           "name": "genome_ref_fasta",
-          "value": genome_ref_fasta
+          "value": prep.inputs.genome_ref_fasta
         },
         {
           "name": "rrna_intervals",
-          "value": rrna_intervals
+          "value": prep.inputs.rrna_intervals
         },
         {
           "name": "gene_ref_flat",
-          "value": gene_ref_flat
+          "value": prep.inputs.gene_ref_flat
         },
         {
           "name": "hisat2_ref_index",
-          "value": hisat2_ref_index
+          "value": prep.inputs.hisat2_ref_index
         },
         {
           "name": "hisat2_ref_trans_name",
-          "value": hisat2_ref_trans_name
+          "value": prep.inputs.hisat2_ref_trans_name
         },
         {
           "name": "rsem_ref_index",
-          "value": rsem_ref_index
+          "value": prep.inputs.rsem_ref_index
         },
         {
           "name": "hisat2_ref_name",
-          "value": hisat2_ref_name
+          "value": prep.inputs.hisat2_ref_name
         },
          {
           "name": "hisat2_ref_trans_name",
-          "value": hisat2_ref_trans_name
+          "value": prep.inputs.hisat2_ref_trans_name
         },
         {
           "name": "stranded",
-          "value": stranded
+          "value": prep.inputs.stranded
         }
       ],
       outputs = flatten(

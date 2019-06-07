@@ -1,6 +1,21 @@
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared import tenx_utils
 from pipeline_tools.shared.http_requests import HttpRequests
+from pipeline_tools.shared.reference_id import ReferenceId
+
+
+REFERENCES = {
+    ReferenceId.Human.value: {
+        'tar_star_reference': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar',
+        'annotations_gtf': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz',
+        'ref_genome_fasta': 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa',
+    },
+    ReferenceId.Mouse.value: {
+        'tar_star_reference': 'gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar',
+        'annotations_gtf': 'gs://hca-dcp-mint-test-data/yanc-test/gencode.vM21.annotation.gtf.gz',
+        'ref_genome_fasta': 'gs://hca-dcp-mint-test-data/yanc-test/GRCm38.primary_assembly.genome.fa',
+    },
+}
 
 
 # TODO: Rename this function since it no longer creates a tsv file
@@ -19,7 +34,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
         tenx_utils.LaneMissingFileError if any non-optional fastqs are missing
     """
     # Get bundle manifest
-    print('Getting bundle manifest for id {0}, version {1}'.format(uuid, version))
+    print(f"Getting bundle manifest for id {uuid}, version {version}")
     primary_bundle = metadata_utils.get_bundle_metadata(
         uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests()
     )
@@ -57,6 +72,14 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     sample_id = metadata_utils.get_sample_id(primary_bundle)
     print('Writing sample ID to sample_id.txt')
     with open('sample_id.txt', 'w') as f:
-        f.write('{0}'.format(sample_id))
+        f.write(f"{sample_id}")
+
+    ref_id = ReferenceId(metadata_utils.get_ncbi_taxon_id(primary_bundle))
+    species_references = REFERENCES[ref_id.value]
+    print(f"Writing species references for {ref_id.name}")
+    for key, value in species_references.items():
+        print(f"Writing {key}.txt")
+        with open(f"{key}.txt", 'w') as f:
+            f.write(f"{value}")
 
     print('Finished writing files')

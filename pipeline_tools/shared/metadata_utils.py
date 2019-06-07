@@ -1,6 +1,7 @@
 from pipeline_tools.shared import dcp_utils
-from humancellatlas.data.metadata.api import Bundle
+from humancellatlas.data.metadata.api import Bundle, CellSuspension
 from pipeline_tools.shared.http_requests import HttpRequests
+from pipeline_tools.shared.exceptions import UnsupportedOrganismException
 import functools
 from concurrent.futures import ThreadPoolExecutor
 
@@ -45,6 +46,31 @@ def get_sample_id(bundle):
     """
     sample_id = str(bundle.sequencing_input[0].document_id)
     return sample_id
+
+
+def get_ncbi_taxon_id(bundle: Bundle):
+    """Returns the ncbi_taxon_id for the Bundle, which identifies the sample organism
+
+    Args:
+        bundle (humancellatlas.data.metadata.Bundle): A Bundle object contains all of the necessary information.
+
+    Returns:
+        ncbi_taxon_id (int): integer value of the ncbi_taxon_id
+    """
+    cellSuspensions = [
+        cs for cs in bundle.biomaterials.values() if isinstance(cs, CellSuspension)
+    ]
+    if len(cellSuspensions) != 1:
+        raise UnsupportedOrganismException(
+            'Multiple cell suspensions detected in bundle.'
+        )
+    cellSuspension = cellSuspensions[0]
+    first_taxon_id = cellSuspension.ncbi_taxon_id[0]
+    if any([taxon_id != first_taxon_id for taxon_id in cellSuspension.ncbi_taxon_id]):
+        raise UnsupportedOrganismException(
+            'Multiple distinct species detected in bundle.'
+        )
+    return first_taxon_id
 
 
 def download_file(item, dss_url, http_requests=HttpRequests()):
