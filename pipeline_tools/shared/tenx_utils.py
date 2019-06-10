@@ -32,7 +32,7 @@ def create_fastq_dict(fastq_files):
             lane_to_fastqs[lane] = {}
         lane_to_fastqs[lane][file.read_index] = {
             'url': file.manifest_entry.url,
-            'sha256': file.manifest_entry.sha256
+            'sha256': file.manifest_entry.sha256,
         }
 
     return lane_to_fastqs
