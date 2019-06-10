@@ -8,14 +8,14 @@ def create_fastq_dict(fastq_files):
     Example output:
     {
         1: {
-            'read1': 'gs://path/to/lane1/read1_fastq.gz',
-            'read2': 'gs://path/to/lane1/read2_fastq.gz',
-            'index1': 'gs://path/to/lane1/index1_fastq.gz'
+            'read1': {'url': 'gs://path/to/lane1/read1_fastq.gz', 'sha256': 'aaaaa'},
+            'read2': {'url': 'gs://path/to/lane1/read2_fastq.gz', 'sha256': 'bbbbb'},
+            'index1': {'url': 'gs://path/to/lane1/index1_fastq.gz', 'sha256': 'ccccc'}
         },
         2: {
-            'read1': 'gs://path/to/lane2/read1_fastq.gz',
-            'read2': 'gs://path/to/lane2/read2_fastq.gz',
-            'index1': 'gs://path/to/lane2/index1_fastq.gz'
+            'read1': {'url': 'gs://path/to/lane2/read1_fastq.gz', 'sha256': 'ddddd'},
+            'read2': {'url': 'gs://path/to/lane2/read2_fastq.gz', 'sha256': 'eeeee'},
+            'index1': {'url': 'gs://path/to/lane2/index1_fastq.gz', 'sha256': 'fffff'}
         }
     }
 
@@ -30,7 +30,11 @@ def create_fastq_dict(fastq_files):
         lane = file.lane_index
         if lane not in lane_to_fastqs:
             lane_to_fastqs[lane] = {}
-        lane_to_fastqs[lane][file.read_index] = file.manifest_entry.url
+        lane_to_fastqs[lane][file.read_index] = {
+            'url': file.manifest_entry.url,
+            'sha256': file.manifest_entry.sha256
+        }
+
     return lane_to_fastqs
 
 
@@ -48,7 +52,7 @@ def get_fastqs_for_read_index(lane_to_fastqs, read_index):
     fastq_urls = []
     for lane in lanes:
         if read_index in lane_to_fastqs[lane]:
-            fastq_urls.append(lane_to_fastqs[lane][read_index])
+            fastq_urls.append(lane_to_fastqs[lane][read_index]['url'])
     return fastq_urls
 
 
@@ -72,13 +76,13 @@ def validate_lanes(lane_to_fastqs):
     #
     # lane_to_fastqs = {
     #     3: {
-    #         'read1': 'foo',
-    #         'read2': 'bar',
-    #         'index1': 'baz'
+    #         'read1': {'url': 'foo',...},
+    #         'read2': {'url': 'bar', ...},
+    #         'index1': {'url': 'baz', ...}
     #     },
     #     4: {
-    #         'read1': 'foo',
-    #         'index1': 'baz'
+    #         'read1': {'url': 'foo', ...},
+    #         'index1': {'url': 'baz, ...}
     #     }
     # }
     #
