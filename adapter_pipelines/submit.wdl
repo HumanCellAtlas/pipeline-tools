@@ -29,7 +29,6 @@ task get_metadata {
   >>>
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
-    maxRetries: max_retries
   }
   output {
     File metadata = "metadata.json"
@@ -184,7 +183,6 @@ task stage_files {
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
     disks: "local-disk ${disk_space} HDD"
-    maxRetries: max_retries
   }
   output {
     Array[File] http_requests = glob("request_*.txt")
@@ -228,7 +226,8 @@ task confirm_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version,
+    maxRetries: 0
   }
 
   output {
