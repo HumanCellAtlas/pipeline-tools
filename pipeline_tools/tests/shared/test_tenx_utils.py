@@ -1,11 +1,11 @@
 import pytest
 
-from pipeline_tools.shared import tenx_utils
-from collections import namedtuple
 import random
+from collections import namedtuple
+from pipeline_tools.shared import tenx_utils
 
 
-ManifestEntry = namedtuple('ManifestEntry', ['url', 'sha256'])
+ManifestEntry = namedtuple('ManifestEntry', ['url'])
 BundleFile = namedtuple(
     'BundleFile', ['file_format', 'lane_index', 'read_index', 'manifest_entry']
 )
@@ -20,24 +20,12 @@ r = random.Random(12)
 @pytest.fixture
 def valid_files_with_index():
     files = [
-        BundleFile(
-            'fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz', 'aaaaa')
-        ),
-        BundleFile(
-            'fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz', 'bbbbb')
-        ),
-        BundleFile(
-            'fastq.gz', 5, 'index1', ManifestEntry('gs://5/i1.fastq.gz', 'ccccc')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz', 'ddddd')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz', 'eeeee')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz', 'fffff')
-        ),
+        BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'index1', ManifestEntry('gs://5/i1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz')),
     ]
     r.shuffle(files)
     return files
@@ -47,14 +35,14 @@ def valid_files_with_index():
 def valid_files_with_index_dict():
     return {
         5: {
-            'read1': {'url': 'gs://5/r1.fastq.gz', 'sha256': 'aaaaa'},
-            'read2': {'url': 'gs://5/r2.fastq.gz', 'sha256': 'bbbbb'},
-            'index1': {'url': 'gs://5/i1.fastq.gz', 'sha256': 'ccccc'},
+            'read1': ManifestEntry('gs://5/r1.fastq.gz'),
+            'read2': ManifestEntry('gs://5/r2.fastq.gz'),
+            'index1': ManifestEntry('gs://5/i1.fastq.gz'),
         },
         7: {
-            'read1': {'url': 'gs://7/r1.fastq.gz', 'sha256': 'ddddd'},
-            'read2': {'url': 'gs://7/r2.fastq.gz', 'sha256': 'eeeee'},
-            'index1': {'url': 'gs://7/i1.fastq.gz', 'sha256': 'fffff'},
+            'read1': ManifestEntry('gs://7/r1.fastq.gz'),
+            'read2': ManifestEntry('gs://7/r2.fastq.gz'),
+            'index1': ManifestEntry('gs://7/i1.fastq.gz'),
         },
     }
 
@@ -62,18 +50,10 @@ def valid_files_with_index_dict():
 @pytest.fixture
 def valid_files_no_index():
     files = [
-        BundleFile(
-            'fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz', 'aaaaa')
-        ),
-        BundleFile(
-            'fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz', 'bbbbb')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz', 'ddddd')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz', 'eeeee')
-        ),
+        BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
     ]
     r.shuffle(files)
     return files
@@ -82,21 +62,11 @@ def valid_files_no_index():
 @pytest.fixture
 def invalid_files_one_lane_indexed():
     files = [
-        BundleFile(
-            'fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz', 'aaaaa')
-        ),
-        BundleFile(
-            'fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz', 'bbbbb')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz', 'ddddd')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz', 'eeeee')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz', 'fffff')
-        ),
+        BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz')),
     ]
     r.shuffle(files)
     return files
@@ -106,13 +76,13 @@ def invalid_files_one_lane_indexed():
 def invalid_files_one_lane_indexed_dict():
     return {
         5: {
-            'read1': {'url': 'gs://5/r1.fastq.gz', 'sha256': 'aaaaa'},
-            'read2': {'url': 'gs://5/r2.fastq.gz', 'sha256': 'bbbbb'},
+            'read1': ManifestEntry('gs://5/r1.fastq.gz'),
+            'read2': ManifestEntry('gs://5/r2.fastq.gz'),
         },
         7: {
-            'read1': {'url': 'gs://7/r1.fastq.gz', 'sha256': 'ddddd'},
-            'read2': {'url': 'gs://7/r2.fastq.gz', 'sha256': 'eeeee'},
-            'index1': {'url': 'gs://7/i1.fastq.gz', 'sha256': 'fffff'},
+            'read1': ManifestEntry('gs://7/r1.fastq.gz'),
+            'read2': ManifestEntry('gs://7/r2.fastq.gz'),
+            'index1': ManifestEntry('gs://7/i1.fastq.gz'),
         },
     }
 
@@ -120,15 +90,9 @@ def invalid_files_one_lane_indexed_dict():
 @pytest.fixture
 def invalid_files_missing_read1():
     files = [
-        BundleFile(
-            'fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz', 'aaaaa')
-        ),
-        BundleFile(
-            'fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz', 'bbbbb')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz', 'eeeee')
-        ),
+        BundleFile('fastq.gz', 5, 'read1', ManifestEntry('gs://5/r1.fastq.gz')),
+        BundleFile('fastq.gz', 5, 'read2', ManifestEntry('gs://5/r2.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'read2', ManifestEntry('gs://7/r2.fastq.gz')),
     ]
     r.shuffle(files)
     return files
@@ -137,12 +101,8 @@ def invalid_files_missing_read1():
 @pytest.fixture
 def invalid_files_missing_read2():
     files = [
-        BundleFile(
-            'fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz', 'ddddd')
-        ),
-        BundleFile(
-            'fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz', 'fffff')
-        ),
+        BundleFile('fastq.gz', 7, 'read1', ManifestEntry('gs://7/r1.fastq.gz')),
+        BundleFile('fastq.gz', 7, 'index1', ManifestEntry('gs://7/i1.fastq.gz')),
     ]
     r.shuffle(files)
     return files
