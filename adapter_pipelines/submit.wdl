@@ -9,7 +9,6 @@ task get_metadata {
   Int? individual_request_timeout
   Boolean record_http
   String pipeline_tools_version
-  Int max_retries = 0
 
   command <<<
     export RECORD_HTTP_REQUESTS="${record_http}"
@@ -136,7 +135,6 @@ task stage_files {
   String rb = "}"
   Boolean record_http
   String pipeline_tools_version
-  Int max_retries = 0
   Int disk_space
 
   command <<<
@@ -259,7 +257,6 @@ workflow submit {
   Boolean record_http = false
   String pipeline_tools_version
   Boolean add_md5s
-  Int max_retries = 0
   # Version of the pipeline, should be included in the pipeline file
   String pipeline_version
   # Disk space to allocate for stage_files task
@@ -277,8 +274,7 @@ workflow submit {
       individual_request_timeout = individual_request_timeout,
       retry_multiplier = retry_multiplier,
       retry_max_interval = retry_max_interval,
-      pipeline_tools_version = pipeline_tools_version,
-      max_retries = max_retries
+      pipeline_tools_version = pipeline_tools_version
   }
 
   call create_submission {
@@ -319,7 +315,6 @@ workflow submit {
       retry_max_interval = retry_max_interval,
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
-      max_retries = max_retries,
       disk_space = disk_space
   }
 
