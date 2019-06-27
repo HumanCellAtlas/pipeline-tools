@@ -67,7 +67,6 @@ workflow AdapterSmartSeq2SingleCellUnpaired {
   String runtime_environment
   # By default, don't record http requests, unless we override in inputs json
   Boolean record_http = false
-  Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
   String pipeline_tools_version = "v0.56.1"
@@ -98,8 +97,7 @@ workflow AdapterSmartSeq2SingleCellUnpaired {
       stranded = prep.inputs.stranded,
       sample_name = prep.inputs.sample_id,
       output_name = prep.inputs.sample_id,
-      fastq = prep.inputs.fastq,
-      max_retries = max_cromwell_retries
+      fastq = prep.inputs.fastq
   }
 
   call submit_wdl.submit {
@@ -187,7 +185,6 @@ workflow AdapterSmartSeq2SingleCellUnpaired {
       record_http = record_http,
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
-      max_retries = max_cromwell_retries,
       pipeline_version = analysis.pipeline_version,
       # The bam files are by far the largest outputs. The extra 5 GB should easily cover everything else.
       disk_space = ceil(size(analysis.aligned_bam, "GB") + size(analysis.aligned_transcriptome_bam, "GB") + 5)

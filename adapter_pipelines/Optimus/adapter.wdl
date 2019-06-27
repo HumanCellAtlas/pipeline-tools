@@ -136,7 +136,6 @@ workflow AdapterOptimus {
   String runtime_environment
   # By default, don't record http requests, unless we override in inputs json
   Boolean record_http = false
-  Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
   String pipeline_tools_version = "v0.56.1"
