@@ -132,3 +132,16 @@ def get_metadata_files(metadata_files_dict, dss_url, num_workers=None):
                 )
             )
     return metadata_files
+
+
+def get_hashes_from_file_manifest(file_manifest):
+    """ Return a string that is a concatenation of the file hashes provided in the bundle manifest entry for a file:
+        {sha1}{sha256}{s3_etag}{crc32c}
+    """
+    sha1 = file_manifest.sha1
+    sha256 = file_manifest.sha256
+    s3_etag = file_manifest.s3_etag
+    crc32c = file_manifest.crc32c
+    return '{sha1}{sha256}{s3_etag}{crc32c}'.format(
+        sha1=sha1, sha256=sha256, s3_etag=s3_etag, crc32c=crc32c
+    )
