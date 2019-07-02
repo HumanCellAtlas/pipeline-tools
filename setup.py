@@ -17,7 +17,7 @@ setup(
         'arrow>=0.12.1',
         'google-auth>=1.6.1,<2',
         'google-cloud-storage>=1.10.0,<2',
-        'hca>=5.1.0,<6',
+        'hca>=6.2.0,<7',
         'mock>=2.0.0,<3',
         'requests>=2.20.0,<3',
         'requests-mock>=1.5.2,<2',
