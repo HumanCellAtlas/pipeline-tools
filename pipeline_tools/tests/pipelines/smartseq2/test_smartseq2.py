@@ -1,13 +1,11 @@
 import json
 import os
 import pytest
-from humancellatlas.data.metadata.api import Bundle
+from humancellatlas.data.metadata.api import Bundle, ManifestEntry
 from unittest.mock import patch
 
 
 from pipeline_tools.pipelines.smartseq2 import smartseq2
-from pipeline_tools.shared.reference_id import ReferenceId
-
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 from pathlib import Path
 
@@ -74,15 +72,18 @@ class TestSmartSeq2(object):
         test_ss2_bundle_version_vx,
         ss2_tsv_contents,
     ):
-        def mocked_get_content_for_ss2_input_tsv(
-            bundle_uuid, bundle_version, dss_url, http_requests
-        ):
-            return 'url1', 'url2', 'fake_id', ReferenceId.Human.value
+        def mocked_get_ss2_paired_end_inputs(bundle_uuid, bundle_version, dss_url):
+            return (
+                'sample_id',
+                'taxon_id',
+                ManifestEntry(url='foo/read1.fastq'),
+                ManifestEntry(url='foo/read2.fastq'),
+            )
 
         file_path = tmpdir.join('inputs.tsv')
         with patch(
-            'pipeline_tools.pipelines.smartseq2.smartseq2._get_content_for_ss2_input_tsv',
-            side_effect=mocked_get_content_for_ss2_input_tsv,
+            'pipeline_tools.pipelines.smartseq2.smartseq2.get_ss2_paired_end_inputs',
+            side_effect=mocked_get_ss2_paired_end_inputs,
         ), HttpRequestsManager():
             smartseq2.create_ss2_input_tsv(
                 bundle_uuid=test_ss2_bundle_uuid_vx,
@@ -92,12 +93,14 @@ class TestSmartSeq2(object):
             )
         assert file_path.read() == ss2_tsv_contents
 
-    def test_get_urls_to_files_for_ss2(
+    def test_get_fastq_manifest_entry_for_ss2(
         self, test_ss2_bundle_vx, test_ss2_bundle_manifest_vx
     ):
-        fastq_url1, fastq_url2 = smartseq2.get_urls_to_files_for_ss2(test_ss2_bundle_vx)
+        fastq1_manifest_entry, fastq2_manifest_entry = smartseq2.get_fastq_manifest_entry_for_ss2(
+            test_ss2_bundle_vx
+        )
         assert (
-            fastq_url1
+            fastq1_manifest_entry.url
             == [
                 f['url']
                 for f in test_ss2_bundle_manifest_vx
@@ -105,7 +108,7 @@ class TestSmartSeq2(object):
             ][0]
         )
         assert (
-            fastq_url2
+            fastq2_manifest_entry.url
             == [
                 f['url']
                 for f in test_ss2_bundle_manifest_vx
