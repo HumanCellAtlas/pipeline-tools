@@ -19,6 +19,20 @@ REFERENCES = {
 
 
 def get_optimus_inputs(uuid, version, dss_url):
+    """Gather the necessary inputs for Optimus from the bundle metadata.
+
+    Args:
+        bundle_uuid (str): the bundle uuid.
+        bundle_version (str): the bundle version.
+        dss_url (str): the url for the DCP Data Storage Service.
+
+    Returns:
+        tuple: tuple of the sample_id, ncbi_taxon_id, dict mapping flow cell lane indices
+               to fastq file manifests
+
+    Raises:
+        requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
+    """
     print(f"Getting bundle manifest for id {uuid}, version {version}")
     primary_bundle = metadata_utils.get_bundle_metadata(
         uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests()
@@ -35,6 +49,23 @@ def get_optimus_inputs(uuid, version, dss_url):
 
 
 def get_optimus_inputs_to_hash(uuid, version, dss_url):
+    """
+    Get values to hash for the worflow input Cromwell label, including the
+    sample_id, ncbi_taxon_id and the file hashes for each fastq file in the data bundle
+    grouped by lane index.
+
+    Args:
+        bundle_uuid (str): the bundle uuid.
+        bundle_version (str): the bundle version.
+        dss_url (str): the url for the DCP Data Storage Service.
+
+    Returns:
+        tuple: tuple of the sample_id, ncbi_taxon_id and fastq file hashes
+
+    Raises:
+        requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
+
+    """
     sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(
         uuid, version, dss_url
     )
@@ -47,13 +78,13 @@ def get_optimus_inputs_to_hash(uuid, version, dss_url):
         r2_hashes = metadata_utils.get_hashes_from_file_manifest(
             lane_to_fastqs[lane]['read2']
         )
-        file_hashes = '{0}{1}'.format(r1_hashes, r2_hashes)
+        file_hashes = f'{r1_hashes}{r2_hashes}'
         if lane_to_fastqs[lane].get('index1'):
             i1_hashes = metadata_utils.get_hashes_from_file_manifest(
                 lane_to_fastqs[lane]['index1']
             )
             file_hashes += i1_hashes
-    # This order must be maintained to compare input hashes between different Optimus workflows
+    # This order MUST be maintained to compare input hashes between different Optimus workflows!
     return sample_id, ncbi_taxon_id, file_hashes
 
 

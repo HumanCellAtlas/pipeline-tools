@@ -25,7 +25,6 @@ def get_ss2_paired_end_inputs(bundle_uuid, bundle_version, dss_url):
         bundle_uuid (str): the bundle uuid.
         bundle_version (str): the bundle version.
         dss_url (str): the url for the DCP Data Storage Service.
-        http_requests (HttpRequests): the HttpRequests object to use.
 
     Returns:
         tuple: tuple of the sample_id, ncbi_taxon_id, fastq1_manifest object and fastq2_manifest object
@@ -56,6 +55,7 @@ def get_ss2_paired_end_inputs_to_hash(bundle_uuid, bundle_version, dss_url):
     )
     fastq1_hashes = metadata_utils.get_hashes_from_file_manifest(fastq1_manifest)
     fastq2_hashes = metadata_utils.get_hashes_from_file_manifest(fastq2_manifest)
+    # This order MUST be maintained to compare input hashes between different SS2 workflows!
     return sample_id, ncbi_taxon_id, fastq1_hashes, fastq2_hashes
 
 
