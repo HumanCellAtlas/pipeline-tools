@@ -89,7 +89,7 @@
         "sha1": "17f8b4be0cc6e8281a402bb365b1283b458906a3",
         "sha256": "fe6d4fdfea2ff1df97500dcfe7085ac3abfb760026bff75a34c20fb97a4b2b29",
         "size": 125191,
-        "url": "gs://org-humancellatlas-dss-staging/blobs/fe6d4fdfea2ff1df97500dcfe7085ac3abfb760026bff75a34c20fb97a4b2b29.17f8b4be0cc6e8281a402bb365b1283b458906a3.c7bbee4c46bbf29432862e05830c8f39.4ef74578",
+        "url": "gs://org-humancellatlas-dss-staging/blobs/R1.fastq.gz",
         "uuid": "1db5c87a-7577-4feb-8d5f-ff7dac3aaccf",
         "version": "2018-08-08T120430.594837Z"
       },
@@ -102,7 +102,7 @@
         "sha1": "f166b6952e30a41e1409e7fb0cb0fb1ad93f3f21",
         "sha256": "c305bee37b3c3735585e11306272b6ab085f04cd22ea8703957b4503488cfeba",
         "size": 130024,
-        "url": "gs://org-humancellatlas-dss-staging/blobs/c305bee37b3c3735585e11306272b6ab085f04cd22ea8703957b4503488cfeba.f166b6952e30a41e1409e7fb0cb0fb1ad93f3f21.a3a9f23d07cfc5e40a4c3a8adf3903ae.69987b3e",
+        "url": "gs://org-humancellatlas-dss-staging/blobs/R2.fastq.gz",
         "uuid": "e1f06c1f-2821-45b5-b951-9cd5b5dccfcf",
         "version": "2018-08-08T120430.833330Z"
       }

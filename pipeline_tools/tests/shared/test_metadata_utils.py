@@ -2,7 +2,7 @@ import json
 import os
 import pytest
 
-from humancellatlas.data.metadata.api import Bundle
+from humancellatlas.data.metadata.api import Bundle, ManifestEntry
 
 
 from pipeline_tools.shared import metadata_utils
@@ -99,6 +99,14 @@ def test_tenx_bundle_manifest_vx(tenx_manifest_json_vx):
 
 
 @pytest.fixture(scope='module')
+def test_fastq_file_manifest(test_ss2_bundle_manifest_vx):
+    file_manifest_json = [
+        f for f in test_ss2_bundle_manifest_vx if f['name'] == 'R1.fastq.gz'
+    ]
+    return ManifestEntry.from_json(file_manifest_json[0])
+
+
+@pytest.fixture(scope='module')
 def test_tenx_bundle_vx(
     test_tenx_bundle_uuid_vx,
     test_tenx_bundle_version_vx,
@@ -164,3 +172,14 @@ class TestMetadataUtils(object):
         assert file_name == 'project.json'
         assert file_response_js['file'] == expect_result_from_dcp_utils['file']
         assert requests_mock.call_count == 1
+
+    def test_get_hashes_from_file_manifest(self, test_fastq_file_manifest):
+        file_hashes = metadata_utils.get_hashes_from_file_manifest(
+            test_fastq_file_manifest
+        )
+        sha1 = test_fastq_file_manifest.sha1
+        sha256 = test_fastq_file_manifest.sha256
+        s3_etag = test_fastq_file_manifest.s3_etag
+        crc32c = test_fastq_file_manifest.crc32c
+        expected_file_hashes = f'{sha1}{sha256}{s3_etag}{crc32c}'
+        assert file_hashes == expected_file_hashes
