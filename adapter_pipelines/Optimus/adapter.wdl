@@ -139,7 +139,7 @@ workflow AdapterOptimus {
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.54.0"
+  String pipeline_tools_version = "rex-talk-to-ingest-safely"
 
   call GetInputs as prep {
     input:
