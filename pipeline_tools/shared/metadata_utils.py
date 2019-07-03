@@ -142,6 +142,4 @@ def get_hashes_from_file_manifest(file_manifest):
     sha256 = file_manifest.sha256
     s3_etag = file_manifest.s3_etag
     crc32c = file_manifest.crc32c
-    return '{sha1}{sha256}{s3_etag}{crc32c}'.format(
-        sha1=sha1, sha256=sha256, s3_etag=s3_etag, crc32c=crc32c
-    )
+    return f'{sha1}{sha256}{s3_etag}{crc32c}'
