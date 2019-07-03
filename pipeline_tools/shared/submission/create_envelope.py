@@ -126,6 +126,7 @@ def build_envelope(
         )
     )
     link_analysis_protocol_to_analysis_process(
+        auth_headers=auth_headers,
         link_url=link_url,
         analysis_protocol_url=analysis_protocol_entity_url,
         http_requests=http_requests,
@@ -387,22 +388,28 @@ def add_file_reference(file_ref, file_refs_url, auth_headers, http_requests):
 
 
 def link_analysis_protocol_to_analysis_process(
-    link_url, analysis_protocol_url, http_requests
+    auth_headers, link_url, analysis_protocol_url, http_requests
 ):
     """Make the analysis process to be associated with the analysis_protocol to let Ingest create the links.json.
 
     Args:
+        auth_headers (dict): Dict representing headers to use for auth.
         link_url (str): The url for link protocols to processes.
         analysis_protocol_url (str): The url for creating the analysis_protocol.
         http_requests (http_requests.HttpRequests): The HttpRequests object to use for talking to Ingest.
+
+    Returns:
+        dict: Dict representing the JSON response to the request that adding the file reference.
 
     Raises:
         requests.HTTPError: For 4xx errors or 5xx errors beyond timeout.
     """
     link_headers = {'content-type': 'text/uri-list'}
+    link_headers.update(auth_headers)
     response = http_requests.put(
         link_url, headers=link_headers, data=analysis_protocol_url
     )
+    return response.json()
 
 
 def main():
