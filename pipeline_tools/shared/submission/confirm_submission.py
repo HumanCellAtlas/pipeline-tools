@@ -4,6 +4,7 @@ import argparse
 from tenacity import retry_if_result, RetryError
 from datetime import datetime
 from pipeline_tools.shared.http_requests import HttpRequests
+from pipeline_tools.shared import auth_utils
 
 
 def wait_for_valid_status(envelope_url, http_requests):
@@ -41,12 +42,14 @@ def wait_for_valid_status(envelope_url, http_requests):
     return True
 
 
-def confirm(envelope_url, http_requests):
+def confirm(envelope_url, http_requests, runtime_environment, service_account_key_path):
     """Confirms the submission.
 
     Args:
-        envelope_url (str): the url for the envelope
-        http_requests (HttpRequests): HttpRequests object
+        envelope_url (str): the url for the envelope.
+        http_requests (HttpRequests): HttpRequests object.
+        runtime_environment (str): Environment where the pipeline is running ('dev', 'test', 'staging' or 'prod').
+        service_account_key_path (str): Path to the JSON service account key for generating a JWT.
 
     Returns:
         str: The text of the response
@@ -54,8 +57,15 @@ def confirm(envelope_url, http_requests):
     Raises:
         requests.HTTPError: if the response status indicates an error
     """
+    print('Making auth headers')
+    dcp_auth_client = auth_utils.DCPAuthClient(
+        service_account_key_path, runtime_environment
+    )
+    auth_headers = dcp_auth_client.get_auth_header()
+
     print('Confirming submission')
     headers = {'Content-type': 'application/json'}
+    headers.update(auth_headers)
     response = http_requests.put(
         '{}/submissionEvent'.format(envelope_url), headers=headers
     )
@@ -66,7 +76,21 @@ def confirm(envelope_url, http_requests):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--envelope_url', required=True)
+    parser.add_argument(
+        '--envelope_url',
+        required=True,
+        help='The url of the submission envelope in Ingest service.',
+    )
+    parser.add_argument(
+        '--runtime_environment',
+        required=True,
+        help='Environment where the pipeline is running ("dev", "test", "staging" or "prod").',
+    )
+    parser.add_argument(
+        '--service_account_key_path',
+        required=True,
+        help='Path to the JSON service account key for generating a JWT.',
+    )
     args = parser.parse_args()
     http_requests = HttpRequests()
     try:
@@ -75,7 +99,12 @@ def main():
         message = 'Timed out while waiting for Valid status.'
         raise ValueError(message)
 
-    confirm(args.envelope_url, http_requests)
+    confirm(
+        args.envelope_url,
+        http_requests,
+        args.runtime_environment,
+        args.service_account_key_path,
+    )
 
 
 if __name__ == '__main__':
