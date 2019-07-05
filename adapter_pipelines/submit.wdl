@@ -205,6 +205,7 @@ task confirm_submission {
   Int? individual_request_timeout
   Boolean record_http
   String pipeline_tools_version
+  String runtime_environment
   File service_account_key_path
 
   command <<<
@@ -221,7 +222,9 @@ task confirm_submission {
     export PYTHONUNBUFFERED=TRUE
 
     # Confirm the submission
-    confirm-submission --envelope_url ${submission_url}
+    confirm-submission --envelope_url ${submission_url} \
+      --runtime_environment ${runtime_environment} \
+      --service_account_key_path ${service_account_key_path}
   >>>
 
   runtime {

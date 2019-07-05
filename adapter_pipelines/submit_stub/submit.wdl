@@ -36,6 +36,7 @@ workflow submit {
   String pipeline_version
   # Disk space to allocate for stage_files task
   Int disk_space
+  File service_account_key_path = "gs://broad-dsde-mint-${runtime_environment}-credentials/caas_key.json"
 
   call submit_stub
 
