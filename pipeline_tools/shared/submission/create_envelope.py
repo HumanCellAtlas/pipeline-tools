@@ -409,7 +409,6 @@ def link_analysis_protocol_to_analysis_process(
     response = http_requests.put(
         link_url, headers=link_headers, data=analysis_protocol_url
     )
-    return response.json()
 
 
 def main():
