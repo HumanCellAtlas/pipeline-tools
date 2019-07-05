@@ -503,7 +503,7 @@ class TestCreateEnvelope(object):
             )
         assert requests_mock.call_count == 3
 
-    def test_link_analysis_protocol_to_analysis_process(self, requests_mock):
+    def test_link_analysis_protocol_to_analysis_process(self, requests_mock, test_data):
         links_url = (
             'https://api.ingest.dev.data.humancellatlas.org/processes/abcde/protocols'
         )
@@ -519,12 +519,12 @@ class TestCreateEnvelope(object):
 
         with HttpRequestsManager():
             submit.link_analysis_protocol_to_analysis_process(
-                links_url, analysis_protocol_url, HttpRequests()
+                test_data.headers, links_url, analysis_protocol_url, HttpRequests()
             )
         assert requests_mock.call_count == 1
 
     def test_link_analysis_protocol_to_analysis_process_retries_on_error(
-        self, requests_mock
+        self, requests_mock, test_data
     ):
         links_url = (
             'https://api.ingest.dev.data.humancellatlas.org/processes/abcde/protocols'
@@ -541,12 +541,12 @@ class TestCreateEnvelope(object):
 
         with pytest.raises(requests.HTTPError), HttpRequestsManager():
             submit.link_analysis_protocol_to_analysis_process(
-                links_url, analysis_protocol_url, HttpRequests()
+                test_data.headers, links_url, analysis_protocol_url, HttpRequests()
             )
         assert requests_mock.call_count == 3
 
     def test_link_analysis_protocol_to_analysis_process_retries_on_read_timeout_error(
-        self, requests_mock
+        self, requests_mock, test_data
     ):
         links_url = (
             'https://api.ingest.dev.data.humancellatlas.org/processes/abcde/protocols'
@@ -563,6 +563,6 @@ class TestCreateEnvelope(object):
 
         with pytest.raises(requests.ReadTimeout), HttpRequestsManager():
             submit.link_analysis_protocol_to_analysis_process(
-                links_url, analysis_protocol_url, HttpRequests()
+                test_data.headers, links_url, analysis_protocol_url, HttpRequests()
             )
         assert requests_mock.call_count == 3
