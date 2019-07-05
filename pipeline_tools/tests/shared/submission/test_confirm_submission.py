@@ -89,9 +89,6 @@ class TestConfirmSubmission(object):
 
         def _request_callback(request, context):
             context.status_code = 200
-            assert request.headers.get('Authorization') == test_data.headers.get(
-                'Authorization'
-            )
             return {}
 
         requests_mock.put(
