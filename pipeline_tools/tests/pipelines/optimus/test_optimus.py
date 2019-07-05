@@ -2,7 +2,7 @@ import json
 import os
 import pytest
 import unittest.mock as mock
-from humancellatlas.data.metadata.api import Bundle
+from humancellatlas.data.metadata.api import Bundle, ManifestEntry
 
 
 from pipeline_tools.pipelines.optimus import optimus
@@ -119,6 +119,45 @@ class TestOptimus(object):
         os.remove('tar_star_reference.txt')
         os.remove('annotations_gtf.txt')
         os.remove('ref_genome_fasta.txt')
+
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_bundle_metadata')
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_sample_id')
+    def test_optimus_inputs_to_hash(
+        self,
+        mock_sample_id,
+        mock_bundle,
+        mock_ncbi_taxon_id,
+        test_tenx_bundle_vx,
+        test_tenx_bundle_manifest_vx,
+    ):
+        mock_sample_id.return_value = 'fake_id'
+        mock_bundle.return_value = test_tenx_bundle_vx
+        mock_ncbi_taxon_id.return_value = ReferenceId.Human.value
+        with HttpRequestsManager():
+            inputs = optimus.get_optimus_inputs_to_hash(
+                uuid='bundle_uuid', version='bundle_version', dss_url='foo_url'
+            )
+        read1_manifest_json = [
+            f for f in test_tenx_bundle_manifest_vx if f['name'] == 'R1.fastq.gz'
+        ][0]
+        read2_manifest_json = [
+            f for f in test_tenx_bundle_manifest_vx if f['name'] == 'R2.fastq.gz'
+        ][0]
+        index1_manifest_json = [
+            f for f in test_tenx_bundle_manifest_vx if f['name'] == 'I1.fastq.gz'
+        ][0]
+        read1_manifest = ManifestEntry.from_json(read1_manifest_json)
+        read2_manifest = ManifestEntry.from_json(read2_manifest_json)
+        index1_manifest = ManifestEntry.from_json(index1_manifest_json)
+        r1_hashes = f'{read1_manifest.sha1}{read1_manifest.sha256}{read1_manifest.s3_etag}{read1_manifest.crc32c}'
+        r2_hashes = f'{read2_manifest.sha1}{read2_manifest.sha256}{read2_manifest.s3_etag}{read2_manifest.crc32c}'
+        i1_hashes = f'{index1_manifest.sha1}{index1_manifest.sha256}{index1_manifest.s3_etag}{index1_manifest.crc32c}'
+        assert inputs == (
+            'fake_id',
+            ReferenceId.Human.value,
+            f'{r1_hashes}{r2_hashes}{i1_hashes}',
+        )
 
 
 def assert_file_contents(actual_file, expected_contents):

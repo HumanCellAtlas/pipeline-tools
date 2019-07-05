@@ -60,12 +60,12 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
     fastq_names = []
 
     for lane, reads in lane_to_fastqs.items():
-        for read_index, url in reads.items():
+        for read_index, manifest_entry in reads.items():
             new_file_name = (
                 f"{sample_id}_S1_L00{str(lane)}_{read_indices[read_index]}_001.fastq.gz"
             )
             fastq_names.append(new_file_name)
-            fastq_urls.append(url)
+            fastq_urls.append(manifest_entry.url)
 
     with open('fastqs.txt', 'w') as f:
         for url in fastq_urls:

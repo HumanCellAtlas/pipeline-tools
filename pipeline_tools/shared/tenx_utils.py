@@ -8,14 +8,14 @@ def create_fastq_dict(fastq_files):
     Example output:
     {
         1: {
-            'read1': 'gs://path/to/lane1/read1_fastq.gz',
-            'read2': 'gs://path/to/lane1/read2_fastq.gz',
-            'index1': 'gs://path/to/lane1/index1_fastq.gz'
+            'read1': humancellatlas.data.metadata.api.ManifestEntry(url='gs://path/to/lane1/read1_fastq.gz'...),
+            'read2': humancellatlas.data.metadata.api.ManifestEntry(url='gs://path/to/lane1/read2_fastq.gz'...),
+            'index1': humancellatlas.data.metadata.api.ManifestEntry(url='gs://path/to/lane1/index1_fastq.gz'...)
         },
         2: {
-            'read1': 'gs://path/to/lane2/read1_fastq.gz',
-            'read2': 'gs://path/to/lane2/read2_fastq.gz',
-            'index1': 'gs://path/to/lane2/index1_fastq.gz'
+            'read1': humancellatlas.data.metadata.api.ManifestEntry(url='gs://path/to/lane2/read1_fastq.gz'...),
+            'read2': humancellatlas.data.metadata.api.ManifestEntry(url='gs://path/to/lane2/read2_fastq.gz'...),
+            'index1': humancellatlas.data.metadata.api.ManifestEntry(url='gs://path/to/lane2/index1_fastq.gz'...)
         }
     }
 
@@ -23,14 +23,16 @@ def create_fastq_dict(fastq_files):
         fastq_files (List[humancellatlas.data.metadata.File]): list of file metadata objects
 
     Returns:
-        lane_to_fastqs (Dict[Dict[str, str]]): dict mapping each lane to a dict of read index to fastq url.
+        lane_to_fastqs (Dict[Dict[str, humancellatlas.data.metadata.api.ManifestEntry]]): dict mapping flow cell
+                        lanes to a dict of read index to its bundle manifest entry
     """
     lane_to_fastqs = {}
     for file in fastq_files:
         lane = file.lane_index
         if lane not in lane_to_fastqs:
             lane_to_fastqs[lane] = {}
-        lane_to_fastqs[lane][file.read_index] = file.manifest_entry.url
+        lane_to_fastqs[lane][file.read_index] = file.manifest_entry
+
     return lane_to_fastqs
 
 
@@ -48,7 +50,8 @@ def get_fastqs_for_read_index(lane_to_fastqs, read_index):
     fastq_urls = []
     for lane in lanes:
         if read_index in lane_to_fastqs[lane]:
-            fastq_urls.append(lane_to_fastqs[lane][read_index])
+            manifest_entry = lane_to_fastqs[lane][read_index]
+            fastq_urls.append(manifest_entry.url)
     return fastq_urls
 
 
@@ -71,15 +74,15 @@ def validate_lanes(lane_to_fastqs):
     # For example, given this input:
     #
     # lane_to_fastqs = {
-    #     3: {
-    #         'read1': 'foo',
-    #         'read2': 'bar',
-    #         'index1': 'baz'
-    #     },
-    #     4: {
-    #         'read1': 'foo',
-    #         'index1': 'baz'
-    #     }
+    #   3: {
+    #       'read1': humancellatlas.data.metadata.api.ManifestEntry(url='foo'...),
+    #       'read2': humancellatlas.data.metadata.api.ManifestEntry(url='bar'...),
+    #       'index1': humancellatlas.data.metadata.api.ManifestEntry(url='baz'...)
+    #       },
+    #   4: {
+    #       'read1': humancellatlas.data.metadata.api.ManifestEntry(url='foo'...),
+    #       'index1': humancellatlas.data.metadata.api.ManifestEntry(url='baz'...)
+    #       }
     # }
     #
     # ...the three dicts created would be:

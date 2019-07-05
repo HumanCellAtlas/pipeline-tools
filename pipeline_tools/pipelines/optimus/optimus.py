@@ -18,6 +18,72 @@ REFERENCES = {
 }
 
 
+def get_optimus_inputs(uuid, version, dss_url):
+    """Gather the necessary inputs for Optimus from the bundle metadata.
+
+    Args:
+        bundle_uuid (str): the bundle uuid.
+        bundle_version (str): the bundle version.
+        dss_url (str): the url for the DCP Data Storage Service.
+
+    Returns:
+        tuple: tuple of the sample_id, ncbi_taxon_id, dict mapping flow cell lane indices
+               to fastq file manifests
+
+    Raises:
+        requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
+    """
+    print(f"Getting bundle manifest for id {uuid}, version {version}")
+    primary_bundle = metadata_utils.get_bundle_metadata(
+        uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests()
+    )
+    sample_id = metadata_utils.get_sample_id(primary_bundle)
+    ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(primary_bundle)
+    fastq_files = primary_bundle.sequencing_output
+    lane_to_fastqs = tenx_utils.create_fastq_dict(fastq_files)
+    return sample_id, ncbi_taxon_id, lane_to_fastqs
+
+
+def get_optimus_inputs_to_hash(uuid, version, dss_url):
+    """
+    Get values to hash for the worflow input Cromwell label, including the
+    sample_id, ncbi_taxon_id and the file hashes for each fastq file in the data bundle
+    grouped by lane index.
+
+    Args:
+        bundle_uuid (str): the bundle uuid.
+        bundle_version (str): the bundle version.
+        dss_url (str): the url for the DCP Data Storage Service.
+
+    Returns:
+        tuple: tuple of the sample_id, ncbi_taxon_id and fastq file hashes
+
+    Raises:
+        requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
+
+    """
+    sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(
+        uuid, version, dss_url
+    )
+    sorted_lanes = sorted(lane_to_fastqs.keys(), key=int)
+    file_hashes = ''
+    for lane in sorted_lanes:
+        r1_hashes = metadata_utils.get_hashes_from_file_manifest(
+            lane_to_fastqs[lane]['read1']
+        )
+        r2_hashes = metadata_utils.get_hashes_from_file_manifest(
+            lane_to_fastqs[lane]['read2']
+        )
+        file_hashes += f'{r1_hashes}{r2_hashes}'
+        if lane_to_fastqs[lane].get('index1'):
+            i1_hashes = metadata_utils.get_hashes_from_file_manifest(
+                lane_to_fastqs[lane]['index1']
+            )
+            file_hashes += i1_hashes
+    # This order MUST be maintained to compare input hashes between different Optimus workflows!
+    return sample_id, ncbi_taxon_id, file_hashes
+
+
 # TODO: Rename this function since it no longer creates a tsv file
 def create_optimus_input_tsv(uuid, version, dss_url):
     """Create TSV of Optimus inputs
@@ -33,20 +99,9 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     Raises:
         tenx_utils.LaneMissingFileError if any non-optional fastqs are missing
     """
-    # Get bundle manifest
-    print(f"Getting bundle manifest for id {uuid}, version {version}")
-    primary_bundle = metadata_utils.get_bundle_metadata(
-        uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests()
+    sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(
+        uuid, version, dss_url
     )
-
-    # Parse inputs from metadata
-    print('Gathering fastq inputs')
-    fastq_files = [
-        f
-        for f in primary_bundle.files.values()
-        if str(f.format).lower() in ('fastq.gz', 'fastq')
-    ]
-    lane_to_fastqs = tenx_utils.create_fastq_dict(fastq_files)
 
     # Stop if any fastqs are missing
     tenx_utils.validate_lanes(lane_to_fastqs)
@@ -69,12 +124,11 @@ def create_optimus_input_tsv(uuid, version, dss_url):
         for url in i1_urls:
             f.write(url + '\n')
 
-    sample_id = metadata_utils.get_sample_id(primary_bundle)
     print('Writing sample ID to sample_id.txt')
     with open('sample_id.txt', 'w') as f:
         f.write(f"{sample_id}")
 
-    ref_id = ReferenceId(metadata_utils.get_ncbi_taxon_id(primary_bundle))
+    ref_id = ReferenceId(ncbi_taxon_id)
     species_references = REFERENCES[ref_id.value]
     print(f"Writing species references for {ref_id.name}")
     for key, value in species_references.items():

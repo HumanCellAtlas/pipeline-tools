@@ -1,13 +1,12 @@
 import json
 import os
 import pytest
-from humancellatlas.data.metadata.api import Bundle
-from unittest.mock import patch
+from humancellatlas.data.metadata.api import Bundle, ManifestEntry
+from unittest import mock
 
 
 from pipeline_tools.pipelines.smartseq2 import smartseq2
 from pipeline_tools.shared.reference_id import ReferenceId
-
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 from pathlib import Path
 
@@ -66,38 +65,56 @@ def test_ss2_bundle_vx(
     )
 
 
+@pytest.fixture(scope='module')
+def test_fastq1_manifest_entry(test_ss2_bundle_manifest_vx):
+    file_manifest_json = [
+        f for f in test_ss2_bundle_manifest_vx if f['name'] == 'R1.fastq.gz'
+    ]
+    return ManifestEntry.from_json(file_manifest_json[0])
+
+
+@pytest.fixture(scope='module')
+def test_fastq2_manifest_entry(test_ss2_bundle_manifest_vx):
+    file_manifest_json = [
+        f for f in test_ss2_bundle_manifest_vx if f['name'] == 'R2.fastq.gz'
+    ]
+    return ManifestEntry.from_json(file_manifest_json[0])
+
+
 class TestSmartSeq2(object):
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_bundle_metadata')
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_sample_id')
     def test_create_ss2_input_tsv(
         self,
+        mock_sample_id,
+        mock_bundle,
+        mock_ncbi_taxon_id,
         tmpdir,
-        test_ss2_bundle_uuid_vx,
-        test_ss2_bundle_version_vx,
+        test_ss2_bundle_vx,
         ss2_tsv_contents,
     ):
-        def mocked_get_content_for_ss2_input_tsv(
-            bundle_uuid, bundle_version, dss_url, http_requests
-        ):
-            return 'url1', 'url2', 'fake_id', ReferenceId.Human.value
-
         file_path = tmpdir.join('inputs.tsv')
-        with patch(
-            'pipeline_tools.pipelines.smartseq2.smartseq2._get_content_for_ss2_input_tsv',
-            side_effect=mocked_get_content_for_ss2_input_tsv,
-        ), HttpRequestsManager():
+        mock_sample_id.return_value = 'fake_id'
+        mock_bundle.return_value = test_ss2_bundle_vx
+        mock_ncbi_taxon_id.return_value = ReferenceId.Human.value
+        with HttpRequestsManager():
             smartseq2.create_ss2_input_tsv(
-                bundle_uuid=test_ss2_bundle_uuid_vx,
-                bundle_version=test_ss2_bundle_version_vx,
+                bundle_uuid='bundle_id',
+                bundle_version='bundle_version',
                 dss_url='foo_url',
                 input_tsv_name=file_path,
             )
         assert file_path.read() == ss2_tsv_contents
 
-    def test_get_urls_to_files_for_ss2(
+    def test_get_fastq_manifest_entry_for_ss2(
         self, test_ss2_bundle_vx, test_ss2_bundle_manifest_vx
     ):
-        fastq_url1, fastq_url2 = smartseq2.get_urls_to_files_for_ss2(test_ss2_bundle_vx)
+        fastq1_manifest_entry, fastq2_manifest_entry = smartseq2.get_fastq_manifest_entry_for_ss2(
+            test_ss2_bundle_vx
+        )
         assert (
-            fastq_url1
+            fastq1_manifest_entry.url
             == [
                 f['url']
                 for f in test_ss2_bundle_manifest_vx
@@ -105,10 +122,40 @@ class TestSmartSeq2(object):
             ][0]
         )
         assert (
-            fastq_url2
+            fastq2_manifest_entry.url
             == [
                 f['url']
                 for f in test_ss2_bundle_manifest_vx
                 if f['name'] == 'R2.fastq.gz'
             ][0]
+        )
+
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_bundle_metadata')
+    @mock.patch('pipeline_tools.shared.metadata_utils.get_sample_id')
+    def test_get_ss2_paired_end_inputs_to_hash(
+        self,
+        mock_sample_id,
+        mock_bundle,
+        mock_ncbi_taxon_id,
+        test_ss2_bundle_vx,
+        test_fastq1_manifest_entry,
+        test_fastq2_manifest_entry,
+    ):
+        mock_sample_id.return_value = 'fake_id'
+        mock_bundle.return_value = test_ss2_bundle_vx
+        mock_ncbi_taxon_id.return_value = ReferenceId.Human.value
+        with HttpRequestsManager():
+            inputs_to_hash = smartseq2.get_ss2_paired_end_inputs_to_hash(
+                bundle_uuid='bundle_id',
+                bundle_version='bundle_version',
+                dss_url='foo_url',
+            )
+        fastq1_hashes = f'{test_fastq1_manifest_entry.sha1}{test_fastq1_manifest_entry.sha256}{test_fastq1_manifest_entry.s3_etag}{test_fastq1_manifest_entry.crc32c}'
+        fastq2_hashes = f'{test_fastq2_manifest_entry.sha1}{test_fastq2_manifest_entry.sha256}{test_fastq2_manifest_entry.s3_etag}{test_fastq2_manifest_entry.crc32c}'
+        assert inputs_to_hash == (
+            'fake_id',
+            ReferenceId.Human.value,
+            fastq1_hashes,
+            fastq2_hashes,
         )

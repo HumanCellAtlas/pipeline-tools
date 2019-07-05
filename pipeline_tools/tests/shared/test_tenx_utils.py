@@ -1,8 +1,8 @@
 import pytest
 
-from pipeline_tools.shared import tenx_utils
-from collections import namedtuple
 import random
+from collections import namedtuple
+from pipeline_tools.shared import tenx_utils
 
 
 ManifestEntry = namedtuple('ManifestEntry', ['url'])
@@ -35,14 +35,14 @@ def valid_files_with_index():
 def valid_files_with_index_dict():
     return {
         5: {
-            'read1': 'gs://5/r1.fastq.gz',
-            'read2': 'gs://5/r2.fastq.gz',
-            'index1': 'gs://5/i1.fastq.gz',
+            'read1': ManifestEntry('gs://5/r1.fastq.gz'),
+            'read2': ManifestEntry('gs://5/r2.fastq.gz'),
+            'index1': ManifestEntry('gs://5/i1.fastq.gz'),
         },
         7: {
-            'read1': 'gs://7/r1.fastq.gz',
-            'read2': 'gs://7/r2.fastq.gz',
-            'index1': 'gs://7/i1.fastq.gz',
+            'read1': ManifestEntry('gs://7/r1.fastq.gz'),
+            'read2': ManifestEntry('gs://7/r2.fastq.gz'),
+            'index1': ManifestEntry('gs://7/i1.fastq.gz'),
         },
     }
 
@@ -75,11 +75,14 @@ def invalid_files_one_lane_indexed():
 @pytest.fixture
 def invalid_files_one_lane_indexed_dict():
     return {
-        5: {'read1': 'gs://5/r1.fastq.gz', 'read2': 'gs://5/r2.fastq.gz'},
+        5: {
+            'read1': ManifestEntry('gs://5/r1.fastq.gz'),
+            'read2': ManifestEntry('gs://5/r2.fastq.gz'),
+        },
         7: {
-            'read1': 'gs://7/r1.fastq.gz',
-            'read2': 'gs://7/r2.fastq.gz',
-            'index1': 'gs://7/i1.fastq.gz',
+            'read1': ManifestEntry('gs://7/r1.fastq.gz'),
+            'read2': ManifestEntry('gs://7/r2.fastq.gz'),
+            'index1': ManifestEntry('gs://7/i1.fastq.gz'),
         },
     }
 
