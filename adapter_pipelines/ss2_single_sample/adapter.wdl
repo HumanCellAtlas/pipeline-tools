@@ -70,7 +70,7 @@ workflow AdapterSmartSeq2SingleCell{
   Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "se-fix-submission-wdl"
+  String pipeline_tools_version = "v0.54.1"
 
   call GetInputs as prep {
     input:
