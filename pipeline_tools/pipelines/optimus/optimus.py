@@ -39,11 +39,7 @@ def get_optimus_inputs(uuid, version, dss_url):
     )
     sample_id = metadata_utils.get_sample_id(primary_bundle)
     ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(primary_bundle)
-    fastq_files = [
-        f
-        for f in primary_bundle.files.values()
-        if str(f.format).lower() in ('fastq.gz', 'fastq')
-    ]
+    fastq_files = primary_bundle.sequencing_output
     lane_to_fastqs = tenx_utils.create_fastq_dict(fastq_files)
     return sample_id, ncbi_taxon_id, lane_to_fastqs
 
@@ -78,7 +74,7 @@ def get_optimus_inputs_to_hash(uuid, version, dss_url):
         r2_hashes = metadata_utils.get_hashes_from_file_manifest(
             lane_to_fastqs[lane]['read2']
         )
-        file_hashes = f'{r1_hashes}{r2_hashes}'
+        file_hashes += f'{r1_hashes}{r2_hashes}'
         if lane_to_fastqs[lane].get('index1'):
             i1_hashes = metadata_utils.get_hashes_from_file_manifest(
                 lane_to_fastqs[lane]['index1']
