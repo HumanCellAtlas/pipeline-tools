@@ -4,7 +4,7 @@ import argparse
 from tenacity import retry_if_result, RetryError
 from datetime import datetime
 from pipeline_tools.shared.http_requests import HttpRequests
-from pipeline_tools.shared import auth_utils
+from pipeline_tools.shared import auth_utils, exceptions
 
 
 def wait_for_valid_status(envelope_url, http_requests):
@@ -102,7 +102,7 @@ def main():
         raise ValueError(message)
 
     if status == 'Invalid':
-        raise ValueError('Invalid submission envelope.')
+        raise exceptions.SubmissionError('Invalid submission envelope.')
     elif status == 'Valid':
         confirm(
             args.envelope_url,
