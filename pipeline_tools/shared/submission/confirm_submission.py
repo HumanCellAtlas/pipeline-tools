@@ -32,14 +32,14 @@ def wait_for_valid_status(envelope_url, http_requests):
         envelope_js = response.json()
         status = envelope_js.get('submissionState')
         print('submissionState: {}'.format(status))
-        return status != 'Valid'
+        return status not in ('Valid', 'Complete')
 
     response = http_requests.get(
         envelope_url,
         before=log_before(envelope_url),
         retry=retry_if_result(status_is_invalid),
     )
-    return True
+    return response.json()
 
 
 def confirm(envelope_url, http_requests, runtime_environment, service_account_key_path):
@@ -94,17 +94,19 @@ def main():
     args = parser.parse_args()
     http_requests = HttpRequests()
     try:
-        wait_for_valid_status(args.envelope_url, http_requests)
+        response = wait_for_valid_status(args.envelope_url, http_requests)
+        status = response.get('submissionState')
     except RetryError:
         message = 'Timed out while waiting for Valid status.'
         raise ValueError(message)
 
-    confirm(
-        args.envelope_url,
-        http_requests,
-        args.runtime_environment,
-        args.service_account_key_path,
-    )
+    if status != 'Complete':
+        confirm(
+            args.envelope_url,
+            http_requests,
+            args.runtime_environment,
+            args.service_account_key_path,
+        )
 
 
 if __name__ == '__main__':
