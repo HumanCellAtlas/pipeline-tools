@@ -28,16 +28,17 @@ def wait_for_valid_status(envelope_url, http_requests):
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print('{0} Getting status for {1}'.format(now, envelope_url))
 
-    def status_is_invalid(response):
+    def keep_polling(response):
+        # Keep polling until the status is "Valid/Complete" or "Invalid"
         envelope_js = response.json()
         status = envelope_js.get('submissionState')
         print('submissionState: {}'.format(status))
-        return status not in ('Valid', 'Complete')
+        return status not in ('Valid', 'Complete', 'Invalid')
 
     response = http_requests.get(
         envelope_url,
         before=log_before(envelope_url),
-        retry=retry_if_result(status_is_invalid),
+        retry=retry_if_result(keep_polling),
     )
     return response.json()
 
@@ -100,7 +101,9 @@ def main():
         message = 'Timed out while waiting for Valid status.'
         raise ValueError(message)
 
-    if status != 'Complete':
+    if status == 'Invalid':
+        raise ValueError('Invalid submission envelope.')
+    elif status == 'Valid':
         confirm(
             args.envelope_url,
             http_requests,
