@@ -4,7 +4,7 @@ import argparse
 from tenacity import retry_if_result, RetryError
 from datetime import datetime
 from pipeline_tools.shared.http_requests import HttpRequests
-from pipeline_tools.shared import auth_utils
+from pipeline_tools.shared import auth_utils, exceptions
 
 
 def wait_for_valid_status(envelope_url, http_requests):
@@ -28,18 +28,19 @@ def wait_for_valid_status(envelope_url, http_requests):
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print('{0} Getting status for {1}'.format(now, envelope_url))
 
-    def status_is_invalid(response):
+    def keep_polling(response):
+        # Keep polling until the status is "Valid/Complete" or "Invalid"
         envelope_js = response.json()
         status = envelope_js.get('submissionState')
         print('submissionState: {}'.format(status))
-        return status != 'Valid'
+        return status not in ('Valid', 'Complete', 'Invalid')
 
     response = http_requests.get(
         envelope_url,
         before=log_before(envelope_url),
-        retry=retry_if_result(status_is_invalid),
+        retry=retry_if_result(keep_polling),
     )
-    return True
+    return response.json()
 
 
 def confirm(envelope_url, http_requests, runtime_environment, service_account_key_path):
@@ -94,17 +95,21 @@ def main():
     args = parser.parse_args()
     http_requests = HttpRequests()
     try:
-        wait_for_valid_status(args.envelope_url, http_requests)
+        response = wait_for_valid_status(args.envelope_url, http_requests)
+        status = response.get('submissionState')
     except RetryError:
         message = 'Timed out while waiting for Valid status.'
         raise ValueError(message)
 
-    confirm(
-        args.envelope_url,
-        http_requests,
-        args.runtime_environment,
-        args.service_account_key_path,
-    )
+    if status == 'Invalid':
+        raise exceptions.SubmissionError('Invalid submission envelope.')
+    elif status == 'Valid':
+        confirm(
+            args.envelope_url,
+            http_requests,
+            args.runtime_environment,
+            args.service_account_key_path,
+        )
 
 
 if __name__ == '__main__':
