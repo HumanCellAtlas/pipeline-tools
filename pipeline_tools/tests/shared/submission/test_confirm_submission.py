@@ -22,14 +22,15 @@ def test_data():
 
 
 class TestConfirmSubmission(object):
-    def test_wait_for_valid_status_success(self, requests_mock):
+    def test_wait_for_valid_status_with_valid_envelope(self, requests_mock):
+        status = 'Valid'
         envelope_url = (
             'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
         )
 
         def _request_callback(request, context):
             context.status_code = 200
-            return {'submissionState': 'Valid'}
+            return {'submissionState': status}
 
         requests_mock.get(envelope_url, json=_request_callback)
 
@@ -37,7 +38,45 @@ class TestConfirmSubmission(object):
             result = confirm_submission.wait_for_valid_status(
                 envelope_url, HttpRequests()
             )
-        assert result is True
+        assert result.get('submissionState') == status
+        assert requests_mock.call_count == 1
+
+    def test_wait_for_valid_status_with_complete_envelope(self, requests_mock):
+        status = 'Complete'
+        envelope_url = (
+            'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        )
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            return {'submissionState': status}
+
+        requests_mock.get(envelope_url, json=_request_callback)
+
+        with HttpRequestsManager():
+            result = confirm_submission.wait_for_valid_status(
+                envelope_url, HttpRequests()
+            )
+        assert result.get('submissionState') == status
+        assert requests_mock.call_count == 1
+
+    def test_wait_for_valid_status_with_invalid_envelope(self, requests_mock):
+        status = 'Invalid'
+        envelope_url = (
+            'https://api.ingest.dev.data.humancellatlas.org/submissionEnvelopes/abcde'
+        )
+
+        def _request_callback(request, context):
+            context.status_code = 200
+            return {'submissionState': status}
+
+        requests_mock.get(envelope_url, json=_request_callback)
+
+        with HttpRequestsManager():
+            result = confirm_submission.wait_for_valid_status(
+                envelope_url, HttpRequests()
+            )
+        assert result.get('submissionState') == status
         assert requests_mock.call_count == 1
 
     def test_wait_for_valid_status_retries_if_not_valid(self, requests_mock):
