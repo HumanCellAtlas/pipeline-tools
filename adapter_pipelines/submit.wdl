@@ -225,7 +225,6 @@ task confirm_submission {
 
   runtime {
     docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version,
-    maxRetries: 0
   }
 
   output {
