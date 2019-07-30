@@ -3,6 +3,6 @@
   "read_from_cache": true,
   "backend": "PAPIv2",
   "default_runtime_attributes": {
-    "maxRetries": 1
+    "maxRetries": 3
   }
 }
