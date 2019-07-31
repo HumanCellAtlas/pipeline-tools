@@ -224,7 +224,7 @@ task confirm_submission {
   >>>
 
   runtime {
-    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version,
+    docker: "quay.io/humancellatlas/secondary-analysis-pipeline-tools:" + pipeline_tools_version
   }
 
   output {
