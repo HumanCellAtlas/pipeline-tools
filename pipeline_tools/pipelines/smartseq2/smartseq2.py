@@ -14,7 +14,18 @@ REFERENCES = {
         'gene_ref_flat': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt',
         'hisat2_ref_name': 'genome_snp_tran',
         'stranded': 'NONE',
-    }
+    },
+    ReferenceId.Mouse.value: {
+        'hisat2_ref_trans_name': 'hisat2_from_rsem_star_primary_gencode_mouse_vM21',
+        'rrna_intervals': 'gs://hca-dcp-mint-test-data/reference/GRCm38_Gencode_vM21/gencode.vM21.primary_assembly.rRNA.interval_list',
+        'hisat2_ref_index': 'gs://hca-dcp-mint-test-data/reference/GRCm38_Gencode_vM21/hisat2_primary_gencode_mouse_vM21.tar.gz',
+        'genome_ref_fasta': 'gs://hca-dcp-mint-test-data/reference/GRCm38_Gencode_vM21/GRCm38.primary_assembly.genome.fa',
+        'hisat2_ref_trans_index': 'gs://hca-dcp-mint-test-data/reference/GRCm38_Gencode_vM21/hisat2_from_rsem_star_primary_gencode_mouse_vM21.tar.gz',
+        'rsem_ref_index': 'gs://hca-dcp-mint-test-data/reference/GRCm38_Gencode_vM21/rsem_primary_gencode_mouse_vM21.tar',
+        'gene_ref_flat': 'gs://hca-dcp-mint-test-data/reference/GRCm38_Gencode_vM21/gencode.vM21.primary_assembly.refflat.txt',
+        'hisat2_ref_name': 'hisat2_primary_gencode_mouse_vM21',
+        'stranded': 'NONE',
+    },
 }
 
 
