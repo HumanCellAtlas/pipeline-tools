@@ -146,10 +146,9 @@ workflow Adapter10xCount {
   String runtime_environment
   # By default, don't record http requests, unless we override in inputs json
   Boolean record_http = false
-  Int max_cromwell_retries = 0
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.56.1"
+  String pipeline_tools_version = "v0.56.2"
 
   call GetInputs {
     input:
@@ -181,8 +180,7 @@ workflow Adapter10xCount {
       fastqs = rename_fastqs.outputs,
       reference_name = GetInputs.reference_name,
       transcriptome_tar_gz = GetInputs.transcriptome_tar_gz,
-      expect_cells = GetInputs.expect_cells,
-      max_retries = max_cromwell_retries
+      expect_cells = GetInputs.expect_cells
   }
 
   call InputsForSubmit {
@@ -254,7 +252,6 @@ workflow Adapter10xCount {
       pipeline_tools_version = pipeline_tools_version,
       add_md5s = add_md5s,
       pipeline_version = analysis.pipeline_version,
-      max_retries = max_cromwell_retries,
       # The sorted bam is the largest output. Other outputs will increase space by ~50%.
       # Factor of 2 and addition of 50 GB gives some buffer.
       disk_space = ceil(size(analysis.sorted_bam, "GB") * 2 + 50)
