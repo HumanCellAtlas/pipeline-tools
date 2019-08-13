@@ -1,13 +1,8 @@
 import json
 import os
 import pytest
-
 from humancellatlas.data.metadata.api import Bundle, ManifestEntry
-
-
 from pipeline_tools.shared import metadata_utils
-from pipeline_tools.shared.http_requests import HttpRequests
-from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 from pathlib import Path
 
 
@@ -144,34 +139,6 @@ class TestMetadataUtils(object):
     def test_get_ncbi_taxon_id(self, test_ss2_bundle_vx):
         ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(test_ss2_bundle_vx)
         assert ncbi_taxon_id == 9606
-
-    def test_download_file(self, requests_mock, test_ss2_bundle_manifest_vx):
-        manifest_dict = {'project.json': test_ss2_bundle_manifest_vx[0]}
-        item = tuple(manifest_dict.items())[
-            0
-        ]  # to test this func without calling `map`, we must convert typing here
-        dss_url = 'https://dss.mock.org/v0'
-        file_id = test_ss2_bundle_manifest_vx[0]['uuid']
-
-        expect_result_from_dcp_utils = {'file': 'test', 'id': file_id}
-        url = '{dss_url}/files/{file_id}?replica=gcp'.format(
-            dss_url=dss_url, file_id=file_id
-        )
-
-        def _request_callback(request, context):
-            context.status_code = 200
-            return expect_result_from_dcp_utils
-
-        requests_mock.get(url, json=_request_callback)
-
-        with HttpRequestsManager():
-            file_name, file_response_js = metadata_utils.download_file(
-                item=item, dss_url=dss_url, http_requests=HttpRequests()
-            )
-
-        assert file_name == 'project.json'
-        assert file_response_js['file'] == expect_result_from_dcp_utils['file']
-        assert requests_mock.call_count == 1
 
     def test_get_hashes_from_file_manifest(self, test_fastq_file_manifest):
         file_hashes = metadata_utils.get_hashes_from_file_manifest(
