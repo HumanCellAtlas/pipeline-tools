@@ -28,7 +28,7 @@ def get_file_by_uuid(file_id, dss_url, http_requests):
     return response.json()
 
 
-def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
+def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests, directurls=False):
     """Retrieve manifest JSON file for a given bundle uuid and version.
 
     Retry with exponentially increasing wait times between requests if there are any failures.
@@ -59,8 +59,11 @@ def get_manifest(bundle_uuid, bundle_version, dss_url, http_requests):
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond timeout
     """
-    url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls=true'.format(
-        dss_url=dss_url, bundle_uuid=bundle_uuid, bundle_version=bundle_version
+    url = '{dss_url}/bundles/{bundle_uuid}?version={bundle_version}&replica=gcp&directurls={directutls}'.format(
+        dss_url=dss_url,
+        bundle_uuid=bundle_uuid,
+        bundle_version=bundle_version,
+        directutls=directurls,
     )
     logging.info('GET {0}'.format(url))
     response = http_requests.get(url)

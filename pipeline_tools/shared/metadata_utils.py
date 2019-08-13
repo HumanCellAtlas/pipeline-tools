@@ -6,7 +6,7 @@ import functools
 from concurrent.futures import ThreadPoolExecutor
 
 
-def get_bundle_metadata(uuid, version, dss_url, http_requests):
+def get_bundle_metadata(uuid, version, dss_url, http_requests, directurls=False):
     """Factory function to create a `humancellatlas.data.metadata.Bundle` object from bundle information and manifest.
 
     Args:
@@ -23,6 +23,7 @@ def get_bundle_metadata(uuid, version, dss_url, http_requests):
         bundle_version=version,
         dss_url=dss_url,
         http_requests=http_requests,
+        directurls=directurls,
     )['bundle']['files']
 
     metadata_files_dict = {f['name']: f for f in manifest if f['indexed']}

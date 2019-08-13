@@ -18,13 +18,11 @@ REFERENCES = {
 }
 
 
-def get_ss2_paired_end_inputs(bundle_uuid, bundle_version, dss_url):
-    """Gather the necessary inputs for ss2 from the bundle metadata.
+def get_ss2_paired_end_inputs(primary_bundle):
+    """Gather the necessary inputs for ss2 from the bundle metadata object.
 
     Args:
-        bundle_uuid (str): the bundle uuid.
-        bundle_version (str): the bundle version.
-        dss_url (str): the url for the DCP Data Storage Service.
+        humancellatlas.data.metadata.Bundle (obj): A bundle metadata object.
 
     Returns:
         tuple: tuple of the sample_id, ncbi_taxon_id, fastq1_manifest object and fastq2_manifest object
@@ -32,6 +30,13 @@ def get_ss2_paired_end_inputs(bundle_uuid, bundle_version, dss_url):
     Raises:
         requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
     """
+    sample_id = metadata_utils.get_sample_id(primary_bundle)
+    ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(primary_bundle)
+    fastq1_manifest, fastq2_manifest = get_fastq_manifest_entry_for_ss2(primary_bundle)
+    return sample_id, ncbi_taxon_id, fastq1_manifest, fastq2_manifest
+
+
+def get_ss2_paired_end_inputs_to_hash(bundle_uuid, bundle_version, dss_url):
     print(
         "Getting bundle manifest for id {0}, version {1}".format(
             bundle_uuid, bundle_version
@@ -42,16 +47,10 @@ def get_ss2_paired_end_inputs(bundle_uuid, bundle_version, dss_url):
         version=bundle_version,
         dss_url=dss_url,
         http_requests=HttpRequests(),
+        directurls=False,
     )
-    sample_id = metadata_utils.get_sample_id(primary_bundle)
-    ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(primary_bundle)
-    fastq1_manifest, fastq2_manifest = get_fastq_manifest_entry_for_ss2(primary_bundle)
-    return sample_id, ncbi_taxon_id, fastq1_manifest, fastq2_manifest
-
-
-def get_ss2_paired_end_inputs_to_hash(bundle_uuid, bundle_version, dss_url):
     sample_id, ncbi_taxon_id, fastq1_manifest, fastq2_manifest = get_ss2_paired_end_inputs(
-        bundle_uuid, bundle_version, dss_url
+        primary_bundle
     )
     fastq1_hashes = metadata_utils.get_hashes_from_file_manifest(fastq1_manifest)
     fastq2_hashes = metadata_utils.get_hashes_from_file_manifest(fastq2_manifest)
@@ -77,10 +76,21 @@ def create_ss2_input_tsv(
     Raises:
         requests.HTTPError: for 4xx errors or 5xx errors beyond the timeout
     """
-    sample_id, ncbi_taxon_id, fastq1_manifest, fastq2_manifest = get_ss2_paired_end_inputs(
-        bundle_uuid, bundle_version, dss_url
+    print(
+        "Getting bundle manifest for id {0}, version {1}".format(
+            bundle_uuid, bundle_version
+        )
     )
-
+    primary_bundle = metadata_utils.get_bundle_metadata(
+        uuid=bundle_uuid,
+        version=bundle_version,
+        dss_url=dss_url,
+        http_requests=HttpRequests(),
+        directurls=True,
+    )
+    sample_id, ncbi_taxon_id, fastq1_manifest, fastq2_manifest = get_ss2_paired_end_inputs(
+        primary_bundle
+    )
     tsv_headers = ['fastq_1', 'fastq_2', 'sample_id']
     tsv_values = [fastq1_manifest.url, fastq2_manifest.url, sample_id]
 
