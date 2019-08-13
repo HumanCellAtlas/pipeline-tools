@@ -43,11 +43,7 @@ def get_ss2_paired_end_inputs_to_hash(bundle_uuid, bundle_version, dss_url):
         )
     )
     primary_bundle = metadata_utils.get_bundle_metadata(
-        uuid=bundle_uuid,
-        version=bundle_version,
-        dss_url=dss_url,
-        http_requests=HttpRequests(),
-        directurls=False,
+        uuid=bundle_uuid, version=bundle_version, dss_url=dss_url, directurls=False
     )
     sample_id, ncbi_taxon_id, fastq1_manifest, fastq2_manifest = get_ss2_paired_end_inputs(
         primary_bundle
@@ -82,11 +78,7 @@ def create_ss2_input_tsv(
         )
     )
     primary_bundle = metadata_utils.get_bundle_metadata(
-        uuid=bundle_uuid,
-        version=bundle_version,
-        dss_url=dss_url,
-        http_requests=HttpRequests(),
-        directurls=True,
+        uuid=bundle_uuid, version=bundle_version, dss_url=dss_url, directurls=True
     )
     sample_id, ncbi_taxon_id, fastq1_manifest, fastq2_manifest = get_ss2_paired_end_inputs(
         primary_bundle
@@ -201,10 +193,7 @@ def _get_content_for_ss2_se_input_tsv(
         )
     )
     primary_bundle = metadata_utils.get_bundle_metadata(
-        uuid=bundle_uuid,
-        version=bundle_version,
-        dss_url=dss_url,
-        http_requests=http_requests,
+        uuid=bundle_uuid, version=bundle_version, dss_url=dss_url
     )
 
     sample_id = metadata_utils.get_sample_id(primary_bundle)

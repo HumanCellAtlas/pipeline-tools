@@ -1,6 +1,5 @@
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared import tenx_utils
-from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.shared.reference_id import ReferenceId
 
 
@@ -58,11 +57,7 @@ def get_optimus_inputs_to_hash(uuid, version, dss_url):
     """
     print(f"Getting bundle manifest for id {uuid}, version {version}")
     primary_bundle = metadata_utils.get_bundle_metadata(
-        uuid=uuid,
-        version=version,
-        dss_url=dss_url,
-        http_requests=HttpRequests(),
-        directurls=False,
+        uuid=uuid, version=version, dss_url=dss_url, directurls=False
     )
     sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(primary_bundle)
     sorted_lanes = sorted(lane_to_fastqs.keys(), key=int)
@@ -101,11 +96,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     """
     print(f"Getting bundle manifest for id {uuid}, version {version}")
     primary_bundle = metadata_utils.get_bundle_metadata(
-        uuid=uuid,
-        version=version,
-        dss_url=dss_url,
-        http_requests=HttpRequests(),
-        directurls=True,
+        uuid=uuid, version=version, dss_url=dss_url, directurls=True
     )
     sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(primary_bundle)
 
