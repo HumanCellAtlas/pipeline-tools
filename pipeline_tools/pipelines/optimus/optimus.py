@@ -1,6 +1,5 @@
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared import tenx_utils
-from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.shared.reference_id import ReferenceId
 
 
@@ -18,13 +17,11 @@ REFERENCES = {
 }
 
 
-def get_optimus_inputs(uuid, version, dss_url):
-    """Gather the necessary inputs for Optimus from the bundle metadata.
+def get_optimus_inputs(primary_bundle):
+    """Gather the necessary inputs for Optimus from the bundle metadata object.
 
     Args:
-        bundle_uuid (str): the bundle uuid.
-        bundle_version (str): the bundle version.
-        dss_url (str): the url for the DCP Data Storage Service.
+        humancellatlas.data.metadata.Bundle (obj): A bundle metadata object.
 
     Returns:
         tuple: tuple of the sample_id, ncbi_taxon_id, dict mapping flow cell lane indices
@@ -33,10 +30,6 @@ def get_optimus_inputs(uuid, version, dss_url):
     Raises:
         requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
     """
-    print(f"Getting bundle manifest for id {uuid}, version {version}")
-    primary_bundle = metadata_utils.get_bundle_metadata(
-        uuid=uuid, version=version, dss_url=dss_url, http_requests=HttpRequests()
-    )
     sample_id = metadata_utils.get_sample_id(primary_bundle)
     ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(primary_bundle)
     fastq_files = primary_bundle.sequencing_output
@@ -62,9 +55,11 @@ def get_optimus_inputs_to_hash(uuid, version, dss_url):
         requests.HTTPError: on 4xx errors or 5xx errors beyond the timeout
 
     """
-    sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(
-        uuid, version, dss_url
+    print(f"Getting bundle manifest for id {uuid}, version {version}")
+    primary_bundle = metadata_utils.get_bundle_metadata(
+        uuid=uuid, version=version, dss_url=dss_url, directurls=False
     )
+    sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(primary_bundle)
     sorted_lanes = sorted(lane_to_fastqs.keys(), key=int)
     file_hashes = ''
     for lane in sorted_lanes:
@@ -99,9 +94,11 @@ def create_optimus_input_tsv(uuid, version, dss_url):
     Raises:
         tenx_utils.LaneMissingFileError if any non-optional fastqs are missing
     """
-    sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(
-        uuid, version, dss_url
+    print(f"Getting bundle manifest for id {uuid}, version {version}")
+    primary_bundle = metadata_utils.get_bundle_metadata(
+        uuid=uuid, version=version, dss_url=dss_url, directurls=True
     )
+    sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(primary_bundle)
 
     # Stop if any fastqs are missing
     tenx_utils.validate_lanes(lane_to_fastqs)
