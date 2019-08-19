@@ -69,7 +69,7 @@ workflow AdapterSmartSeq2SingleCell{
   Boolean record_http = false
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "se-fix-input-hash-labels"
+  String pipeline_tools_version = "v0.56.3"
 
   call GetInputs as prep {
     input:
