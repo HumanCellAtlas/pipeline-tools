@@ -148,7 +148,7 @@ workflow Adapter10xCount {
   Boolean record_http = false
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.56.2"
+  String pipeline_tools_version = "se-fix-input-hash-labels"
 
   call GetInputs {
     input:
