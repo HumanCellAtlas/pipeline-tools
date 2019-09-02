@@ -17,8 +17,10 @@ def get_bundle_metadata(uuid, version, dss_url, directurls=False):
     Returns:
         humancellatlas.data.metadata.Bundle: A bundle metadata object.
     """
-    dss_environment = dss_url.split('.')[1]
-    client = dss_client(deployment=dss_environment)
+    dss_deployment = dss_url.split('.')[1]
+    if dss_deployment not in ('dev', 'integration', 'staging'):
+        dss_deployment = None  # If none, the production deployment will be used
+    client = dss_client(deployment=dss_deployment)
     version, manifest, metadata_files = download_bundle_metadata(
         client=client, replica='gcp', uuid=uuid, version=version, directurls=directurls
     )
