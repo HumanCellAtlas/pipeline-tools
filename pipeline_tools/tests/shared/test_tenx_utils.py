@@ -108,6 +108,45 @@ def invalid_files_missing_read2():
     return files
 
 
+@pytest.fixture
+def missing_lane_index_one_set_of_reads():
+    files = [
+        BundleFile(
+            'fastq.gz', None, 'read1', ManifestEntry('gs://somewhere/r1.fastq.gz')
+        ),
+        BundleFile(
+            'fastq.gz', None, 'read2', ManifestEntry('gs://somewhere/r2.fastq.gz')
+        ),
+        BundleFile(
+            'fastq.gz', None, 'index1', ManifestEntry('gs://somewhere/i1.fastq.gz')
+        ),
+    ]
+
+
+@pytest.fixture
+def missing_lane_index_multiple_sets_of_reads():
+    files = [
+        BundleFile(
+            'fastq.gz', None, 'read1', ManifestEntry('gs://somewhere/r1.fastq.gz')
+        ),
+        BundleFile(
+            'fastq.gz', None, 'read2', ManifestEntry('gs://somewhere/r2.fastq.gz')
+        ),
+        BundleFile(
+            'fastq.gz', None, 'index1', ManifestEntry('gs://somewhere/i1.fastq.gz')
+        ),
+        BundleFile(
+            'fastq.gz', None, 'read1', ManifestEntry('gs://somewhereelse/r1.fastq.gz')
+        ),
+        BundleFile(
+            'fastq.gz', None, 'read2', ManifestEntry('gs://somewhereelse/r2.fastq.gz')
+        ),
+        BundleFile(
+            'fastq.gz', None, 'index1', ManifestEntry('gs://somewhereelse/i1.fastq.gz')
+        ),
+    ]
+
+
 def test_create_fastq_dict(
     valid_files_with_index,
     valid_files_with_index_dict,
@@ -149,6 +188,19 @@ def test_validate_lanes_accepts_lanes_when_all_indexed(valid_files_with_index):
 def test_validate_lanes_accepts_lanes_when_none_indexed(valid_files_no_index):
     fastq_dict = tenx_utils.create_fastq_dict(valid_files_no_index)
     tenx_utils.validate_lanes(fastq_dict)
+
+
+def test_create_fastq_dict_reindexes_with_zero_when(
+    missing_lane_index_one_set_of_reads
+):
+    fastq_dict = tenx_utils.create_fastq_dict(missing_lane_index_one_set_of_reads)
+    assert 0 in fastq_dict
+    assert None not in fastq_dict
+
+
+def test_create_fastq_dict_raises_error_when(missing_lane_index_multiple_sets_of_reads):
+    with pytest.raises(tenx_utils.InsufficientLaneInfoError):
+        tenx_utils.create_fastq_dict(missing_lane_index_multiple_sets_of_reads)
 
 
 def test_get_fastqs_for_read_index(valid_files_with_index):
