@@ -121,6 +121,8 @@ def missing_lane_index_one_set_of_reads():
             'fastq.gz', None, 'index1', ManifestEntry('gs://somewhere/i1.fastq.gz')
         ),
     ]
+    r.shuffle(files)
+    return files
 
 
 @pytest.fixture
@@ -145,6 +147,8 @@ def missing_lane_index_multiple_sets_of_reads():
             'fastq.gz', None, 'index1', ManifestEntry('gs://somewhereelse/i1.fastq.gz')
         ),
     ]
+    r.shuffle(files)
+    return files
 
 
 def test_create_fastq_dict(
