@@ -29,7 +29,15 @@ def create_fastq_dict(fastq_files):
     lane_to_fastqs = {}
     for file in fastq_files:
         lane = file.lane_index
-        if lane not in lane_to_fastqs:
+        if lane is None:
+            lane = 0
+        if lane in lane_to_fastqs:
+            if file.read_index in lane_to_fastqs[lane]:
+                raise InsufficientLaneInfoError(
+                    'There are multiple sets of reads, but no lane index. '
+                    'Cannot properly group reads for analysis.'
+                )
+        else:
             lane_to_fastqs[lane] = {}
         lane_to_fastqs[lane][file.read_index] = file.manifest_entry
 
@@ -131,4 +139,8 @@ def validate_lanes(lane_to_fastqs):
 
 
 class LaneMissingFileError(Exception):
+    pass
+
+
+class InsufficientLaneInfoError(Exception):
     pass
