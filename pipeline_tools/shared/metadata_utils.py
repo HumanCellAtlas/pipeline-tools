@@ -19,8 +19,10 @@ def get_bundle_metadata(uuid, version, dss_url, directurls=False):
     """
     dss_deployment = dss_url.split('.')[1]
     if dss_deployment not in ('dev', 'integration', 'staging'):
-        dss_deployment = None  # If none, the production deployment will be used
-    client = dss_client(deployment=dss_deployment)
+        # dss_client constructor defaults to the production deployment
+        client = dss_client()
+    else:
+        client = dss_client(deployment=dss_deployment)
     version, manifest, metadata_files = download_bundle_metadata(
         client=client, replica='gcp', uuid=uuid, version=version, directurls=directurls
     )
