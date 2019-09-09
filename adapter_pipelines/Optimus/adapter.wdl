@@ -138,7 +138,7 @@ workflow AdapterOptimus {
   Boolean record_http = false
   Boolean add_md5s = false
 
-  String pipeline_tools_version = "v0.56.4"
+  String pipeline_tools_version = "v0.56.5"
 
   call GetInputs as prep {
     input:
