@@ -37,7 +37,7 @@ def create_fastq_dict(fastq_files):
                     'There are multiple sets of reads, but no lane index. '
                     'Cannot properly group reads for analysis.'
                 )
-        if lane not in lane_to_fastqs:
+        else:
             lane_to_fastqs[lane] = {}
         lane_to_fastqs[lane][file.read_index] = file.manifest_entry
 
