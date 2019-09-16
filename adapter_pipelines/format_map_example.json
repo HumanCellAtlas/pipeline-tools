@@ -13,6 +13,8 @@
   "[.]tsv$": "tsv",
   "[.]mtx$": "mtx",
   "[.]h5$": "h5",
-  "[.]csv$": "csv",
-  "[.]zattrs$": "matrix"
+  "[.]csv.gz$": "csv.gz",
+  "[.]zarr": "matrix",
+  "[.]npz$": "npz",
+  "[.]npy$": "npy"
 }
