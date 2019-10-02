@@ -11,7 +11,7 @@
 [![Code style: black](https://img.shields.io/badge/Code%20Style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
 
 
-This repository contains Python package for interacting with the Human Cell Atlas Data Coordination Platform (DCP). 
+This repository contains Python package for interacting with and running data processing pipelines in the Human Cell Atlas Data Coordination Platform (DCP). 
 They are used by the DCP Pipelines Execution Service (Secondary Analysis).
 
 ## Development
