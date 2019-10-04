@@ -1,6 +1,7 @@
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.shared.reference_id import ReferenceId
+from pipeline_tools.shared.dcp_utils import get_utcnow_timestamp
 
 
 REFERENCES = {
@@ -83,8 +84,13 @@ def create_ss2_input_tsv(
     sample_id, ncbi_taxon_id, fastq1_manifest, fastq2_manifest = get_ss2_paired_end_inputs(
         primary_bundle
     )
-    tsv_headers = ['fastq_1', 'fastq_2', 'sample_id']
-    tsv_values = [fastq1_manifest.url, fastq2_manifest.url, sample_id]
+    tsv_headers = ['fastq_1', 'fastq_2', 'sample_id', 'timestamp']
+    tsv_values = [
+        fastq1_manifest.url,
+        fastq2_manifest.url,
+        sample_id,
+        get_utcnow_timestamp(),
+    ]
 
     species_references = REFERENCES[ncbi_taxon_id]
     for key, value in species_references.items():
@@ -144,9 +150,14 @@ def create_ss2_se_input_tsv(
     )
 
     print('Creating input map')
+
+    tsv_headers = ['fastq', 'sample_id', 'timestamp']
+    tsv_values = [fastq_url, sample_id, get_utcnow_timestamp()]
+
     with open(input_tsv_name, 'w') as f:
-        f.write('fastq\tsample_id\n')
-        f.write('{0}\t{1}\n'.format(fastq_url, sample_id))
+        f.write('\t'.join(tsv_headers) + '\n')
+        f.write('\t'.join(tsv_values) + '\n')
+
     print('Wrote input map to disk.')
 
 

@@ -3,6 +3,7 @@ from pipeline_tools.shared import tenx_utils
 from pipeline_tools.shared.http_requests import HttpRequests
 from humancellatlas.data.metadata.api import CellSuspension
 from pipeline_tools.shared.reference_id import ReferenceId
+from pipeline_tools.shared.dcp_utils import get_utcnow_timestamp
 
 
 REFERENCES = {
@@ -82,6 +83,11 @@ def create_cellranger_input_tsv(uuid, version, dss_url):
         print(f"Writing {key}.txt")
         with open(f"{key}.txt", 'w') as f:
             f.write(f"{value}")
+
+    timestamp = get_utcnow_timestamp()
+    print('Writing the current timestamp to timestamp.txt')
+    with open('timestamp.txt', 'w') as f:
+        f.write(timestamp)
 
     print('Finished writing files')
 
