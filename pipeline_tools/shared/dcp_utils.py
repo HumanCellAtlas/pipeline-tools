@@ -1,4 +1,5 @@
 from pipeline_tools.shared.http_requests import HttpRequests  # noqa
+from datetime import datetime, timezone  # noqa
 
 
 def get_auth_token(
@@ -66,3 +67,10 @@ def make_auth_header(auth_token):
         ),
     }
     return headers
+
+
+def get_utcnow_timestamp() -> str:
+    """Get the current UTC timestamp."""
+    return (
+        datetime.utcnow().replace(tzinfo=timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    )
