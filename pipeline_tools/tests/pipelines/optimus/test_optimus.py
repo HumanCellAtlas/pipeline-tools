@@ -100,9 +100,9 @@ class TestOptimus(object):
         expected_r1 = 'gs://org-hca-dss-checkout-integration/bundles/3eebea0c-8b80-4007-a860-6802a215276d.2018-10-05T145809.216048Z/R1.fastq.gz'
         expected_r2 = 'gs://org-hca-dss-checkout-integration/bundles/3eebea0c-8b80-4007-a860-6802a215276d.2018-10-05T145809.216048Z/R2.fastq.gz'
         expected_i1 = 'gs://org-hca-dss-checkout-integration/bundles/3eebea0c-8b80-4007-a860-6802a215276d.2018-10-05T145809.216048Z/I1.fastq.gz'
-        expected_tar_star_reference = 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar'
-        expected_annotations_gtf = 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz'
-        expected_ref_genome_fasta = 'gs://hca-dcp-sc-pipelines-test-data/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa'
+        expected_tar_star_reference = 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar'
+        expected_annotations_gtf = 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz'
+        expected_ref_genome_fasta = 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa'
 
         assert_file_contents('sample_id.txt', 'fake_id')
         assert_file_contents('r1.txt', expected_r1)
