@@ -6,15 +6,26 @@ from pipeline_tools.shared.reference_id import ReferenceId
 REFERENCES = {
     ReferenceId.Human.value: {
         'hisat2_ref_trans_name': 'gencode_v27_trans_rsem',
-        'rrna_intervals': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode.v27.rRNA.interval_list',
-        'hisat2_ref_index': 'gs://hca-dcp-mint-test-data/reference/HISAT2/genome_snp_tran.tar.gz',
-        'genome_ref_fasta': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa',
-        'hisat2_ref_trans_index': 'gs://hca-dcp-mint-test-data/reference/HISAT2/gencode_v27_trans_rsem.tar.gz',
-        'rsem_ref_index': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/gencode_v27_primary.tar',
-        'gene_ref_flat': 'gs://hca-dcp-mint-test-data/reference/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt',
+        'rrna_intervals': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode.v27.rRNA.interval_list',
+        'hisat2_ref_index': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/HISAT2/genome_snp_tran.tar.gz',
+        'genome_ref_fasta': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa',
+        'hisat2_ref_trans_index': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/HISAT2/gencode_v27_trans_rsem.tar.gz',
+        'rsem_ref_index': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode_v27_primary.tar',
+        'gene_ref_flat': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt',
         'hisat2_ref_name': 'genome_snp_tran',
         'stranded': 'NONE',
-    }
+    },
+    ReferenceId.Mouse.value: {
+        'hisat2_ref_trans_name': 'hisat2_from_rsem_star_primary_gencode_mouse_vM21',
+        'rrna_intervals': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCm38_Gencode_vM21/gencode.vM21.primary_assembly.rRNA.interval_list',
+        'hisat2_ref_index': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCm38_Gencode_vM21/hisat2_primary_gencode_mouse_vM21.tar.gz',
+        'genome_ref_fasta': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCm38_Gencode_vM21/GRCm38.primary_assembly.genome.fa',
+        'hisat2_ref_trans_index': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCm38_Gencode_vM21/hisat2_from_rsem_star_primary_gencode_mouse_vM21.tar.gz',
+        'rsem_ref_index': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCm38_Gencode_vM21/rsem_primary_gencode_mouse_vM21.tar',
+        'gene_ref_flat': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCm38_Gencode_vM21/gencode.vM21.primary_assembly.refflat.txt',
+        'hisat2_ref_name': 'hisat2_primary_gencode_mouse_vM21',
+        'stranded': 'NONE',
+    },
 }
 
 
