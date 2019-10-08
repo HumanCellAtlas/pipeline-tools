@@ -8,6 +8,7 @@ from csv import DictReader
 from google.cloud import storage
 import re
 import arrow
+from pipeline_tools.shared.submission.format_map import EXTENSION_TO_FORMAT
 
 
 def create_analysis_process(
@@ -516,10 +517,6 @@ def main():
     )
     args = parser.parse_args()
 
-    # Get the extension_to_format mapping
-    with open('format_map.json') as f:
-        extension_to_format = json.load(f)
-
     schema_url = args.schema_url.strip('/')
 
     # Get metadata for inputs and outputs
@@ -528,7 +525,7 @@ def main():
         output_urls = f.read().splitlines()
     outputs = get_outputs(
         output_urls=output_urls,
-        extension_to_format=extension_to_format,
+        extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
     )
