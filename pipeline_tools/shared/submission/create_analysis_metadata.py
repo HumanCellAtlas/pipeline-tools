@@ -512,17 +512,12 @@ def main():
         help='Path to JSON file containing info about outputs.',
     )
     parser.add_argument(
-        '--format_map',
-        required=True,
-        help='JSON file providing map of file extensions to formats.',
-    )
-    parser.add_argument(
         '--add_md5s', help='Set to "true" to add md5 checksums to file metadata'
     )
     args = parser.parse_args()
 
     # Get the extension_to_format mapping
-    with open(args.format_map) as f:
+    with open('format_map.json') as f:
         extension_to_format = json.load(f)
 
     schema_url = args.schema_url.strip('/')
