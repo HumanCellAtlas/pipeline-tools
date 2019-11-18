@@ -5,7 +5,7 @@ import unittest.mock as mock
 from humancellatlas.data.metadata.api import Bundle, ManifestEntry
 
 
-from pipeline_tools.pipelines.optimus import optimus
+from pipeline_tools.pipelines.optimus import optimus, chemistry
 from pipeline_tools.shared.reference_id import ReferenceId
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 from pathlib import Path
@@ -84,15 +84,26 @@ def test_tenx_bundle_vx_with_no_expected_cell_count(
 
 class TestOptimus(object):
     # mock.patch should be in reverse order relative to the arguments
+    @mock.patch(
+        'pipeline_tools.shared.metadata_utils.get_library_construction_method_ontology'
+    )
     @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
     @mock.patch('pipeline_tools.shared.metadata_utils.get_bundle_metadata')
     @mock.patch('pipeline_tools.shared.metadata_utils.get_sample_id')
     def test_get_optimus_inputs(
-        self, mock_sample_id, mock_bundle, mock_ncbi_taxon_id, test_tenx_bundle_vx
+        self,
+        mock_sample_id,
+        mock_bundle,
+        mock_ncbi_taxon_id,
+        mock_lib_construction_method,
+        test_tenx_bundle_vx,
     ):
         mock_sample_id.return_value = 'fake_id'
         mock_bundle.return_value = test_tenx_bundle_vx
         mock_ncbi_taxon_id.return_value = ReferenceId.Human.value
+        mock_lib_construction_method.return_value = (
+            optimus.LibraryConstructionMethod.tenX_v2.value
+        )
         with HttpRequestsManager():
             optimus.create_optimus_input_tsv(
                 uuid='bundle_uuid', version='bundle_version', dss_url='foo_url'
@@ -103,6 +114,7 @@ class TestOptimus(object):
         expected_tar_star_reference = 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/optimusGencodeV27/buildReference/output_bucket/star_primary_gencode_v27.tar'
         expected_annotations_gtf = 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/optimusGencodeV27/gencode.v27.primary_assembly.annotation.gtf.gz'
         expected_ref_genome_fasta = 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/optimusGencodeV27/GRCh38.primary_assembly.genome.fa'
+        expected_chemistry = optimus.Chemistry.tenX_v2.value
 
         assert_file_contents('sample_id.txt', 'fake_id')
         assert_file_contents('r1.txt', expected_r1)
@@ -111,6 +123,7 @@ class TestOptimus(object):
         assert_file_contents('tar_star_reference.txt', expected_tar_star_reference)
         assert_file_contents('annotations_gtf.txt', expected_annotations_gtf)
         assert_file_contents('ref_genome_fasta.txt', expected_ref_genome_fasta)
+        assert_file_contents('chemistry.txt', expected_chemistry)
 
         os.remove('sample_id.txt')
         os.remove('r1.txt')
@@ -119,6 +132,7 @@ class TestOptimus(object):
         os.remove('tar_star_reference.txt')
         os.remove('annotations_gtf.txt')
         os.remove('ref_genome_fasta.txt')
+        os.remove('chemistry.txt')
 
     @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
     @mock.patch('pipeline_tools.shared.metadata_utils.get_bundle_metadata')
@@ -158,6 +172,12 @@ class TestOptimus(object):
             ReferenceId.Human.value,
             f'{r1_hashes}{r2_hashes}{i1_hashes}',
         )
+
+    def test_get_tenx_chemistry(self):
+        ontology_id = "EFO:0009310"
+        expected_chemistry = chemistry.Chemistry.tenX_v2.value
+        tenx_chemistry = optimus.get_tenx_chemistry(ontology_id)
+        assert tenx_chemistry == expected_chemistry
 
 
 def assert_file_contents(actual_file, expected_contents):

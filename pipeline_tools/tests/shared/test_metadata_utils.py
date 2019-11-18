@@ -140,6 +140,12 @@ class TestMetadataUtils(object):
         ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(test_ss2_bundle_vx)
         assert ncbi_taxon_id == 9606
 
+    def test_get_library_construction_method_ontology(self, test_tenx_bundle_vx):
+        library_construction_method_ontology = metadata_utils.get_library_construction_method_ontology(
+            test_tenx_bundle_vx
+        )
+        assert library_construction_method_ontology == "EFO:0009310"
+
     def test_get_hashes_from_file_manifest(self, test_fastq_file_manifest):
         file_hashes = metadata_utils.get_hashes_from_file_manifest(
             test_fastq_file_manifest
