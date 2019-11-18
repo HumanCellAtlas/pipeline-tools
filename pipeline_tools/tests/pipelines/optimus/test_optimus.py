@@ -7,6 +7,7 @@ from humancellatlas.data.metadata.api import Bundle, ManifestEntry
 
 from pipeline_tools.pipelines.optimus import optimus, chemistry
 from pipeline_tools.shared.reference_id import ReferenceId
+from pipeline_tools.shared.tenx_utils import UnsupportedTenXChemistryError
 from pipeline_tools.tests.http_requests_manager import HttpRequestsManager
 from pathlib import Path
 
@@ -178,6 +179,11 @@ class TestOptimus(object):
         expected_chemistry = chemistry.Chemistry.tenX_v2.value
         tenx_chemistry = optimus.get_tenx_chemistry(ontology_id)
         assert tenx_chemistry == expected_chemistry
+
+    def test_get_tenx_chemistry_raises_error_for_unsupported_values(self):
+        fake_ontology_id = "EFO:0000000"
+        with pytest.raises(UnsupportedTenXChemistryError):
+            tenx_chemistry = optimus.get_tenx_chemistry(fake_ontology_id)
 
 
 def assert_file_contents(actual_file, expected_contents):

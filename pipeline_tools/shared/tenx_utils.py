@@ -144,3 +144,7 @@ class LaneMissingFileError(Exception):
 
 class InsufficientLaneInfoError(Exception):
     pass
+
+
+class UnsupportedTenXChemistryError(Exception):
+    pass

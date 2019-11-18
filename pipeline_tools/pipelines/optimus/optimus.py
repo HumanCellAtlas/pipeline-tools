@@ -47,12 +47,13 @@ def get_tenx_chemistry(library_construction_method_ontology):
         chemistry (str): The tenX chemistry (either tenxX_v2 or tenX_v3)
 
     """
-    for chemistry in LIBRARY_CONSTRUCTION_METHODS:
-        if (
-            library_construction_method_ontology
-            in LIBRARY_CONSTRUCTION_METHODS[chemistry]
-        ):
-            return chemistry
+    chemistry = None
+    for each in LIBRARY_CONSTRUCTION_METHODS:
+        if library_construction_method_ontology in LIBRARY_CONSTRUCTION_METHODS[each]:
+            chemistry = each
+    if not chemistry:
+        raise tenx_utils.UnsupportedTenXChemistryError('Unsupported tenX chemistry')
+    return chemistry
 
 
 def get_optimus_inputs(primary_bundle):
@@ -131,6 +132,7 @@ def create_optimus_input_tsv(uuid, version, dss_url):
 
     Raises:
         tenx_utils.LaneMissingFileError if any non-optional fastqs are missing
+        tenx_utils.UnsupportedTenXChemistry if get_tenx_chemistry returns None
     """
     print(f"Getting bundle manifest for id {uuid}, version {version}")
     primary_bundle = metadata_utils.get_bundle_metadata(
