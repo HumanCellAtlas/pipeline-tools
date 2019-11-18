@@ -1,4 +1,8 @@
-from humancellatlas.data.metadata.api import Bundle, CellSuspension
+from humancellatlas.data.metadata.api import (
+    Bundle,
+    CellSuspension,
+    LibraryPreparationProtocol,
+)
 from humancellatlas.data.metadata.helpers.dss import (
     download_bundle_metadata,
     dss_client,
@@ -67,6 +71,18 @@ def get_ncbi_taxon_id(bundle: Bundle):
             'Multiple distinct species detected in bundle.'
         )
     return first_taxon_id
+
+
+def get_library_construction_method_ontology(primary_bundle):
+    library_prep_protocols = [
+        lp
+        for lp in primary_bundle.protocols.values()
+        if isinstance(lp, LibraryPreparationProtocol)
+    ]
+    if len(library_prep_protocols) != 1:
+        raise Exception('Multiple library preparation protocols detected in bundle.')
+    library_prep_protocol = library_prep_protocols[0]
+    return library_prep_protocol.content['library_construction_method']['ontology']
 
 
 def get_hashes_from_file_manifest(file_manifest):

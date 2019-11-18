@@ -1,6 +1,10 @@
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared import tenx_utils
 from pipeline_tools.shared.reference_id import ReferenceId
+from pipeline_tools.pipelines.optimus.chemistry import (
+    Chemistry,
+    LibraryConstructionMethod,
+)
 
 
 REFERENCES = {
@@ -15,6 +19,28 @@ REFERENCES = {
         'ref_genome_fasta': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/optimusGencode_Mouse_M21/GRCm38.primary_assembly.genome.fa',
     },
 }
+
+LIBRARY_CONSTRUCTION_METHODS = {
+    Chemistry.tenX_v2.value: [
+        LibraryConstructionMethod.tenX_v2.value,
+        LibraryConstructionMethod.tenX_3_prime_v2.value,
+        LibraryConstructionMethod.tenX_5_prime_v2.value,
+    ],
+    Chemistry.tenX_v3.value: [
+        LibraryConstructionMethod.tenX_v3.value,
+        LibraryConstructionMethod.tenX_3_prime_v3.value,
+        LibraryConstructionMethod.tenX_5_prime_v3.value,
+    ],
+}
+
+
+def get_tenx_chemistry(library_construction_method_ontology):
+    for chemistry in LIBRARY_CONSTRUCTION_METHODS:
+        if (
+            library_construction_method_ontology
+            in LIBRARY_CONSTRUCTION_METHODS[chemistry]
+        ):
+            return chemistry
 
 
 def get_optimus_inputs(primary_bundle):
@@ -132,5 +158,13 @@ def create_optimus_input_tsv(uuid, version, dss_url):
         print(f"Writing {key}.txt")
         with open(f"{key}.txt", 'w') as f:
             f.write(f"{value}")
+
+    library_construction_method = metadata_utils.get_library_construction_method_ontology(
+        primary_bundle
+    )
+    chemistry = get_tenx_chemistry(library_construction_method)
+    print(f'Detected {chemistry} chemistry and writing to chemistry.txt')
+    with open('chemistry.txt', 'w') as f:
+        f.write(f"{chemistry}")
 
     print('Finished writing files')
