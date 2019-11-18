@@ -35,6 +35,18 @@ LIBRARY_CONSTRUCTION_METHODS = {
 
 
 def get_tenx_chemistry(library_construction_method_ontology):
+    """
+    Determine the tenX chemistry that was used based on the given library construction method. For example, if the
+    library construction method is EFO:0009310 (corresponding to LibraryConstructionMethod.tenX_v2.value), then the
+    chemistry is "tenX_v2".
+
+    Args:
+        library_construction_method_ontology (str): ontology id of the library construction method (e.g. "EFO:0009310")
+
+    Returns:
+        chemistry (str): The tenX chemistry (either tenxX_v2 or tenX_v3)
+
+    """
     for chemistry in LIBRARY_CONSTRUCTION_METHODS:
         if (
             library_construction_method_ontology

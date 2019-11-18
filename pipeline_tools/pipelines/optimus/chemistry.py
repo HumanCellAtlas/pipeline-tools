@@ -14,7 +14,7 @@ class Chemistry(Enum):
 class LibraryConstructionMethod(Enum):
 
     """
-    This class maps to the 10x library construction ontology ids:
+    This class maps to library construction ontology ids, e.g:
     https://www.ebi.ac.uk/ols/ontologies/efo/terms?iri=http%3A%2F%2Fwww.ebi.ac.uk%2Fefo%2FEFO_0008995&viewMode=All&siblings=false
     """
 

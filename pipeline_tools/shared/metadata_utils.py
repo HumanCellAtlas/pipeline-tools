@@ -76,10 +76,21 @@ def get_ncbi_taxon_id(bundle: Bundle):
     return first_taxon_id
 
 
-def get_library_construction_method_ontology(primary_bundle):
+def get_library_construction_method_ontology(bundle):
+    """ Return the library construction method ontology id from the given bundle.
+
+    Args:
+        bundle (humancellatlas.data.metadata.Bundle): A Bundle object contains all of the necessary information.
+
+    Returns:
+        library_construction_method (str): ontology id of the library construction method (e.g. "EFO:0009310")
+
+    Raises:
+        UnsupportedLibraryPrepException: when the bundle contains more than or less than one library preparation protocol file
+    """
     library_prep_protocols = [
         lp
-        for lp in primary_bundle.protocols.values()
+        for lp in bundle.protocols.values()
         if isinstance(lp, LibraryPreparationProtocol)
     ]
     if len(library_prep_protocols) != 1:
