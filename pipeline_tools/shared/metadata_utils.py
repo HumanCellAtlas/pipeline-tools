@@ -90,7 +90,7 @@ def get_library_construction_method_ontology(bundle):
     """
     library_prep_protocols = [
         lp
-        for lp in bundle.protocols.values()
+        for lp in bundle.entities.values()
         if isinstance(lp, LibraryPreparationProtocol)
     ]
     if len(library_prep_protocols) != 1:
@@ -98,7 +98,7 @@ def get_library_construction_method_ontology(bundle):
             'Multiple library preparation protocols detected in bundle.'
         )
     library_prep_protocol = library_prep_protocols[0]
-    return library_prep_protocol.content['library_construction_method']['ontology']
+    return library_prep_protocol.json['library_construction_method']['ontology']
 
 
 def get_hashes_from_file_manifest(file_manifest):
