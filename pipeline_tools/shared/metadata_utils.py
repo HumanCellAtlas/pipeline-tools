@@ -7,7 +7,10 @@ from humancellatlas.data.metadata.helpers.dss import (
     download_bundle_metadata,
     dss_client,
 )
-from pipeline_tools.shared.exceptions import UnsupportedOrganismException
+from pipeline_tools.shared.exceptions import (
+    UnsupportedOrganismException,
+    UnsupportedLibraryPrepException,
+)
 
 
 def get_bundle_metadata(uuid, version, dss_url, directurls=False):
@@ -80,7 +83,9 @@ def get_library_construction_method_ontology(primary_bundle):
         if isinstance(lp, LibraryPreparationProtocol)
     ]
     if len(library_prep_protocols) != 1:
-        raise Exception('Multiple library preparation protocols detected in bundle.')
+        raise UnsupportedLibraryPrepException(
+            'Multiple library preparation protocols detected in bundle.'
+        )
     library_prep_protocol = library_prep_protocols[0]
     return library_prep_protocol.content['library_construction_method']['ontology']
 
