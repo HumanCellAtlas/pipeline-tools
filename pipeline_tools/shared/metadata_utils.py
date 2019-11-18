@@ -90,7 +90,7 @@ def get_library_construction_method_ontology(bundle):
     """
     library_prep_protocols = [
         lp
-        for lp in bundle.entities.values()
+        for lp in bundle.protocols.values()
         if isinstance(lp, LibraryPreparationProtocol)
     ]
     if len(library_prep_protocols) != 1:
