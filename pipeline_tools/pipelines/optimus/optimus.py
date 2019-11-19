@@ -25,12 +25,7 @@ LIBRARY_CONSTRUCTION_METHODS = {
         LibraryConstructionMethod.tenX_v2.value,
         LibraryConstructionMethod.tenX_3_prime_v2.value,
         LibraryConstructionMethod.tenX_5_prime_v2.value,
-    ],
-    Chemistry.tenX_v3.value: [
-        LibraryConstructionMethod.tenX_v3.value,
-        LibraryConstructionMethod.tenX_3_prime_v3.value,
-        LibraryConstructionMethod.tenX_5_prime_v3.value,
-    ],
+    ]
 }
 
 
