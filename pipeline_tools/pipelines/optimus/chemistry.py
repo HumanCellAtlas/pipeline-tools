@@ -20,7 +20,6 @@ class LibraryConstructionMethod(Enum):
 
     tenX_v2 = "EFO:0009310"
     tenX_3_prime_v2 = "EFO:0009899"
-    tenX_5_prime_v2 = "EFO:0009900"
 
     tenX_v3 = "EFO:0009898"
     tenX_3_prime_v3 = "EFO:0009922"
