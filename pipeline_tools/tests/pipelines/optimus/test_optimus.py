@@ -135,6 +135,9 @@ class TestOptimus(object):
         os.remove('ref_genome_fasta.txt')
         os.remove('chemistry.txt')
 
+    @mock.patch(
+        'pipeline_tools.shared.metadata_utils.get_library_construction_method_ontology'
+    )
     @mock.patch('pipeline_tools.shared.metadata_utils.get_ncbi_taxon_id')
     @mock.patch('pipeline_tools.shared.metadata_utils.get_bundle_metadata')
     @mock.patch('pipeline_tools.shared.metadata_utils.get_sample_id')
@@ -143,12 +146,16 @@ class TestOptimus(object):
         mock_sample_id,
         mock_bundle,
         mock_ncbi_taxon_id,
+        mock_lib_construction_method,
         test_tenx_bundle_vx,
         test_tenx_bundle_manifest_vx,
     ):
         mock_sample_id.return_value = 'fake_id'
         mock_bundle.return_value = test_tenx_bundle_vx
         mock_ncbi_taxon_id.return_value = ReferenceId.Human.value
+        mock_lib_construction_method.return_value = (
+            optimus.LibraryConstructionMethod.tenX_v2.value
+        )
         with HttpRequestsManager():
             inputs = optimus.get_optimus_inputs_to_hash(
                 uuid='bundle_uuid', version='bundle_version', dss_url='foo_url'
@@ -168,10 +175,13 @@ class TestOptimus(object):
         r1_hashes = f'{read1_manifest.sha1}{read1_manifest.sha256}{read1_manifest.s3_etag}{read1_manifest.crc32c}'
         r2_hashes = f'{read2_manifest.sha1}{read2_manifest.sha256}{read2_manifest.s3_etag}{read2_manifest.crc32c}'
         i1_hashes = f'{index1_manifest.sha1}{index1_manifest.sha256}{index1_manifest.s3_etag}{index1_manifest.crc32c}'
+        expected_chemistry = optimus.Chemistry.tenX_v2.value
+
         assert inputs == (
             'fake_id',
             ReferenceId.Human.value,
             f'{r1_hashes}{r2_hashes}{i1_hashes}',
+            expected_chemistry,
         )
 
     def test_get_tenx_chemistry(self):
