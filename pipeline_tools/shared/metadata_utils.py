@@ -1,9 +1,16 @@
-from humancellatlas.data.metadata.api import Bundle, CellSuspension
+from humancellatlas.data.metadata.api import (
+    Bundle,
+    CellSuspension,
+    LibraryPreparationProtocol,
+)
 from humancellatlas.data.metadata.helpers.dss import (
     download_bundle_metadata,
     dss_client,
 )
-from pipeline_tools.shared.exceptions import UnsupportedOrganismException
+from pipeline_tools.shared.exceptions import (
+    UnsupportedOrganismException,
+    UnsupportedLibraryPrepException,
+)
 
 
 def get_bundle_metadata(uuid, version, dss_url, directurls=False):
@@ -67,6 +74,31 @@ def get_ncbi_taxon_id(bundle: Bundle):
             'Multiple distinct species detected in bundle.'
         )
     return first_taxon_id
+
+
+def get_library_construction_method_ontology(bundle):
+    """ Return the library construction method ontology id from the given bundle.
+
+    Args:
+        bundle (humancellatlas.data.metadata.Bundle): A Bundle object contains all of the necessary information.
+
+    Returns:
+        library_construction_method (str): ontology id of the library construction method (e.g. "EFO:0009310")
+
+    Raises:
+        UnsupportedLibraryPrepException: when the bundle contains more than or less than one library preparation protocol file
+    """
+    library_prep_protocols = [
+        lp
+        for lp in bundle.protocols.values()
+        if isinstance(lp, LibraryPreparationProtocol)
+    ]
+    if len(library_prep_protocols) != 1:
+        raise UnsupportedLibraryPrepException(
+            'Multiple library preparation protocols detected in bundle.'
+        )
+    library_prep_protocol = library_prep_protocols[0]
+    return library_prep_protocol.json['library_construction_method']['ontology']
 
 
 def get_hashes_from_file_manifest(file_manifest):

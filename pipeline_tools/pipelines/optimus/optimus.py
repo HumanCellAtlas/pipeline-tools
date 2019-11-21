@@ -1,6 +1,10 @@
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared import tenx_utils
 from pipeline_tools.shared.reference_id import ReferenceId
+from pipeline_tools.pipelines.optimus.chemistry import (
+    Chemistry,
+    LibraryConstructionMethod,
+)
 
 
 REFERENCES = {
@@ -15,6 +19,40 @@ REFERENCES = {
         'ref_genome_fasta': 'gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/optimusGencode_Mouse_M21/GRCm38.primary_assembly.genome.fa',
     },
 }
+
+LIBRARY_CONSTRUCTION_METHODS = {
+    Chemistry.tenX_v2.value: [
+        LibraryConstructionMethod.tenX_v2.value,
+        LibraryConstructionMethod.tenX_3_prime_v2.value,
+    ],
+    Chemistry.tenX_v3.value: [
+        LibraryConstructionMethod.tenX_v3.value,
+        LibraryConstructionMethod.tenX_3_prime_v3.value,
+        LibraryConstructionMethod.tenX_5_prime_v3.value,
+    ],
+}
+
+
+def get_tenx_chemistry(library_construction_method_ontology):
+    """
+    Determine the tenX chemistry that was used based on the given library construction method. For example, if the
+    library construction method is EFO:0009310 (corresponding to LibraryConstructionMethod.tenX_v2.value), then the
+    chemistry is "tenX_v2".
+
+    Args:
+        library_construction_method_ontology (str): ontology id of the library construction method (e.g. "EFO:0009310")
+
+    Returns:
+        chemistry (str): The tenX chemistry (either tenxX_v2 or tenX_v3)
+
+    """
+    chemistry = None
+    for each in LIBRARY_CONSTRUCTION_METHODS:
+        if library_construction_method_ontology in LIBRARY_CONSTRUCTION_METHODS[each]:
+            chemistry = each
+    if not chemistry:
+        raise tenx_utils.UnsupportedTenXChemistryError('Unsupported tenX chemistry')
+    return chemistry
 
 
 def get_optimus_inputs(primary_bundle):
@@ -34,7 +72,11 @@ def get_optimus_inputs(primary_bundle):
     ncbi_taxon_id = metadata_utils.get_ncbi_taxon_id(primary_bundle)
     fastq_files = primary_bundle.sequencing_output
     lane_to_fastqs = tenx_utils.create_fastq_dict(fastq_files)
-    return sample_id, ncbi_taxon_id, lane_to_fastqs
+    library_construction_method = metadata_utils.get_library_construction_method_ontology(
+        primary_bundle
+    )
+    chemistry = get_tenx_chemistry(library_construction_method)
+    return sample_id, ncbi_taxon_id, lane_to_fastqs, chemistry
 
 
 def get_optimus_inputs_to_hash(uuid, version, dss_url):
@@ -59,7 +101,9 @@ def get_optimus_inputs_to_hash(uuid, version, dss_url):
     primary_bundle = metadata_utils.get_bundle_metadata(
         uuid=uuid, version=version, dss_url=dss_url, directurls=False
     )
-    sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(primary_bundle)
+    sample_id, ncbi_taxon_id, lane_to_fastqs, chemistry = get_optimus_inputs(
+        primary_bundle
+    )
     sorted_lanes = sorted(lane_to_fastqs.keys(), key=int)
     file_hashes = ''
     for lane in sorted_lanes:
@@ -76,7 +120,7 @@ def get_optimus_inputs_to_hash(uuid, version, dss_url):
             )
             file_hashes += i1_hashes
     # This order MUST be maintained to compare input hashes between different Optimus workflows!
-    return sample_id, ncbi_taxon_id, file_hashes
+    return sample_id, ncbi_taxon_id, file_hashes, chemistry
 
 
 # TODO: Rename this function since it no longer creates a tsv file
@@ -93,12 +137,15 @@ def create_optimus_input_tsv(uuid, version, dss_url):
 
     Raises:
         tenx_utils.LaneMissingFileError if any non-optional fastqs are missing
+        tenx_utils.UnsupportedTenXChemistry if get_tenx_chemistry returns None
     """
     print(f"Getting bundle manifest for id {uuid}, version {version}")
     primary_bundle = metadata_utils.get_bundle_metadata(
         uuid=uuid, version=version, dss_url=dss_url, directurls=True
     )
-    sample_id, ncbi_taxon_id, lane_to_fastqs = get_optimus_inputs(primary_bundle)
+    sample_id, ncbi_taxon_id, lane_to_fastqs, chemistry = get_optimus_inputs(
+        primary_bundle
+    )
 
     # Stop if any fastqs are missing
     tenx_utils.validate_lanes(lane_to_fastqs)
@@ -132,5 +179,9 @@ def create_optimus_input_tsv(uuid, version, dss_url):
         print(f"Writing {key}.txt")
         with open(f"{key}.txt", 'w') as f:
             f.write(f"{value}")
+
+    print(f'Detected {chemistry} chemistry and writing to chemistry.txt')
+    with open('chemistry.txt', 'w') as f:
+        f.write(f"{chemistry}")
 
     print('Finished writing files')
