@@ -2,6 +2,7 @@ import argparse
 import json
 import google.auth
 import google.auth.transport.requests
+import re
 from pipeline_tools.shared.http_requests import HttpRequests
 
 
@@ -15,9 +16,10 @@ def get_analysis_workflow_id(analysis_output_path):
     Returns:
         workflow_id (str): string giving Cromwell UUID of the workflow.
     """
+    # Get the last match for UUID to ensure it is the subworkflow id
     url = analysis_output_path
-    calls = url.split('/call-')
-    workflow_id = calls[1].split('/')[-1]
+    uuid_regex = r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
+    workflow_id = re.findall(uuid_regex, url)[-1]
     print('Got analysis workflow UUID: {0}'.format(workflow_id))
     with open('workflow_id.txt', 'w') as f:
         f.write(workflow_id)
