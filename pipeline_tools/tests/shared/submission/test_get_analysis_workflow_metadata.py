@@ -26,9 +26,14 @@ def test_data():
         )
         analysis_output_path = (
             'gs://broad-dsde-mint-dev-cromwell-execution/cromwell-executions'
-            '/AdapterSmartSeq2SingleCell/adapter_workflow_id/call-analysis/SmartSeq2SingleCell'
-            '/analysis_subworkflow_id/call-qc/RunHisat2Pipeline/qc_workflow_id/call-Hisat2'
-            '/12345_qc.hisat2.met.txt'
+            '/AdapterSmartSeq2SingleCell/adapter0-work-flow-id00-000000000000'
+            '/call-analysis/SmartSeq2SingleCell/analysis-0sub-work-flow-id0000000000'
+            '/call-qc/RunHisat2Pipeline/qc_workflow_id/call-Hisat2/12345_qc.hisat2.met.txt'
+        )
+        terra_analysis_output_path = (
+            'gs://fc-3b6dcfeb-d840-4daf-8d3d-d6e4762ea07d/toplevel-work-flow-id00-000000000000'
+            '/MultiSampleSmartSeq2/0subwork-flow-id00-0000-000000000000'
+            '/call-AggregateLoom/cacheCopy/human_test.loom'
         )
         query_workflow_response_200 = {
             "results": [
@@ -69,9 +74,21 @@ class TestGetAnalysisWorkflowMetadata(object):
             result = get_analysis_workflow_metadata.get_analysis_workflow_id(
                 analysis_output_path
             )
-        expected = 'analysis_subworkflow_id'
+        expected = 'analysis-0sub-work-flow-id0000000000'
         assert result == expected
-        assert current_file_path.read() == 'analysis_subworkflow_id'
+        assert current_file_path.read() == 'analysis-0sub-work-flow-id0000000000'
+
+    def test_get_terra_analysis_workflow_id(self, test_data, tmpdir):
+        current_file_path = tmpdir.join('workflow_id.txt')
+        analysis_output_path = test_data.terra_analysis_output_path
+
+        with tmpdir.as_cwd():  # this stops unittests from writing files and polluting the directory
+            result = get_analysis_workflow_metadata.get_analysis_workflow_id(
+                analysis_output_path
+            )
+        expected = '0subwork-flow-id00-0000-000000000000'
+        assert result == expected
+        assert current_file_path.read() == '0subwork-flow-id00-0000-000000000000'
 
     def test_get_metadata_using_caas(self, requests_mock, test_data, tmpdir):
         current_file_path = tmpdir.join('metadata.json')
