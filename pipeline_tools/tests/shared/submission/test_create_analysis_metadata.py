@@ -108,6 +108,7 @@ class TestCreateAnalysisMetadata(object):
             analysis_protocol_schema_version='1.2.3',
             pipeline_version='foo_pipeline_version',
             method='foo_method',
+            version='2020-08-10T14:24:26.174274-07:00',
         )
 
         assert (
@@ -116,6 +117,10 @@ class TestCreateAnalysisMetadata(object):
         )
         assert analysis_protocol.get('computational_method') == 'foo_method'
         assert analysis_protocol.get('schema_type') == 'protocol'
+        assert (
+            analysis_protocol.get('provenance').get('document_id')
+            == '4364cc4a-64e6-5732-9e3b-63ac2f385f10'
+        )
 
     def test_get_inputs(self, data_file, test_data):
         inputs_file = data_file('inputs.tsv')

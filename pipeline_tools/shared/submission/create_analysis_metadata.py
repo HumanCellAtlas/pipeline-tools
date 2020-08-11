@@ -7,6 +7,7 @@ from copy import deepcopy
 from csv import DictReader
 from google.cloud import storage
 import re
+import uuid
 import arrow
 from pipeline_tools.shared.submission.format_map import EXTENSION_TO_FORMAT
 
@@ -75,7 +76,7 @@ def create_analysis_process(
 
 
 def create_analysis_protocol(
-    raw_schema_url, analysis_protocol_schema_version, pipeline_version, method
+    raw_schema_url, analysis_protocol_schema_version, pipeline_version, method, version
 ):
     """Collect and create the information about the analysis protocol for submission to Ingest service.
 
@@ -101,6 +102,7 @@ def create_analysis_protocol(
         analysis_protocol (dict): A dict representing the analysis_protocol json file to be submitted.
     """
     SCHEMA_TYPE = 'protocol'
+    NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
 
     analysis_protocol = {
         'describedBy': get_analysis_described_by(
@@ -113,6 +115,16 @@ def create_analysis_protocol(
         'computational_method': method,
         'type': get_analysis_protocol_type(),
     }
+
+    string_to_hash = json.dumps(analysis_protocol, sort_keys=True)
+    entity_id = str(uuid.uuid5(NAMESPACE, string_to_hash)).lower()
+
+    analysis_protocol['provenance'] = {
+        'document_id': entity_id,
+        'submission_date': version,
+        'update_date': version,
+    }
+
     return analysis_protocol
 
 

@@ -31,6 +31,7 @@ setup(
             'get-analysis-workflow-metadata=pipeline_tools.shared.submission.get_analysis_workflow_metadata:main',
             'create-analysis-metadata=pipeline_tools.shared.submission.create_analysis_metadata:main',
             'create-envelope=pipeline_tools.shared.submission.create_envelope:main',
+            'create-links=pipeline_tools.shared.submission.create_links:main',
             'get-upload-urn=pipeline_tools.shared.submission.get_upload_urn:main',
             'get-files-to-upload=pipeline_tools.shared.submission.get_files_to_upload:main',
             'confirm-submission=pipeline_tools.shared.submission.confirm_submission:main',
