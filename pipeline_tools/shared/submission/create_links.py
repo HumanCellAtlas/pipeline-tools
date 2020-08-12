@@ -7,27 +7,20 @@ from pipeline_tools.shared.http_requests import HttpRequests
 
 
 def build_links(
-    submit_url,
     analysis_protocol_path,
     analysis_process_path,
     outputs_file_path,
     raw_schema_url,
     links_schema_version,
-    analysis_file_version,
-    runtime_environment,
-    service_account_key_path,
 ):
     """Create the submission envelope in Ingest service.
 
     Args:
-        submit_url (str): URL of Ingest service to perform the submission.
         analysis_protocol_path (str): Path to the analysis_protocol json file.
         analysis_process_path (str): Path to the analysis_process json file.
         outputs_file_path (str): Path to the outputs json file.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
-        analysis_file_version (str): Version of the metadata schema that the analysis_file conforms to.
-        runtime_environment (str): Environment where the pipeline is running ('dev', 'test', 'staging' or 'prod').
-        service_account_key_path (str): Path to the JSON service account key for generating a JWT.
+        links_schema_version (str): Version of the metadata schema that the links.json conforms to.
     """
     # Instantiate a HttpRequests object
     http_requests = HttpRequests()
@@ -481,11 +474,6 @@ def link_analysis_protocol_to_analysis_process(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--submit_url',
-        required=True,
-        help='The root url of the Ingest service for submissions.',
-    )
-    parser.add_argument(
         '--analysis_process_path',
         required=True,
         help='Path to the analysis_process.json file.',
@@ -502,39 +490,20 @@ def main():
         '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
     )
     parser.add_argument(
-        '--analysis_file_version',
-        required=True,
-        help='The metadata schema version that the output files(analysis_file) conform to.',
-    )
-    parser.add_argument(
         '--links_schema_version',
         required=True,
         help='The metadata schema version that the links files conform to.',
-    )
-    parser.add_argument(
-        '--runtime_environment',
-        required=True,
-        help='Environment where the pipeline is running ("dev", "test", "staging" or "prod").',
-    )
-    parser.add_argument(
-        '--service_account_key_path',
-        required=True,
-        help='Path to the JSON service account key for generating a JWT.',
     )
     args = parser.parse_args()
 
     schema_url = args.schema_url.strip('/')
 
     links = build_links(
-        submit_url=args.submit_url,
         analysis_protocol_path=args.analysis_protocol_path,
         analysis_process_path=args.analysis_process_path,
         outputs_file_path=args.outputs_file_path,
         raw_schema_url=schema_url,
         links_schema_version=args.links_schema_version,
-        analysis_file_version=args.analysis_file_version,
-        runtime_environment=args.runtime_environment,
-        service_account_key_path=args.service_account_key_path,
     )
 
     # Write links to file
