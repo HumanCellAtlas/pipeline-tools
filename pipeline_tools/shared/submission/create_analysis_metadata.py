@@ -525,6 +525,12 @@ def main():
         help='Path to JSON file containing info about outputs.',
     )
     parser.add_argument(
+        '--version',
+        required=True,
+        help='A version (or timestamp) attribute shared across all workflows'
+        'within an individual workspace.',
+    )
+    parser.add_argument(
         '--add_md5s', help='Set to "true" to add md5 checksums to file metadata'
     )
     args = parser.parse_args()
@@ -586,6 +592,7 @@ def main():
         analysis_protocol_schema_version=args.analysis_protocol_schema_version,
         pipeline_version=args.pipeline_version,
         method=args.method,
+        version=args.version,
     )
 
     # Write analysis_protocol to file
