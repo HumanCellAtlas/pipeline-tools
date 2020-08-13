@@ -1,3 +1,6 @@
+import csv
+import json
+
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared import tenx_utils
 from pipeline_tools.shared.reference_id import ReferenceId
@@ -185,3 +188,25 @@ def create_optimus_input_tsv(uuid, version, dss_url):
         f.write(f"{chemistry}")
 
     print('Finished writing files')
+
+
+def create_optimus_inputs_tsv_from_analysis_metadata(metadata_file):
+    with open(metadata_file) as f:
+        metadata = json.load(f)
+    HEADERS = ['name', 'value']
+    content = [
+        ['r1_fastq', metadata['inputs']['r1_fastq']],
+        ['r2_fastq', metadata['inputs']['r2_fastq']],
+        ['i1_fastq', metadata['inputs']['i1_fastq']],
+        ['whitelist', metadata['inputs']['whitelist']],
+        ['sample_id', metadata['inputs']['sample_id']],
+        ['tar_star_reference', metadata['inputs']['tar_star_reference']],
+        ['annotations_gtf', metadata['inputs']['annotations_gtf']],
+        ['ref_genome_fasta', metadata['inputs']['ref_genome_fasta']],
+        ['chemistry', metadata['inputs']['chemistry']],
+    ]
+
+    with open('inputs.tsv', 'w') as inputs_tsv:
+        writer = csv.writer(inputs_tsv, delimiter='\t')
+        writer.writerow(HEADERS)
+        writer.writerows(content)
