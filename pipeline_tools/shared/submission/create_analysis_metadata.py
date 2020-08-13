@@ -17,8 +17,6 @@ def create_analysis_process(
     metadata_file,
     analysis_process_schema_version,
     analysis_id,
-    input_bundles_string,
-    reference_bundle,
     inputs,
     run_type,
 ):
@@ -66,11 +64,14 @@ def create_analysis_process(
         'type': get_analysis_process_type(),
         'timestamp_start_utc': format_timestamp(workflow_metadata.get('start')),
         'timestamp_stop_utc': format_timestamp(workflow_metadata.get('end')),
-        'input_bundles': input_bundles_string.split(','),
-        'reference_bundle': reference_bundle,
         'tasks': workflow_tasks,
         'inputs': inputs,
         'analysis_run_type': run_type,
+        'reference_files': 00000000
+        - 0000
+        - 0000
+        - 0000
+        - 000000000000,  # TODO: Make this actually do something
     }
     return analysis_process
 
