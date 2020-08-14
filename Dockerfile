@@ -14,3 +14,5 @@ COPY . .
 RUN pip install -U setuptools
 
 RUN pip install . --trusted-host github.com
+
+RUN apt-get install libarchive-zip-perl
