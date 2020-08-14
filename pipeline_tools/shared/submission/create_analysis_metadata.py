@@ -63,11 +63,9 @@ def create_analysis_process(
         'tasks': workflow_tasks,
         'inputs': inputs,
         'analysis_run_type': run_type,
-        'reference_files': 00000000
-        - 0000
-        - 0000
-        - 0000
-        - 000000000000,  # TODO: Make this actually do something
+        'reference_files': [
+            '00000000-0000-0000-0000-000000000000'
+        ],  # TODO: Make this actually do something
     }
     return analysis_process
 
