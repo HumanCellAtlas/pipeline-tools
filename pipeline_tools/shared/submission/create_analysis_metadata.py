@@ -37,10 +37,6 @@ def create_analysis_process(
         metadata_file (str): Path to file containing metadata json for the workflow.
         analysis_process_schema_version (str): Version of the metadata schema that the analysis_process conforms to.
         analysis_id (str): UUID of the analysis workflow.
-        input_bundles_string (str): A comma-separated list of input bundle UUIDs.
-        reference_bundle (str): UUID of the reference bundle. FIXME: we are using a placeholder id for this field
-                                since it is required in the schema, but we are not using reference bundles yet. We
-                                should use the actual value here once it's applicable.
         inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
         run_type (str): Indicator of whether the analysis actually ran or was just copied forward as an optimization.
                         Should be either "run" or "copy-forward".
@@ -576,8 +572,6 @@ def main():
         metadata_file=args.metadata_json,
         analysis_process_schema_version=args.analysis_process_schema_version,
         analysis_id=args.analysis_id,
-        input_bundles_string=args.input_bundles,
-        reference_bundle=args.reference_bundle,
         inputs=inputs,
         run_type=args.run_type,
     )
