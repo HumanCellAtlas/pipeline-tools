@@ -15,4 +15,5 @@ RUN pip install -U setuptools
 
 RUN pip install . --trusted-host github.com
 
-RUN apt-get install libarchive-zip-perl
+# Instal crc32 for hash calculation
+RUN apt-get update && apt-get install libarchive-zip-perl
