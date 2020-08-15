@@ -70,11 +70,11 @@ def get_uuid5(sha256):
 
 
 def get_file_descriptor_described_by(schema_url, schema_version):
-    """The object name of the data file relative to the staging area's `data/` directory"""
     return f'{schema_url.strip("/")}/system/{schema_version}/file_descriptor'
 
 
 def get_relative_file_location(file_url):
+    """The object name of the data file relative to the staging area's `data/` directory"""
     return file_url.rsplit('/data/')[-1]
 
 
