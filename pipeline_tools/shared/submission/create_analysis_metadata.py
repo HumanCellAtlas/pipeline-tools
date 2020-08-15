@@ -19,6 +19,7 @@ def create_analysis_process(
     analysis_id,
     inputs,
     run_type,
+    version,
 ):
     """Collect and create the information about the analysis process for submission to Ingest service.
 
@@ -57,6 +58,7 @@ def create_analysis_process(
         ),
         'schema_type': SCHEMA_TYPE,
         'process_core': get_analysis_process_core(analysis_workflow_id=analysis_id),
+        'provenance': {'document_id': analysis_id, 'submission_date': version},
         'type': get_analysis_process_type(),
         'timestamp_start_utc': format_timestamp(workflow_metadata.get('start')),
         'timestamp_stop_utc': format_timestamp(workflow_metadata.get('end')),
@@ -572,12 +574,15 @@ def main():
         analysis_id=args.analysis_id,
         inputs=inputs,
         run_type=args.run_type,
+        version=args.version,
     )
 
     # Write analysis_process to file
     print('Writing analysis_process.json to disk...')
     with open('analysis_process.json', 'w') as f:
         json.dump(analysis_process, f, indent=2, sort_keys=True)
+    with open('analysis_process_id.txt', 'w') as f:
+        f.write()
 
     # Create analysis_protocol
     analysis_protocol = create_analysis_protocol(
