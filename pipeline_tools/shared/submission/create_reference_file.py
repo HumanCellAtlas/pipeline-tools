@@ -95,11 +95,6 @@ def main():
         help='The NCBI taxonomy id associated with the reference',
     )
     parser.add_argument(
-        '--ncbi_taxon_id',
-        required=True,
-        help='The NCBI taxonomy id associated with the reference',
-    )
-    parser.add_argument(
         '--workspace_version', required=True, help='The workspace version value'
     )
     parser.add_argument(
