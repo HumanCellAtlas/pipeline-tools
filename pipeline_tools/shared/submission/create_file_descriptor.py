@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # import argparse
+import datetime
 import json
 import re
 import uuid
@@ -50,9 +51,17 @@ def build_file_descriptor(
 def get_datetime_from_file_info(file_info):
     """Retrieve the datetime from the file info string and convert into mandated
     format. Add '.000000' for microseconds"""
+
+    # TODO: Get rid of the need for this workaround (fix wdl)
+
     regex = r'([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)'
-    original_datetime = re.search(regex, file_info).group(0)
-    return original_datetime.replace('Z', '.000000Z')
+    try:
+        original_datetime = re.search(regex, file_info).group(0)
+        formatted_datetime = original_datetime.replace('Z', '.000000Z')
+    except AttributeError:
+        original_datetime = datetime.datetime.utcnow().isoformat()
+        formatted_datetime = original_datetime + 'Z'
+    return formatted_datetime
 
 
 def get_uuid5(sha256):
