@@ -39,7 +39,7 @@ def build_reference_file(
         'schema_version': reference_file_schema_version,
         'schema_type': SCHEMA_TYPE,
         'file_core': get_file_core(file_path),
-        'ncbi_taxon_id': ncbi_taxon_id,
+        'ncbi_taxon_id': int(ncbi_taxon_id),
         'genus_species': {'text': genus_species},
         'assembly_type': assembly_type,
         'reference_type': reference_type,
