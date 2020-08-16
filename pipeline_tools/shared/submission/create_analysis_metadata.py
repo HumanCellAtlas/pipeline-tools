@@ -582,7 +582,7 @@ def main():
     with open('analysis_process.json', 'w') as f:
         json.dump(analysis_process, f, indent=2, sort_keys=True)
     with open('analysis_process_id.txt', 'w') as f:
-        f.write(analysis_process['provenance']['document_id q'])
+        f.write(analysis_process['provenance']['document_id'])
 
     # Create analysis_protocol
     analysis_protocol = create_analysis_protocol(
