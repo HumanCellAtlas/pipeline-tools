@@ -47,6 +47,9 @@ def build_file_descriptor(
     with open(f'{entity_id}_{file_version}.json', 'w') as f:
         json.dump(file_descriptor, f, indent=2, sort_keys=True)
 
+    with open(f'v5_uuid.txt', 'w') as f:
+        f.write(entity_id)
+
 
 def get_datetime_from_file_info(file_info):
     """Retrieve the datetime from the file info string and convert into mandated

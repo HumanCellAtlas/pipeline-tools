@@ -30,7 +30,7 @@ def build_reference_file(
     """
 
     SCHEMA_TYPE = 'file'
-    entity_id = get_uuid5(sha256)
+    entity_id = get_uuid5(get_uuid5(sha256))
 
     reference_file = {
         'describedBy': get_reference_file_described_by(
@@ -39,6 +39,7 @@ def build_reference_file(
         'schema_version': reference_file_schema_version,
         'schema_type': SCHEMA_TYPE,
         'file_core': get_file_core(file_path),
+        'provenance': {'document_id': entity_id, 'submission_date': version},
         'ncbi_taxon_id': int(ncbi_taxon_id),
         'genus_species': {'text': genus_species},
         'assembly_type': assembly_type,
@@ -46,6 +47,7 @@ def build_reference_file(
         'reference_version': reference_version,
     }
 
+    # Write the reference_file metadata
     with open(f'{entity_id}_{version}.json', 'w') as f:
         json.dump(reference_file, f, indent=2, sort_keys=True)
 
