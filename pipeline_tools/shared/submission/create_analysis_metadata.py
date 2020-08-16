@@ -577,12 +577,18 @@ def main():
         version=args.version,
     )
 
+    analysis_process_filename = (
+        f"{analysis_process['provenance']['document_id']}"
+        f"_{analysis_process['provenance']['submission_date']}"
+        f".json"
+    )
+
     # Write analysis_process to file
     print('Writing analysis_process.json to disk...')
     with open('analysis_process.json', 'w') as f:
         json.dump(analysis_process, f, indent=2, sort_keys=True)
-    with open('analysis_process_id.txt', 'w') as f:
-        f.write(analysis_process['provenance']['document_id'])
+    with open('analysis_process_filename.txt', 'w') as f:
+        f.write(analysis_process_filename)
 
     # Create analysis_protocol
     analysis_protocol = create_analysis_protocol(
@@ -593,10 +599,18 @@ def main():
         version=args.version,
     )
 
+    analysis_protocol_filename = (
+        f"{analysis_protocol['provenance']['document_id']}"
+        f"_{analysis_protocol['provenance']['submission_date']}"
+        f".json"
+    )
+
     # Write analysis_protocol to file
     print('Writing analysis_protocol.json to disk...')
     with open('analysis_protocol.json', 'w') as f:
         json.dump(analysis_protocol, f, indent=2, sort_keys=True)
+    with open('analysis_protocol_filename.txt', 'w') as f:
+        f.write(analysis_protocol_filename)
 
 
 if __name__ == '__main__':
