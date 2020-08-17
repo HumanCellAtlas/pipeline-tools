@@ -2,6 +2,7 @@
 # import argparse
 import datetime
 import json
+import os
 import re
 import uuid
 
@@ -78,7 +79,7 @@ def get_file_descriptor_described_by(schema_url, schema_version):
 
 def get_relative_file_location(file_url):
     """The object name of the data file relative to the staging area's `data/` directory"""
-    return file_url.rsplit('/data/')[-1]
+    return os.path.join('data', file_url.rsplit('/')[-1])
 
 
 # def main():
