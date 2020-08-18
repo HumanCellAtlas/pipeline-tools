@@ -20,6 +20,7 @@ def create_analysis_process(
     inputs,
     run_type,
     version,
+    references,
 ):
     """Collect and create the information about the analysis process for submission to Ingest service.
 
@@ -65,9 +66,7 @@ def create_analysis_process(
         'tasks': workflow_tasks,
         'inputs': inputs,
         'analysis_run_type': run_type,
-        'reference_files': [
-            '00000000-0000-0000-0000-000000000000'
-        ],  # TODO: Make this actually do something
+        'reference_files': references,  # TODO: Make this actually do something
     }
     return analysis_process
 
@@ -528,6 +527,12 @@ def main():
         'within an individual workspace.',
     )
     parser.add_argument(
+        '--references',
+        help='List of UUIDs for the reference genome',
+        type=list,
+        required=True,
+    )
+    parser.add_argument(
         '--add_md5s', help='Set to "true" to add md5 checksums to file metadata'
     )
     args = parser.parse_args()
@@ -575,6 +580,7 @@ def main():
         inputs=inputs,
         run_type=args.run_type,
         version=args.version,
+        references=args.references,
     )
 
     analysis_process_filename = (
