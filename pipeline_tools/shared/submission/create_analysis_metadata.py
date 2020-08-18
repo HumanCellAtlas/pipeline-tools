@@ -66,7 +66,7 @@ def create_analysis_process(
         'tasks': workflow_tasks,
         'inputs': inputs,
         'analysis_run_type': run_type,
-        'reference_files': references,  # TODO: Make this actually do something
+        'reference_files': references,
     }
     return analysis_process
 

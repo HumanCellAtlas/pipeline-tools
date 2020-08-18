@@ -75,10 +75,10 @@ class TestCreateAnalysisMetadata(object):
             metadata_file=data_file('metadata.json'),
             analysis_process_schema_version='1.2.3',
             analysis_id='12345abcde',
-            input_bundles_string='foo_input_bundle1,foo_input_bundle2',
-            reference_bundle='foo_ref_bundle',
             inputs=test_data.inputs,
             run_type='foo_run_type',
+            version='2020-08-10T14:24:26.174274-07:00',
+            references=['b816d2d6-5f10-4447-4194-3d0a804454d6'],
         )
 
         assert analysis_process.get('process_core').get('process_id') == '12345abcde'
@@ -93,14 +93,17 @@ class TestCreateAnalysisMetadata(object):
         )
         assert analysis_process.get('describedBy') == schema_url
 
-        assert analysis_process.get('reference_bundle') == 'foo_ref_bundle'
+        assert analysis_process.get('reference_files') == [
+            'b816d2d6-5f10-4447-4194-3d0a804454d6'
+        ]
         assert analysis_process.get('analysis_run_type') == 'foo_run_type'
         assert analysis_process.get('timestamp_start_utc') == '2017-09-14T19:54:11.470Z'
         assert analysis_process.get('timestamp_stop_utc') == '2017-09-14T19:54:31.871Z'
-        assert analysis_process.get('input_bundles') == [
-            'foo_input_bundle1',
-            'foo_input_bundle2',
-        ]
+        assert analysis_process.get('inputs') == test_data.inputs
+        assert analysis_process.get('provenance') == {
+            'document_id': '12345abcde',
+            'submission_date': '2020-08-10T14:24:26.174274-07:00',
+        }
 
     def test_create_analysis_protocol(self, test_data):
         analysis_protocol = cam.create_analysis_protocol(
