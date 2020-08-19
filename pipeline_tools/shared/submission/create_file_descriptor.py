@@ -50,6 +50,8 @@ def build_file_descriptor(
     with open(f'v5_uuid.txt', 'w') as f:
         f.write(entity_id)
 
+    return file_descriptor
+
 
 def get_datetime_from_file_info(file_info):
     """Retrieve the datetime from the file info string and convert into mandated
@@ -83,26 +85,20 @@ def get_relative_file_location(file_url):
 
 # def main():
 #     parser = argparse.ArgumentParser()
+#     file_info,
 #     parser.add_argument(
-#         '--analysis_process_path',
-#         required=True,
-#         help='Path to the analysis_process.json file.',
+#         '--file_path', required=True, help='Path to the file to describe.'
 #     )
-#     parser.add_argument(
-#         '--outputs_file_path', required=True, help='Path to the outputs.json file.'
-#     )
-#     parser.add_argument(
-#         '--analysis_protocol_path',
-#         required=True,
-#         help='Path to the analysis_protocol.json file.',
-#     )
+#     parser.add_argument('--size', required=True, help='Size of the file in bytes.')
+#     parser.add_argument('--sha256', required=True, help='sha256 of the file.')
+#     parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
 #     parser.add_argument(
 #         '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
 #     )
 #     parser.add_argument(
-#         '--links_schema_version',
+#         '--file_descriptor_schema_version',
 #         required=True,
-#         help='The metadata schema version that the links files conform to.',
+#         help='The metadata schema version that the file_descriptor conforms to.',
 #     )
 #     args = parser.parse_args()
 #
@@ -113,7 +109,7 @@ def get_relative_file_location(file_url):
 #         analysis_process_path=args.analysis_process_path,
 #         outputs_file_path=args.outputs_file_path,
 #         raw_schema_url=schema_url,
-#         file_descriptor_schema_version=args.links_schema_version,
+#         file_descriptor_schema_version=args.file_descriptor_schema_version,
 #     )
 #
 #     # Write links to file

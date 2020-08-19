@@ -51,6 +51,9 @@ def build_reference_file(
     with open(f'{entity_id}_{version}.json', 'w') as f:
         json.dump(reference_file, f, indent=2, sort_keys=True)
 
+    with open('reference_uuid.txt', 'w') as f:
+        f.write(entity_id)
+
 
 def get_file_core(file_path):
     file_core = {

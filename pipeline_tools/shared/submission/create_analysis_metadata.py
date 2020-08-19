@@ -466,16 +466,6 @@ def main():
         help='Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.',
     )
     parser.add_argument(
-        '--input_bundles',
-        required=True,
-        help='A comma-separated list of the DSS bundles used as inputs for the analysis workflow.',
-    )
-    parser.add_argument(
-        '--reference_bundle',
-        required=True,
-        help='To refer to the DSS resource bundle used for this workflow, once such things exist',
-    )
-    parser.add_argument(
         '--run_type',
         required=True,
         help='Should always be "run" for now, may be "copy-forward" in some cases in future',
