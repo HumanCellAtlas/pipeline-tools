@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# import argparse
+import argparse
 import datetime
 import json
 import re
@@ -11,9 +11,9 @@ def build_file_descriptor(
     size,
     sha256,
     crc32c,
+    creation_time,
     raw_schema_url,
     file_descriptor_schema_version,
-    file_info,
 ):
     """Create the submission envelope in Ingest service.
 
@@ -27,7 +27,7 @@ def build_file_descriptor(
 
     SCHEMA_TYPE = 'file_descriptor'
     entity_id = get_uuid5(sha256)
-    file_version = get_datetime_from_file_info(file_info)
+    file_version = convert_datetime(creation_time)
 
     file_descriptor = {
         'describedBy': get_file_descriptor_described_by(
@@ -44,13 +44,11 @@ def build_file_descriptor(
         'file_name': get_relative_file_location(file_path),
     }
 
-    with open(f'{entity_id}_{file_version}.json', 'w') as f:
-        json.dump(file_descriptor, f, indent=2, sort_keys=True)
-
-    with open(f'v5_uuid.txt', 'w') as f:
-        f.write(entity_id)
-
     return file_descriptor
+
+
+def convert_datetime(creation_time):
+    return creation_time.replace('Z', '.000000Z')
 
 
 def get_datetime_from_file_info(file_info):
@@ -83,42 +81,50 @@ def get_relative_file_location(file_url):
     return file_url.rsplit('/')[-1]
 
 
-# def main():
-#     parser = argparse.ArgumentParser()
-#     file_info,
-#     parser.add_argument(
-#         '--file_path', required=True, help='Path to the file to describe.'
-#     )
-#     parser.add_argument('--size', required=True, help='Size of the file in bytes.')
-#     parser.add_argument('--sha256', required=True, help='sha256 of the file.')
-#     parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
-#     parser.add_argument(
-#         '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
-#     )
-#     parser.add_argument(
-#         '--file_descriptor_schema_version',
-#         required=True,
-#         help='The metadata schema version that the file_descriptor conforms to.',
-#     )
-#     args = parser.parse_args()
-#
-#     schema_url = args.schema_url.strip('/')
-#
-#     links = build_file_descriptor(
-#         analysis_protocol_path=args.analysis_protocol_path,
-#         analysis_process_path=args.analysis_process_path,
-#         outputs_file_path=args.outputs_file_path,
-#         raw_schema_url=schema_url,
-#         file_descriptor_schema_version=args.file_descriptor_schema_version,
-#     )
-#
-#     # Write links to file
-#     print('Writing links.json to disk...')
-#     print(links)
-#     print("NOW")
-#     with open('links.json', 'w') as f:
-#         json.dump(links, f, indent=2, sort_keys=True)
-#
-#
-# if __name__ == '__main__':
-#     main()
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--file_path', required=True, help='Path to the file to describe.'
+    )
+    parser.add_argument('--size', required=True, help='Size of the file in bytes.')
+    parser.add_argument('--sha256', required=True, help='sha256 of the file.')
+    parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
+    parser.add_argument(
+        '--creation_time',
+        required=True,
+        help='Time of file creation, as reported by "gsutil ls -l"',
+    )
+    parser.add_argument(
+        '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
+    )
+    parser.add_argument(
+        '--file_descriptor_schema_version',
+        required=True,
+        help='The metadata schema version that the file_descriptor conforms to.',
+    )
+    args = parser.parse_args()
+
+    schema_url = args.schema_url.strip('/')
+
+    descriptor = build_file_descriptor(
+        file_path=args.file_path,
+        size=args.size,
+        sha256=args.sha256,
+        crc32c=args.crc32c,
+        raw_schema_url=schema_url,
+        file_descriptor_schema_version=args.file_descriptor_schema_version,
+    )
+
+    entity_id = descriptor['file_id']
+    file_version = descriptor['file_version']
+
+    # Write descriptor to file
+    with open(f'{entity_id}_{file_version}.json', 'w') as f:
+        json.dump(descriptor, f, indent=2, sort_keys=True)
+
+    with open(f'v5_uuid.txt', 'w') as f:
+        f.write(entity_id)
+
+
+if __name__ == '__main__':
+    main()
