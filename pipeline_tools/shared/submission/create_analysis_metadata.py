@@ -519,8 +519,8 @@ def main():
     parser.add_argument(
         '--references',
         help='List of UUIDs for the reference genome',
-        type=list,
         required=True,
+        nargs='+',
     )
     parser.add_argument(
         '--add_md5s', help='Set to "true" to add md5 checksums to file metadata'
