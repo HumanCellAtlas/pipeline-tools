@@ -3,9 +3,8 @@ import argparse
 import datetime
 import json
 import re
-import uuid
 
-from pipeline_tools.shared.submission.format_map import NAMESPACE
+from pipeline_tools.shared.submission.format_map import get_uuid5, convert_datetime
 
 
 def build_file_descriptor(
@@ -49,10 +48,6 @@ def build_file_descriptor(
     return file_descriptor
 
 
-def convert_datetime(creation_time):
-    return creation_time.replace('Z', '.000000Z')
-
-
 def get_datetime_from_file_info(file_info):
     """Retrieve the datetime from the file info string and convert into mandated
     format. Add '.000000' for microseconds"""
@@ -67,10 +62,6 @@ def get_datetime_from_file_info(file_info):
         original_datetime = datetime.datetime.utcnow().isoformat()
         formatted_datetime = original_datetime + 'Z'
     return formatted_datetime
-
-
-def get_uuid5(sha256):
-    return str(uuid.uuid5(NAMESPACE, sha256))
 
 
 def get_file_descriptor_described_by(schema_url, schema_version):

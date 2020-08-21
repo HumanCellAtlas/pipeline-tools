@@ -10,10 +10,16 @@ from pathlib import Path
 @pytest.fixture(scope='module')
 def test_data():
     class Data:
-        output_urls = {
-            'gs://foo/bar/Aligned.sortedByCoord.out.bam',
-            'gs://foo/bar/GSM1957573_rna_metrics',
-        }
+        output_urls = [
+            {
+                'sha256': '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251',
+                'file_path': 'gs://foo/bar/Aligned.sortedByCoord.out.bam',
+            },
+            {
+                'sha256': '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251',
+                'file_path': 'gs://foo/bar/GSM1957573_rna_metrics',
+            },
+        ]
         extension_to_format = {'.bam': 'bam', '_metrics': 'metrics'}
         outputs = [
             {
@@ -221,11 +227,12 @@ class TestCreateAnalysisMetadata(object):
         schema_url = '{}/type/file/{}/analysis_file'.format(
             test_data.schema_url, schema_version
         )
-        outputs_json = cam.get_outputs(
+        outputs_json = cam.create_analysis_files(
             test_data.output_urls,
             test_data.extension_to_format,
             test_data.schema_url,
             schema_version,
+            version='2020-08-10T14:24:26.174274-07:00',
         )
         self.verify_outputs(
             outputs_json, test_data.outputs, schema_url, include_md5s=False

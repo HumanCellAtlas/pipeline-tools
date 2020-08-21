@@ -9,7 +9,11 @@ from google.cloud import storage
 import re
 import uuid
 import arrow
-from pipeline_tools.shared.submission.format_map import EXTENSION_TO_FORMAT, NAMESPACE
+from pipeline_tools.shared.submission.format_map import (
+    EXTENSION_TO_FORMAT,
+    NAMESPACE,
+    get_uuid5,
+)
 
 
 def create_analysis_process(
@@ -144,7 +148,18 @@ def get_inputs(inputs_file):
     return inputs
 
 
-def get_outputs(output_urls, extension_to_format, schema_url, analysis_file_version):
+def get_outputs(outputs_file):
+    with open(outputs_file) as f:
+        reader = DictReader(
+            f, lineterminator='\n', delimiter=' ', fieldnames=['sha256', 'file_path']
+        )
+        outputs = [line for line in reader]
+    return outputs
+
+
+def create_analysis_files(
+    output_urls, extension_to_format, schema_url, analysis_file_version, version
+):
     """Creates outputs metadata array for analysis json.
 
     TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
@@ -161,20 +176,26 @@ def get_outputs(output_urls, extension_to_format, schema_url, analysis_file_vers
         outputs (List[dict]): Array of dicts representing outputs metadata in the format required for the analysis json
                               file
     """
-    outputs = [
+
+    # TODO: pass the creation date of each output instead of the workflow "version"
+    analysis_outputs = [
         {
             'describedBy': '{0}/type/file/{1}/analysis_file'.format(
                 schema_url, analysis_file_version
             ),
             'schema_type': 'file',
+            'provenance': {
+                'document_id': get_uuid5(output['sha256']),
+                'submission_date': version,
+            },
             'file_core': {
-                'file_name': output_url.split('/')[-1],
-                'format': get_file_format(output_url, extension_to_format),
+                'file_name': output['file_path'].split('/')[-1],
+                'format': get_file_format(output['file_path'], extension_to_format),
             },
         }
-        for output_url in sorted(output_urls)
+        for output in output_urls
     ]
-    return outputs
+    return analysis_outputs
 
 
 def get_input_urls(inputs):
@@ -507,7 +528,7 @@ def main():
     parser.add_argument(
         '--outputs_file',
         required=True,
-        help='Path to JSON file containing info about outputs.',
+        help='Path to tsv file containing info about outputs.',
     )
     parser.add_argument(
         '--version',
@@ -530,13 +551,14 @@ def main():
 
     # Get metadata for inputs and outputs
     inputs = get_inputs(args.inputs_file)
-    with open(args.outputs_file) as f:
-        output_urls = f.read().splitlines()
-    outputs = get_outputs(
-        output_urls=output_urls,
+
+    outputs = get_outputs(args.outputs_file)
+    analysis_outputs = create_analysis_files(
+        output_urls=outputs,
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
+        version=args.version,
     )
 
     # Add md5 checksums to input and output metadata if needed
@@ -549,16 +571,20 @@ def main():
         input_url_to_md5 = get_md5s(input_urls, client)
         inputs = add_md5s_to_inputs(inputs, input_url_to_md5)
 
+        output_urls = [line['file_path'] for line in outputs]
         output_url_to_md5 = get_md5s(output_urls, client)
         output_name_to_md5 = {
             url.split('/')[-1]: md5 for url, md5 in output_url_to_md5.items()
         }
-        outputs = add_md5s_to_outputs(outputs, output_name_to_md5)
+        analysis_outputs = add_md5s_to_outputs(analysis_outputs, output_name_to_md5)
 
     # Write outputs to file
-    print('Writing outputs.json to disk...')
-    with open('outputs.json', 'w') as f:
-        json.dump(outputs, f, indent=2, sort_keys=True)
+    print('Writing analysis_file output(s) json to disk...')
+    for output in analysis_outputs:
+        entity_id = output['provenance']['document_id']
+        version = output['provenance']['submission_date']
+        with open(f'{entity_id}_{version}.json', 'w') as f:
+            json.dump(analysis_outputs, f, indent=2, sort_keys=True)
 
     # Create analysis_process
     analysis_process = create_analysis_process(
