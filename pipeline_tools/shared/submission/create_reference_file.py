@@ -3,7 +3,7 @@ import argparse
 import json
 import uuid
 
-from pipeline_tools.shared.submission.format_map import EXTENSION_TO_FORMAT
+from pipeline_tools.shared.submission.format_map import EXTENSION_TO_FORMAT, NAMESPACE
 from pipeline_tools.shared.submission.create_analysis_metadata import get_file_format
 
 
@@ -65,7 +65,6 @@ def get_file_core(file_path):
 
 
 def get_uuid5(sha256):
-    NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
     return str(uuid.uuid5(NAMESPACE, sha256))
 
 

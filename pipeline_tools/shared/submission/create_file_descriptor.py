@@ -5,6 +5,8 @@ import json
 import re
 import uuid
 
+from pipeline_tools.shared.submission.format_map import NAMESPACE
+
 
 def build_file_descriptor(
     file_path,
@@ -68,7 +70,6 @@ def get_datetime_from_file_info(file_info):
 
 
 def get_uuid5(sha256):
-    NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
     return str(uuid.uuid5(NAMESPACE, sha256))
 
 

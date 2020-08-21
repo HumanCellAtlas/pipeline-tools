@@ -3,6 +3,8 @@ import argparse
 import json
 import uuid
 
+from pipeline_tools.shared.submission.format_map import NAMESPACE
+
 
 def build_links(
     analysis_protocol_path,
@@ -70,7 +72,6 @@ def create_process_link(protocol_dict, process_dict, outputs_file_path):
 
 
 def create_process_link_outputs(outputs_file_path):
-    NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
     outputs = []
 
     with open(outputs_file_path) as f:
@@ -122,6 +123,10 @@ def main():
         required=True,
         help='The metadata schema version that the links files conform to.',
     )
+    parser.add_argument(
+        '--workspace_version', required=True, help='The workspace version value'
+    )
+    parser.add_argument('--project_id', required=True, help='The project ID')
     args = parser.parse_args()
 
     schema_url = args.schema_url.strip('/')
@@ -135,10 +140,10 @@ def main():
     )
 
     # Write links to file
-    print('Writing links.json to disk...')
-    print(links)
-    print("NOW")
-    with open('links.json', 'w') as f:
+    string_to_hash = json.dumps(links, sort_keys=True)
+    subgraph_uuid = uuid.uuid5(NAMESPACE, string_to_hash)
+
+    with open(f'{subgraph_uuid}_{args.version}_{args.project_id}.json', 'w') as f:
         json.dump(links, f, indent=2, sort_keys=True)
 
 
