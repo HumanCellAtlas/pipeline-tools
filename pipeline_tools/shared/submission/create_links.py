@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import json
+import os
 import uuid
 
 from pipeline_tools.shared.submission.format_map import NAMESPACE
@@ -143,7 +144,10 @@ def main():
     string_to_hash = json.dumps(links, sort_keys=True)
     subgraph_uuid = uuid.uuid5(NAMESPACE, string_to_hash)
 
-    with open(f'{subgraph_uuid}_{args.version}_{args.project_id}.json', 'w') as f:
+    if not os.path.exists("links"):
+        os.mkdir("links")
+
+    with open(f'links/{subgraph_uuid}_{args.version}_{args.project_id}.json', 'w') as f:
         json.dump(links, f, indent=2, sort_keys=True)
 
 

@@ -3,6 +3,7 @@ import argparse
 import base64
 import codecs
 import json
+import os
 from copy import deepcopy
 from csv import DictReader
 from google.cloud import storage
@@ -580,10 +581,13 @@ def main():
 
     # Write outputs to file
     print('Writing analysis_file output(s) json to disk...')
+    if not os.path.exists("analysis_files"):
+        os.mkdir("analysis_files")
+
     for output in analysis_outputs:
         entity_id = output['provenance']['document_id']
         version = output['provenance']['submission_date']
-        with open(f'{entity_id}_{version}.json', 'w') as f:
+        with open(f'analysis_files/{entity_id}_{version}.json', 'w') as f:
             json.dump(analysis_outputs, f, indent=2, sort_keys=True)
 
     # Create analysis_process
@@ -606,10 +610,11 @@ def main():
 
     # Write analysis_process to file
     print('Writing analysis_process.json to disk...')
-    with open('analysis_process.json', 'w') as f:
+    if not os.path.exists("analysis_process"):
+        os.mkdir("analysis_process")
+
+    with open(f'analysis_process/{analysis_process_filename}.json', 'w') as f:
         json.dump(analysis_process, f, indent=2, sort_keys=True)
-    with open('analysis_process_filename.txt', 'w') as f:
-        f.write(analysis_process_filename)
 
     # Create analysis_protocol
     analysis_protocol = create_analysis_protocol(
@@ -628,10 +633,11 @@ def main():
 
     # Write analysis_protocol to file
     print('Writing analysis_protocol.json to disk...')
-    with open('analysis_protocol.json', 'w') as f:
+    if not os.path.exists("analysis_protocol"):
+        os.mkdir("analysis_protocol")
+
+    with open(f'analysis_protocol/{analysis_protocol_filename}.json', 'w') as f:
         json.dump(analysis_protocol, f, indent=2, sort_keys=True)
-    with open('analysis_protocol_filename.txt', 'w') as f:
-        f.write(analysis_protocol_filename)
 
 
 if __name__ == '__main__':
