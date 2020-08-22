@@ -103,6 +103,7 @@ def main():
         size=args.size,
         sha256=args.sha256,
         crc32c=args.crc32c,
+        creation_time=args.creation_time,
         raw_schema_url=schema_url,
         file_descriptor_schema_version=args.file_descriptor_schema_version,
     )
