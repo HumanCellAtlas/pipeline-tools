@@ -580,6 +580,10 @@ def main():
         analysis_outputs = add_md5s_to_outputs(analysis_outputs, output_name_to_md5)
 
     # Write outputs to file
+    print('Writing outputs.json to disk...')
+    with open('outputs.json', 'w') as f:
+        json.dump(analysis_outputs, f, indent=2, sort_keys=True)
+
     print('Writing analysis_file output(s) json to disk...')
     if not os.path.exists("analysis_files"):
         os.mkdir("analysis_files")

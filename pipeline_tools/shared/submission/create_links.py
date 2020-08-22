@@ -32,9 +32,6 @@ def build_links(
     with open(analysis_process_path) as f:
         analysis_process_dict = json.load(f)
 
-    with open(outputs_file_path) as f:
-        outputs_dict = json.load(f)
-
     process_link = create_process_link(
         protocol_dict=analysis_protocol_dict,
         process_dict=analysis_process_dict,
@@ -90,8 +87,6 @@ def create_process_link_outputs(outputs_file_path):
 
 def create_process_link_protocol(protocol_dict):
     protocols = []
-    print("PRINTING PROTOCOL DICT")
-    print(protocol_dict)
 
     protocol_type = (protocol_dict['type']['text'],)
     protocol_id = protocol_dict['provenance']['document_id']
@@ -128,6 +123,12 @@ def main():
         '--workspace_version', required=True, help='The workspace version value'
     )
     parser.add_argument('--project_id', required=True, help='The project ID')
+    parser.add_argument(
+        '--version',
+        required=True,
+        help='A version (or timestamp) attribute shared across all workflows'
+        'within an individual workspace.',
+    )
     args = parser.parse_args()
 
     schema_url = args.schema_url.strip('/')
