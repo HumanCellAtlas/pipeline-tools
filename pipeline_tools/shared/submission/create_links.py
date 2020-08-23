@@ -119,9 +119,6 @@ def main():
         required=True,
         help='The metadata schema version that the links files conform to.',
     )
-    parser.add_argument(
-        '--workspace_version', required=True, help='The workspace version value'
-    )
     parser.add_argument('--project_id', required=True, help='The project ID')
     parser.add_argument(
         '--version',
