@@ -592,7 +592,7 @@ def main():
         entity_id = output['provenance']['document_id']
         version = output['provenance']['submission_date']
         with open(f'analysis_files/{entity_id}_{version}.json', 'w') as f:
-            json.dump(analysis_outputs, f, indent=2, sort_keys=True)
+            json.dump(output, f, indent=2, sort_keys=True)
 
     # Create analysis_process
     analysis_process = create_analysis_process(
