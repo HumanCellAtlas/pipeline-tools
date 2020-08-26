@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import re
 import uuid
 
 from pipeline_tools.shared.submission.format_map import NAMESPACE
@@ -10,6 +11,7 @@ from pipeline_tools.shared.submission.format_map import NAMESPACE
 def build_links(
     analysis_protocol_path,
     analysis_process_path,
+    inputs_file_path,
     outputs_file_path,
     raw_schema_url,
     links_schema_version,
@@ -35,6 +37,7 @@ def build_links(
     process_link = create_process_link(
         protocol_dict=analysis_protocol_dict,
         process_dict=analysis_process_dict,
+        inputs_file_path=inputs_file_path,
         outputs_file_path=outputs_file_path,
     )
 
@@ -54,19 +57,42 @@ def get_links_described_by(schema_url, schema_version):
     return f'{schema_url}/system/{schema_version}/links'
 
 
-def create_process_link(protocol_dict, process_dict, outputs_file_path):
+def create_process_link(
+    protocol_dict, process_dict, inputs_file_path, outputs_file_path
+):
     LINK_TYPE = 'process_link'
 
     process_link = {
         'process_type': process_dict['describedBy'].split('/')[-1],
         'process_id': process_dict['process_core']['process_id'],
-        'inputs': process_dict['inputs'],
+        'inputs': create_process_link_inputs(inputs_file_path),
         'outputs': create_process_link_outputs(outputs_file_path),
         'protocols': create_process_link_protocol(protocol_dict),
         'link_type': LINK_TYPE,
     }
 
     return process_link
+
+
+def create_process_link_inputs(inputs_file_path):
+    SEQUENCING_INPUT_TYPE = 'sequence_file'
+    UUID_REGEX = r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
+    inputs = []
+
+    with open(inputs_file_path) as f:
+        inputs_dict = json.loads(f.read())
+
+    r1_fastqs = inputs_dict.get('r1_fastq')
+    r2_fastqs = inputs_dict.get('r2_fastq')
+    i1_fastqs = inputs_dict.get('i1_fastq')
+
+    sequencing_inputs = r1_fastqs + r2_fastqs + i1_fastqs
+
+    for file_path in sequencing_inputs:
+        u = re.findall(UUID_REGEX, file_path)[-1]
+        inputs.append({'input_type': SEQUENCING_INPUT_TYPE, 'input_id': u})
+
+    return inputs
 
 
 def create_process_link_outputs(outputs_file_path):
@@ -104,6 +130,9 @@ def main():
         help='Path to the analysis_process.json file.',
     )
     parser.add_argument(
+        '--inputs_file_path', required=True, help='Path to the inputs.json file.'
+    )
+    parser.add_argument(
         '--outputs_file_path', required=True, help='Path to the outputs.json file.'
     )
     parser.add_argument(
@@ -133,6 +162,7 @@ def main():
     links = build_links(
         analysis_protocol_path=args.analysis_protocol_path,
         analysis_process_path=args.analysis_process_path,
+        inputs_file_path=args.inputs_file_path,
         outputs_file_path=args.outputs_file_path,
         raw_schema_url=schema_url,
         links_schema_version=args.links_schema_version,

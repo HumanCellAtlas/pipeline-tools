@@ -552,6 +552,12 @@ def main():
 
     # Get metadata for inputs and outputs
     inputs = get_inputs(args.inputs_file)
+    inputs_json = json.load(args.metadata_json)['inputs']
+
+    # Write inputs_json to file
+    print('Writing inputs.json to disk...')
+    with open('inputs.json', 'w') as f:
+        json.dump(inputs_json, f, indent=2, sort_keys=True)
 
     outputs = get_outputs(args.outputs_file)
     analysis_outputs = create_analysis_files(
