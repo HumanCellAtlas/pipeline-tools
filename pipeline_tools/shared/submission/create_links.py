@@ -114,7 +114,7 @@ def create_process_link_outputs(outputs_file_path):
 def create_process_link_protocol(protocol_dict):
     protocols = []
 
-    protocol_type = (protocol_dict['type']['text'],)
+    protocol_type = protocol_dict['type']['text']
     protocol_id = protocol_dict['provenance']['document_id']
 
     protocols.append({'protocol_type': protocol_type, 'protocol_id': protocol_id})
