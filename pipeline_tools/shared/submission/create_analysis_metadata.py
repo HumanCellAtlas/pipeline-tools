@@ -552,7 +552,8 @@ def main():
 
     # Get metadata for inputs and outputs
     inputs = get_inputs(args.inputs_file)
-    inputs_json = json.load(args.metadata_json)['inputs']
+    with open(args.metadata_json) as f:
+        inputs_json = json.load(f)['inputs']
 
     # Write inputs_json to file
     print('Writing inputs.json to disk...')
