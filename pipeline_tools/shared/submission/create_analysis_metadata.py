@@ -624,7 +624,7 @@ def main():
     if not os.path.exists("analysis_process"):
         os.mkdir("analysis_process")
 
-    with open(f'analysis_process/{analysis_process_filename}.json', 'w') as f:
+    with open(f'analysis_process/{analysis_process_filename}', 'w') as f:
         json.dump(analysis_process, f, indent=2, sort_keys=True)
 
     # Create analysis_protocol
@@ -647,7 +647,7 @@ def main():
     if not os.path.exists("analysis_protocol"):
         os.mkdir("analysis_protocol")
 
-    with open(f'analysis_protocol/{analysis_protocol_filename}.json', 'w') as f:
+    with open(f'analysis_protocol/{analysis_protocol_filename}', 'w') as f:
         json.dump(analysis_protocol, f, indent=2, sort_keys=True)
 
 
