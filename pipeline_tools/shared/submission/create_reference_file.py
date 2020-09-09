@@ -104,7 +104,7 @@ def main():
     parser.add_argument(
         '--reference_type',
         required=True,
-        help='The type of the reference_vile',
+        help='The type of the reference_file',
         choices=[
             "genome sequence",
             "transcriptome sequence",

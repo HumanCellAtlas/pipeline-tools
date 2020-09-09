@@ -538,6 +538,11 @@ def main():
         'within an individual workspace.',
     )
     parser.add_argument(
+        '--analysis_timestamp',
+        required=True,
+        help='A version (or timestamp) attribute for the specific analysis file.',
+    )
+    parser.add_argument(
         '--references',
         help='List of UUIDs for the reference genome',
         required=True,
@@ -566,7 +571,7 @@ def main():
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
-        version=args.version,
+        version=args.analysis_timestamp,
     )
 
     # Add md5 checksums to input and output metadata if needed
