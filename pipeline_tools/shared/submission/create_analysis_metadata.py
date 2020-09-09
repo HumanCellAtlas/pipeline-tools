@@ -14,6 +14,7 @@ from pipeline_tools.shared.submission.format_map import (
     EXTENSION_TO_FORMAT,
     NAMESPACE,
     get_uuid5,
+    convert_datetime,
 )
 
 
@@ -187,7 +188,7 @@ def create_analysis_files(
             'schema_type': 'file',
             'provenance': {
                 'document_id': get_uuid5(output['sha256']),
-                'submission_date': version,
+                'submission_date': convert_datetime(version),
             },
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
