@@ -108,15 +108,12 @@ def main():
         file_descriptor_schema_version=args.file_descriptor_schema_version,
     )
 
-    entity_id = descriptor['file_id']
+    descriptor_entity_id = get_uuid5(descriptor['file_id'])
     file_version = descriptor['file_version']
 
     # Write descriptor to file
-    with open(f'{entity_id}_{file_version}.json', 'w') as f:
+    with open(f'{descriptor_entity_id}_{file_version}.json', 'w') as f:
         json.dump(descriptor, f, indent=2, sort_keys=True)
-
-    with open(f'v5_uuid.txt', 'w') as f:
-        f.write(entity_id)
 
 
 if __name__ == '__main__':
