@@ -199,7 +199,7 @@ def create_optimus_inputs_tsv_from_analysis_metadata(metadata_file):
         ['r2_fastq', metadata['inputs']['r2_fastq']],
         ['i1_fastq', metadata['inputs']['i1_fastq']],
         ['whitelist', metadata['inputs']['whitelist']],
-        ['sample_id', metadata['inputs']['sample_id']],
+        ['input_id', metadata['inputs']['input_id']],
         ['tar_star_reference', metadata['inputs']['tar_star_reference']],
         ['annotations_gtf', metadata['inputs']['annotations_gtf']],
         ['ref_genome_fasta', metadata['inputs']['ref_genome_fasta']],
