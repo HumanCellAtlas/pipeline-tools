@@ -15,5 +15,7 @@ RUN pip install -U setuptools
 
 RUN pip install . --trusted-host github.com
 
-# Instal crc32 for hash calculation
-RUN apt-get update && apt-get install libarchive-zip-perl
+# Install gsutil for crc32c hash calculation
+RUN curl -sSL https://sdk.cloud.google.com | bash
+
+ENV PATH $PATH:/root/google-cloud-sdk/bin
