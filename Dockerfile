@@ -15,12 +15,7 @@ RUN pip install -U setuptools
 
 RUN pip install . --trusted-host github.com
 
-# Install gsutil for crc32c hash calculation
+# Install gsutil to get crc32c and file size from cloud data
 RUN curl -sSL https://sdk.cloud.google.com | bash
-
-# Enable native crc32c
-RUN apt-get install gcc
-RUN pip uninstall crcmod
-RUN pip install --no-cache-dir -U crcmod
 
 ENV PATH $PATH:/root/google-cloud-sdk/bin
