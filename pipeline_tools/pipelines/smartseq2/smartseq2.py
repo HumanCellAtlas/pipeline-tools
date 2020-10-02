@@ -1,3 +1,6 @@
+import csv
+import json
+
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.shared.reference_id import ReferenceId
@@ -211,6 +214,7 @@ def _get_content_for_ss2_se_input_tsv(
     fastq_url = get_urls_to_files_for_ss2_se(primary_bundle)
     return fastq_url, sample_id
 
+
 def create_single_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
     with open(metadata_file) as f:
         metadata = json.load(f)
@@ -236,6 +240,7 @@ def create_single_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
         writer.writerow(HEADERS)
         writer.writerows(content)
 
+
 def create_multi_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
     with open(metadata_file) as f:
         metadata = json.load(f)
@@ -253,10 +258,11 @@ def create_multi_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
         ['input_ids', metadata['inputs']['input_ids']],
     ]
     if metadata['inputs'].get('fastq2_input_files'):
-        content.append(['fastq2_input_files', metadata['inputs'].get('fastq2_input_files')])
+        content.append(
+            ['fastq2_input_files', metadata['inputs'].get('fastq2_input_files')]
+        )
 
     with open('inputs.tsv', 'w') as inputs_tsv:
         writer = csv.writer(inputs_tsv, delimiter='\t')
         writer.writerow(HEADERS)
         writer.writerows(content)
-
