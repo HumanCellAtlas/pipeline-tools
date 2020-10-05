@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import itertools
 import json
 import os
 import re
@@ -77,16 +78,23 @@ def create_process_link(
 def create_process_link_inputs(inputs_file_path):
     SEQUENCING_INPUT_TYPE = 'sequence_file'
     UUID_REGEX = r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
+    LIST_FIELD_NAMES = ['fastq1_input_files', 'fastq2_input_files']
+    SINGLE_FIELD_NAMES = ['r1_fastq', 'r2_fastq', 'i1_fastq', 'fastq1', 'fastq2']
     inputs = []
 
     with open(inputs_file_path) as f:
         inputs_dict = json.loads(f.read())
 
-    r1_fastqs = inputs_dict.get('r1_fastq')
-    r2_fastqs = inputs_dict.get('r2_fastq')
-    i1_fastqs = inputs_dict.get('i1_fastq')
-
-    sequencing_inputs = r1_fastqs + r2_fastqs + i1_fastqs
+    # Get values for any matching list field names in input and flatten the results
+    sequencing_inputs = list(
+        itertools.chain.from_iterable(
+            [inputs_dict.get(f) for f in LIST_FIELD_NAMES if inputs_dict.get(f)]
+        )
+    )
+    # Add values for any matching individual field names in input
+    sequencing_inputs.extend(
+        [inputs_dict.get(f) for f in SINGLE_FIELD_NAMES if inputs_dict.get(f)]
+    )
 
     for file_path in sequencing_inputs:
         u = re.findall(UUID_REGEX, file_path)[-1]
