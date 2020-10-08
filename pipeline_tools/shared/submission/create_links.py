@@ -12,7 +12,7 @@ from pipeline_tools.shared.submission.format_map import NAMESPACE
 def build_links(
     analysis_protocol_path,
     analysis_process_path,
-    inputs_file_path,
+    input_uuids,
     outputs_file_path,
     raw_schema_url,
     links_schema_version,
@@ -38,7 +38,7 @@ def build_links(
     process_link = create_process_link(
         protocol_dict=analysis_protocol_dict,
         process_dict=analysis_process_dict,
-        inputs_file_path=inputs_file_path,
+        input_uuids=input_uuids,
         outputs_file_path=outputs_file_path,
     )
 
@@ -59,14 +59,14 @@ def get_links_described_by(schema_url, schema_version):
 
 
 def create_process_link(
-    protocol_dict, process_dict, inputs_file_path, outputs_file_path
+    protocol_dict, process_dict, input_uuids, outputs_file_path
 ):
     LINK_TYPE = 'process_link'
 
     process_link = {
         'process_type': process_dict['describedBy'].split('/')[-1],
         'process_id': process_dict['process_core']['process_id'],
-        'inputs': create_process_link_inputs(inputs_file_path),
+        'inputs': create_process_link_inputs(input_uuids),
         'outputs': create_process_link_outputs(outputs_file_path),
         'protocols': create_process_link_protocol(protocol_dict),
         'link_type': LINK_TYPE,
@@ -120,7 +120,7 @@ def main():
         help='Path to the analysis_process.json file.',
     )
     parser.add_argument(
-        '--inputs_file_path', required=True, help='Path to the inputs.json file.'
+        '--input_uuids', required=True, help='List of UUIDs.'
     )
     parser.add_argument(
         '--outputs_file_path', required=True, help='Path to the outputs.json file.'
@@ -152,7 +152,7 @@ def main():
     links = build_links(
         analysis_protocol_path=args.analysis_protocol_path,
         analysis_process_path=args.analysis_process_path,
-        inputs_file_path=args.inputs_file_path,
+        input_uuids=args.input_uuids,
         outputs_file_path=args.outputs_file_path,
         raw_schema_url=schema_url,
         links_schema_version=args.links_schema_version,
