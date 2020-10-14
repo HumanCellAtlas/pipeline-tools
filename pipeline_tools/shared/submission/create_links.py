@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import argparse
-import itertools
 import json
 import os
-import re
 import uuid
 
 from pipeline_tools.shared.submission.format_map import NAMESPACE
@@ -58,9 +56,7 @@ def get_links_described_by(schema_url, schema_version):
     return f'{schema_url}/system/{schema_version}/links'
 
 
-def create_process_link(
-    protocol_dict, process_dict, input_uuids, outputs_file_path
-):
+def create_process_link(protocol_dict, process_dict, input_uuids, outputs_file_path):
     LINK_TYPE = 'process_link'
 
     process_link = {
@@ -79,8 +75,8 @@ def create_process_link_inputs(input_uuids):
     SEQUENCING_INPUT_TYPE = 'sequence_file'
     inputs = []
 
-    for uuid in input_uuids:
-        inputs.append({'input_type': SEQUENCING_INPUT_TYPE, 'input_id': uuid})
+    for input_uuid in input_uuids:
+        inputs.append({'input_type': SEQUENCING_INPUT_TYPE, 'input_id': input_uuid})
 
     return inputs
 
@@ -120,7 +116,7 @@ def main():
         help='Path to the analysis_process.json file.',
     )
     parser.add_argument(
-        '--input_uuids', required=True, help='List of UUIDs.'
+        '--input_uuids', required=True, nargs='+', help='List of UUIDs.'
     )
     parser.add_argument(
         '--outputs_file_path', required=True, help='Path to the outputs.json file.'
