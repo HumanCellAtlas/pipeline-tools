@@ -153,14 +153,17 @@ def get_inputs(inputs_file):
 def get_outputs(outputs_file):
     with open(outputs_file) as f:
         reader = DictReader(
-            f, lineterminator='\n', delimiter=' ', fieldnames=['sha256', 'file_path']
+            f,
+            lineterminator='\n',
+            delimiter=' ',
+            fieldnames=['sha256', 'file_path', 'timestamp'],
         )
         outputs = [line for line in reader]
     return outputs
 
 
 def create_analysis_files(
-    output_urls, extension_to_format, schema_url, analysis_file_version, version
+    output_urls, extension_to_format, schema_url, analysis_file_version
 ):
     """Creates outputs metadata array for analysis json.
 
@@ -188,7 +191,7 @@ def create_analysis_files(
             'schema_type': 'file',
             'provenance': {
                 'document_id': get_uuid5(output['sha256']),
-                'submission_date': convert_datetime(version),
+                'submission_date': convert_datetime(output['timestamp']),
             },
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
@@ -539,11 +542,6 @@ def main():
         'within an individual workspace.',
     )
     parser.add_argument(
-        '--analysis_timestamp',
-        required=True,
-        help='A version (or timestamp) attribute for the specific analysis file.',
-    )
-    parser.add_argument(
         '--references',
         help='List of UUIDs for the reference genome',
         required=True,
@@ -572,7 +570,6 @@ def main():
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
-        version=args.analysis_timestamp,
     )
 
     # Add md5 checksums to input and output metadata if needed
