@@ -182,7 +182,6 @@ def create_analysis_files(
                               file
     """
 
-    # TODO: pass the creation date of each output instead of the workflow "version"
     analysis_outputs = [
         {
             'describedBy': '{0}/type/file/{1}/analysis_file'.format(
