@@ -598,7 +598,7 @@ def main():
         os.mkdir("analysis_files")
 
     for output in analysis_outputs:
-        entity_id = get_uuid5(output['provenance']['document_id'])
+        entity_id = output['provenance']['document_id']
         version = output['provenance']['submission_date']
         with open(f'analysis_files/{entity_id}_{version}.json', 'w') as f:
             json.dump(output, f, indent=2, sort_keys=True)

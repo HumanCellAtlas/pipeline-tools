@@ -98,17 +98,17 @@ def main():
 
     schema_url = args.schema_url.strip('/')
 
+    descriptor_entity_id = get_uuid5(args.sha256)
     descriptor = build_file_descriptor(
         file_path=args.file_path,
         size=args.size,
-        sha256=args.sha256,
+        sha256=descriptor_entity_id,
         crc32c=args.crc32c,
         creation_time=args.creation_time,
         raw_schema_url=schema_url,
         file_descriptor_schema_version=args.file_descriptor_schema_version,
     )
 
-    descriptor_entity_id = get_uuid5(descriptor['file_id'])
     file_version = descriptor['file_version']
 
     # Write descriptor to file
