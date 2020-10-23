@@ -34,7 +34,7 @@ def build_reference_file(
     """
 
     SCHEMA_TYPE = 'file'
-    entity_id = get_uuid5(get_uuid5(sha256))
+    entity_id = get_uuid5(sha256)
     formatted_version = convert_datetime(version)
 
     reference_file = {
