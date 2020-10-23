@@ -475,7 +475,7 @@ def get_analysis_protocol_type():
     Returns:
         analysis_protocol_type (dict): The protocol_type metadata for analysis_protocol.
     """
-    analysis_protocol_type = {'text': 'analysis'}
+    analysis_protocol_type = {'text': 'analysis_protocol'}
     return analysis_protocol_type
 
 
