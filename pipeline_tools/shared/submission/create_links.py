@@ -88,9 +88,8 @@ def create_process_link_outputs(outputs_file_path):
         outputs_dict = json.load(f)
 
     for file_ref in outputs_dict:
-        string_to_hash = json.dumps(file_ref, sort_keys=True)
         output_type = file_ref['describedBy'].split('/')[-1]
-        output_id = str(uuid.uuid5(NAMESPACE, string_to_hash))
+        output_id = file_ref['provenance']['document_id']
 
         outputs.append({'output_type': output_type, 'output_id': output_id})
 
