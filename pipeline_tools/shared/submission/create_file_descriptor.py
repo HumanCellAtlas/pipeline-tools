@@ -27,7 +27,7 @@ def build_file_descriptor(
     """
 
     SCHEMA_TYPE = 'file_descriptor'
-    entity_id = get_uuid5(sha256)
+    file_id = get_uuid5(get_uuid5(sha256))
     file_version = convert_datetime(creation_time)
 
     file_descriptor = {
@@ -40,7 +40,7 @@ def build_file_descriptor(
         'size': int(size),
         'sha256': sha256,
         'crc32c': crc32c,
-        'file_id': entity_id,
+        'file_id': file_id,
         'file_version': file_version,
         'file_name': get_relative_file_location(file_path),
     }
@@ -102,7 +102,7 @@ def main():
     descriptor = build_file_descriptor(
         file_path=args.file_path,
         size=args.size,
-        sha256=descriptor_entity_id,
+        sha256=args.sha256,
         crc32c=args.crc32c,
         creation_time=args.creation_time,
         raw_schema_url=schema_url,
