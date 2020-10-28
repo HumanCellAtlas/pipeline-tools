@@ -12,8 +12,6 @@ def build_file_descriptor(
     size,
     sha256,
     crc32c,
-    sha1,
-    s3_etag,
     creation_time,
     raw_schema_url,
     file_descriptor_schema_version,
@@ -42,8 +40,6 @@ def build_file_descriptor(
         'size': int(size),
         'sha256': sha256,
         'crc32c': crc32c,
-        'sha1': sha1,
-        's3_etag': s3_etag,
         'file_id': file_id,
         'file_version': file_version,
         'file_name': get_relative_file_location(file_path),
@@ -85,8 +81,6 @@ def main():
     parser.add_argument('--size', required=True, help='Size of the file in bytes.')
     parser.add_argument('--sha256', required=True, help='sha256 of the file.')
     parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
-    parser.add_argument('--sha1', required=True, help='sha1 of the file.')
-    parser.add_argument('--s3_etag', required=True, help='s3_etag (md5) of the file.')
     parser.add_argument(
         '--creation_time',
         required=True,
@@ -110,8 +104,6 @@ def main():
         size=args.size,
         sha256=args.sha256,
         crc32c=args.crc32c,
-        sha1=args.sha1,
-        s3_etag=args.s3_etag,
         creation_time=args.creation_time,
         raw_schema_url=schema_url,
         file_descriptor_schema_version=args.file_descriptor_schema_version,
