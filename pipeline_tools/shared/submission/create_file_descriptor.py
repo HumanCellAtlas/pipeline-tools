@@ -19,9 +19,11 @@ def build_file_descriptor(
     """Create the submission envelope in Ingest service.
 
     Args:
-        analysis_protocol_path (str): Path to the analysis_protocol json file.
-        analysis_process_path (str): Path to the analysis_process json file.
-        outputs_file_path (str): Path to the outputs json file.
+        file_path (str): Path to the described file.
+        size (str): Size of the described file in bytes.
+        sha256 (str): sha256 hash value of the described file.
+        crc32c (str): crc32c hash value of the described file.
+        creation_time (str): Timestamp of the creation time of the described file.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         file_descriptor_schema_version (str): Version of the metadata schema that the file_descriptor.json conforms to.
     """
@@ -51,8 +53,6 @@ def build_file_descriptor(
 def get_datetime_from_file_info(file_info):
     """Retrieve the datetime from the file info string and convert into mandated
     format. Add '.000000' for microseconds"""
-
-    # TODO: Get rid of the need for this workaround (fix wdl)
 
     regex = r'([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z)'
     try:

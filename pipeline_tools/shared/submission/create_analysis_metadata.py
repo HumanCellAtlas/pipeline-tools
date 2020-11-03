@@ -48,6 +48,8 @@ def create_analysis_process(
         inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
         run_type (str): Indicator of whether the analysis actually ran or was just copied forward as an optimization.
                         Should be either "run" or "copy-forward".
+        version (str): A version (or timestamp) attribute shared across all workflows within an individual workspace.
+        references (List[str]): List of UUIDs for the reference genome (or other reference files)
 
     Returns:
         analysis_process (dict): A dict representing the analysis_process json file to be submitted.
@@ -99,6 +101,7 @@ def create_analysis_protocol(
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         analysis_protocol_schema_version (str): Version of the metadata schema that the analysis_protocol conforms to.
         method (str): The name of the analysis workflow, e.g. "SmartSeq2SingleCell"
+        version (str): A version (or timestamp) attribute shared across all workflows within an individual workspace.
 
     Returns:
         analysis_protocol (dict): A dict representing the analysis_protocol json file to be submitted.

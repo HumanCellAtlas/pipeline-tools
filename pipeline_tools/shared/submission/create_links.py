@@ -20,6 +20,7 @@ def build_links(
     Args:
         analysis_protocol_path (str): Path to the analysis_protocol json file.
         analysis_process_path (str): Path to the analysis_process json file.
+        input_uuids (List[str]): List of UUIDs for the input files.
         outputs_file_path (str): Path to the outputs json file.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         links_schema_version (str): Version of the metadata schema that the links.json conforms to.

@@ -26,9 +26,9 @@ def build_reference_file(
     """Create the submission envelope in Ingest service.
 
     Args:
-        analysis_protocol_path (str): Path to the analysis_protocol json file.
-        analysis_process_path (str): Path to the analysis_process json file.
-        outputs_file_path (str): Path to the outputs json file.
+        file_path (str): Path to the reference file.
+        sha256 (str): sha256 hash value of the reference file.
+        reference_type (str): type of the reference file (e.g. )
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         reference_file_schema_version (str): Version of the metadata schema that the file_descriptor.json conforms to.
     """
