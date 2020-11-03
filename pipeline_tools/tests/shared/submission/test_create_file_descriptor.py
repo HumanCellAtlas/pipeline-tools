@@ -53,6 +53,6 @@ class TestCreateAnalysisMetadata(object):
             == '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251'
         )
         assert file_descriptor.get('crc32c') == '0b83b575'
-        assert file_descriptor.get('file_id') == '70b63891-dc06-520d-b98a-e4df0496e68a'
+        assert file_descriptor.get('file_id') == '00885a60-a7d4-51ab-b213-b55853644960'
         assert file_descriptor.get('file_version') == '2020-08-10T14:24:26.174274-07:00'
         assert file_descriptor.get('file_name') == 'path.fasta'

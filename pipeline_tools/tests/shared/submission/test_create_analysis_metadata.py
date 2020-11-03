@@ -130,7 +130,7 @@ class TestCreateAnalysisMetadata(object):
         assert analysis_protocol.get('schema_type') == 'protocol'
         assert (
             analysis_protocol.get('provenance').get('document_id')
-            == '4364cc4a-64e6-5732-9e3b-63ac2f385f10'
+            == 'edfee4d4-b1b2-5386-9244-d528ef36cffb'
         )
 
     def test_get_inputs(self, data_file, test_data):
@@ -254,7 +254,7 @@ class TestCreateAnalysisMetadata(object):
 
     def test_get_analysis_protocol_type(self):
         analysis_protocol_type = cam.get_analysis_protocol_type()
-        expected_analysis_protocol_type = {'text': 'analysis'}
+        expected_analysis_protocol_type = {'text': 'analysis_protocol'}
         assert analysis_protocol_type == expected_analysis_protocol_type
 
     def verify_inputs(self, inputs, test_data, include_checksum=True):

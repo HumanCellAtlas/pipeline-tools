@@ -1,0 +1,1249 @@
+{
+  "calls": {
+    "SmartSeq2SingleCell.CollectDuplicationMetrics": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectDuplicationMetrics/CollectDuplicationMetrics.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "C7C3DCA2003ABA0804A6C92E8DD50CAD",
+            "input": {
+              "File aligned_bam": "iPQhmA==",
+              "Int __command_mem_mb": "8CE6FC704072E351679AC97D4A985574",
+              "Int __disk": "6512BD43D9CAA6E02C990B0A82652DCA",
+              "Int cpu": "C81E728D9D4C2F636F067F89CC14862C",
+              "Int machine_mem_mb": "B0D336331AE52D66769BB655C37032C6",
+              "Int preemptible": "E4DA3B7FBBCE2345D7772B0674A318D5",
+              "String docker": "75866B18C82F59D5F62A9EA344204D8F",
+              "String output_basename": "706451003F3A3652056106D6D80F764E"
+            },
+            "input count": "C9F0F895FB98AB9159F51FD0297E236D",
+            "output count": "C4CA4238A0B923820DCC509A6F75849B",
+            "output expression": {
+              "File dedup_metrics": "3BB9234587C9A2D633683AD121D3D4B4"
+            },
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "51A2B4FE3E91472F019F0FAADDFBBB99",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: c89fa396-3d4b-492a-ba09-b75d6977b8a0:SmartSeq2SingleCell.CollectDuplicationMetrics:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectDuplicationMetrics",
+        "end": "2020-10-20T17:55:43.477Z",
+        "executionEvents": [
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:55:26.581Z",
+            "startTime": "2020-10-20T17:55:25.641Z"
+          },
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:55:43.477Z",
+            "startTime": "2020-10-20T17:55:42.518Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:55:40.201Z",
+            "startTime": "2020-10-20T17:55:30.436Z"
+          },
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:55:26.581Z",
+            "startTime": "2020-10-20T17:55:26.581Z"
+          },
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:55:25.641Z",
+            "startTime": "2020-10-20T17:55:25.641Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:55:30.436Z",
+            "startTime": "2020-10-20T17:55:26.581Z"
+          },
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:55:42.518Z",
+            "startTime": "2020-10-20T17:55:40.201Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "__command_mem_mb": 7250,
+          "__disk": 11,
+          "aligned_bam": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bam",
+          "command_mem_mb": null,
+          "cpu": 2,
+          "disk": null,
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "machine_mem_mb": 8250,
+          "output_basename": "00027d78-bcde-444c-b51c-b7446cdf9ea9_qc",
+          "preemptible": 5
+        },
+        "outputs": {
+          "dedup_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectDuplicationMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.duplicate_metrics.txt"
+        },
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "2",
+          "cpuMin": "1",
+          "disks": "local-disk 11 HDD",
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "8.056640625 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "5",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:55:25.641Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectDuplicationMetrics/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectDuplicationMetrics/stdout"
+      }
+    ],
+    "SmartSeq2SingleCell.CollectMultipleMetrics": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/CollectMultipleMetrics.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "93477881692923EEC63EB02048435000",
+            "input": {
+              "File aligned_bam": "iPQhmA==",
+              "File genome_ref_fasta": "2IJvhA==",
+              "Int __command_mem_mb": "8CE6FC704072E351679AC97D4A985574",
+              "Int __disk": "C51CE410C124A10E0DB5E4B97FC2AF39",
+              "Int cpu": "C4CA4238A0B923820DCC509A6F75849B",
+              "Int machine_mem_mb": "B0D336331AE52D66769BB655C37032C6",
+              "Int preemptible": "E4DA3B7FBBCE2345D7772B0674A318D5",
+              "String docker": "75866B18C82F59D5F62A9EA344204D8F",
+              "String output_basename": "706451003F3A3652056106D6D80F764E"
+            },
+            "input count": "45C48CCE2E2D7FBDEA1AFC51C7C6AD26",
+            "output count": "70EFDF2EC9B086079795C442636B55FB",
+            "output expression": {
+              "Array(File) insert_size_hist": "19254FA1718B39806CB8FEC98758587B",
+              "Array(Optional(File)) insert_size_metrics": "3E99D371E1DB4D99BBB804C6537D6ABD",
+              "File alignment_summary_metrics": "AB8A4D496D6A7BB1CA8A2085D9F03E0F",
+              "File bait_bias_detail_metrics": "2ED4BA84E8010508776FDD1BB3706977",
+              "File bait_bias_summary_metrics": "3100842529AD05FD9BE850B991ED21D0",
+              "File base_call_dist_metrics": "4AAFF11117DC4920CF940A41361F21D5",
+              "File base_call_pdf": "24215E1826283103962241CB09239461",
+              "File error_summary_metrics": "FE98282A94AA3A426DF2A2C16A62DD90",
+              "File gc_bias_detail_metrics": "6B5953E4AAD15449F12BBCEC911EC4C6",
+              "File gc_bias_dist_pdf": "3BF62AB0F480B124DA4F0A096C4CC32E",
+              "File gc_bias_summary_metrics": "50EF7136719104AFCAA6A70C9BB79784",
+              "File pre_adapter_details_metrics": "AF07C7DB9709475F887FB30A3F2597E0",
+              "File pre_adapter_summary_metrics": "FF0E11039667B7E27D6656EBEA2B7D25",
+              "File quality_by_cycle_metrics": "24EBAA4AA8A3E4B02D9527C5A1075057",
+              "File quality_by_cycle_pdf": "74D8503E047A269BBB9B64782B373545",
+              "File quality_distribution_dist_pdf": "6EB7A4D225C050B675DC56DA7F9B48C5",
+              "File quality_distribution_metrics": "CAD5EAACE0CCFEF5F147399128EB11E2"
+            },
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "51A2B4FE3E91472F019F0FAADDFBBB99",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: c89fa396-3d4b-492a-ba09-b75d6977b8a0:SmartSeq2SingleCell.CollectMultipleMetrics:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics",
+        "end": "2020-10-20T17:55:46.478Z",
+        "executionEvents": [
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:55:45.519Z",
+            "startTime": "2020-10-20T17:55:45.277Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:55:35.093Z",
+            "startTime": "2020-10-20T17:55:26.581Z"
+          },
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:55:26.581Z",
+            "startTime": "2020-10-20T17:55:26.581Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:55:45.277Z",
+            "startTime": "2020-10-20T17:55:35.093Z"
+          },
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:55:46.478Z",
+            "startTime": "2020-10-20T17:55:45.519Z"
+          },
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:55:26.581Z",
+            "startTime": "2020-10-20T17:55:25.641Z"
+          },
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:55:25.641Z",
+            "startTime": "2020-10-20T17:55:25.641Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "__command_mem_mb": 7250,
+          "__disk": 13,
+          "aligned_bam": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bam",
+          "command_mem_mb": null,
+          "cpu": 1,
+          "disk": null,
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "genome_ref_fasta": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa",
+          "machine_mem_mb": 8250,
+          "output_basename": "00027d78-bcde-444c-b51c-b7446cdf9ea9_qc",
+          "preemptible": 5
+        },
+        "outputs": {
+          "alignment_summary_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.alignment_summary_metrics.txt",
+          "bait_bias_detail_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bait_bias_detail_metrics.txt",
+          "bait_bias_summary_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bait_bias_summary_metrics.txt",
+          "base_call_dist_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.base_distribution_by_cycle_metrics.txt",
+          "base_call_pdf": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.base_distribution_by_cycle.pdf",
+          "error_summary_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.error_summary_metrics.txt",
+          "gc_bias_detail_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.gc_bias.detail_metrics.txt",
+          "gc_bias_dist_pdf": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.gc_bias.pdf",
+          "gc_bias_summary_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.gc_bias.summary_metrics.txt",
+          "insert_size_hist": [
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/glob-4cd8bbeba9bbb4195a2bd592e4d2002c/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.insert_size_histogram.pdf"
+          ],
+          "insert_size_metrics": [
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/glob-d5c283fceaafce13e93a40c09c21eadc/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.insert_size_metrics.txt"
+          ],
+          "pre_adapter_details_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.pre_adapter_detail_metrics.txt",
+          "pre_adapter_summary_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.pre_adapter_summary_metrics.txt",
+          "quality_by_cycle_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.quality_by_cycle_metrics.txt",
+          "quality_by_cycle_pdf": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.quality_by_cycle.pdf",
+          "quality_distribution_dist_pdf": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.quality_distribution.pdf",
+          "quality_distribution_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.quality_distribution_metrics.txt"
+        },
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "disks": "local-disk 13 HDD",
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "8.056640625 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "5",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:55:25.641Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/stdout"
+      }
+    ],
+    "SmartSeq2SingleCell.CollectRnaMetrics": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectRnaMetrics/CollectRnaMetrics.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "72DBD6CC9D919F0CBD5A08A8A07AEEF0",
+            "input": {
+              "File aligned_bam": "iPQhmA==",
+              "File ref_flat": "T8PAgg==",
+              "File rrna_intervals": "HXqRkQ==",
+              "Int __command_mem_mb": "B7EE0D0D4D5EF995AAE0FC691E6D840D",
+              "Int __disk": "6512BD43D9CAA6E02C990B0A82652DCA",
+              "Int cpu": "C4CA4238A0B923820DCC509A6F75849B",
+              "Int machine_mem_mb": "F550E0BA9E1C4E8BB4A5ED0AC23A952D",
+              "Int preemptible": "E4DA3B7FBBCE2345D7772B0674A318D5",
+              "String docker": "75866B18C82F59D5F62A9EA344204D8F",
+              "String output_basename": "706451003F3A3652056106D6D80F764E",
+              "String stranded": "64B6E96BF8055F91AE7EB09DD7CAE7C3"
+            },
+            "input count": "6512BD43D9CAA6E02C990B0A82652DCA",
+            "output count": "C81E728D9D4C2F636F067F89CC14862C",
+            "output expression": {
+              "File rna_coverage_pdf": "05678FA4FBA5C0C06D5BAE190FF1CFA8",
+              "File rna_metrics": "E585AF501CDD75D16CFFD32828935AE1"
+            },
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "51A2B4FE3E91472F019F0FAADDFBBB99",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: c89fa396-3d4b-492a-ba09-b75d6977b8a0:SmartSeq2SingleCell.CollectRnaMetrics:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectRnaMetrics",
+        "end": "2020-10-20T17:55:52.479Z",
+        "executionEvents": [
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:55:52.478Z",
+            "startTime": "2020-10-20T17:55:51.523Z"
+          },
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:55:51.523Z",
+            "startTime": "2020-10-20T17:55:50.275Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:55:50.275Z",
+            "startTime": "2020-10-20T17:55:40.231Z"
+          },
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:55:25.641Z",
+            "startTime": "2020-10-20T17:55:25.641Z"
+          },
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:55:26.581Z",
+            "startTime": "2020-10-20T17:55:26.581Z"
+          },
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:55:26.581Z",
+            "startTime": "2020-10-20T17:55:25.641Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:55:40.231Z",
+            "startTime": "2020-10-20T17:55:26.581Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "__command_mem_mb": 3350,
+          "__disk": 11,
+          "aligned_bam": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bam",
+          "command_mem_mb": null,
+          "cpu": 1,
+          "disk": null,
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "machine_mem_mb": 3850,
+          "output_basename": "00027d78-bcde-444c-b51c-b7446cdf9ea9_qc",
+          "preemptible": 5,
+          "ref_flat": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt",
+          "rrna_intervals": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode.v27.rRNA.interval_list",
+          "stranded": "NONE"
+        },
+        "outputs": {
+          "rna_coverage_pdf": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectRnaMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.rna.coverage.pdf",
+          "rna_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectRnaMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.rna_metrics.txt"
+        },
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "disks": "local-disk 11 HDD",
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "3.759765625 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "5",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:55:25.641Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectRnaMetrics/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectRnaMetrics/stdout"
+      }
+    ],
+    "SmartSeq2SingleCell.GroupQCOutputs": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/GroupQCOutputs.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "0E502E7F405001A90ABCFC49B7156765",
+            "input": {
+              "File hisat2_stats": "MWwhaA==",
+              "File hisat2_trans_stats": "dHFm4A==",
+              "File picard_row_optional_outputs": [
+                "zO7gMQ=="
+              ],
+              "File picard_row_outputs": [
+                "ThI0SA==",
+                "5Wpt0w==",
+                "9FJmNQ==",
+                "3cmZEA=="
+              ],
+              "File picard_table_outputs": [
+                "Ru0QWA==",
+                "0oSGkA==",
+                "DRk/aQ==",
+                "Wznb8g==",
+                "yQx66A==",
+                "zTianw=="
+              ],
+              "File rsem_stats": "bKp4Jw==",
+              "Int cpu": "C4CA4238A0B923820DCC509A6F75849B",
+              "Int disk_space": "98F13708210194C475687BE6106A3B84",
+              "Int mem": "ECCBC87E4B5CE2FE28308FD9F2A7BAF3",
+              "Int preemptible": "E4DA3B7FBBCE2345D7772B0674A318D5",
+              "String docker": "C4144083B6B264CD36F49B11957E1EF0",
+              "String output_name": "9F8890FC412B63A78CE2606C511E9E68"
+            },
+            "input count": "98F13708210194C475687BE6106A3B84",
+            "output count": "C4CA4238A0B923820DCC509A6F75849B",
+            "output expression": {
+              "Array(File) group_files": "082AD0B83206BD24B9BF459E3720CF74"
+            },
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "7C99A5732DDFBEDD1CC07DF6C3B7CF40",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: c89fa396-3d4b-492a-ba09-b75d6977b8a0:SmartSeq2SingleCell.GroupQCOutputs:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs",
+        "end": "2020-10-20T17:56:07.475Z",
+        "executionEvents": [
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:56:06.519Z",
+            "startTime": "2020-10-20T17:56:05.260Z"
+          },
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:55:55.221Z",
+            "startTime": "2020-10-20T17:55:55.221Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:55:55.944Z",
+            "startTime": "2020-10-20T17:55:55.581Z"
+          },
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:55:55.581Z",
+            "startTime": "2020-10-20T17:55:55.221Z"
+          },
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:56:07.475Z",
+            "startTime": "2020-10-20T17:56:06.519Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:56:05.260Z",
+            "startTime": "2020-10-20T17:55:55.944Z"
+          },
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:55:55.581Z",
+            "startTime": "2020-10-20T17:55:55.581Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "cpu": 1,
+          "disk_space": 20,
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4",
+          "hisat2_stats": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.log",
+          "hisat2_trans_stats": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.log",
+          "mem": 3,
+          "output_name": "00027d78-bcde-444c-b51c-b7446cdf9ea9",
+          "picard_row_optional_outputs": [
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/glob-d5c283fceaafce13e93a40c09c21eadc/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.insert_size_metrics.txt"
+          ],
+          "picard_row_outputs": [
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.alignment_summary_metrics.txt",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectDuplicationMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.duplicate_metrics.txt",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectRnaMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.rna_metrics.txt",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.gc_bias.summary_metrics.txt"
+          ],
+          "picard_table_outputs": [
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.base_distribution_by_cycle_metrics.txt",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.gc_bias.detail_metrics.txt",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.pre_adapter_detail_metrics.txt",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.pre_adapter_summary_metrics.txt",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bait_bias_detail_metrics.txt",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.error_summary_metrics.txt"
+          ],
+          "preemptible": 5,
+          "rsem_stats": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.stat/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.cnt"
+        },
+        "outputs": {
+          "group_files": [
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_QCs.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_bait_bias_detail_metrics.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_base_distribution_by_cycle_metrics.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_error_summary_metrics.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_gc_bias.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_pre_adapter_detail_metrics.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_pre_adapter_summary_metrics.csv"
+          ]
+        },
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "disks": "local-disk 20 HDD",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "3 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "5",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:55:55.221Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/stdout"
+      }
+    ],
+    "SmartSeq2SingleCell.HISAT2PairedEnd": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/HISAT2PairedEnd.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "7F57FDC28C3DD91A88BDCC806AF3A4CF",
+            "input": {
+              "File fastq1": "32e9aec1",
+              "File fastq2": "0f801cd0",
+              "File hisat2_ref": "5hzDkA==",
+              "Int __disk": "4E732CED3463D06DE0CA9A15B6153677",
+              "Int cpu": "A87FF679A2F3E71D9181A67B7542122C",
+              "Int machine_mem_mb": "1C474E7B437A3729231A4105790A6340",
+              "Int preemptible": "E4DA3B7FBBCE2345D7772B0674A318D5",
+              "String docker": "87E05A3C035269C96A52538C44E798B2",
+              "String input_id": "9F8890FC412B63A78CE2606C511E9E68",
+              "String output_basename": "706451003F3A3652056106D6D80F764E",
+              "String ref_name": "CAE7173BDF9AD055114D8DA5FBC2E05F"
+            },
+            "input count": "6512BD43D9CAA6E02C990B0A82652DCA",
+            "output count": "A87FF679A2F3E71D9181A67B7542122C",
+            "output expression": {
+              "File bam_index": "092BD9E1D811D8424052D06DDA44759E",
+              "File log_file": "AEDDCDA22821BE4F64E4032BF0A80CC4",
+              "File met_file": "6973D7B704524E1B6867B4A51D2561A2",
+              "File output_bam": "3C53D2D8764D7F4B2E25D46ABAE0D251"
+            },
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "10A098669A5EF4B37B2B2C713AB8B95F",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: c89fa396-3d4b-492a-ba09-b75d6977b8a0:SmartSeq2SingleCell.HISAT2PairedEnd:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd",
+        "end": "2020-10-20T17:55:22.475Z",
+        "executionEvents": [
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:55:07.581Z",
+            "startTime": "2020-10-20T17:55:07.581Z"
+          },
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:55:07.281Z",
+            "startTime": "2020-10-20T17:55:07.281Z"
+          },
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:55:07.581Z",
+            "startTime": "2020-10-20T17:55:07.281Z"
+          },
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:55:21.519Z",
+            "startTime": "2020-10-20T17:55:20.232Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:55:10.460Z",
+            "startTime": "2020-10-20T17:55:07.581Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:55:20.232Z",
+            "startTime": "2020-10-20T17:55:10.460Z"
+          },
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:55:22.475Z",
+            "startTime": "2020-10-20T17:55:21.519Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "__disk": 26,
+          "cpu": 4,
+          "disk": null,
+          "docker": "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0",
+          "fastq1": "drs://jade.datarepo-dev.broadinstitute.org/v1_d9e82d6c-738d-449a-b3e5-abe27915fa3f_52ad0ff3-7699-4d55-bec2-6e2ae41018bf",
+          "fastq2": "drs://jade.datarepo-dev.broadinstitute.org/v1_d9e82d6c-738d-449a-b3e5-abe27915fa3f_78887e44-554c-4a7d-b903-6fb2a39cd169",
+          "hisat2_ref": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/HISAT2/genome_snp_tran.tar.gz",
+          "input_id": "00027d78-bcde-444c-b51c-b7446cdf9ea9",
+          "machine_mem_mb": 16500,
+          "output_basename": "00027d78-bcde-444c-b51c-b7446cdf9ea9_qc",
+          "preemptible": 5,
+          "ref_name": "genome_snp_tran"
+        },
+        "outputs": {
+          "bam_index": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bam.bai",
+          "log_file": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.log",
+          "met_file": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.hisat2.met.txt",
+          "output_bam": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bam"
+        },
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "4",
+          "cpuMin": "1",
+          "disks": "local-disk 26 HDD",
+          "docker": "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "16.11328125 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "5",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:55:07.281Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/stdout"
+      }
+    ],
+    "SmartSeq2SingleCell.HISAT2Transcriptome": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/HISAT2Transcriptome.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "484DC4AD76F87D96672CC127A8F2F066",
+            "input": {
+              "File fastq1": "32e9aec1",
+              "File fastq2": "0f801cd0",
+              "File hisat2_ref": "YHrJgg==",
+              "Int __disk": "6F4922F45568161A8CDF4AD2299F6D23",
+              "Int cpu": "A87FF679A2F3E71D9181A67B7542122C",
+              "Int machine_mem_mb": "1C474E7B437A3729231A4105790A6340",
+              "Int preemptible": "E4DA3B7FBBCE2345D7772B0674A318D5",
+              "String docker": "87E05A3C035269C96A52538C44E798B2",
+              "String input_id": "9F8890FC412B63A78CE2606C511E9E68",
+              "String output_basename": "522BF34C646F266BCF97092BB928F3E6",
+              "String ref_name": "B8DE7ECC1DFFA06E46896571531E478C"
+            },
+            "input count": "6512BD43D9CAA6E02C990B0A82652DCA",
+            "output count": "ECCBC87E4B5CE2FE28308FD9F2A7BAF3",
+            "output expression": {
+              "File log_file": "AEDDCDA22821BE4F64E4032BF0A80CC4",
+              "File met_file": "6973D7B704524E1B6867B4A51D2561A2",
+              "File output_bam": "3C53D2D8764D7F4B2E25D46ABAE0D251"
+            },
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "10A098669A5EF4B37B2B2C713AB8B95F",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: c89fa396-3d4b-492a-ba09-b75d6977b8a0:SmartSeq2SingleCell.HISAT2Transcriptome:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome",
+        "end": "2020-10-20T17:55:28.479Z",
+        "executionEvents": [
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:55:07.581Z",
+            "startTime": "2020-10-20T17:55:07.581Z"
+          },
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:55:07.281Z",
+            "startTime": "2020-10-20T17:55:07.281Z"
+          },
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:55:27.510Z",
+            "startTime": "2020-10-20T17:55:25.228Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:55:15.080Z",
+            "startTime": "2020-10-20T17:55:07.581Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:55:25.228Z",
+            "startTime": "2020-10-20T17:55:15.080Z"
+          },
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:55:28.479Z",
+            "startTime": "2020-10-20T17:55:27.510Z"
+          },
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:55:07.581Z",
+            "startTime": "2020-10-20T17:55:07.281Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "__disk": 18,
+          "cpu": 4,
+          "disk": null,
+          "docker": "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0",
+          "fastq1": "drs://jade.datarepo-dev.broadinstitute.org/v1_d9e82d6c-738d-449a-b3e5-abe27915fa3f_52ad0ff3-7699-4d55-bec2-6e2ae41018bf",
+          "fastq2": "drs://jade.datarepo-dev.broadinstitute.org/v1_d9e82d6c-738d-449a-b3e5-abe27915fa3f_78887e44-554c-4a7d-b903-6fb2a39cd169",
+          "hisat2_ref": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/HISAT2/gencode_v27_trans_rsem.tar.gz",
+          "input_id": "00027d78-bcde-444c-b51c-b7446cdf9ea9",
+          "machine_mem_mb": 16500,
+          "output_basename": "00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem",
+          "preemptible": 5,
+          "ref_name": "gencode_v27_trans_rsem"
+        },
+        "outputs": {
+          "log_file": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.log",
+          "met_file": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.hisat2.met.txt",
+          "output_bam": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.bam"
+        },
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "4",
+          "cpuMin": "1",
+          "disks": "local-disk 18 HDD",
+          "docker": "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "16.11328125 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "5",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:55:07.281Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/stdout"
+      }
+    ],
+    "SmartSeq2SingleCell.RSEMExpression": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/RSEMExpression.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "94DA00D03DA3F93048B1E90E90B2A292",
+            "input": {
+              "Boolean is_paired": "B326B5062B2F0E69046810717534CB09",
+              "File rsem_genome": "3z0aqQ==",
+              "File trans_aligned_bam": "3qLpnA==",
+              "Int __disk": "B6D767D2F8ED5D21A44B0E5886680CB9",
+              "Int cpu": "A87FF679A2F3E71D9181A67B7542122C",
+              "Int machine_mem_mb": "F550E0BA9E1C4E8BB4A5ED0AC23A952D",
+              "Int preemptible": "E4DA3B7FBBCE2345D7772B0674A318D5",
+              "String docker": "9F265BB6AB3FB6FE329500AF413ED559",
+              "String output_basename": "522BF34C646F266BCF97092BB928F3E6"
+            },
+            "input count": "45C48CCE2E2D7FBDEA1AFC51C7C6AD26",
+            "output count": "1679091C5A880FAF6FB5E6087EB1B2DC",
+            "output expression": {
+              "File rsem_cnt": "E5D11D09F841377E03847C09584D1F1B",
+              "File rsem_gene": "6356A083DF63B19242A3E608147AB692",
+              "File rsem_isoform": "7CDAD40BF437ECAC768481F2A05F8114",
+              "File rsem_model": "B78AFD8A7F7BB28CBA83FA6821A64455",
+              "File rsem_theta": "4F3306A03A85FCF55F5167AE90DE45A2",
+              "File rsem_time": "01C03B683A0FDF410B454FD84AD90C5E"
+            },
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "D184FAD3C619506EBCB6D2C16A86D9DA",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: c89fa396-3d4b-492a-ba09-b75d6977b8a0:SmartSeq2SingleCell.RSEMExpression:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression",
+        "end": "2020-10-20T17:55:52.478Z",
+        "executionEvents": [
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:55:31.762Z",
+            "startTime": "2020-10-20T17:55:31.762Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:55:50.275Z",
+            "startTime": "2020-10-20T17:55:40.510Z"
+          },
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:55:52.479Z",
+            "startTime": "2020-10-20T17:55:51.523Z"
+          },
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:55:32.580Z",
+            "startTime": "2020-10-20T17:55:31.762Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:55:40.510Z",
+            "startTime": "2020-10-20T17:55:32.581Z"
+          },
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:55:32.581Z",
+            "startTime": "2020-10-20T17:55:32.580Z"
+          },
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:55:51.523Z",
+            "startTime": "2020-10-20T17:55:50.275Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "__disk": 22,
+          "cpu": 4,
+          "disk": null,
+          "docker": "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0",
+          "is_paired": true,
+          "machine_mem_mb": 3850,
+          "output_basename": "00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem",
+          "preemptible": 5,
+          "rsem_genome": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode_v27_primary.tar",
+          "trans_aligned_bam": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.bam"
+        },
+        "outputs": {
+          "rsem_cnt": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.stat/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.cnt",
+          "rsem_gene": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.genes.results",
+          "rsem_isoform": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.isoforms.results",
+          "rsem_model": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.stat/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.model",
+          "rsem_theta": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.stat/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.theta",
+          "rsem_time": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.time"
+        },
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "4",
+          "cpuMin": "1",
+          "disks": "local-disk 22 HDD",
+          "docker": "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "3.759765625 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "5",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:55:31.762Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/stdout"
+      }
+    ],
+    "SmartSeq2SingleCell.SmartSeq2LoomOutput": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-SmartSeq2LoomOutput/SmartSeq2LoomOutput.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "5A45008770990C7B5A0D9122861622BD",
+            "input": {
+              "File rsem_gene_results": "r6m0OQ==",
+              "File smartseq_qc_files": [
+                "n5Kn9w==",
+                "hfuOYw==",
+                "4rOybg==",
+                "0aW6HA==",
+                "AgHS2Q==",
+                "Dw0UkA==",
+                "kh55UA=="
+              ],
+              "Int preemptible": "ECCBC87E4B5CE2FE28308FD9F2A7BAF3",
+              "String docker": "B6E3AA4100CBCF3522B784E2B4E5C218",
+              "String input_id": "9F8890FC412B63A78CE2606C511E9E68",
+              "String input_id_metadata_field": "32B32300143BD483942AC465AD6F7E6B",
+              "String input_name": "41B801459FC129858FD1072A67AF5608",
+              "String input_name_metadata_field": "D6145BAF32A020CD1AF6C906975F10B0",
+              "String pipeline_version": "6B21AC36DB8581B7DA4C421F4E8404E4"
+            },
+            "input count": "9BF31C7FF062936A96D3C8BD1F8F2FF3",
+            "output count": "C4CA4238A0B923820DCC509A6F75849B",
+            "output expression": {
+              "File loom_output": "23617A5430EC56A6402D52F4906A5083"
+            },
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "6D8DB748F865AF4C15202E64A82AC494",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: c89fa396-3d4b-492a-ba09-b75d6977b8a0:SmartSeq2SingleCell.SmartSeq2LoomOutput:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-SmartSeq2LoomOutput",
+        "compressedDockerSize": 589072042,
+        "end": "2020-10-20T17:56:16.477Z",
+        "executionEvents": [
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:56:09.581Z",
+            "startTime": "2020-10-20T17:56:09.581Z"
+          },
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:56:16.476Z",
+            "startTime": "2020-10-20T17:56:15.518Z"
+          },
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:56:15.518Z",
+            "startTime": "2020-10-20T17:56:15.190Z"
+          },
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:56:09.501Z",
+            "startTime": "2020-10-20T17:56:09.501Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:56:15.190Z",
+            "startTime": "2020-10-20T17:56:09.872Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:56:09.872Z",
+            "startTime": "2020-10-20T17:56:09.581Z"
+          },
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:56:09.581Z",
+            "startTime": "2020-10-20T17:56:09.501Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "docker": "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3",
+          "input_id": "00027d78-bcde-444c-b51c-b7446cdf9ea9",
+          "input_id_metadata_field": "sequencing_process_provenance_document_id",
+          "input_name": "364b_mLN_L4",
+          "input_name_metadata_field": "sequencing_input_biomaterial_core_biomaterial_id",
+          "pipeline_version": "SmartSeq2SingleSample_v5.0.2",
+          "preemptible": 3,
+          "rsem_gene_results": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.genes.results",
+          "smartseq_qc_files": [
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_QCs.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_bait_bias_detail_metrics.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_base_distribution_by_cycle_metrics.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_error_summary_metrics.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_gc_bias.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_pre_adapter_detail_metrics.csv",
+            "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_pre_adapter_summary_metrics.csv"
+          ]
+        },
+        "outputs": {
+          "loom_output": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-SmartSeq2LoomOutput/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9.loom"
+        },
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "4",
+          "cpuMin": "1",
+          "disks": "local-disk 100 HDD",
+          "docker": "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "18 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "3",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:56:09.501Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-SmartSeq2LoomOutput/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-SmartSeq2LoomOutput/stdout"
+      }
+    ],
+    "SmartSeq2SingleCell.checkSS2Input": [
+      {
+        "attempt": 1,
+        "backend": "PAPIv2",
+        "backendLogs": {
+          "log": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-checkSS2Input/checkSS2Input.log"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "effectiveCallCachingMode": "ReadAndWriteCache",
+          "hashes": {
+            "backend name": "5BAA79C7C5A573C899A61D342AA00484",
+            "command template": "F472052F17A133287EB96D335A2D4621",
+            "input": {
+              "Boolean force_no_check": "68934A3E9455FA72420237EB05902327",
+              "Boolean paired_end": "B326B5062B2F0E69046810717534CB09",
+              "File fastq1": "32e9aec1",
+              "File fastq2": "0f801cd0",
+              "Int __disk": "6512BD43D9CAA6E02C990B0A82652DCA",
+              "String __paired_end_str": "EBC576222020C2A2AE2FC769169F1D2A"
+            },
+            "input count": "1679091C5A880FAF6FB5E6087EB1B2DC",
+            "output count": "CFCD208495D565EF66E7DFF9F98764DA",
+            "runtime attribute": {
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "docker": "83BA34332E1FA8F3FAB2B6091AC72005",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            }
+          },
+          "hit": true,
+          "result": "Cache Hit: a0c1e3ed-c1a2-45d1-9fd4-f694215644b3:SmartSeq2SingleCell.checkSS2Input:-1"
+        },
+        "callRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-checkSS2Input",
+        "compressedDockerSize": 26702626,
+        "end": "2020-10-20T17:55:13.475Z",
+        "executionEvents": [
+          {
+            "description": "WaitingForValueStore",
+            "endTime": "2020-10-20T17:55:05.581Z",
+            "startTime": "2020-10-20T17:55:05.581Z"
+          },
+          {
+            "description": "UpdatingCallCache",
+            "endTime": "2020-10-20T17:55:12.506Z",
+            "startTime": "2020-10-20T17:55:10.288Z"
+          },
+          {
+            "description": "RequestingExecutionToken",
+            "endTime": "2020-10-20T17:55:05.581Z",
+            "startTime": "2020-10-20T17:55:05.242Z"
+          },
+          {
+            "description": "CallCacheReading",
+            "endTime": "2020-10-20T17:55:10.288Z",
+            "startTime": "2020-10-20T17:55:07.197Z"
+          },
+          {
+            "description": "UpdatingJobStore",
+            "endTime": "2020-10-20T17:55:13.474Z",
+            "startTime": "2020-10-20T17:55:12.506Z"
+          },
+          {
+            "description": "Pending",
+            "endTime": "2020-10-20T17:55:05.242Z",
+            "startTime": "2020-10-20T17:55:05.242Z"
+          },
+          {
+            "description": "PreparingJob",
+            "endTime": "2020-10-20T17:55:07.197Z",
+            "startTime": "2020-10-20T17:55:05.581Z"
+          }
+        ],
+        "executionStatus": "Done",
+        "inputs": {
+          "__disk": 11,
+          "__paired_end_str": "true",
+          "disk": null,
+          "fastq1": "drs://jade.datarepo-dev.broadinstitute.org/v1_d9e82d6c-738d-449a-b3e5-abe27915fa3f_52ad0ff3-7699-4d55-bec2-6e2ae41018bf",
+          "fastq2": "drs://jade.datarepo-dev.broadinstitute.org/v1_d9e82d6c-738d-449a-b3e5-abe27915fa3f_78887e44-554c-4a7d-b903-6fb2a39cd169",
+          "force_no_check": false,
+          "paired_end": true,
+          "paired_end_str": null
+        },
+        "outputs": {},
+        "returnCode": 0,
+        "runtimeAttributes": {
+          "bootDiskSizeGb": "10",
+          "continueOnReturnCode": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "disks": "local-disk 11 HDD",
+          "docker": "ubuntu:18.04",
+          "failOnStderr": "false",
+          "maxRetries": "0",
+          "memory": "1 GB",
+          "memoryMin": "2 GB",
+          "noAddress": "false",
+          "preemptible": "0",
+          "zones": "us-central1-b,us-central1-c,us-central1-f"
+        },
+        "shardIndex": -1,
+        "start": "2020-10-20T17:55:05.242Z",
+        "stderr": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-checkSS2Input/stderr",
+        "stdout": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-checkSS2Input/stdout"
+      }
+    ]
+  },
+  "end": "2020-10-20T17:56:17.664Z",
+  "id": "5dde66a6-fbba-49b6-b4c9-6088df07ea56",
+  "inputs": {
+    "CollectDuplicationMetrics.cpu": 2,
+    "CollectDuplicationMetrics.docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+    "CollectDuplicationMetrics.machine_mem_mb": 8250,
+    "CollectDuplicationMetrics.preemptible": 5,
+    "CollectMultipleMetrics.cpu": 1,
+    "CollectMultipleMetrics.docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+    "CollectMultipleMetrics.machine_mem_mb": 8250,
+    "CollectMultipleMetrics.preemptible": 5,
+    "CollectRnaMetrics.cpu": 1,
+    "CollectRnaMetrics.docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+    "CollectRnaMetrics.machine_mem_mb": 3850,
+    "CollectRnaMetrics.preemptible": 5,
+    "GroupQCOutputs.cpu": 1,
+    "GroupQCOutputs.disk_space": 20,
+    "GroupQCOutputs.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.4",
+    "GroupQCOutputs.mem": 3,
+    "GroupQCOutputs.preemptible": 5,
+    "HISAT2PairedEnd.cpu": 4,
+    "HISAT2PairedEnd.docker": "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0",
+    "HISAT2PairedEnd.machine_mem_mb": 16500,
+    "HISAT2PairedEnd.preemptible": 5,
+    "HISAT2SingleEnd.cpu": 4,
+    "HISAT2SingleEnd.docker": "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0",
+    "HISAT2SingleEnd.machine_mem_mb": 16500,
+    "HISAT2SingleEnd.preemptible": 5,
+    "HISAT2SingleEndTranscriptome.cpu": 4,
+    "HISAT2SingleEndTranscriptome.docker": "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0",
+    "HISAT2SingleEndTranscriptome.machine_mem_mb": 15000,
+    "HISAT2SingleEndTranscriptome.preemptible": 5,
+    "HISAT2Transcriptome.cpu": 4,
+    "HISAT2Transcriptome.docker": "quay.io/humancellatlas/secondary-analysis-hisat2:v0.2.2-2-2.1.0",
+    "HISAT2Transcriptome.machine_mem_mb": 16500,
+    "HISAT2Transcriptome.preemptible": 5,
+    "RSEMExpression.cpu": 4,
+    "RSEMExpression.docker": "quay.io/humancellatlas/secondary-analysis-rsem:v0.2.2-1.3.0",
+    "RSEMExpression.machine_mem_mb": 3850,
+    "RSEMExpression.preemptible": 5,
+    "SmartSeq2LoomOutput.docker": "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.3",
+    "SmartSeq2LoomOutput.preemptible": 3,
+    "fastq1": "drs://jade.datarepo-dev.broadinstitute.org/v1_d9e82d6c-738d-449a-b3e5-abe27915fa3f_52ad0ff3-7699-4d55-bec2-6e2ae41018bf",
+    "fastq2": "drs://jade.datarepo-dev.broadinstitute.org/v1_d9e82d6c-738d-449a-b3e5-abe27915fa3f_78887e44-554c-4a7d-b903-6fb2a39cd169",
+    "force_no_check": false,
+    "gene_ref_flat": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38_gencode.v27.refFlat.txt",
+    "genome_ref_fasta": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/GRCh38.primary_assembly.genome.fa",
+    "hisat2_ref_index": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/HISAT2/genome_snp_tran.tar.gz",
+    "hisat2_ref_name": "genome_snp_tran",
+    "hisat2_ref_trans_index": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/HISAT2/gencode_v27_trans_rsem.tar.gz",
+    "hisat2_ref_trans_name": "gencode_v27_trans_rsem",
+    "input_id": "00027d78-bcde-444c-b51c-b7446cdf9ea9",
+    "input_id_metadata_field": "sequencing_process_provenance_document_id",
+    "input_name": "364b_mLN_L4",
+    "input_name_metadata_field": "sequencing_input_biomaterial_core_biomaterial_id",
+    "output_name": "00027d78-bcde-444c-b51c-b7446cdf9ea9",
+    "paired_end": true,
+    "rrna_intervals": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode.v27.rRNA.interval_list",
+    "rsem_ref_index": "gs://hca-dcp-analysis-pipelines-reference/alignmentReferences/GRCh38_Gencode/gencode_v27_primary.tar",
+    "stranded": "NONE"
+  },
+  "metadataSource": "Archived",
+  "outputs": {
+    "SmartSeq2SingleCell.aligned_bam": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bam",
+    "SmartSeq2SingleCell.aligned_transcriptome_bam": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2Transcriptome/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.bam",
+    "SmartSeq2SingleCell.bait_bias_summary_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bait_bias_summary_metrics.txt",
+    "SmartSeq2SingleCell.bam_index": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-HISAT2PairedEnd/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.bam.bai",
+    "SmartSeq2SingleCell.group_results": [
+      "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_QCs.csv",
+      "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_bait_bias_detail_metrics.csv",
+      "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_base_distribution_by_cycle_metrics.csv",
+      "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_error_summary_metrics.csv",
+      "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_gc_bias.csv",
+      "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_pre_adapter_detail_metrics.csv",
+      "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-GroupQCOutputs/cacheCopy/glob-200b508707c26bfadd966343d934e1ee/00027d78-bcde-444c-b51c-b7446cdf9ea9_pre_adapter_summary_metrics.csv"
+    ],
+    "SmartSeq2SingleCell.insert_size_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/glob-d5c283fceaafce13e93a40c09c21eadc/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.insert_size_metrics.txt",
+    "SmartSeq2SingleCell.loom_output_files": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-SmartSeq2LoomOutput/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9.loom",
+    "SmartSeq2SingleCell.pipeline_version_out": "5.0.2",
+    "SmartSeq2SingleCell.quality_by_cycle_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.quality_by_cycle_metrics.txt",
+    "SmartSeq2SingleCell.quality_distribution_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectMultipleMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.quality_distribution_metrics.txt",
+    "SmartSeq2SingleCell.rna_metrics": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-CollectRnaMetrics/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_qc.rna_metrics.txt",
+    "SmartSeq2SingleCell.rsem_gene_results": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.genes.results",
+    "SmartSeq2SingleCell.rsem_isoform_results": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/call-sc_pe/shard-0/SmartSeq2SingleCell/5dde66a6-fbba-49b6-b4c9-6088df07ea56/call-RSEMExpression/cacheCopy/00027d78-bcde-444c-b51c-b7446cdf9ea9_rsem.isoforms.results"
+  },
+  "parentWorkflowId": "f66f77ea-206e-43d4-802f-0e8db81955fa",
+  "rootWorkflowId": "f66f77ea-206e-43d4-802f-0e8db81955fa",
+  "start": "2020-10-20T17:55:03.188Z",
+  "status": "Succeeded",
+  "workflowName": "sc_pe",
+  "workflowRoot": "gs://fc-ac2f3a8d-d1f4-48a2-8c3b-6d75ec942289/98695e3d-8a84-43cc-9e7d-632f6c726a88/MultiSampleSmartSeq2/f66f77ea-206e-43d4-802f-0e8db81955fa/"
+}
