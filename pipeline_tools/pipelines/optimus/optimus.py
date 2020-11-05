@@ -191,6 +191,14 @@ def create_optimus_input_tsv(uuid, version, dss_url):
 
 
 def create_optimus_inputs_tsv_from_analysis_metadata(metadata_file):
+    """Create TSV of Optimus inputs from Cromwell metadata
+
+    Args:
+        metadata_file (str): path to the Cromwell metadata json from the analysis.
+
+    Returns:
+        TSV of input values for specific arguments
+    """
     with open(metadata_file) as f:
         metadata = json.load(f)
     HEADERS = ['name', 'value']

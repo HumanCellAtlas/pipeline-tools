@@ -216,6 +216,15 @@ def _get_content_for_ss2_se_input_tsv(
 
 
 def create_single_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
+    """Create TSV of single sample ss2 inputs from Cromwell metadata
+
+    Args:
+        metadata_file (str): path to the Cromwell metadata json from the analysis.
+
+    Returns:
+        TSV of input values for specific arguments
+    """
+
     with open(metadata_file) as f:
         metadata = json.load(f)
     HEADERS = ['name', 'value']
@@ -242,6 +251,15 @@ def create_single_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
 
 
 def create_multi_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
+    """Create TSV of multisample ss2 inputs from Cromwell metadata
+
+    Args:
+        metadata_file (str): path to the Cromwell metadata json from the analysis.
+
+    Returns:
+        TSV of input values for specific arguments
+    """
+
     with open(metadata_file) as f:
         metadata = json.load(f)
     HEADERS = ['name', 'value']

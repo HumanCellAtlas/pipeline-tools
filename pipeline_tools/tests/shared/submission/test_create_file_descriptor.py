@@ -29,7 +29,7 @@ def data_file():
     return _data_file
 
 
-class TestCreateAnalysisMetadata(object):
+class TestCreateDescriptor(object):
     def test_build_file_descriptor(self, test_data):
         file_descriptor = cfd.build_file_descriptor(
             file_path=test_data.file_path,
