@@ -636,7 +636,7 @@ def main():
     analysis_protocol = create_analysis_protocol(
         raw_schema_url=schema_url,
         analysis_protocol_schema_version=args.analysis_protocol_schema_version,
-        pipeline_version=args.pipeline_version,
+        pipeline_version=args.pipeline_version.lower(),
         method=args.method,
         version=args.version,
     )
