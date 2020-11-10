@@ -10,10 +10,18 @@ from pathlib import Path
 @pytest.fixture(scope='module')
 def test_data():
     class Data:
-        output_urls = {
-            'gs://foo/bar/Aligned.sortedByCoord.out.bam',
-            'gs://foo/bar/GSM1957573_rna_metrics',
-        }
+        output_urls = [
+            {
+                'sha256': '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251',
+                'file_path': 'gs://foo/bar/Aligned.sortedByCoord.out.bam',
+                'timestamp': '2020-08-10T14:24:26.174274-07:00',
+            },
+            {
+                'sha256': '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251',
+                'file_path': 'gs://foo/bar/GSM1957573_rna_metrics',
+                'timestamp': '2020-08-10T14:24:26.174274-07:00',
+            },
+        ]
         extension_to_format = {'.bam': 'bam', '_metrics': 'metrics'}
         outputs = [
             {
@@ -75,10 +83,10 @@ class TestCreateAnalysisMetadata(object):
             metadata_file=data_file('metadata.json'),
             analysis_process_schema_version='1.2.3',
             analysis_id='12345abcde',
-            input_bundles_string='foo_input_bundle1,foo_input_bundle2',
-            reference_bundle='foo_ref_bundle',
             inputs=test_data.inputs,
             run_type='foo_run_type',
+            version='2020-08-10T14:24:26.174274-07:00',
+            references=['b816d2d6-5f10-4447-4194-3d0a804454d6'],
         )
 
         assert analysis_process.get('process_core').get('process_id') == '12345abcde'
@@ -93,14 +101,17 @@ class TestCreateAnalysisMetadata(object):
         )
         assert analysis_process.get('describedBy') == schema_url
 
-        assert analysis_process.get('reference_bundle') == 'foo_ref_bundle'
+        assert analysis_process.get('reference_files') == [
+            'b816d2d6-5f10-4447-4194-3d0a804454d6'
+        ]
         assert analysis_process.get('analysis_run_type') == 'foo_run_type'
         assert analysis_process.get('timestamp_start_utc') == '2017-09-14T19:54:11.470Z'
         assert analysis_process.get('timestamp_stop_utc') == '2017-09-14T19:54:31.871Z'
-        assert analysis_process.get('input_bundles') == [
-            'foo_input_bundle1',
-            'foo_input_bundle2',
-        ]
+        assert analysis_process.get('inputs') == test_data.inputs
+        assert analysis_process.get('provenance') == {
+            'document_id': '12345abcde',
+            'submission_date': '2020-08-10T14:24:26.174274-07:00',
+        }
 
     def test_create_analysis_protocol(self, test_data):
         analysis_protocol = cam.create_analysis_protocol(
@@ -108,6 +119,7 @@ class TestCreateAnalysisMetadata(object):
             analysis_protocol_schema_version='1.2.3',
             pipeline_version='foo_pipeline_version',
             method='foo_method',
+            version='2020-08-10T14:24:26.174274-07:00',
         )
 
         assert (
@@ -116,6 +128,10 @@ class TestCreateAnalysisMetadata(object):
         )
         assert analysis_protocol.get('computational_method') == 'foo_method'
         assert analysis_protocol.get('schema_type') == 'protocol'
+        assert (
+            analysis_protocol.get('provenance').get('document_id')
+            == 'edfee4d4-b1b2-5386-9244-d528ef36cffb'
+        )
 
     def test_get_inputs(self, data_file, test_data):
         inputs_file = data_file('inputs.tsv')
@@ -213,7 +229,7 @@ class TestCreateAnalysisMetadata(object):
         schema_url = '{}/type/file/{}/analysis_file'.format(
             test_data.schema_url, schema_version
         )
-        outputs_json = cam.get_outputs(
+        outputs_json = cam.create_analysis_files(
             test_data.output_urls,
             test_data.extension_to_format,
             test_data.schema_url,
@@ -238,7 +254,7 @@ class TestCreateAnalysisMetadata(object):
 
     def test_get_analysis_protocol_type(self):
         analysis_protocol_type = cam.get_analysis_protocol_type()
-        expected_analysis_protocol_type = {'text': 'analysis'}
+        expected_analysis_protocol_type = {'text': 'analysis_protocol'}
         assert analysis_protocol_type == expected_analysis_protocol_type
 
     def verify_inputs(self, inputs, test_data, include_checksum=True):

@@ -1,3 +1,6 @@
+import csv
+import json
+
 from pipeline_tools.shared import metadata_utils
 from pipeline_tools.shared.http_requests import HttpRequests
 from pipeline_tools.shared.reference_id import ReferenceId
@@ -210,3 +213,74 @@ def _get_content_for_ss2_se_input_tsv(
     sample_id = metadata_utils.get_sample_id(primary_bundle)
     fastq_url = get_urls_to_files_for_ss2_se(primary_bundle)
     return fastq_url, sample_id
+
+
+def create_single_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
+    """Create TSV of single sample ss2 inputs from Cromwell metadata
+
+    Args:
+        metadata_file (str): path to the Cromwell metadata json from the analysis.
+
+    Returns:
+        TSV of input values for specific arguments
+    """
+
+    with open(metadata_file) as f:
+        metadata = json.load(f)
+    HEADERS = ['name', 'value']
+    content = [
+        ['fastq1', metadata['inputs']['fastq1']],
+        ['gene_ref_flat', metadata['inputs']['gene_ref_flat']],
+        ['genome_ref_fasta', metadata['inputs']['genome_ref_fasta']],
+        ['hisat2_ref_index', metadata['inputs']['hisat2_ref_index']],
+        ['hisat2_ref_name', metadata['inputs']['hisat2_ref_name']],
+        ['hisat2_ref_trans_name', metadata['inputs']['hisat2_ref_trans_name']],
+        ['output_name', metadata['inputs']['output_name']],
+        ['rrna_intervals', metadata['inputs']['rrna_intervals']],
+        ['rsem_ref_index', metadata['inputs']['rsem_ref_index']],
+        ['stranded', metadata['inputs']['stranded']],
+        ['input_id', metadata['inputs']['input_id']],
+    ]
+    if metadata['inputs'].get('fastq2'):
+        content.append(['fastq2', metadata['inputs'].get('fastq2')])
+
+    with open('inputs.tsv', 'w') as inputs_tsv:
+        writer = csv.writer(inputs_tsv, delimiter='\t')
+        writer.writerow(HEADERS)
+        writer.writerows(content)
+
+
+def create_multi_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
+    """Create TSV of multisample ss2 inputs from Cromwell metadata
+
+    Args:
+        metadata_file (str): path to the Cromwell metadata json from the analysis.
+
+    Returns:
+        TSV of input values for specific arguments
+    """
+
+    with open(metadata_file) as f:
+        metadata = json.load(f)
+    HEADERS = ['name', 'value']
+    content = [
+        ['fastq1_input_files', metadata['inputs']['fastq1_input_files']],
+        ['gene_ref_flat', metadata['inputs']['gene_ref_flat']],
+        ['genome_ref_fasta', metadata['inputs']['genome_ref_fasta']],
+        ['hisat2_ref_index', metadata['inputs']['hisat2_ref_index']],
+        ['hisat2_ref_name', metadata['inputs']['hisat2_ref_name']],
+        ['hisat2_ref_trans_name', metadata['inputs']['hisat2_ref_trans_name']],
+        ['rrna_intervals', metadata['inputs']['rrna_intervals']],
+        ['rsem_ref_index', metadata['inputs']['rsem_ref_index']],
+        ['stranded', metadata['inputs']['stranded']],
+        ['input_ids', metadata['inputs']['input_ids']],
+    ]
+    if metadata['inputs'].get('fastq2_input_files'):
+        content.append(
+            ['fastq2_input_files', metadata['inputs'].get('fastq2_input_files')]
+        )
+
+    with open('inputs.tsv', 'w') as inputs_tsv:
+        writer = csv.writer(inputs_tsv, delimiter='\t')
+        writer.writerow(HEADERS)
+        writer.writerows(content)

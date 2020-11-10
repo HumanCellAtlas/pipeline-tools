@@ -1,5 +1,9 @@
+import uuid
+
+
 EXTENSION_TO_FORMAT = {
     "[.]bam$": "bam",
+    "[.]loom$": "loom",
     "[_]metrics$": "metrics",
     "[.]txt$": "txt",
     "[.]log$": "log",
@@ -19,3 +23,13 @@ EXTENSION_TO_FORMAT = {
     "[.]npz$": "npz",
     "[.]npy$": "npy",
 }
+
+NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
+
+
+def get_uuid5(sha256):
+    return str(uuid.uuid5(NAMESPACE, sha256))
+
+
+def convert_datetime(creation_time):
+    return creation_time.replace('Z', '.000000Z')

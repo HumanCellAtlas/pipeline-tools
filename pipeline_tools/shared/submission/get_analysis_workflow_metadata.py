@@ -16,8 +16,9 @@ def get_analysis_workflow_id(analysis_output_path):
     Returns:
         workflow_id (str): string giving Cromwell UUID of the workflow.
     """
-    # Get the last match for UUID to ensure it is the subworkflow id
-    url = analysis_output_path
+    # Get the last match for UUID prior to the file name (in case the file is
+    # named with a UUID) to ensure it is the subworkflow id
+    url = analysis_output_path.rsplit('/', 1)[0]
     uuid_regex = r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
     workflow_id = re.findall(uuid_regex, url)[-1]
     print('Got analysis workflow UUID: {0}'.format(workflow_id))

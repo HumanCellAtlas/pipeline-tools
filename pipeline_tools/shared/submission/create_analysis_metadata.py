@@ -3,12 +3,19 @@ import argparse
 import base64
 import codecs
 import json
+import os
 from copy import deepcopy
 from csv import DictReader
 from google.cloud import storage
 import re
+import uuid
 import arrow
-from pipeline_tools.shared.submission.format_map import EXTENSION_TO_FORMAT
+from pipeline_tools.shared.submission.format_map import (
+    EXTENSION_TO_FORMAT,
+    NAMESPACE,
+    get_uuid5,
+    convert_datetime,
+)
 
 
 def create_analysis_process(
@@ -16,10 +23,10 @@ def create_analysis_process(
     metadata_file,
     analysis_process_schema_version,
     analysis_id,
-    input_bundles_string,
-    reference_bundle,
     inputs,
     run_type,
+    version,
+    references,
 ):
     """Collect and create the information about the analysis process for submission to Ingest service.
 
@@ -38,13 +45,11 @@ def create_analysis_process(
         metadata_file (str): Path to file containing metadata json for the workflow.
         analysis_process_schema_version (str): Version of the metadata schema that the analysis_process conforms to.
         analysis_id (str): UUID of the analysis workflow.
-        input_bundles_string (str): A comma-separated list of input bundle UUIDs.
-        reference_bundle (str): UUID of the reference bundle. FIXME: we are using a placeholder id for this field
-                                since it is required in the schema, but we are not using reference bundles yet. We
-                                should use the actual value here once it's applicable.
         inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
         run_type (str): Indicator of whether the analysis actually ran or was just copied forward as an optimization.
                         Should be either "run" or "copy-forward".
+        version (str): A version (or timestamp) attribute shared across all workflows within an individual workspace.
+        references (List[str]): List of UUIDs for the reference genome (or other reference files)
 
     Returns:
         analysis_process (dict): A dict representing the analysis_process json file to be submitted.
@@ -62,20 +67,20 @@ def create_analysis_process(
         ),
         'schema_type': SCHEMA_TYPE,
         'process_core': get_analysis_process_core(analysis_workflow_id=analysis_id),
+        'provenance': {'document_id': analysis_id, 'submission_date': version},
         'type': get_analysis_process_type(),
         'timestamp_start_utc': format_timestamp(workflow_metadata.get('start')),
         'timestamp_stop_utc': format_timestamp(workflow_metadata.get('end')),
-        'input_bundles': input_bundles_string.split(','),
-        'reference_bundle': reference_bundle,
         'tasks': workflow_tasks,
         'inputs': inputs,
         'analysis_run_type': run_type,
+        'reference_files': references,
     }
     return analysis_process
 
 
 def create_analysis_protocol(
-    raw_schema_url, analysis_protocol_schema_version, pipeline_version, method
+    raw_schema_url, analysis_protocol_schema_version, pipeline_version, method, version
 ):
     """Collect and create the information about the analysis protocol for submission to Ingest service.
 
@@ -96,6 +101,7 @@ def create_analysis_protocol(
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         analysis_protocol_schema_version (str): Version of the metadata schema that the analysis_protocol conforms to.
         method (str): The name of the analysis workflow, e.g. "SmartSeq2SingleCell"
+        version (str): A version (or timestamp) attribute shared across all workflows within an individual workspace.
 
     Returns:
         analysis_protocol (dict): A dict representing the analysis_protocol json file to be submitted.
@@ -113,6 +119,16 @@ def create_analysis_protocol(
         'computational_method': method,
         'type': get_analysis_protocol_type(),
     }
+
+    string_to_hash = json.dumps(analysis_protocol, sort_keys=True)
+    entity_id = str(uuid.uuid5(NAMESPACE, string_to_hash)).lower()
+
+    analysis_protocol['provenance'] = {
+        'document_id': entity_id,
+        'submission_date': version,
+        'update_date': version,
+    }
+
     return analysis_protocol
 
 
@@ -137,7 +153,21 @@ def get_inputs(inputs_file):
     return inputs
 
 
-def get_outputs(output_urls, extension_to_format, schema_url, analysis_file_version):
+def get_outputs(outputs_file):
+    with open(outputs_file) as f:
+        reader = DictReader(
+            f,
+            lineterminator='\n',
+            delimiter=' ',
+            fieldnames=['sha256', 'file_path', 'timestamp'],
+        )
+        outputs = [line for line in reader]
+    return outputs
+
+
+def create_analysis_files(
+    output_urls, extension_to_format, schema_url, analysis_file_version
+):
     """Creates outputs metadata array for analysis json.
 
     TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
@@ -154,20 +184,25 @@ def get_outputs(output_urls, extension_to_format, schema_url, analysis_file_vers
         outputs (List[dict]): Array of dicts representing outputs metadata in the format required for the analysis json
                               file
     """
-    outputs = [
+
+    analysis_outputs = [
         {
             'describedBy': '{0}/type/file/{1}/analysis_file'.format(
                 schema_url, analysis_file_version
             ),
             'schema_type': 'file',
+            'provenance': {
+                'document_id': get_uuid5(output['sha256']),
+                'submission_date': convert_datetime(output['timestamp']),
+            },
             'file_core': {
-                'file_name': output_url.split('/')[-1],
-                'format': get_file_format(output_url, extension_to_format),
+                'file_name': output['file_path'].split('/')[-1],
+                'format': get_file_format(output['file_path'], extension_to_format),
             },
         }
-        for output_url in sorted(output_urls)
+        for output in output_urls
     ]
-    return outputs
+    return analysis_outputs
 
 
 def get_input_urls(inputs):
@@ -443,7 +478,7 @@ def get_analysis_protocol_type():
     Returns:
         analysis_protocol_type (dict): The protocol_type metadata for analysis_protocol.
     """
-    analysis_protocol_type = {'text': 'analysis'}
+    analysis_protocol_type = {'text': 'analysis_protocol'}
     return analysis_protocol_type
 
 
@@ -456,16 +491,6 @@ def main():
         '--metadata_json',
         required=True,
         help='Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.',
-    )
-    parser.add_argument(
-        '--input_bundles',
-        required=True,
-        help='A comma-separated list of the DSS bundles used as inputs for the analysis workflow.',
-    )
-    parser.add_argument(
-        '--reference_bundle',
-        required=True,
-        help='To refer to the DSS resource bundle used for this workflow, once such things exist',
     )
     parser.add_argument(
         '--run_type',
@@ -510,7 +535,19 @@ def main():
     parser.add_argument(
         '--outputs_file',
         required=True,
-        help='Path to JSON file containing info about outputs.',
+        help='Path to tsv file containing info about outputs.',
+    )
+    parser.add_argument(
+        '--version',
+        required=True,
+        help='A version (or timestamp) attribute shared across all workflows'
+        'within an individual workspace.',
+    )
+    parser.add_argument(
+        '--references',
+        help='List of UUIDs for the reference genome',
+        required=True,
+        nargs='+',
     )
     parser.add_argument(
         '--add_md5s', help='Set to "true" to add md5 checksums to file metadata'
@@ -521,10 +558,17 @@ def main():
 
     # Get metadata for inputs and outputs
     inputs = get_inputs(args.inputs_file)
-    with open(args.outputs_file) as f:
-        output_urls = f.read().splitlines()
-    outputs = get_outputs(
-        output_urls=output_urls,
+    with open(args.metadata_json) as f:
+        inputs_json = json.load(f)['inputs']
+
+    # Write inputs_json to file
+    print('Writing inputs.json to disk...')
+    with open('inputs.json', 'w') as f:
+        json.dump(inputs_json, f, indent=2, sort_keys=True)
+
+    outputs = get_outputs(args.outputs_file)
+    analysis_outputs = create_analysis_files(
+        output_urls=outputs,
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
@@ -540,16 +584,27 @@ def main():
         input_url_to_md5 = get_md5s(input_urls, client)
         inputs = add_md5s_to_inputs(inputs, input_url_to_md5)
 
+        output_urls = [line['file_path'] for line in outputs]
         output_url_to_md5 = get_md5s(output_urls, client)
         output_name_to_md5 = {
             url.split('/')[-1]: md5 for url, md5 in output_url_to_md5.items()
         }
-        outputs = add_md5s_to_outputs(outputs, output_name_to_md5)
+        analysis_outputs = add_md5s_to_outputs(analysis_outputs, output_name_to_md5)
 
     # Write outputs to file
     print('Writing outputs.json to disk...')
     with open('outputs.json', 'w') as f:
-        json.dump(outputs, f, indent=2, sort_keys=True)
+        json.dump(analysis_outputs, f, indent=2, sort_keys=True)
+
+    print('Writing analysis_file output(s) json to disk...')
+    if not os.path.exists("analysis_files"):
+        os.mkdir("analysis_files")
+
+    for output in analysis_outputs:
+        entity_id = output['provenance']['document_id']
+        version = output['provenance']['submission_date']
+        with open(f'analysis_files/{entity_id}_{version}.json', 'w') as f:
+            json.dump(output, f, indent=2, sort_keys=True)
 
     # Create analysis_process
     analysis_process = create_analysis_process(
@@ -557,28 +612,47 @@ def main():
         metadata_file=args.metadata_json,
         analysis_process_schema_version=args.analysis_process_schema_version,
         analysis_id=args.analysis_id,
-        input_bundles_string=args.input_bundles,
-        reference_bundle=args.reference_bundle,
         inputs=inputs,
         run_type=args.run_type,
+        version=args.version,
+        references=args.references,
+    )
+
+    analysis_process_filename = (
+        f"{analysis_process['provenance']['document_id']}"
+        f"_{analysis_process['provenance']['submission_date']}"
+        f".json"
     )
 
     # Write analysis_process to file
     print('Writing analysis_process.json to disk...')
-    with open('analysis_process.json', 'w') as f:
+    if not os.path.exists("analysis_process"):
+        os.mkdir("analysis_process")
+
+    with open(f'analysis_process/{analysis_process_filename}', 'w') as f:
         json.dump(analysis_process, f, indent=2, sort_keys=True)
 
     # Create analysis_protocol
     analysis_protocol = create_analysis_protocol(
         raw_schema_url=schema_url,
         analysis_protocol_schema_version=args.analysis_protocol_schema_version,
-        pipeline_version=args.pipeline_version,
+        pipeline_version=args.pipeline_version.lower(),
         method=args.method,
+        version=args.version,
+    )
+
+    analysis_protocol_filename = (
+        f"{analysis_protocol['provenance']['document_id']}"
+        f"_{analysis_protocol['provenance']['submission_date']}"
+        f".json"
     )
 
     # Write analysis_protocol to file
     print('Writing analysis_protocol.json to disk...')
-    with open('analysis_protocol.json', 'w') as f:
+    if not os.path.exists("analysis_protocol"):
+        os.mkdir("analysis_protocol")
+
+    with open(f'analysis_protocol/{analysis_protocol_filename}', 'w') as f:
         json.dump(analysis_protocol, f, indent=2, sort_keys=True)
 
 
