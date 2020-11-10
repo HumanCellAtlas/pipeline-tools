@@ -3,6 +3,7 @@ import uuid
 
 EXTENSION_TO_FORMAT = {
     "[.]bam$": "bam",
+    "[.]loom$": "loom",
     "[_]metrics$": "metrics",
     "[.]txt$": "txt",
     "[.]log$": "log",
