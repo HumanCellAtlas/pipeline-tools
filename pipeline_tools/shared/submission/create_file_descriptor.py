@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 import argparse
 import json
+import mimetypes
 
-from pipeline_tools.shared.submission.format_map import get_uuid5, convert_datetime
+from pipeline_tools.shared.submission.format_map import (
+    get_uuid5,
+    convert_datetime,
+    MIME_FORMATS,
+)
+
+
+[mimetypes.add_type(entry[0], entry[1]) for entry in MIME_FORMATS]
 
 
 def build_file_descriptor(
@@ -36,7 +44,7 @@ def build_file_descriptor(
         ),
         'schema_version': file_descriptor_schema_version,
         'schema_type': SCHEMA_TYPE,
-        'content_type': 'application/unknown',  # TODO: Make this actually work
+        'content_type': mimetypes.guess_type(file_path)[0] or 'application/unknown',
         'size': int(size),
         'sha256': sha256,
         'crc32c': crc32c,
