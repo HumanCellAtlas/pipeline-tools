@@ -18,6 +18,13 @@ from pipeline_tools.shared.submission.format_map import (
 )
 
 
+DCP2_MATRIX_CONTENT_DESCRIPTION = {
+    "text": "DCP/2-generated matrix",
+    "ontology": "data:3917",
+    "ontology_label": "Count Matrix",
+}
+
+
 def create_analysis_process(
     raw_schema_url,
     metadata_file,
@@ -206,6 +213,9 @@ def create_analysis_files(
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
                 'format': get_file_format(output['file_path'], extension_to_format),
+                'content_description': DCP2_MATRIX_CONTENT_DESCRIPTION
+                if output['file_path'].endswith(".loom")
+                else [],
             },
         }
         for output in output_urls
