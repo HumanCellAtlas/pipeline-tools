@@ -10,6 +10,7 @@ from pathlib import Path
 @pytest.fixture(scope='module')
 def test_data():
     class Data:
+        project_id = 0
         output_urls = [
             {
                 'sha256': '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251',
@@ -231,6 +232,7 @@ class TestCreateAnalysisMetadata(object):
         )
         outputs_json = cam.create_analysis_files(
             test_data.output_urls,
+            test_data.project_id,
             test_data.extension_to_format,
             test_data.schema_url,
             schema_version,

@@ -165,8 +165,13 @@ def get_outputs(outputs_file):
     return outputs
 
 
+def get_relative_file_location(file_url):
+    """The object name of the data file relative to the staging area's `data/` directory"""
+    return file_url.rsplit('/')[-1]
+
+
 def create_analysis_files(
-    output_urls, extension_to_format, schema_url, analysis_file_version
+    output_urls, project_id, extension_to_format, schema_url, analysis_file_version
 ):
     """Creates outputs metadata array for analysis json.
 
@@ -176,6 +181,7 @@ def create_analysis_files(
 
     Args:
         output_urls (List[str]): List of output gs urls
+        project_id (str): UUID of the project.
         extension_to_format (dict): dict of file extensions to corresponding file formats
         schema_url (str): URL for retrieving HCA metadata schemas
         analysis_file_version (str): the version of the metadata schema that the output file json should conform to
@@ -192,7 +198,9 @@ def create_analysis_files(
             ),
             'schema_type': 'file',
             'provenance': {
-                'document_id': get_uuid5(output['sha256']),
+                'document_id': get_uuid5(
+                    str(project_id) + get_relative_file_location(output['file_path'])
+                ),
                 'submission_date': convert_datetime(output['timestamp']),
             },
             'file_core': {
@@ -484,6 +492,7 @@ def get_analysis_protocol_type():
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--project_id', required=True, help='project id')
     parser.add_argument(
         '--analysis_id', required=True, help='Cromwell UUID of the analysis workflow.'
     )
@@ -569,6 +578,7 @@ def main():
     outputs = get_outputs(args.outputs_file)
     analysis_outputs = create_analysis_files(
         output_urls=outputs,
+        project_id=args.project_id,
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
