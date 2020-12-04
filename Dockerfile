@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.6.11
 
 LABEL maintainer="Mint Team <mintteam@broadinstitute.org>" \
   software="Python" \
@@ -9,8 +9,6 @@ RUN mkdir /tools
 WORKDIR /tools
 
 COPY . .
-
-RUN pip install --upgrade pip
 
 # Get latest setuptools because metadata-api installation fails without at least 40.1.0
 RUN pip install -U setuptools
