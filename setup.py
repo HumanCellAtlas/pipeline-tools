@@ -15,7 +15,8 @@ setup(
     packages=['pipeline_tools'],
     install_requires=[
         'arrow>=0.12.1',
-        'cffi==1.2.0' 'google-auth>=1.6.1,<2',
+        'cffi==1.2.0',
+        'google-auth>=1.6.1,<2',
         'google-cloud-storage>=1.10.0,<2',
         'hca>=7.0.0,<8',
         'mock>=2.0.0,<3',
