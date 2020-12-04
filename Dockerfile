@@ -10,6 +10,8 @@ WORKDIR /tools
 
 COPY . .
 
+RUN pip install --upgrade pip
+
 # Get latest setuptools because metadata-api installation fails without at least 40.1.0
 RUN pip install -U setuptools
 
