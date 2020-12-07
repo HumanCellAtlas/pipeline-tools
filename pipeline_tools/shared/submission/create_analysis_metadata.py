@@ -206,14 +206,14 @@ def create_analysis_files(
             'schema_type': 'file',
             'provenance': {
                 'document_id': get_uuid5(
-                    str(project_id) + get_relative_file_location(output['file_path'])
+                    f"{str(project_id)}{get_relative_file_location(output['file_path'])}"
                 ),
                 'submission_date': convert_datetime(output['timestamp']),
             },
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
                 'format': get_file_format(output['file_path'], extension_to_format),
-                'content_description': DCP2_MATRIX_CONTENT_DESCRIPTION
+                'content_description': [DCP2_MATRIX_CONTENT_DESCRIPTION]
                 if output['file_path'].endswith(".loom")
                 else [],
             },
@@ -502,7 +502,9 @@ def get_analysis_protocol_type():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--project_id', required=True, help='project id')
+    parser.add_argument(
+        '--project_id', required=True, help='Project uuid from HCA Data Browser.'
+    )
     parser.add_argument(
         '--analysis_id', required=True, help='Cromwell UUID of the analysis workflow.'
     )
