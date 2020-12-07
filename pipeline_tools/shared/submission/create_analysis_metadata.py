@@ -188,7 +188,7 @@ def create_analysis_files(
 
     Args:
         output_urls (List[str]): List of output gs urls
-        project_id (str): UUID of the project.
+        project_id (str): UUID of the project in the HCA Data Browser.
         extension_to_format (dict): dict of file extensions to corresponding file formats
         schema_url (str): URL for retrieving HCA metadata schemas
         analysis_file_version (str): the version of the metadata schema that the output file json should conform to
@@ -503,7 +503,7 @@ def get_analysis_protocol_type():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--project_id', required=True, help='Project uuid from HCA Data Browser.'
+        '--project_id', required=True, help='Project UUID from HCA Data Browser.'
     )
     parser.add_argument(
         '--analysis_id', required=True, help='Cromwell UUID of the analysis workflow.'

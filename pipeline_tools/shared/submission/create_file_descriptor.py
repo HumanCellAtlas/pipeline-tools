@@ -20,7 +20,7 @@ def build_file_descriptor(
     Args:
         file_path (str): Path to the described file.
         size (str): Size of the described file in bytes.
-        project_id (str): UUID of project.
+        project_id (str): UUID of the project in the HCA Data Browser.
         sha256 (str): sha256 hash value of the described file.
         crc32c (str): crc32c hash value of the described file.
         creation_time (str): Timestamp of the creation time of the described file.
@@ -63,7 +63,9 @@ def get_relative_file_location(file_url):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--project_id', required=True, help='project id')
+    parser.add_argument(
+        '--project_id', required=True, help='Project UUID from HCA Data Browser.'
+    )
     parser.add_argument(
         '--file_path', required=True, help='Path to the file to describe.'
     )
