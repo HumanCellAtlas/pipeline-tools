@@ -6,7 +6,7 @@ from pipeline_tools.shared.submission.format_map import get_uuid5, convert_datet
 
 
 def build_file_descriptor(
-    project_id,
+    input_uuid,
     file_path,
     size,
     sha256,
@@ -20,7 +20,7 @@ def build_file_descriptor(
     Args:
         file_path (str): Path to the described file.
         size (str): Size of the described file in bytes.
-        project_id (str): UUID of the project in the HCA Data Browser.
+        input_uuid (str): UUID of the input file in the HCA Data Browser.
         sha256 (str): sha256 hash value of the described file.
         crc32c (str): crc32c hash value of the described file.
         creation_time (str): Timestamp of the creation time of the described file.
@@ -32,7 +32,7 @@ def build_file_descriptor(
     relative_location = get_relative_file_location(file_path)
     file_version = convert_datetime(creation_time)
 
-    file_id = get_uuid5(get_uuid5(str(project_id) + relative_location))
+    file_id = get_uuid5(get_uuid5(str(input_uuid)))
 
     file_descriptor = {
         'describedBy': get_file_descriptor_described_by(
@@ -64,7 +64,7 @@ def get_relative_file_location(file_url):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--project_id', required=True, help='Project UUID from HCA Data Browser.'
+        '--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.'
     )
     parser.add_argument(
         '--file_path', required=True, help='Path to the file to describe.'
@@ -89,11 +89,9 @@ def main():
 
     schema_url = args.schema_url.strip('/')
 
-    descriptor_entity_id = get_uuid5(
-        args.project_id + get_relative_file_location(args.file_path)
-    )
+    descriptor_entity_id = get_uuid5(args.input_uuid)
     descriptor = build_file_descriptor(
-        project_id=args.project_id,
+        input_uuid=args.input_uuid,
         file_path=args.file_path,
         size=args.size,
         sha256=args.sha256,

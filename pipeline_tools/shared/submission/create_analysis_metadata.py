@@ -178,7 +178,7 @@ def get_relative_file_location(file_url):
 
 
 def create_analysis_files(
-    output_urls, project_id, extension_to_format, schema_url, analysis_file_version
+    output_urls, input_uuid, extension_to_format, schema_url, analysis_file_version
 ):
     """Creates outputs metadata array for analysis json.
 
@@ -188,7 +188,7 @@ def create_analysis_files(
 
     Args:
         output_urls (List[str]): List of output gs urls
-        project_id (str): UUID of the project in the HCA Data Browser.
+        input_uuid (str): UUID of the input file in the HCA Data Browser.
         extension_to_format (dict): dict of file extensions to corresponding file formats
         schema_url (str): URL for retrieving HCA metadata schemas
         analysis_file_version (str): the version of the metadata schema that the output file json should conform to
@@ -205,9 +205,7 @@ def create_analysis_files(
             ),
             'schema_type': 'file',
             'provenance': {
-                'document_id': get_uuid5(
-                    f"{str(project_id)}{get_relative_file_location(output['file_path'])}"
-                ),
+                'document_id': get_uuid5(str(input_uuid)),
                 'submission_date': convert_datetime(output['timestamp']),
             },
             'file_core': {
@@ -503,7 +501,7 @@ def get_analysis_protocol_type():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--project_id', required=True, help='Project UUID from HCA Data Browser.'
+        '--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.'
     )
     parser.add_argument(
         '--analysis_id', required=True, help='Cromwell UUID of the analysis workflow.'
@@ -590,7 +588,7 @@ def main():
     outputs = get_outputs(args.outputs_file)
     analysis_outputs = create_analysis_files(
         output_urls=outputs,
-        project_id=args.project_id,
+        input_uuid=args.input_uuid,
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,

@@ -8,7 +8,7 @@ from pathlib import Path
 @pytest.fixture(scope='module')
 def test_data():
     class Data:
-        project_id = 0
+        input_uuid = 0
         file_path = '/fake/file/path.fasta'
         size = 1000
         sha256 = '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251'
@@ -33,7 +33,7 @@ def data_file():
 class TestCreateDescriptor(object):
     def test_build_file_descriptor(self, test_data):
         file_descriptor = cfd.build_file_descriptor(
-            project_id=test_data.project_id,
+            input_uuid=test_data.input_uuid,
             file_path=test_data.file_path,
             size=test_data.size,
             sha256=test_data.sha256,
@@ -55,6 +55,6 @@ class TestCreateDescriptor(object):
             == '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251'
         )
         assert file_descriptor.get('crc32c') == '0b83b575'
-        assert file_descriptor.get('file_id') == '5a6c4349-8c3e-50ff-9fa1-5a2b5bed55e1'
+        assert file_descriptor.get('file_id') == '0f39a7a7-20b4-58b6-9ab0-7e88d8182022'
         assert file_descriptor.get('file_version') == '2020-08-10T14:24:26.174274-07:00'
         assert file_descriptor.get('file_name') == 'path.fasta'
