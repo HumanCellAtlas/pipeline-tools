@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import json
+import os
 
 from pipeline_tools.shared.submission.format_map import get_uuid5, convert_datetime
 
@@ -31,8 +32,9 @@ def build_file_descriptor(
     SCHEMA_TYPE = 'file_descriptor'
     relative_location = get_relative_file_location(file_path)
     file_version = convert_datetime(creation_time)
+    file_extension = os.path.splitext(file_path)[1]
 
-    file_id = get_uuid5(get_uuid5(str(input_uuid)))
+    file_id = get_uuid5(get_uuid5(f"{str(input_uuid)}{file_extension}"))
 
     file_descriptor = {
         'describedBy': get_file_descriptor_described_by(
@@ -89,7 +91,9 @@ def main():
 
     schema_url = args.schema_url.strip('/')
 
-    descriptor_entity_id = get_uuid5(args.input_uuid)
+    descriptor_entity_id = get_uuid5(
+        f"{str(args.input_uuid)}{os.path.splitext(args.file_path)[1]}"
+    )
     descriptor = build_file_descriptor(
         input_uuid=args.input_uuid,
         file_path=args.file_path,

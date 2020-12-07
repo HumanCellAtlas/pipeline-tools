@@ -55,6 +55,6 @@ class TestCreateDescriptor(object):
             == '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251'
         )
         assert file_descriptor.get('crc32c') == '0b83b575'
-        assert file_descriptor.get('file_id') == '0f39a7a7-20b4-58b6-9ab0-7e88d8182022'
+        assert file_descriptor.get('file_id') == 'a0094470-9871-596d-b15e-063c63564abe'
         assert file_descriptor.get('file_version') == '2020-08-10T14:24:26.174274-07:00'
         assert file_descriptor.get('file_name') == 'path.fasta'

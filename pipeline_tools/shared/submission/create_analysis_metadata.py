@@ -205,7 +205,9 @@ def create_analysis_files(
             ),
             'schema_type': 'file',
             'provenance': {
-                'document_id': get_uuid5(str(input_uuid)),
+                'document_id': get_uuid5(
+                    f"{str(input_uuid)}{os.path.splitext(output['file_path'])[1]}"
+                ),
                 'submission_date': convert_datetime(output['timestamp']),
             },
             'file_core': {
