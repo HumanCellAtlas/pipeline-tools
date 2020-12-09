@@ -18,6 +18,13 @@ from pipeline_tools.shared.submission.format_map import (
 )
 
 
+DCP2_MATRIX_CONTENT_DESCRIPTION = {
+    "text": "DCP/2-generated matrix",
+    "ontology": "data:3917",
+    "ontology_label": "Count Matrix",
+}
+
+
 def create_analysis_process(
     raw_schema_url,
     metadata_file,
@@ -165,8 +172,13 @@ def get_outputs(outputs_file):
     return outputs
 
 
+def get_relative_file_location(file_url):
+    """The object name of the data file relative to the staging area's `data/` directory"""
+    return file_url.rsplit('/')[-1]
+
+
 def create_analysis_files(
-    output_urls, extension_to_format, schema_url, analysis_file_version
+    output_urls, input_uuid, extension_to_format, schema_url, analysis_file_version
 ):
     """Creates outputs metadata array for analysis json.
 
@@ -176,6 +188,7 @@ def create_analysis_files(
 
     Args:
         output_urls (List[str]): List of output gs urls
+        input_uuid (str): UUID of the input file in the HCA Data Browser.
         extension_to_format (dict): dict of file extensions to corresponding file formats
         schema_url (str): URL for retrieving HCA metadata schemas
         analysis_file_version (str): the version of the metadata schema that the output file json should conform to
@@ -192,12 +205,17 @@ def create_analysis_files(
             ),
             'schema_type': 'file',
             'provenance': {
-                'document_id': get_uuid5(output['sha256']),
+                'document_id': get_uuid5(
+                    f"{str(input_uuid)}{os.path.splitext(output['file_path'])[1]}"
+                ),
                 'submission_date': convert_datetime(output['timestamp']),
             },
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
                 'format': get_file_format(output['file_path'], extension_to_format),
+                'content_description': [DCP2_MATRIX_CONTENT_DESCRIPTION]
+                if output['file_path'].endswith(".loom")
+                else [],
             },
         }
         for output in output_urls
@@ -485,6 +503,9 @@ def get_analysis_protocol_type():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.'
+    )
+    parser.add_argument(
         '--analysis_id', required=True, help='Cromwell UUID of the analysis workflow.'
     )
     parser.add_argument(
@@ -569,6 +590,7 @@ def main():
     outputs = get_outputs(args.outputs_file)
     analysis_outputs = create_analysis_files(
         output_urls=outputs,
+        input_uuid=args.input_uuid,
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,

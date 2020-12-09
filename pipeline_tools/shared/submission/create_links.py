@@ -136,6 +136,16 @@ def main():
     )
     parser.add_argument('--project_id', required=True, help='The project ID')
     parser.add_argument(
+        '--input_id',
+        required=True,
+        help='A unique input ID to incorporate into the links UUID.',
+    )
+    parser.add_argument(
+        '--project_stratum_string',
+        required=True,
+        help="Concatenation of the project, library, species, and organ",
+    )
+    parser.add_argument(
         '--version',
         required=True,
         help='A version (or timestamp) attribute shared across all workflows'
@@ -155,7 +165,7 @@ def main():
     )
 
     # Write links to file
-    string_to_hash = json.dumps(links, sort_keys=True)
+    string_to_hash = f"{args.project_stratum_string}{args.input_id}"
     subgraph_uuid = uuid.uuid5(NAMESPACE, string_to_hash)
 
     if not os.path.exists("links"):

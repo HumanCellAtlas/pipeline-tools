@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.6.11
 
 LABEL maintainer="Mint Team <mintteam@broadinstitute.org>" \
   software="Python" \
