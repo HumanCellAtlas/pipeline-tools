@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 import argparse
 import json
-import uuid
+import os
 
 from pipeline_tools.shared.submission.format_map import (
     EXTENSION_TO_FORMAT,
-    NAMESPACE,
     convert_datetime,
+    get_uuid5,
 )
 from pipeline_tools.shared.submission.create_analysis_metadata import get_file_format
 
 
 def build_reference_file(
+    input_uuid,
     file_path,
-    sha256,
     raw_schema_url,
     reference_file_schema_version,
     version,
@@ -26,6 +26,8 @@ def build_reference_file(
     """Create the submission envelope in Ingest service.
 
     Args:
+        input_uuid (str): UUID of the input file in the HCA Data Browser. If a
+        file does not have a UUID, a unique string identifier may be used.
         file_path (str): Path to the reference file.
         sha256 (str): sha256 hash value of the reference file.
         reference_type (str): type of the reference file (e.g. )
@@ -34,7 +36,8 @@ def build_reference_file(
     """
 
     SCHEMA_TYPE = 'file'
-    entity_id = get_uuid5(sha256)
+    file_extension = os.path.splitext(file_path)[1]
+    entity_id = get_uuid5(f"{str(input_uuid)}{file_extension}")
     formatted_version = convert_datetime(version)
 
     reference_file = {
@@ -69,10 +72,6 @@ def get_file_core(file_path):
     return file_core
 
 
-def get_uuid5(sha256):
-    return str(uuid.uuid5(NAMESPACE, sha256))
-
-
 def get_reference_file_described_by(schema_url, schema_version):
     return f'{schema_url.strip("/")}/type/file/{schema_version}/reference_file'
 
@@ -88,7 +87,9 @@ def main():
         '--file_path', required=True, help='Path to the reference file.'
     )
     parser.add_argument(
-        '--sha256', required=True, help='The sha256 hash value of the reference file.'
+        '--input_uuid',
+        required=True,
+        help='Input file UUID from the HCA Data Browser. If a UUID is not available, a unique string identifier may be used.',
     )
     parser.add_argument(
         '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
@@ -135,7 +136,7 @@ def main():
     schema_url = args.schema_url.strip('/')
 
     build_reference_file(
-        sha256=args.sha256,
+        input_uuid=args.input_uuid,
         file_path=args.file_path,
         raw_schema_url=schema_url,
         reference_file_schema_version=args.reference_file_schema_version,
