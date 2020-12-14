@@ -96,7 +96,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--analysis_output_path', required=True)
     parser.add_argument('--cromwell_url', required=True)
-    parser.add_argument('--include_keys', required=False)
+    parser.add_argument('--include_keys', required=False, nargs='+')
     args = parser.parse_args()
 
     print('Using analysis output path: {0}'.format(args.analysis_output_path))
