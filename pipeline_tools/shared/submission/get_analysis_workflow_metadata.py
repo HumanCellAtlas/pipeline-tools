@@ -96,6 +96,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--analysis_output_path', required=True)
     parser.add_argument('--cromwell_url', required=True)
+    parser.add_argument('--include_keys', required=False)
     args = parser.parse_args()
 
     print('Using analysis output path: {0}'.format(args.analysis_output_path))
@@ -108,6 +109,7 @@ def main():
         cromwell_url=args.cromwell_url,
         workflow_id=workflow_id,
         http_requests=HttpRequests(),
+        include_keys=args.include_keys,
     )
 
 
