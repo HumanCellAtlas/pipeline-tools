@@ -24,6 +24,8 @@ DCP2_MATRIX_CONTENT_DESCRIPTION = {
     "ontology_label": "Count Matrix",
 }
 
+SUBMITTER_ID = "e67aaabe-93ea-564a-aa66-31bc0857b707"
+
 
 def create_analysis_process(
     raw_schema_url,
@@ -134,6 +136,7 @@ def create_analysis_protocol(
         'document_id': entity_id,
         'submission_date': version,
         'update_date': version,
+        "submitter_id": SUBMITTER_ID,
     }
 
     return analysis_protocol
@@ -209,6 +212,7 @@ def create_analysis_files(
                     f"{str(input_uuid)}{os.path.splitext(output['file_path'])[1]}"
                 ),
                 'submission_date': convert_datetime(output['timestamp']),
+                'submitter_id': SUBMITTER_ID,
             },
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
