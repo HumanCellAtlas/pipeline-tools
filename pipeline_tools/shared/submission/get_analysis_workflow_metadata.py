@@ -83,7 +83,7 @@ def get_metadata(
 
     if include_keys:
         print(f'Including keys: {", ".join(include_keys)}')
-        key_query = f'?includeKey={"&includeKey=".join(include_keys)}'
+        key_query = f'&includeKey={"&includeKey=".join(include_keys)}'
         url += key_query
 
     response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
