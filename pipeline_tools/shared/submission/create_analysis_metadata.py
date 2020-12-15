@@ -136,7 +136,6 @@ def create_analysis_protocol(
         'document_id': entity_id,
         'submission_date': version,
         'update_date': version,
-        "submitter_id": SUBMITTER_ID,
     }
 
     return analysis_protocol
