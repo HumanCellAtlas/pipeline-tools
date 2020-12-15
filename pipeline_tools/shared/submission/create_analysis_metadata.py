@@ -199,6 +199,7 @@ def create_analysis_files(
         outputs (List[dict]): Array of dicts representing outputs metadata in the format required for the analysis json
                               file
     """
+    ANALYSIS_FILE_ENTITY_TYPE = "analysis_file"
 
     analysis_outputs = [
         {
@@ -208,7 +209,7 @@ def create_analysis_files(
             'schema_type': 'file',
             'provenance': {
                 'document_id': get_uuid5(
-                    f"{str(input_uuid)}{os.path.splitext(output['file_path'])[1]}"
+                    f"{str(input_uuid)}{ANALYSIS_FILE_ENTITY_TYPE}{os.path.splitext(output['file_path'])[1]}"
                 ),
                 'submission_date': convert_datetime(output['timestamp']),
                 'submitter_id': SUBMITTER_ID,
