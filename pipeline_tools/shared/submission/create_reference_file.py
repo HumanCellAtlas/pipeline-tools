@@ -35,9 +35,12 @@ def build_reference_file(
         reference_file_schema_version (str): Version of the metadata schema that the file_descriptor.json conforms to.
     """
 
+    REFERENCE_FILE_ENTITY_TYPE = "reference_file"
     SCHEMA_TYPE = 'file'
     file_extension = os.path.splitext(file_path)[1]
-    entity_id = get_uuid5(f"{str(input_uuid)}{file_extension}")
+    entity_id = get_uuid5(
+        f"{str(input_uuid)}{REFERENCE_FILE_ENTITY_TYPE}{file_extension}"
+    )
     formatted_version = convert_datetime(version)
 
     reference_file = {
