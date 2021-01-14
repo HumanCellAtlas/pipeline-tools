@@ -22,6 +22,7 @@ def build_file_descriptor(
     sha256,
     crc32c,
     creation_time,
+    workspace_version,
     raw_schema_url,
     file_descriptor_schema_version,
 ):
@@ -34,6 +35,7 @@ def build_file_descriptor(
         sha256 (str): sha256 hash value of the described file.
         crc32c (str): crc32c hash value of the described file.
         creation_time (str): Timestamp of the creation time of the described file.
+        workspace_version (str): Timestamp used to version the workspace.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         file_descriptor_schema_version (str): Version of the metadata schema that the file_descriptor.json conforms to.
     """
@@ -92,6 +94,9 @@ def main():
         help='Time of file creation, as reported by "gsutil ls -l"',
     )
     parser.add_argument(
+        '--workspace_version', required=True, help='The workspace version value'
+    )
+    parser.add_argument(
         '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
     )
     parser.add_argument(
@@ -118,10 +123,10 @@ def main():
         entity_type=args.entity_type,
     )
 
-    file_version = descriptor['file_version']
+    workspace_version = args.workspace_version
 
     # Write descriptor to file
-    with open(f'{descriptor_entity_id}_{file_version}.json', 'w') as f:
+    with open(f'{descriptor_entity_id}_{workspace_version}.json', 'w') as f:
         json.dump(descriptor, f, indent=2, sort_keys=True)
 
 

@@ -16,6 +16,7 @@ def test_data():
         raw_schema_url = 'http://schema.humancellatlas.org/'
         file_descriptor_schema_version = '2.0.0'
         creation_time = '2020-08-10T14:24:26.174274-07:00'
+        workspace_version = '2021-01-13T17:53:12.000000Z'
 
     return Data
 
@@ -42,6 +43,7 @@ class TestCreateDescriptor(object):
             raw_schema_url=test_data.raw_schema_url,
             file_descriptor_schema_version=test_data.file_descriptor_schema_version,
             creation_time=test_data.creation_time,
+            workspace_version=test_data.workspace_version,
         )
 
         assert (
