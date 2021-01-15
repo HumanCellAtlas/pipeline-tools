@@ -22,7 +22,6 @@ def build_file_descriptor(
     sha256,
     crc32c,
     creation_time,
-    workspace_version,
     raw_schema_url,
     file_descriptor_schema_version,
 ):
