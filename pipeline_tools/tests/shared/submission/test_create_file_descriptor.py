@@ -43,7 +43,6 @@ class TestCreateDescriptor(object):
             raw_schema_url=test_data.raw_schema_url,
             file_descriptor_schema_version=test_data.file_descriptor_schema_version,
             creation_time=test_data.creation_time,
-            workspace_version=test_data.workspace_version,
         )
 
         assert (

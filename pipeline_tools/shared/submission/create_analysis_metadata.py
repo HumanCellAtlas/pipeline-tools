@@ -14,7 +14,6 @@ from pipeline_tools.shared.submission.format_map import (
     EXTENSION_TO_FORMAT,
     NAMESPACE,
     get_uuid5,
-    convert_datetime,
 )
 
 
@@ -178,7 +177,12 @@ def get_relative_file_location(file_url):
 
 
 def create_analysis_files(
-    output_urls, input_uuid, extension_to_format, schema_url, analysis_file_version
+    output_urls,
+    input_uuid,
+    extension_to_format,
+    schema_url,
+    analysis_file_version,
+    version,
 ):
     """Creates outputs metadata array for analysis json.
 
@@ -209,7 +213,7 @@ def create_analysis_files(
                 'document_id': get_uuid5(
                     f"{str(input_uuid)}{ANALYSIS_FILE_ENTITY_TYPE}{os.path.splitext(output['file_path'])[1]}"
                 ),
-                'submission_date': convert_datetime(output['timestamp']),
+                'submission_date': version,
             },
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
@@ -595,6 +599,7 @@ def main():
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
+        version=args.version,
     )
 
     # Add md5 checksums to input and output metadata if needed
