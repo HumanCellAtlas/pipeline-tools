@@ -44,7 +44,7 @@ def get_auth_headers():
     return headers
 
 
-def get_metadata(cromwell_url, workflow_id, http_requests):
+def get_metadata(cromwell_url, workflow_id, http_request, include_subworkflows="False"):
     """Get metadata for analysis workflow from Cromwell and write it to a JSON file. This is only
     compatible with instances of Cromwell that use SAM for Identity Access Management (IAM), such
     as Cromwell-as-a-Service.
@@ -73,9 +73,10 @@ def get_metadata(cromwell_url, workflow_id, http_requests):
     headers['Accept-Encoding'] = 'identity'
 
     base_url = cromwell_url.strip('/')
-    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(
-        base_url, workflow_id
-    )
+#    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(
+#        base_url, workflow_id
+#    )
+    url = f'{base_url}/api/workflows/v1/{workflow_id}/metadata?expandSubWorkflows={include_subworkflows.lower()}'
 
     response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
@@ -98,6 +99,7 @@ def main():
         cromwell_url=args.cromwell_url,
         workflow_id=workflow_id,
         http_requests=HttpRequests(),
+        parser.add_argument('--include_subworkflows', default="False", choices=["True", "False"])
     )
 
 
