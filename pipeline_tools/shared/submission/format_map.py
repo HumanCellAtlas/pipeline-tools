@@ -24,7 +24,7 @@ EXTENSION_TO_FORMAT = {
     "[.]npy$": "npy",
 }
 
-MIME_FORMATS = [('application/vnd.loom', '.loom')]
+MIME_FORMATS = [('application/vnd.loom', '.loom'), ('application/octet-stream', '.bam')]
 
 NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
 

@@ -10,6 +10,8 @@ from pipeline_tools.shared.submission.format_map import (
     MIME_FORMATS,
 )
 
+from file_descriptors.descriptor import Descriptor
+
 
 [mimetypes.add_type(entry[0], entry[1]) for entry in MIME_FORMATS]
 
@@ -25,7 +27,6 @@ def build_file_descriptor(
     file_descriptor_schema_version,
 ):
     """Create the submission envelope in Ingest service.
-
     Args:
         file_path (str): Path to the described file.
         size (str): Size of the described file in bytes.
@@ -72,52 +73,54 @@ def get_relative_file_location(file_url):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.'
-    )
-    parser.add_argument(
-        '--file_path', required=True, help='Path to the file to describe.'
-    )
-    parser.add_argument('--size', required=True, help='Size of the file in bytes.')
-    parser.add_argument('--sha256', required=True, help='sha256 of the file.')
-    parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
-    parser.add_argument(
-        '--creation_time',
-        required=True,
-        help='Time of file creation, as reported by "gsutil ls -l"',
-    )
-    parser.add_argument(
-        '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
-    )
-    parser.add_argument(
-        '--file_descriptor_schema_version',
-        required=True,
-        help='The metadata schema version that the file_descriptor conforms to.',
-    )
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--size', required=True, help='Size of the file in bytes.')
+    # parser.add_argument('--sha256', required=True, help='sha256 of the file.')
+    # parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
+    # parser.add_argument(
+    #     '--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.'
+    # )
+    # parser.add_argument(
+    #     '--file_path', required=True, help='Path to the loom/bam file to describe.'
+    # )
+    # parser.add_argument(
+    #     '--pipeline-type', required=True, help='Type of pipeline(SS2 or Optimus)'
+    # )
+    # parser.add_argument(
+    #     '--creation_time',
+    #     required=True,
+    #     help='Time of file creation, as reported by "gsutil ls -l"',
+    # )
+    # 
+    # args = parser.parse_args()
+# 
+    # #schema_url = args.schema_url.strip('/')
+# 
+    # descriptor_entity_id = get_uuid5(
+    #     f"{str(args.input_uuid)}{os.path.splitext(args.file_path)[1]}"
+    # )
+    #descriptor = build_file_descriptor(
+    #    input_uuid=args.input_uuid,
+    #    file_path=args.file_path,
+    #    size=args.size,
+    #    sha256=args.sha256,
+    #    crc32c=args.crc32c,
+    #    creation_time=args.creation_time,
+    #    raw_schema_url=schema_url,
+    #    file_descriptor_schema_version=args.file_descriptor_schema_version,
+    #)
 
-    schema_url = args.schema_url.strip('/')
-
-    descriptor_entity_id = get_uuid5(
-        f"{str(args.input_uuid)}{os.path.splitext(args.file_path)[1]}"
-    )
-    descriptor = build_file_descriptor(
-        input_uuid=args.input_uuid,
-        file_path=args.file_path,
-        size=args.size,
-        sha256=args.sha256,
-        crc32c=args.crc32c,
-        creation_time=args.creation_time,
-        raw_schema_url=schema_url,
-        file_descriptor_schema_version=args.file_descriptor_schema_version,
-    )
-
-    file_version = descriptor['file_version']
+    #print(descriptor_entity_id)
+#
+    #file_version = descriptor['file_version']
 
     # Write descriptor to file
-    with open(f'{descriptor_entity_id}_{file_version}.json', 'w') as f:
-        json.dump(descriptor, f, indent=2, sort_keys=True)
+    #with open(f'{descriptor_entity_id}_{file_version}.json', 'w') as f:
+    #    json.dump(descriptor, f, indent=2, sort_keys=True)
+
+    foo = Descriptor(0,0,0,0,0,0)
+    foo.dude()
+    print(MIME_FORMATS)
 
 
 if __name__ == '__main__':
