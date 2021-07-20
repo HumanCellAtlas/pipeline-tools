@@ -22,7 +22,7 @@ setup(
         'requests>=2.20.0,<3',
         'requests-mock>=1.5.2,<2',
         'setuptools_scm>=2.0.0,<3',
-        'tenacity>=4.10.0,<5',
+        'tenacity>=5.0.2,<5.1',
         'PyJWT==1.6.4',
         'hca-metadata-api @ git+git://github.com/HumanCellAtlas/metadata-api@release/1.0b20',
     ],
