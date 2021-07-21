@@ -1,5 +1,6 @@
 import mimetypes
 
+from operator import itemgetter
 from pipeline_tools.shared.submission.format_map import MIME_FORMATS
 
 class Descriptor():
@@ -28,7 +29,7 @@ class Descriptor():
 
     describedBy ="https://schema.humancellatlas.org/system/2.0.0/file_descriptor"
     schema_type="file_descriptor"
-    schema_version:"2.0.0"
+    schema_version="2.0.0"
 
 
     def __init__(self, size, sha256, crc32c, input_uuid, file_path, creation_time):

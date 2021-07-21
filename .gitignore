@@ -32,3 +32,5 @@ wheels/
 .idea/
 
 test-data/
+
+.vscode/
