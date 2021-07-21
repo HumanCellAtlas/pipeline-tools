@@ -29,7 +29,8 @@ class Descriptor():
         }
 
     See https://schema.humancellatlas.org/system/2.0.0/file_descriptor for full spec
-"""
+    """
+
     # Add loom, bam and fa mimetypes
     [mimetypes.add_type(entry[0], entry[1]) for entry in format_map.MIME_FORMATS]
 
@@ -38,7 +39,15 @@ class Descriptor():
     schema_type = SCHEMAS["FILE_DESCRIPTOR"]["schema_type"]
     schema_version = SCHEMAS["FILE_DESCRIPTOR"]["schema_version"]
 
-    def __init__(self, size, sha256, crc32c, input_uuid, file_path, creation_time, pipeline_type):
+    def __init__(
+        self,
+        size,
+        sha256,
+        crc32c,
+        input_uuid,
+        file_path,
+        creation_time,
+            pipeline_type):
 
         # Get the file version, content type, file name and file extension from params
         file_version = format_map.convert_datetime(creation_time)
