@@ -131,23 +131,13 @@ def test_build_file_descriptor(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--size', required=True, help='Size of the file in bytes.')
     parser.add_argument('--sha256', required=True, help='sha256 of the file.')
     parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
-    parser.add_argument(
-        '--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.'
-    )
-    parser.add_argument(
-        '--file_path', required=True, help='Path to the loom/bam file to describe.'
-    )
-    parser.add_argument(
-        '--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)'
-    )
-    parser.add_argument(
-        '--creation_time',
-        required=True,
-        help='Time of file creation, as reported by "gsutil ls -l"',
-    )
+    parser.add_argument('--size', required=True, help='Size of the file in bytes.')
+    parser.add_argument('--pipeline_type', required=True, help='Type of pipeline (SS2 or Optimus)')
+    parser.add_argument('--file_path', required=True, help='Path to the loom/bam file to describe.')
+    parser.add_argument('--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.')
+    parser.add_argument('--creation_time', required=True, help='Time of file creation, as reported by "gsutil ls -l"',)
 
     args = parser.parse_args()
 

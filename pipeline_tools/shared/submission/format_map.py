@@ -1,4 +1,5 @@
 import uuid
+import re
 
 
 EXTENSION_TO_FORMAT = {
@@ -6,6 +7,7 @@ EXTENSION_TO_FORMAT = {
     "[.]loom$": "loom",
     "[_]metrics$": "metrics",
     "[.]txt$": "txt",
+    "[.]fa$": "fasta",
     "[.]log$": "log",
     "[.]pdf$": "pdf",
     "[.]results$": "results",
@@ -37,4 +39,26 @@ def get_uuid5(sha256):
 
 
 def convert_datetime(creation_time):
+    if creation_time.endswith('.000000Z'):
+        return creation_time
     return creation_time.replace('Z', '.000000Z')
+
+
+def get_file_format(path):
+    """Returns the file type of the file at the given path.
+
+    Args:
+        path (str): The path to the file.
+        extension_to_format (dict): dict mapping file extensions to file types.
+
+    Returns:
+        str: A string representing the format of the file, if not applicable, 'unknown' will be returned.
+    """
+
+    for ext in EXTENSION_TO_FORMAT:
+        if re.search(ext, path):
+            file_format = EXTENSION_TO_FORMAT[ext]
+            return file_format
+
+    print('Warning: no known format in the format_map matches file {}'.format(path))
+    return 'unknown'
