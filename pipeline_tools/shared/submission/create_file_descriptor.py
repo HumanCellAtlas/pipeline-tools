@@ -48,10 +48,16 @@ class Descriptor():
         pipeline_type,
             creation_time):
 
-        # Get the file version, content type, file name and file extension from params
+        # Grab timestamp that adheres to schema
         file_version = format_map.convert_datetime(creation_time)
+
+        # Grab the mimetype of the file thats been submitted
         content_type = mimetypes.guess_type(file_path)[0] or 'application/unknown'
+
+        # Grab the extension of the file thats been submitted
         file_extension = os.path.splitext(file_path)[1]
+
+        # Grab the raw name of the file thats been submitted
         file_name = file_path.rsplit("/")[-1]
 
         # Generate unique file UUID5 by hashing twice
