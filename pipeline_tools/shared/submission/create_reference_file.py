@@ -86,7 +86,7 @@ class ReferenceFile():
     def __reference_file__(self):
         return {
             "assembly_type" : self.assembly_type,
-            "decribedBy" : self.describedBy,
+            "describedBy" : self.describedBy,
             "file_core" : {
                 "file_name" : self.file_name,
                 "format" : self.file_format
@@ -97,7 +97,7 @@ class ReferenceFile():
             "ncbi_taxon_id" : int(self.ncbi_taxon_id),
             "provenance" : {
                 "document_id" : self.file_id,
-                "submission_data" : self.file_version
+                "submission_date" : self.file_version
             },
             "reference_type" : self.reference_type,
             "reference_version" : self.reference_version,
@@ -115,6 +115,32 @@ class ReferenceFile():
     @property
     def id(self):
         return self.file_id
+
+
+# Entry point for unit tests
+def test_create_reference_file(
+    file_path,
+    input_uuid,
+    genus_species,
+    assembly_type,
+    pipeline_type,
+    ncbi_taxon_id,
+    reference_type,
+    workspace_version,
+        reference_version):
+
+    test_reference_file = ReferenceFile(
+        file_path,
+        input_uuid,
+        genus_species,
+        assembly_type,
+        pipeline_type,
+        ncbi_taxon_id,
+        reference_type,
+        workspace_version,
+        reference_version)
+
+    return test_reference_file.get_json()
 
 
 def main():
