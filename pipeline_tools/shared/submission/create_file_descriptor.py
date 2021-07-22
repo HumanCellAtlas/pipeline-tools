@@ -16,16 +16,15 @@ class Descriptor():
     The json files have the following form:
 
         {
-        "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
-        "schema_type": "file_descriptor",
-        "schema_version": "2.0.0",
-        "content_type": "application/vnd.loom",
-        "size": 21806469
-        "sha256": "c12d50051a5b8820124f596529c6cbdc0280b71883acbde08e30311cdb30edfa",
-        "crc32c": "e598a0f6",
-        "file_id": "317a2bfc-ea58-50ae-b64e-4c58d0c01a74",
-        "file_name": "heart_1k_test_v2_S1_L001.loom",
-        "file_version": "2021-07-08T17:22:45.000000Z",
+            "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
+            "schema_type": "file_descriptor",
+            "content_type": "application/vnd.loom",
+            "size": 21806469
+            "sha256": "c12d50051a5b8820124f596529c6cbdc0280b71883acbde08e30311cdb30edfa",
+            "crc32c": "e598a0f6",
+            "file_id": "317a2bfc-ea58-50ae-b64e-4c58d0c01a74",
+            "file_name": "heart_1k_test_v2_S1_L001.loom",
+            "file_version": "2021-07-08T17:22:45.000000Z",
         }
 
     See https://schema.humancellatlas.org/system/2.0.0/file_descriptor for full spec
@@ -46,8 +45,8 @@ class Descriptor():
         crc32c,
         input_uuid,
         file_path,
-        creation_time,
-            pipeline_type):
+        pipeline_type,
+            creation_time):
 
         # Get the file version, content type, file name and file extension from params
         file_version = format_map.convert_datetime(creation_time)
@@ -56,6 +55,7 @@ class Descriptor():
         file_name = file_path.rsplit("/")[-1]
 
         # Generate unique file UUID5 by hashing twice
+        # This is deterministic and should always produce the same output given the same input
         temp_id = format_map.get_uuid5(f"{input_uuid}{file_extension}")
         file_id = format_map.get_uuid5(temp_id)
 
@@ -101,6 +101,28 @@ class Descriptor():
         return self.file_version
 
 
+# Entry point for unit tests
+def test_build_file_descriptor(
+    size,
+    sha256,
+    crc32c,
+    input_uuid,
+    file_path,
+    pipeline_type,
+        creation_time):
+
+    test_file_descriptor = Descriptor(
+        size,
+        sha256,
+        crc32c,
+        input_uuid,
+        file_path,
+        pipeline_type,
+        creation_time)
+
+    return test_file_descriptor.get_json()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--size', required=True, help='Size of the file in bytes.')
@@ -123,14 +145,15 @@ def main():
 
     args = parser.parse_args()
 
+    # Create file descriptor object
     file_descriptor = Descriptor(
         args.size,
         args.sha256,
         args.crc32c,
         args.input_uuid,
         args.file_path,
-        args.creation_time,
-        args.pipeline_type)
+        args.pipeline_type,
+        args.creation_time)
 
     # Get the JSON content to be written
     descriptor_json = file_descriptor.get_json()

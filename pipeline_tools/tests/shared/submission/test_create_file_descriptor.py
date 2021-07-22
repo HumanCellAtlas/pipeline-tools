@@ -13,9 +13,8 @@ def test_data():
         size = 1000
         sha256 = '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251'
         crc32c = '0b83b575'
-        raw_schema_url = 'http://schema.humancellatlas.org/'
-        file_descriptor_schema_version = '2.0.0'
-        creation_time = '2020-08-10T14:24:26.174274-07:00'
+        pipeline_type = 'optimus'
+        creation_time = '2021-07-14T16:01:45Z'
 
     return Data
 
@@ -32,20 +31,19 @@ def data_file():
 
 class TestCreateDescriptor(object):
     def test_build_file_descriptor(self, test_data):
-        file_descriptor = cfd.build_file_descriptor(
-            input_uuid=test_data.input_uuid,
-            file_path=test_data.file_path,
+        file_descriptor = cfd.test_build_file_descriptor(
             size=test_data.size,
             sha256=test_data.sha256,
             crc32c=test_data.crc32c,
-            raw_schema_url=test_data.raw_schema_url,
-            file_descriptor_schema_version=test_data.file_descriptor_schema_version,
+            input_uuid=test_data.input_uuid,
+            file_path=test_data.file_path,
+            pipeline_type=test_data.pipeline_type,
             creation_time=test_data.creation_time,
         )
 
         assert (
             file_descriptor.get('describedBy')
-            == 'http://schema.humancellatlas.org/system/2.0.0/file_descriptor'
+            == 'https://schema.humancellatlas.org/system/2.0.0/file_descriptor'
         )
         assert file_descriptor.get('schema_type') == 'file_descriptor'
         assert file_descriptor.get('content_type') == 'application/unknown'
@@ -56,5 +54,5 @@ class TestCreateDescriptor(object):
         )
         assert file_descriptor.get('crc32c') == '0b83b575'
         assert file_descriptor.get('file_id') == 'a0094470-9871-596d-b15e-063c63564abe'
-        assert file_descriptor.get('file_version') == '2020-08-10T14:24:26.174274-07:00'
+        assert file_descriptor.get('file_version') == '2021-07-14T16:01:45.000000Z'
         assert file_descriptor.get('file_name') == 'path.fasta'
