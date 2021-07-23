@@ -45,8 +45,10 @@ class Descriptor():
         crc32c,
         input_uuid,
         file_path,
+        entity_type,
         pipeline_type,
-            creation_time):
+        creation_time,
+            workspace_version):
 
         # Grab timestamp that adheres to schema
         file_version = format_map.convert_datetime(creation_time)
@@ -62,7 +64,7 @@ class Descriptor():
 
         # Generate unique file UUID5 by hashing twice
         # This is deterministic and should always produce the same output given the same input
-        temp_id = format_map.get_uuid5(f"{input_uuid}{file_extension}")
+        temp_id = format_map.get_uuid5(f"{input_uuid}{entity_type}{file_extension}")
         file_id = format_map.get_uuid5(temp_id)
 
         self.size = size
@@ -72,11 +74,13 @@ class Descriptor():
         self.file_path = file_path
         self.file_name = file_name
         self.input_uuid = input_uuid
+        self.entity_type = entity_type
         self.file_version = file_version
         self.content_type = content_type
         self.creation_time = creation_time
         self.pipeline_type = pipeline_type
         self.file_extension = file_extension
+        self.workspace_version = workspace_version
 
     def __descriptor__(self):
         return {
@@ -103,8 +107,12 @@ class Descriptor():
         return self.file_extension
 
     @property
-    def version(self):
-        return self.file_version
+    def work_version(self):
+        return self.workspace_version
+
+    @property
+    def entity(self):
+        return self.entity_type
 
 
 # Entry point for unit tests
@@ -114,8 +122,10 @@ def test_build_file_descriptor(
     crc32c,
     input_uuid,
     file_path,
+    entity_type,
     pipeline_type,
-        creation_time):
+    creation_time,
+        workspace_version):
 
     test_file_descriptor = Descriptor(
         size,
@@ -123,8 +133,10 @@ def test_build_file_descriptor(
         crc32c,
         input_uuid,
         file_path,
+        entity_type,
         pipeline_type,
-        creation_time)
+        creation_time,
+        workspace_version)
 
     return test_file_descriptor.get_json()
 
@@ -134,20 +146,12 @@ def main():
     parser.add_argument('--size', required=True, help='Size of the file in bytes.')
     parser.add_argument('--sha256', required=True, help='sha256 of the file.')
     parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
-    parser.add_argument(
-        '--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.'
-    )
-    parser.add_argument(
-        '--file_path', required=True, help='Path to the loom/bam file to describe.'
-    )
-    parser.add_argument(
-        '--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)'
-    )
-    parser.add_argument(
-        '--creation_time',
-        required=True,
-        help='Time of file creation, as reported by "gsutil ls -l"',
-    )
+    parser.add_argument('--pipeline_type', required=True, help='Type of pipeline (SS2 or Optimus)')
+    parser.add_argument('--entity_type', required=True, help='Type of entity being described (analysis_file or reference_file)')
+    parser.add_argument('--file_path', required=True, help='Path to the loom/bam file to describe.')
+    parser.add_argument('--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.')
+    parser.add_argument('--creation_time', required=True, help='Time of file creation, as reported by "gsutil ls -l"',)
+    parser.add_argument('--workspace_version', required=True, help='Workspace version value i.e. timestamp for workspace')
 
     args = parser.parse_args()
 
@@ -158,18 +162,20 @@ def main():
         args.crc32c,
         args.input_uuid,
         args.file_path,
+        args.entity_type,
         args.pipeline_type,
-        args.creation_time)
+        args.creation_time,
+        args.workspace_version)
 
     # Get the JSON content to be written
     descriptor_json = file_descriptor.get_json()
 
-    # Generate unique descriptor UUID based on input file's UUID and extension
-    descriptor_json_id = format_map.get_uuid5(
-        f"{file_descriptor.input_uuid}{file_descriptor.extension}")
+    # Generate unique descriptor UUID based on input file's UUID, the entity type, and extension
+    descriptor_entity_id = format_map.get_uuid5(
+        f"{file_descriptor.uuid}{file_descriptor.entity}{file_descriptor.extension}")
 
     # Generate filename based on UUID and version
-    descriptor_json_filename = f"{descriptor_json_id}_{file_descriptor.version}.json"
+    descriptor_json_filename = f"{descriptor_entity_id}_{file_descriptor.work_version}.json"
 
     with open(descriptor_json_filename, 'w') as f:
         json.dump(descriptor_json, f, indent=2, sort_keys=True)
