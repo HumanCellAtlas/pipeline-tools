@@ -18,10 +18,10 @@ def test_data():
         workflow_id = 'id'
         base_url = 'https://cromwell.mint-environment.broadinstitute.org'
         caas_base_url = 'https://cromwell.caas-dev.broadinstitute.org'
-        cromwell_metadata_url = '{}/api/workflows/v1/{}/metadata?expandSubWorkflows=true'.format(
+        cromwell_metadata_url = '{}/api/workflows/v1/{}/metadata?expandSubWorkflows=false'.format(
             base_url, workflow_id
         )
-        caas_metadata_url = '{}/api/workflows/v1/{}/metadata?expandSubWorkflows=true'.format(
+        caas_metadata_url = '{}/api/workflows/v1/{}/metadata?expandSubWorkflows=false'.format(
             caas_base_url, workflow_id
         )
         analysis_output_path = (

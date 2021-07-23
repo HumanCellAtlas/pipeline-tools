@@ -3,11 +3,7 @@ import argparse
 import json
 import os
 
-from pipeline_tools.shared.submission.format_map import (
-    EXTENSION_TO_FORMAT,
-    convert_datetime,
-    get_uuid5,
-)
+from pipeline_tools.shared.submission.format_map import EXTENSION_TO_FORMAT, get_uuid5
 from pipeline_tools.shared.submission.create_analysis_metadata import get_file_format
 
 
@@ -35,10 +31,12 @@ def build_reference_file(
         reference_file_schema_version (str): Version of the metadata schema that the file_descriptor.json conforms to.
     """
 
+    REFERENCE_FILE_ENTITY_TYPE = "reference_file"
     SCHEMA_TYPE = 'file'
     file_extension = os.path.splitext(file_path)[1]
-    entity_id = get_uuid5(f"{str(input_uuid)}{file_extension}")
-    formatted_version = convert_datetime(version)
+    entity_id = get_uuid5(
+        f"{str(input_uuid)}{REFERENCE_FILE_ENTITY_TYPE}{file_extension}"
+    )
 
     reference_file = {
         'describedBy': get_reference_file_described_by(
@@ -47,7 +45,7 @@ def build_reference_file(
         'schema_version': reference_file_schema_version,
         'schema_type': SCHEMA_TYPE,
         'file_core': get_file_core(file_path),
-        'provenance': {'document_id': entity_id, 'submission_date': formatted_version},
+        'provenance': {'document_id': entity_id, 'submission_date': version},
         'ncbi_taxon_id': int(ncbi_taxon_id),
         'genus_species': {'text': genus_species},
         'assembly_type': assembly_type,
@@ -56,7 +54,7 @@ def build_reference_file(
     }
 
     # Write the reference_file metadata
-    with open(f'{entity_id}_{formatted_version}.json', 'w') as f:
+    with open(f'{entity_id}_{version}.json', 'w') as f:
         json.dump(reference_file, f, indent=2, sort_keys=True)
 
     with open('reference_uuid.txt', 'w') as f:

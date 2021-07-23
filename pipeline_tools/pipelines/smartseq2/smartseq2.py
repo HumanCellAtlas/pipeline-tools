@@ -264,7 +264,6 @@ def create_multi_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
         metadata = json.load(f)
     HEADERS = ['name', 'value']
     content = [
-        ['fastq1_input_files', metadata['inputs']['fastq1_input_files']],
         ['gene_ref_flat', metadata['inputs']['gene_ref_flat']],
         ['genome_ref_fasta', metadata['inputs']['genome_ref_fasta']],
         ['hisat2_ref_index', metadata['inputs']['hisat2_ref_index']],
@@ -272,15 +271,30 @@ def create_multi_sample_ss2_inputs_tsv_from_analysis_metadata(metadata_file):
         ['hisat2_ref_trans_name', metadata['inputs']['hisat2_ref_trans_name']],
         ['rrna_intervals', metadata['inputs']['rrna_intervals']],
         ['rsem_ref_index', metadata['inputs']['rsem_ref_index']],
-        ['stranded', metadata['inputs']['stranded']],
-        ['input_ids', metadata['inputs']['input_ids']],
+        ['stranded', metadata['inputs']['stranded']]
     ]
+
+    fastq1_input_files_content = metadata['inputs']['fastq1_input_files']
+
+    input_ids_content = metadata['inputs']['input_ids']
+
+    fastq2_input_files_content = []
     if metadata['inputs'].get('fastq2_input_files'):
-        content.append(
-            ['fastq2_input_files', metadata['inputs'].get('fastq2_input_files')]
-        )
+        fastq2_input_files_content = metadata['inputs']['fastq2_input_files']
 
     with open('inputs.tsv', 'w') as inputs_tsv:
         writer = csv.writer(inputs_tsv, delimiter='\t')
         writer.writerow(HEADERS)
         writer.writerows(content)
+
+    with open('fastq1_input_files.tsv', 'w') as fastq1_input_files_tsv:
+        fastq1_input_files_tsv.writelines("{}\n".format(id) for id in fastq1_input_files_content)
+
+
+    with open('input_ids.tsv', 'w') as input_ids_tsv:
+        input_ids_tsv.writelines("{}\n".format(id) for id in input_ids_content)
+
+
+    if len(fastq2_input_files_content) > 0:
+          with open('fastq2_input_files.tsv', 'w') as fastq2_input_files_tsv:
+            fastq2_input_files_tsv.writelines("{}\n".format(id) for id in fastq2_input_files_content)
