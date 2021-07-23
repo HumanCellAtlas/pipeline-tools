@@ -13,7 +13,6 @@ def test_data():
         size = 1000
         sha256 = '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251'
         crc32c = '0b83b575'
-        entity_type = "analysis_file"
         pipeline_type = 'optimus'
         creation_time = '2021-07-14T16:01:45Z'
         workspace_version = '2021-01-13T17:53:12.000000Z'
@@ -39,7 +38,6 @@ class TestCreateDescriptor(object):
             crc32c=test_data.crc32c,
             input_uuid=test_data.input_uuid,
             file_path=test_data.file_path,
-            entity_type=test_data.entity_type,
             pipeline_type=test_data.pipeline_type,
             creation_time=test_data.creation_time,
             workspace_version=test_data.workspace_version
@@ -57,6 +55,6 @@ class TestCreateDescriptor(object):
             == '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251'
         )
         assert file_descriptor.get('crc32c') == '0b83b575'
-        assert file_descriptor.get('file_id') == '76214c80-183c-5929-90f8-989073f0d58a'
+        assert file_descriptor.get('file_id') == '2beee6e4-7e7d-52b9-9180-fc052cb7791d'
         assert file_descriptor.get('file_version') == '2021-07-14T16:01:45.000000Z'
         assert file_descriptor.get('file_name') == 'path.fasta'

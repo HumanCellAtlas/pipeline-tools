@@ -31,7 +31,7 @@ class TestCreateReferenceFile(object):
             test_data.reference_type,
             test_data.workspace_version,
             test_data.reference_version)
-        
+
         assert(reference_file['describedBy'] == "https://schema.humancellatlas.org/type/file/3.2.0/reference_file")
         assert(reference_file['schema_type'] == "file")
         assert(reference_file['schema_version'] == "3.2.0")
