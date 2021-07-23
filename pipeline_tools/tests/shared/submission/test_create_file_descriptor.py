@@ -46,7 +46,7 @@ class TestCreateDescriptor(object):
             == 'https://schema.humancellatlas.org/system/2.0.0/file_descriptor'
         )
         assert file_descriptor.get('schema_type') == 'file_descriptor'
-        assert file_descriptor.get('content_type') == 'application/unknown'
+        assert file_descriptor.get('content_type') == 'application/octet-stream'
         assert file_descriptor.get('size') == 1000
         assert (
             file_descriptor.get('sha256')

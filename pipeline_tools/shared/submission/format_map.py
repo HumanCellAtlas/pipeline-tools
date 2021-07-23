@@ -7,7 +7,8 @@ EXTENSION_TO_FORMAT = {
     "[.]loom$": "loom",
     "[_]metrics$": "metrics",
     "[.]txt$": "txt",
-    "[.]fa$": "fa",
+    "[.]fa$": "fasta",
+    "[.]fasta$": "fasta",
     "[.]log$": "log",
     "[.]pdf$": "pdf",
     "[.]results$": "results",
@@ -29,7 +30,8 @@ EXTENSION_TO_FORMAT = {
 MIME_FORMATS = [
     ('application/vnd.loom', '.loom'),
     ('application/octet-stream', '.bam'),
-    ('application/octet-stream', '.fa')]
+    ('application/octet-stream', '.fa'),
+    ('application/octet-stream', '.fasta')]
 
 NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
 

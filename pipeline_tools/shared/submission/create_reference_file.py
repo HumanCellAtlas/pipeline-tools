@@ -56,11 +56,8 @@ class ReferenceFile():
         # Grab the extension of the reference file
         file_extension = os.path.splitext(file_path)[1]
 
-        # Grab timestamp that adheres to schema
-        file_version = format_map.convert_datetime(workspace_version)
-
         # Generate unique ID for file name where output will be saved
-        file_id = format_map.get_uuid5(f"{input_uuid}{file_extension}")
+        file_id = format_map.get_uuid5(f"{input_uuid}reference_file{file_extension}")
 
         # Get the raw reference file name
         file_name = file_path.split("/")[-1]
@@ -73,7 +70,6 @@ class ReferenceFile():
         self.file_name = file_name
         self.input_uuid = input_uuid
         self.file_format = file_format
-        self.file_version = file_version
         self.genus_species = genus_species
         self.pipeline_type = pipeline_type
         self.ncbi_taxon_id = ncbi_taxon_id
@@ -97,7 +93,7 @@ class ReferenceFile():
             "ncbi_taxon_id" : int(self.ncbi_taxon_id),
             "provenance" : {
                 "document_id" : self.file_id,
-                "submission_date" : self.file_version
+                "submission_date" : self.workspace_version
             },
             "reference_type" : self.reference_type,
             "reference_version" : self.reference_version,
