@@ -16,6 +16,7 @@ from pipeline_tools.shared.submission.format_map import (
 
 def build_file_descriptor(
     input_uuid,
+    entity_type,
     file_path,
     size,
     sha256,
@@ -33,6 +34,7 @@ def build_file_descriptor(
         sha256 (str): sha256 hash value of the described file.
         crc32c (str): crc32c hash value of the described file.
         creation_time (str): Timestamp of the creation time of the described file.
+        workspace_version (str): Timestamp used to version the workspace.
         raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
         file_descriptor_schema_version (str): Version of the metadata schema that the file_descriptor.json conforms to.
     """
@@ -42,7 +44,7 @@ def build_file_descriptor(
     file_version = convert_datetime(creation_time)
     file_extension = os.path.splitext(file_path)[1]
 
-    file_id = get_uuid5(get_uuid5(f"{str(input_uuid)}{file_extension}"))
+    file_id = get_uuid5(get_uuid5(f"{str(input_uuid)}{entity_type}{file_extension}"))
 
     file_descriptor = {
         'describedBy': get_file_descriptor_described_by(
@@ -77,6 +79,9 @@ def main():
         '--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.'
     )
     parser.add_argument(
+        '--entity_type', required=True, help='Entity type as described in HCA schema.'
+    )
+    parser.add_argument(
         '--file_path', required=True, help='Path to the file to describe.'
     )
     parser.add_argument('--size', required=True, help='Size of the file in bytes.')
@@ -86,6 +91,9 @@ def main():
         '--creation_time',
         required=True,
         help='Time of file creation, as reported by "gsutil ls -l"',
+    )
+    parser.add_argument(
+        '--workspace_version', required=True, help='The workspace version value'
     )
     parser.add_argument(
         '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
@@ -100,7 +108,7 @@ def main():
     schema_url = args.schema_url.strip('/')
 
     descriptor_entity_id = get_uuid5(
-        f"{str(args.input_uuid)}{os.path.splitext(args.file_path)[1]}"
+        f"{str(args.input_uuid)}{args.entity_type}{os.path.splitext(args.file_path)[1]}"
     )
     descriptor = build_file_descriptor(
         input_uuid=args.input_uuid,
@@ -111,12 +119,13 @@ def main():
         creation_time=args.creation_time,
         raw_schema_url=schema_url,
         file_descriptor_schema_version=args.file_descriptor_schema_version,
+        entity_type=args.entity_type,
     )
 
-    file_version = descriptor['file_version']
+    workspace_version = args.workspace_version
 
     # Write descriptor to file
-    with open(f'{descriptor_entity_id}_{file_version}.json', 'w') as f:
+    with open(f'{descriptor_entity_id}_{workspace_version}.json', 'w') as f:
         json.dump(descriptor, f, indent=2, sort_keys=True)
 
 

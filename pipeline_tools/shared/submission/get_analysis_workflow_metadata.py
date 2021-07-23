@@ -44,7 +44,14 @@ def get_auth_headers():
     return headers
 
 
-def get_metadata(cromwell_url, workflow_id, http_requests, include_keys=[], include_subworkflows="False"):
+
+def get_metadata(
+    cromwell_url,
+    workflow_id,
+    http_requests,
+    include_keys=[],
+    include_subworkflows="False",
+):
     """Get metadata for analysis workflow from Cromwell and write it to a JSON file. This is only
     compatible with instances of Cromwell that use SAM for Identity Access Management (IAM), such
     as Cromwell-as-a-Service.
@@ -73,9 +80,7 @@ def get_metadata(cromwell_url, workflow_id, http_requests, include_keys=[], incl
     headers['Accept-Encoding'] = 'identity'
 
     base_url = cromwell_url.strip('/')
-#    url = '{0}/api/workflows/v1/{1}/metadata?expandSubWorkflows=true'.format(
-#        base_url, workflow_id
-#    )
+
     url = f'{base_url}/api/workflows/v1/{workflow_id}/metadata?expandSubWorkflows={include_subworkflows.lower()}'
 
     if include_keys:
@@ -93,7 +98,9 @@ def main():
     parser.add_argument('--analysis_output_path', required=True)
     parser.add_argument('--cromwell_url', required=True)
     parser.add_argument('--include_keys', required=False, nargs='+')
+
     parser.add_argument('--include_subworkflows', default="False", choices=["True", "False"])
+
     args = parser.parse_args()
 
     print('Using analysis output path: {0}'.format(args.analysis_output_path))
@@ -107,6 +114,7 @@ def main():
         workflow_id=workflow_id,
         include_keys=args.include_keys,
         http_requests=HttpRequests(),
+        include_keys=args.include_keys,
     )
 
 

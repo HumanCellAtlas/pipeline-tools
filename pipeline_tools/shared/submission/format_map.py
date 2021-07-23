@@ -2,7 +2,11 @@ import uuid
 
 
 EXTENSION_TO_FORMAT = {
+    "[.]fa$": "fasta",
+    "[.]fasta$": "fasta",
     "[.]bam$": "bam",
+    "[.]cram$": "cram",
+    "[.]crai$": "crai",
     "[.]loom$": "loom",
     "[_]metrics$": "metrics",
     "[.]txt$": "txt",
@@ -24,7 +28,15 @@ EXTENSION_TO_FORMAT = {
     "[.]npy$": "npy",
 }
 
-MIME_FORMATS = [('application/vnd.loom', '.loom')]
+MIME_FORMATS = [
+    ('application/vnd.loom', '.loom'),
+    ('application/octet-stream', '.bam'),
+    ('application/octet-stream', '.bai'),
+    ('application/octet-stream', '.cram'),
+    ('application/octet-stream', '.crai'),
+    ('application/octet-stream', '.fa'),
+    ('application/octet-stream', '.fasta'),
+]
 
 NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
 

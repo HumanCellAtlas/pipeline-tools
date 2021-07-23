@@ -63,6 +63,7 @@ def test_data():
             'gs://foo/path/read2.fastq.gz': 'abcdef0123456789abcdef0123456789',
         }
         schema_url = 'http://schema.humancellatlas.org'
+        workspace_version = '2021-01-13T17:53:12.000000Z'
 
     return Data
 
@@ -236,6 +237,7 @@ class TestCreateAnalysisMetadata(object):
             test_data.extension_to_format,
             test_data.schema_url,
             schema_version,
+            test_data.workspace_version,
         )
         self.verify_outputs(
             outputs_json, test_data.outputs, schema_url, include_md5s=False
