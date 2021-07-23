@@ -46,6 +46,18 @@ def convert_datetime(creation_time):
     return creation_time.replace('Z', '.000000Z')
 
 
+def get_entity_type(path):
+    """Returns the type of file being processed based on the path"""
+
+    format = get_file_format(path)
+
+    if(format == "fasta"):
+        return "reference_file"
+    elif(format == "bam" or format == "loom"):
+        return "analysis_file"
+    return "unknown"
+
+
 def get_file_format(path):
     """Returns the file type of the file at the given path, according to EXTENSION_TO_FORMAT"""
 

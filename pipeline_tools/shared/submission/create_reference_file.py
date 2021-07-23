@@ -106,8 +106,8 @@ class ReferenceFile():
         return self.__reference_file__()
 
     @property
-    def version(self):
-        return self.file_version
+    def work_version(self):
+        return self.workspace_version
 
     @property
     def id(self):
@@ -174,7 +174,7 @@ def main():
     reference_json = reference_file.get_json()
 
     # Create filename based on file id and version
-    reference_json_filename = f'{reference_file.id}_{reference_file.version}.json'
+    reference_json_filename = f'{reference_file.id}_{reference_file.work_version}.json'
 
     # Write the reference_file metadata
     with open(reference_json_filename, 'w') as f:

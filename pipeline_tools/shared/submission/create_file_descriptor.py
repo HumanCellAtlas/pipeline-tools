@@ -45,7 +45,6 @@ class Descriptor():
         crc32c,
         input_uuid,
         file_path,
-        entity_type,
         pipeline_type,
         creation_time,
             workspace_version):
@@ -55,6 +54,9 @@ class Descriptor():
 
         # Grab the mimetype of the file thats been submitted
         content_type = mimetypes.guess_type(file_path)[0] or 'application/unknown'
+
+        # Get the type of file currently being processed
+        entity_type = format_map.get_entity_type(file_path)
 
         # Grab the extension of the file thats been submitted
         file_extension = os.path.splitext(file_path)[1]
@@ -125,7 +127,6 @@ def test_build_file_descriptor(
     crc32c,
     input_uuid,
     file_path,
-    entity_type,
     pipeline_type,
     creation_time,
         workspace_version):
@@ -136,7 +137,6 @@ def test_build_file_descriptor(
         crc32c,
         input_uuid,
         file_path,
-        entity_type,
         pipeline_type,
         creation_time,
         workspace_version)
@@ -146,10 +146,10 @@ def test_build_file_descriptor(
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--size", required=True, help="size of the file in Mb")
     parser.add_argument('--sha256', required=True, help='sha256 of the file.')
     parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
     parser.add_argument('--pipeline_type', required=True, help='Type of pipeline (SS2 or Optimus)')
-    parser.add_argument('--entity_type', required=True, help='Type of entity being described (analysis_file or reference_file)')
     parser.add_argument('--file_path', required=True, help='Path to the loom/bam file to describe.')
     parser.add_argument('--input_uuid', required=True, help='Input file UUID from the HCA Data Browser.')
     parser.add_argument('--creation_time', required=True, help='Time of file creation, as reported by "gsutil ls -l"',)
@@ -164,7 +164,6 @@ def main():
         args.crc32c,
         args.input_uuid,
         args.file_path,
-        args.entity_type,
         args.pipeline_type,
         args.creation_time,
         args.workspace_version)
