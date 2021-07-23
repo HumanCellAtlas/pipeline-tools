@@ -30,10 +30,10 @@ class Descriptor():
     See https://schema.humancellatlas.org/system/2.0.0/file_descriptor for full spec
     """
 
-    # Add loom, bam and fa mimetypes
+    # Add additional custom mimetypes
     [mimetypes.add_type(entry[0], entry[1]) for entry in format_map.MIME_FORMATS]
 
-    # All descriptors will share these attributes
+    # All descriptors will share these schema attributes
     describedBy = SCHEMAS["FILE_DESCRIPTOR"]["describedBy"]
     schema_type = SCHEMAS["FILE_DESCRIPTOR"]["schema_type"]
     schema_version = SCHEMAS["FILE_DESCRIPTOR"]["schema_version"]
@@ -92,6 +92,9 @@ class Descriptor():
         }
 
     def get_json(self):
+        """Returns the json to be stored in the /descriptors/*/ bucket
+            * = analysis_file or reference_file
+        """
         return self.__descriptor__()
 
     @property

@@ -36,7 +36,7 @@ class ReferenceFile():
     See https://schema.humancellatlas.org/type/file/3.2.0/reference_file for full spec
     """
 
-    # All reference files will share these attributes
+    # All reference files will share these schema attributes
     describedBy = SCHEMAS["METADATA_REFERENCE"]["describedBy"]
     schema_type = SCHEMAS["METADATA_REFERENCE"]["schema_type"]
     schema_version = SCHEMAS["METADATA_REFERENCE"]["schema_version"]
@@ -106,6 +106,7 @@ class ReferenceFile():
         }
 
     def get_json(self):
+        """Returns the json to be stored in /metadata/reference_file/ bucket"""
         return self.__reference_file__()
 
     @property
@@ -147,11 +148,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--genus_species', required=True, help='The genus species')
     parser.add_argument('--file_path', required=True, help='Path to the reference file.')
-    parser.add_argument('--workspace_version', required=True, help='The workspace version value',)
+    parser.add_argument('--workspace_version', required=True, help='Timestamp used to version the workspace',)
     parser.add_argument('--input_uuid', required=True, help='Input file UUID from the HCA Data Browser',)
     parser.add_argument('--reference_version', required=True, help='The genome version of the reference file',)
     parser.add_argument('--ncbi_taxon_id', required=True, help='The NCBI taxonomy id associated with the reference',)
-    parser.add_argument('--pipeline_type', required=True, help='Type of pipeline (SS2 or Optimus')
+    parser.add_argument('--pipeline_type', required=True, help='Type of pipeline (SS2 or Optimus)')
     parser.add_argument('--assembly_type', required=True, help='The genome assembly type',
                         choices=["primary assembly", "complete assembly", "patch assembly"],
                         )

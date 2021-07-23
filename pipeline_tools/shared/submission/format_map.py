@@ -7,7 +7,7 @@ EXTENSION_TO_FORMAT = {
     "[.]loom$": "loom",
     "[_]metrics$": "metrics",
     "[.]txt$": "txt",
-    "[.]fa$": "fasta",
+    "[.]fa$": "fa",
     "[.]log$": "log",
     "[.]pdf$": "pdf",
     "[.]results$": "results",
@@ -45,15 +45,7 @@ def convert_datetime(creation_time):
 
 
 def get_file_format(path):
-    """Returns the file type of the file at the given path.
-
-    Args:
-        path (str): The path to the file.
-        extension_to_format (dict): dict mapping file extensions to file types.
-
-    Returns:
-        str: A string representing the format of the file, if not applicable, 'unknown' will be returned.
-    """
+    """Returns the file type of the file at the given path, according to EXTENSION_TO_FORMAT"""
 
     for ext in EXTENSION_TO_FORMAT:
         if re.search(ext, path):
