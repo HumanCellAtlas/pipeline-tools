@@ -18,5 +18,10 @@ SCHEMAS = {
         "describedBy" : "https://schema.humancellatlas.org/type/protocol/analysis/9.1.0/analysis_protocol",
         "schema_type" : "protocol",
         "schema_version" : "9.1.0"
+    },
+    "METADATA_REFERENCE" : {
+        "describedBy" : "https://schema.humancellatlas.org/type/file/3.2.0/reference_file",
+        "schema_type" : "file",
+        "schema_version" : "3.2.0"
     }
 }
