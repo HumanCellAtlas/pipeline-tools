@@ -113,8 +113,7 @@ def main():
         cromwell_url=args.cromwell_url,
         workflow_id=workflow_id,
         include_keys=args.include_keys,
-        http_requests=HttpRequests(),
-        include_keys=args.include_keys,
+        http_requests=HttpRequests()
     )
 
 
