@@ -158,6 +158,24 @@ def get_inputs(inputs_file):
         inputs = [line for line in reader]
     return inputs
 
+def get_inputs_ss2(inputs, input_ids_inputs, fastq1_inputs, fastq2_inputs=None):
+    with open(input_ids_inputs) as f:
+        input_ids = [id for id in f]
+    input_id_inputs_dict = {'parameter_name': 'input_ids', 'parameter_value': input_ids}
+    inputs.append(input_id_inputs_dict)
+
+    with open(fastq1_inputs) as f:
+        fastq1_files = [id for id in f]
+    fastq1_inputs_dict = {'parameter_name': 'fastq1_input_files', 'parameter_value': fastq1_files}
+    inputs.append(fastq1_inputs_dict)
+
+    if fastq2_inputs is not None:
+        with open(fastq2_inputs) as f:
+            fastq2_files = [id for id in f]
+        fastq2_inputs_dict = {'parameter_name': 'fastq2_input_files', 'parameter_value': fastq2_files}
+        inputs.append(fastq2_inputs_dict)
+
+    return inputs
 
 def get_outputs(outputs_file):
     with open(outputs_file) as f:
@@ -238,7 +256,7 @@ def get_input_urls(inputs):
         (List[str]): list of gs urls
     """
     return [
-        i['parameter_value'] for i in inputs if i['parameter_value'].startswith('gs://')
+        i['parameter_value'] for i in inputs if type(i['parameter_value']) == str and i['parameter_value'].startswith('gs://')
     ]
 
 
@@ -257,7 +275,7 @@ def add_md5s_to_inputs(inputs, input_url_to_md5):
     inputs_with_md5 = []
     for i in inputs:
         value = i['parameter_value']
-        if value.startswith('gs://'):
+        if type(value) == str and value.startswith('gs://'):
             input_with_md5 = deepcopy(i)
             input_with_md5['checksum'] = input_url_to_md5[value]
             inputs_with_md5.append(input_with_md5)
@@ -578,12 +596,27 @@ def main():
     parser.add_argument(
         '--add_md5s', help='Set to "true" to add md5 checksums to file metadata'
     )
+    parser.add_argument(
+        '--fastq1_input_files_tsv', help='',
+        required=False
+    )
+    parser.add_argument(
+        '--fastq2_input_files_tsv', help='',
+        required=False
+    )
+    parser.add_argument(
+        '--input_ids_tsv', help='',
+        required=False
+    )
     args = parser.parse_args()
 
     schema_url = args.schema_url.strip('/')
 
     # Get metadata for inputs and outputs
     inputs = get_inputs(args.inputs_file)
+    if args.input_ids_tsv is not None and args.fastq1_input_files_tsv is not None:
+        inputs = get_inputs_ss2(inputs, args.input_ids_tsv, args.fastq1_input_files_tsv, args.fastq2_input_files_tsv)
+
     with open(args.metadata_json) as f:
         inputs_json = json.load(f)['inputs']
 

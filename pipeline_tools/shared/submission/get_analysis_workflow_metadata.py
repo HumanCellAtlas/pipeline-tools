@@ -44,6 +44,7 @@ def get_auth_headers():
     return headers
 
 
+
 def get_metadata(
     cromwell_url,
     workflow_id,
@@ -79,12 +80,13 @@ def get_metadata(
     headers['Accept-Encoding'] = 'identity'
 
     base_url = cromwell_url.strip('/')
+
     url = f'{base_url}/api/workflows/v1/{workflow_id}/metadata?expandSubWorkflows={include_subworkflows.lower()}'
 
     if include_keys:
-        print(f'Including keys: {", ".join(include_keys)}')
-        key_query = f'&includeKey={"&includeKey=".join(include_keys)}'
-        url += key_query
+            print(f'Including keys: {", ".join(include_keys)}')
+            key_query = f'&includeKey={"&includeKey=".join(include_keys)}'
+            url += key_query
 
     response = http_requests.get(url, headers=headers, before=log_before(workflow_id))
     with open('metadata.json', 'w') as f:
@@ -96,9 +98,9 @@ def main():
     parser.add_argument('--analysis_output_path', required=True)
     parser.add_argument('--cromwell_url', required=True)
     parser.add_argument('--include_keys', required=False, nargs='+')
-    parser.add_argument(
-        '--include_subworkflows', default="False", choices=["True", "False"]
-    )
+
+    parser.add_argument('--include_subworkflows', default="False", choices=["True", "False"])
+
     args = parser.parse_args()
 
     print('Using analysis output path: {0}'.format(args.analysis_output_path))
@@ -110,6 +112,7 @@ def main():
     get_metadata(
         cromwell_url=args.cromwell_url,
         workflow_id=workflow_id,
+        include_keys=args.include_keys,
         http_requests=HttpRequests(),
         include_keys=args.include_keys,
     )
