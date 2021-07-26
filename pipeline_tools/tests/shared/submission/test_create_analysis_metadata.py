@@ -1,13 +1,9 @@
-# import json
+import json
 import os
-from re import M
 import pytest
-# from copy import deepcopy
+from copy import deepcopy
 
-import pipeline_tools.shared.submission.create_analysis_file as caf
-# import pipeline_tools.shared.submission.create_analysis_process as cac
-import pipeline_tools.shared.submission.create_analysis_protocol as cat
-
+import pipeline_tools.shared.submission.create_analysis_metadata as cam
 from pathlib import Path
 
 
@@ -15,7 +11,6 @@ from pathlib import Path
 def test_data():
     class Data:
         input_uuid = 0
-        file_path = '/fake/file/path.fasta'
         output_urls = [
             {
                 'sha256': '12998c017066eb0d2a70b94e6ed3192985855ce390f321bbdb832022888bd251',
@@ -67,9 +62,7 @@ def test_data():
             'gs://foo/path/read1.fastq.gz': '0123456789abcdef0123456789abcdef',
             'gs://foo/path/read2.fastq.gz': 'abcdef0123456789abcdef0123456789',
         }
-        schema_url = 'http://schema.humancellatlas.org',
-        pipeline_type = 'optimus',
-        creation_time = '2021-07-26T14:48:29Z'
+        schema_url = 'http://schema.humancellatlas.org'
 
     return Data
 
@@ -85,53 +78,49 @@ def data_file():
 
 
 class TestCreateAnalysisMetadata(object):
-    # def test_create_analysis_process(self, test_data, data_file):
-    #     analysis_process = cac.test_build_analysis_process(
-    #         input_uuid=test_data.input_uuid,
-    #         inputs=test_data.inputs,
-    #         references=['b816d2d6-5f10-4447-4194-3d0a804454d6'],
-    #         pipeline_version='12345abcde',
-    #         version='2020-08-10T14:24:26.174274-07:00',
-    #         metadata_file=data_file('metadata.json'),
-    #         run_type='foo_run_type',
-    #         file_path=test_data.file_path,
-    #         creation_time=test_data.creation_time,
-    #         pipeline_type=test_data.pipeline_type
-    #     )
+    def test_create_analysis_process(self, test_data, data_file):
+        analysis_process = cam.create_analysis_process(
+            raw_schema_url=test_data.schema_url,
+            metadata_file=data_file('metadata.json'),
+            analysis_process_schema_version='1.2.3',
+            analysis_id='12345abcde',
+            inputs=test_data.inputs,
+            run_type='foo_run_type',
+            version='2020-08-10T14:24:26.174274-07:00',
+            references=['b816d2d6-5f10-4447-4194-3d0a804454d6'],
+        )
 
-    #     assert analysis_process.get('process_core').get('process_id') == '12345abcde'
-    #     self.verify_inputs(analysis_process.get('inputs'), test_data)
+        assert analysis_process.get('process_core').get('process_id') == '12345abcde'
+        self.verify_inputs(analysis_process.get('inputs'), test_data)
 
-    #     self.verify_tasks(analysis_process.get('tasks'))
+        self.verify_tasks(analysis_process.get('tasks'))
 
-    #     assert analysis_process.get('schema_type') == 'process'
+        assert analysis_process.get('schema_type') == 'process'
 
-    #     schema_url = '{}/type/process/analysis/1.2.3/analysis_process'.format(
-    #         test_data.schema_url
-    #     )
-    #     assert analysis_process.get('describedBy') == schema_url
+        schema_url = '{}/type/process/analysis/1.2.3/analysis_process'.format(
+            test_data.schema_url
+        )
+        assert analysis_process.get('describedBy') == schema_url
 
-    #     assert analysis_process.get('reference_files') == [
-    #         'b816d2d6-5f10-4447-4194-3d0a804454d6'
-    #     ]
-    #     assert analysis_process.get('analysis_run_type') == 'foo_run_type'
-    #     assert analysis_process.get('timestamp_start_utc') == '2017-09-14T19:54:11.470Z'
-    #     assert analysis_process.get('timestamp_stop_utc') == '2017-09-14T19:54:31.871Z'
-    #     assert analysis_process.get('inputs') == test_data.inputs
-    #     assert analysis_process.get('provenance') == {
-    #         'document_id': '12345abcde',
-    #         'submission_date': '2020-08-10T14:24:26.174274-07:00',
-    #     }
+        assert analysis_process.get('reference_files') == [
+            'b816d2d6-5f10-4447-4194-3d0a804454d6'
+        ]
+        assert analysis_process.get('analysis_run_type') == 'foo_run_type'
+        assert analysis_process.get('timestamp_start_utc') == '2017-09-14T19:54:11.470Z'
+        assert analysis_process.get('timestamp_stop_utc') == '2017-09-14T19:54:31.871Z'
+        assert analysis_process.get('inputs') == test_data.inputs
+        assert analysis_process.get('provenance') == {
+            'document_id': '12345abcde',
+            'submission_date': '2020-08-10T14:24:26.174274-07:00',
+        }
 
     def test_create_analysis_protocol(self, test_data):
-        analysis_protocol = cat.test_build_analysis_protocol(
-            input_uuid=test_data.input_uuid,
+        analysis_protocol = cam.create_analysis_protocol(
+            raw_schema_url=test_data.schema_url,
+            analysis_protocol_schema_version='1.2.3',
             pipeline_version='foo_pipeline_version',
             method='foo_method',
             version='2020-08-10T14:24:26.174274-07:00',
-            file_path=test_data.file_path,
-            creation_time=test_data.creation_time,
-            pipeline_type=test_data.pipeline_type
         )
 
         assert (
@@ -145,223 +134,212 @@ class TestCreateAnalysisMetadata(object):
             == 'edfee4d4-b1b2-5386-9244-d528ef36cffb'
         )
 
-    def test_create_analysis_file(self, test_data):
-        analysis_file = caf.test_build_analysis_file(
-            input_uuid=test_data.input_uuid,
-            outputs_file=test_data.outputs,
-            pipeline_type=test_data.pipeline_type,
-            file_path=test_data.file_path,
-            creation_time=test_data.creation_time
+    def test_get_inputs(self, data_file, test_data):
+        inputs_file = data_file('inputs.tsv')
+        inputs = cam.get_inputs(inputs_file)
+        self.verify_inputs(inputs, test_data, include_checksum=False)
+
+    def test_get_input_urls(self, test_data):
+        input_urls = cam.get_input_urls(test_data.inputs)
+        assert len(input_urls) == 2
+        assert 'gs://foo/path/read1.fastq.gz' in input_urls
+        assert 'gs://foo/path/read2.fastq.gz' in input_urls
+
+    def test_get_input_urls_empty_list(self):
+        input_urls = cam.get_input_urls([])
+        assert len(input_urls) == 0
+
+    def test_get_input_urls_no_urls(self):
+        inputs = [{'parameter_name': 'p1', 'parameter_value': 'foo'}]
+        input_urls = cam.get_input_urls(inputs)
+        assert len(input_urls) == 0
+
+    def test_add_md5s(self, test_data):
+        inputs = deepcopy(test_data.inputs)
+        for i in inputs:
+            i.pop('checksum', None)
+        inputs_with_md5s = cam.add_md5s_to_inputs(
+            test_data.inputs, test_data.input_url_to_md5
+        )
+        self.verify_inputs(inputs_with_md5s, test_data)
+        # Verify that original dict was not modified
+        assert len([i for i in inputs if 'checksum' in i]) == 0
+
+    def test_base64_to_hex(self):
+        base64_str = 'FdUxglEpKjfcvIRvkju7nA=='
+        hex_str = '15d5318251292a37dcbc846f923bbb9c'
+        assert cam.base64_to_hex(base64_str) == hex_str
+
+    def test_get_analysis_process_core(self):
+        analysis_workflow_id = 'good_id'
+        process_description = 'good_description'
+
+        analysis_process_core = cam.get_analysis_process_core(
+            analysis_workflow_id, process_description=process_description
+        )
+        expected_process_core = {
+            'process_id': analysis_workflow_id,
+            'process_description': process_description,
+        }
+        assert analysis_process_core == expected_process_core
+
+    def test_get_analysis_process_type(self):
+        analysis_process_type = cam.get_analysis_process_type()
+        expected_analysis_process_type = {'text': 'analysis'}
+        assert analysis_process_type == expected_analysis_process_type
+
+    def test_get_workflow_tasks(self, data_file):
+        with open(data_file('metadata.json')) as f:
+            metadata = json.load(f)
+        tasks = cam.get_workflow_tasks(metadata)
+        self.verify_tasks(tasks)
+
+    def test_get_file_format(self):
+        assert cam.get_file_format('asdf', {}) == 'unknown'
+        assert cam.get_file_format('asdf.bam', {'[.]bam$': 'bam'}) == 'bam'
+        assert cam.get_file_format('asdf.txt', {'[.]bam$': 'bam'}) == 'unknown'
+        assert (
+            cam.get_file_format(
+                'asdf.bam', {'[.]bam$': 'bam', '[_]metrics$': 'metrics'}
+            )
+            == 'bam'
+        )
+        assert (
+            cam.get_file_format(
+                'asdf.foo_metrics', {'[.]bam$': 'bam', '[_]metrics$': 'metrics'}
+            )
+            == 'metrics'
+        )
+        assert (
+            cam.get_file_format(
+                'asdf.zarr!expression_matrix!id!.zarray',
+                {'[.]bam$': 'bam', '[_]metrics$': 'metrics', '[.]zattrs$': 'matrix'},
+            )
+            == 'unknown'
+        )
+        assert (
+            cam.get_file_format(
+                'asdf.zarr!.zattrs',
+                {'[.]bam$': 'bam', '[_]metrics$': 'metrics', '[.]zattrs$': 'matrix'},
+            )
+            == 'matrix'
         )
 
-        assert analysis_file.get('provenance').get('document_id')
+    def test_get_outputs(self, test_data):
+        schema_version = 'good_version'
+        schema_url = '{}/type/file/{}/analysis_file'.format(
+            test_data.schema_url, schema_version
+        )
+        outputs_json = cam.create_analysis_files(
+            test_data.output_urls,
+            test_data.input_uuid,
+            test_data.extension_to_format,
+            test_data.schema_url,
+            schema_version,
+        )
+        self.verify_outputs(
+            outputs_json, test_data.outputs, schema_url, include_md5s=False
+        )
 
-    # def test_get_inputs(self, data_file, test_data):
-    #     inputs_file = data_file('inputs.tsv')
-    #     inputs = cac.get_inputs(inputs_file)
-    #     self.verify_inputs(inputs, test_data, include_checksum=False)
+    def test_get_analysis_protocol_core(self):
+        pipeline_version = 'good_version'
+        protocol_description = 'good_description'
 
-    # def test_get_input_urls(self, test_data):
-    #     input_urls = cac.get_input_urls(test_data.inputs)
-    #     assert len(input_urls) == 2
-    #     assert 'gs://foo/path/read1.fastq.gz' in input_urls
-    #     assert 'gs://foo/path/read2.fastq.gz' in input_urls
+        analysis_protocol_core = cam.get_analysis_protocol_core(
+            pipeline_version, protocol_description=protocol_description
+        )
+        expected_protocol_type = {
+            'protocol_id': 'good_version',
+            'protocol_description': 'good_description',
+        }
+        assert analysis_protocol_core == expected_protocol_type
 
-    # def test_get_input_urls_empty_list(self):
-    #     input_urls = cac.get_input_urls([])
-    #     assert len(input_urls) == 0
+    def test_get_analysis_protocol_type(self):
+        analysis_protocol_type = cam.get_analysis_protocol_type()
+        expected_analysis_protocol_type = {'text': 'analysis_protocol'}
+        assert analysis_protocol_type == expected_analysis_protocol_type
 
-    # def test_get_input_urls_no_urls(self):
-    #     inputs = [{'parameter_name': 'p1', 'parameter_value': 'foo'}]
-    #     input_urls = cac.get_input_urls(inputs)
-    #     assert len(input_urls) == 0
+    def verify_inputs(self, inputs, test_data, include_checksum=True):
+        assert inputs[0]['parameter_name'] == test_data.inputs[0]['parameter_name']
+        assert inputs[0]['parameter_value'] == test_data.inputs[0]['parameter_value']
+        assert inputs[1]['parameter_name'] == test_data.inputs[1]['parameter_name']
+        assert inputs[1]['parameter_value'] == test_data.inputs[1]['parameter_value']
+        assert inputs[2]['parameter_name'] == test_data.inputs[2]['parameter_name']
+        assert inputs[2]['parameter_value'] == test_data.inputs[2]['parameter_value']
+        assert inputs[3]['parameter_name'] == test_data.inputs[3]['parameter_name']
+        assert inputs[3]['parameter_value'] == test_data.inputs[3]['parameter_value']
+        if include_checksum:
+            assert inputs[0]['checksum'] == test_data.inputs[0]['checksum']
+            assert inputs[1]['checksum'] == test_data.inputs[1]['checksum']
 
-    # def test_add_md5s(self, test_data):
-    #     inputs = deepcopy(test_data.inputs)
-    #     for i in inputs:
-    #         i.pop('checksum', None)
-    #     inputs_with_md5s = cac.add_md5s_to_inputs(
-    #         test_data.inputs, test_data.input_url_to_md5
-    #     )
-    #     self.verify_inputs(inputs_with_md5s, test_data)
-    #     # Verify that original dict was not modified
-    #     assert len([i for i in inputs if 'checksum' in i]) == 0
+    def verify_outputs(
+        self, output_json, expected_outputs, schema_url, include_md5s=True
+    ):
+        assert output_json[0]['describedBy'] == schema_url
+        assert output_json[0]['schema_type'] == 'file'
+        assert (
+            output_json[0]['file_core']['format']
+            == expected_outputs[0]['file_core']['format']
+        )
+        assert (
+            output_json[0]['file_core']['file_name']
+            == expected_outputs[0]['file_core']['file_name']
+        )
+        if include_md5s:
+            assert (
+                output_json[0]['file_core']['checksum']
+                == expected_outputs[0]['file_core']['checksum']
+            )
+        assert output_json[0]['describedBy'] == schema_url
+        assert output_json[1]['schema_type'] == 'file'
+        assert (
+            output_json[1]['file_core']['format']
+            == expected_outputs[1]['file_core']['format']
+        )
+        assert (
+            output_json[1]['file_core']['file_name']
+            == expected_outputs[1]['file_core']['file_name']
+        )
+        if include_md5s:
+            assert (
+                output_json[1]['file_core']['checksum']
+                == expected_outputs[1]['file_core']['checksum']
+            )
 
-    # def test_base64_to_hex(self):
-    #     base64_str = 'FdUxglEpKjfcvIRvkju7nA=='
-    #     hex_str = '15d5318251292a37dcbc846f923bbb9c'
-    #     assert cam.base64_to_hex(base64_str) == hex_str
+    def verify_tasks(self, tasks):
+        assert len(tasks) == 5
+        first_task = tasks[0]
+        assert first_task['task_name'] == 'CollectAlignmentSummaryMetrics'
+        assert (
+            first_task['log_out'].split('/')[-1]
+            == 'CollectAlignmentSummaryMetrics-stdout.log'
+        )
+        assert (
+            first_task['log_err'].split('/')[-1]
+            == 'CollectAlignmentSummaryMetrics-stderr.log'
+        )
+        assert first_task['start_time'] == '2017-09-14T19:54:22.691Z'
+        assert first_task['stop_time'] == '2017-09-14T19:54:31.473Z'
+        assert first_task['memory'] == '10 GB'
+        assert first_task['zone'] == 'us-central1-b'
+        assert first_task['cpus'] == 1
+        assert first_task['disk_size'] == 'local-disk 10 HDD'
+        assert first_task['docker_image'] == 'humancellatlas/picard:2.10.10'
 
-    # def test_get_analysis_process_core(self):
-    #     analysis_workflow_id = 'good_id'
-    #     process_description = 'good_description'
+    def test_format_timestamp_without_seconds(self):
+        timestamp = '2019-02-11T01:15Z'
+        formatted_datetime = cam.format_timestamp(timestamp)
+        expected_datetime = '2019-02-11T01:15:00.000Z'
+        assert formatted_datetime == expected_datetime
 
-    #     analysis_process_core = cam.get_analysis_process_core(
-    #         analysis_workflow_id, process_description=process_description
-    #     )
-    #     expected_process_core = {
-    #         'process_id': analysis_workflow_id,
-    #         'process_description': process_description,
-    #     }
-    #     assert analysis_process_core == expected_process_core
+    def test_format_timestamp_without_milliseconds(self):
+        timestamp = '2019-02-11T01:15:00Z'
+        formatted_timestamp = cam.format_timestamp(timestamp)
+        expected_timestamp = '2019-02-11T01:15:00.000Z'
+        assert formatted_timestamp == expected_timestamp
 
-    # def test_get_analysis_process_type(self):
-    #     analysis_process_type = cam.get_analysis_process_type()
-    #     expected_analysis_process_type = {'text': 'analysis'}
-    #     assert analysis_process_type == expected_analysis_process_type
-
-    # def test_get_workflow_tasks(self, data_file):
-    #     with open(data_file('metadata.json')) as f:
-    #         metadata = json.load(f)
-    #     tasks = cam.get_workflow_tasks(metadata)
-    #     self.verify_tasks(tasks)
-
-    # def test_get_file_format(self):
-    #     assert cam.get_file_format('asdf', {}) == 'unknown'
-    #     assert cam.get_file_format('asdf.bam', {'[.]bam$': 'bam'}) == 'bam'
-    #     assert cam.get_file_format('asdf.txt', {'[.]bam$': 'bam'}) == 'unknown'
-    #     assert (
-    #         cam.get_file_format(
-    #             'asdf.bam', {'[.]bam$': 'bam', '[_]metrics$': 'metrics'}
-    #         )
-    #         == 'bam'
-    #     )
-    #     assert (
-    #         cam.get_file_format(
-    #             'asdf.foo_metrics', {'[.]bam$': 'bam', '[_]metrics$': 'metrics'}
-    #         )
-    #         == 'metrics'
-    #     )
-    #     assert (
-    #         cam.get_file_format(
-    #             'asdf.zarr!expression_matrix!id!.zarray',
-    #             {'[.]bam$': 'bam', '[_]metrics$': 'metrics', '[.]zattrs$': 'matrix'},
-    #         )
-    #         == 'unknown'
-    #     )
-    #     assert (
-    #         cam.get_file_format(
-    #             'asdf.zarr!.zattrs',
-    #             {'[.]bam$': 'bam', '[_]metrics$': 'metrics', '[.]zattrs$': 'matrix'},
-    #         )
-    #         == 'matrix'
-    #     )
-
-    # def test_get_outputs(self, test_data):
-    #     schema_version = 'good_version'
-    #     schema_url = '{}/type/file/{}/analysis_file'.format(
-    #         test_data.schema_url, schema_version
-    #     )
-    #     outputs_json = cam.create_analysis_files(
-    #         test_data.output_urls,
-    #         test_data.input_uuid,
-    #         test_data.extension_to_format,
-    #         test_data.schema_url,
-    #         schema_version,
-    #     )
-    #     self.verify_outputs(
-    #         outputs_json, test_data.outputs, schema_url, include_md5s=False
-    #     )
-
-    # def test_get_analysis_protocol_core(self):
-    #     pipeline_version = 'good_version'
-    #     protocol_description = 'good_description'
-
-    #     analysis_protocol_core = cam.get_analysis_protocol_core(
-    #         pipeline_version, protocol_description=protocol_description
-    #     )
-    #     expected_protocol_type = {
-    #         'protocol_id': 'good_version',
-    #         'protocol_description': 'good_description',
-    #     }
-    #     assert analysis_protocol_core == expected_protocol_type
-
-    # def test_get_analysis_protocol_type(self):
-    #     analysis_protocol_type = cam.get_analysis_protocol_type()
-    #     expected_analysis_protocol_type = {'text': 'analysis_protocol'}
-    #     assert analysis_protocol_type == expected_analysis_protocol_type
-
-    # def verify_inputs(self, inputs, test_data, include_checksum=True):
-    #     assert inputs[0]['parameter_name'] == test_data.inputs[0]['parameter_name']
-    #     assert inputs[0]['parameter_value'] == test_data.inputs[0]['parameter_value']
-    #     assert inputs[1]['parameter_name'] == test_data.inputs[1]['parameter_name']
-    #     assert inputs[1]['parameter_value'] == test_data.inputs[1]['parameter_value']
-    #     assert inputs[2]['parameter_name'] == test_data.inputs[2]['parameter_name']
-    #     assert inputs[2]['parameter_value'] == test_data.inputs[2]['parameter_value']
-    #     assert inputs[3]['parameter_name'] == test_data.inputs[3]['parameter_name']
-    #     assert inputs[3]['parameter_value'] == test_data.inputs[3]['parameter_value']
-    #     if include_checksum:
-    #         assert inputs[0]['checksum'] == test_data.inputs[0]['checksum']
-    #         assert inputs[1]['checksum'] == test_data.inputs[1]['checksum']
-
-    # def verify_outputs(
-    #     self, output_json, expected_outputs, schema_url, include_md5s=True
-    # ):
-    #     assert output_json[0]['describedBy'] == schema_url
-    #     assert output_json[0]['schema_type'] == 'file'
-    #     assert (
-    #         output_json[0]['file_core']['format']
-    #         == expected_outputs[0]['file_core']['format']
-    #     )
-    #     assert (
-    #         output_json[0]['file_core']['file_name']
-    #         == expected_outputs[0]['file_core']['file_name']
-    #     )
-    #     if include_md5s:
-    #         assert (
-    #             output_json[0]['file_core']['checksum']
-    #             == expected_outputs[0]['file_core']['checksum']
-    #         )
-    #     assert output_json[0]['describedBy'] == schema_url
-    #     assert output_json[1]['schema_type'] == 'file'
-    #     assert (
-    #         output_json[1]['file_core']['format']
-    #         == expected_outputs[1]['file_core']['format']
-    #     )
-    #     assert (
-    #         output_json[1]['file_core']['file_name']
-    #         == expected_outputs[1]['file_core']['file_name']
-    #     )
-    #     if include_md5s:
-    #         assert (
-    #             output_json[1]['file_core']['checksum']
-    #             == expected_outputs[1]['file_core']['checksum']
-    #         )
-
-    # def verify_tasks(self, tasks):
-    #     assert len(tasks) == 5
-    #     first_task = tasks[0]
-    #     assert first_task['task_name'] == 'CollectAlignmentSummaryMetrics'
-    #     assert (
-    #         first_task['log_out'].split('/')[-1]
-    #         == 'CollectAlignmentSummaryMetrics-stdout.log'
-    #     )
-    #     assert (
-    #         first_task['log_err'].split('/')[-1]
-    #         == 'CollectAlignmentSummaryMetrics-stderr.log'
-    #     )
-    #     assert first_task['start_time'] == '2017-09-14T19:54:22.691Z'
-    #     assert first_task['stop_time'] == '2017-09-14T19:54:31.473Z'
-    #     assert first_task['memory'] == '10 GB'
-    #     assert first_task['zone'] == 'us-central1-b'
-    #     assert first_task['cpus'] == 1
-    #     assert first_task['disk_size'] == 'local-disk 10 HDD'
-    #     assert first_task['docker_image'] == 'humancellatlas/picard:2.10.10'
-
-    # def test_format_timestamp_without_seconds(self):
-    #     timestamp = '2019-02-11T01:15Z'
-    #     formatted_datetime = cam.format_timestamp(timestamp)
-    #     expected_datetime = '2019-02-11T01:15:00.000Z'
-    #     assert formatted_datetime == expected_datetime
-
-    # def test_format_timestamp_without_milliseconds(self):
-    #     timestamp = '2019-02-11T01:15:00Z'
-    #     formatted_timestamp = cam.format_timestamp(timestamp)
-    #     expected_timestamp = '2019-02-11T01:15:00.000Z'
-    #     assert formatted_timestamp == expected_timestamp
-
-    # def test_formatting_correct_timestamp(self):
-    #     timestamp = '2019-02-11T01:15:00.000Z'
-    #     formatted_timestamp = cam.format_timestamp(timestamp)
-    #     expected_timestamp = '2019-02-11T01:15:00.000Z'
-    #     assert formatted_timestamp == expected_timestamp
+    def test_formatting_correct_timestamp(self):
+        timestamp = '2019-02-11T01:15:00.000Z'
+        formatted_timestamp = cam.format_timestamp(timestamp)
+        expected_timestamp = '2019-02-11T01:15:00.000Z'
+        assert formatted_timestamp == expected_timestamp
