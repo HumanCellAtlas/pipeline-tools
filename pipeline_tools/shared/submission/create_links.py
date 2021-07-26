@@ -2,7 +2,6 @@
 import argparse
 import json
 import os
-import uuid
 
 from pipeline_tools.shared.submission import format_map
 from pipeline_tools.shared.schema_utils import SCHEMAS
@@ -73,7 +72,7 @@ class LinksFile():
 
         # Create UUID to save the file as
         file_prehash = f"{project_stratum_string}{input_id}"
-        subgraph_uuid = format_map.uuid5(file_prehash)
+        subgraph_uuid = format_map.get_uuid5(file_prehash)
 
         # Load the analysis_process json into memory
         with open(analysis_process_path) as f:
@@ -92,7 +91,7 @@ class LinksFile():
         self.project_id = project_id
         self.input_uuids = input_uuids
         self.link_type = "process_link"
-        self.process_type = "analysis_file"
+        self.process_type = "analysis_process"
         self.subgraph_uuid = subgraph_uuid
         self.workspace_version = workspace_version
         self.analysis_process = analysis_process_dict
@@ -164,6 +163,30 @@ class LinksFile():
         return self.project_id
 
 
+# Entry point for unit tests
+def test_build_links_file(
+    input_id,
+    project_id,
+    input_uuids,
+    output_file_path,
+    workspace_version,
+    analysis_process_path,
+    analysis_protocol_path,
+        project_stratum_string):
+
+    test_links_file = LinksFile(
+        input_id,
+        project_id,
+        input_uuids,
+        output_file_path,
+        workspace_version,
+        analysis_process_path,
+        analysis_protocol_path,
+        project_stratum_string)
+
+    return test_links_file.get_json()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--project_id', required=True, help='The project ID')
@@ -189,14 +212,10 @@ def main():
 
     links_file_json = links_file.get_json()
 
-    # Write links to file
-    string_to_hash = f"{args.project_stratum_string}{args.input_id}"
-    subgraph_uuid = uuid.uuid5(NAMESPACE, string_to_hash)
-
     if not os.path.exists("links"):
         os.mkdir("links")
 
-    with open(f'links/{links_file_json.uuid}_{links_file_json.version}_{links_file_json.project}.json', 'w') as f:
+    with open(f'links/{links_file.uuid}_{links_file.version}_{links_file.project}.json', 'w') as f:
         json.dump(links_file_json, f, indent=2, sort_keys=True)
 
 
