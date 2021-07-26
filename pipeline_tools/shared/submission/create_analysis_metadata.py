@@ -205,10 +205,10 @@ def create_analysis_files(
             ),
             'schema_type': 'file',
             'provenance': {
-                'document_id': get_uuid5(
+                'document_id': format_map.get_uuid5(
                     f"{str(input_uuid)}{os.path.splitext(output['file_path'])[1]}"
                 ),
-                'submission_date': convert_datetime(output['timestamp']),
+                'submission_date': format_map.convert_datetime(output['timestamp']),
             },
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
@@ -591,7 +591,7 @@ def main():
     analysis_outputs = create_analysis_files(
         output_urls=outputs,
         input_uuid=args.input_uuid,
-        extension_to_format=EXTENSION_TO_FORMAT,
+        extension_to_format=format_map.EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
     )
