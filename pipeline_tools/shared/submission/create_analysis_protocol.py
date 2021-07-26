@@ -45,26 +45,38 @@ class AnalysisProtocol():
     type = {
         "text": "analysis_protocol"
     }
-    
-    def __init__(self, file_path, creation_time, method, pipeline_version, provenance_version):
+
+    def __init__(
+        self,
+        input_uuid,
+        method,
+        pipeline_version,
+        version,
+        pipeline_type,
+        file_path,
+            creation_time):
 
         # Get the file version and file extension from params
         file_extension = os.path.splitext(file_path)[1]
         file_version = format_map.convert_datetime(creation_time)
 
+        self.input_uuid = input_uuid
         self.file_extension = file_extension
         self.file_version = file_version
         self.computational_method = method
         self.protocol_core = {
             "protocol_id": pipeline_version  # might need to do something to this input...
         }
-        string_to_hash = json.dumps(self, sort_keys=True)
-        entity_id = str(uuid.uuid5(format_map.NAMESPACE, string_to_hash)).lower()
+        self.pipeline_type = pipeline_type
         self.provenance = {
-            "document_id": entity_id,
-            "submission_date": provenance_version,
-            "update_date": provenance_version
+            "submission_date": version,
+            "update_date": version
         }
+
+        string_to_hash = json.dumps(self.get_json())
+        entity_id = str(uuid.uuid5(format_map.NAMESPACE, string_to_hash)).lower()
+
+        self.provenance['document_id'] = entity_id
 
     def __analysis_protocol__(self):
         return {
@@ -82,7 +94,7 @@ class AnalysisProtocol():
     @property
     def uuid(self):
         return self.input_uuid
-        
+
     @property
     def extension(self):
         return self.file_extension
@@ -92,8 +104,31 @@ class AnalysisProtocol():
         return self.file_version
 
 
+# Entry point for unit tests
+def test_build_analysis_protocol(
+    input_uuid,
+    file_path,
+    creation_time,
+    method,
+    pipeline_version,
+    version,
+        pipeline_type):
+
+    test_analysis_protocol = AnalysisProtocol(
+        input_uuid,
+        file_path,
+        creation_time,
+        method,
+        pipeline_version,
+        version,
+        pipeline_type
+    )
+    return test_analysis_protocol.get_json()
+
+
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--input_uuid', required=True, help='Input file UUID from the HCA Data Browser')
     parser.add_argument(
         '--method',
         required=True,
@@ -118,13 +153,18 @@ def main():
         required=True,
         help='Time of file creation, as reported by "gsutil ls -l"',
     )
+    parser.add_argument('--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)')
 
-    args = argparse.parse_args()
+    args = parser.parse_args()
 
     analysis_protocol = AnalysisProtocol(
+        args.input_uuid,
         args.method,
         args.pipeline_version,
-        args.version
+        args.version,
+        args.pipeline_type,
+        args.file_path,
+        args.creation_time
     )
 
     # Get the JSON content to be written
@@ -135,7 +175,7 @@ def main():
         f"{analysis_protocol.input_uuid}{analysis_protocol.extension}")
 
     # Generate filename based on UUID and version
-    analysis_protocol_filename = f"{analysis_protocol_json}_{analysis_protocol.version}.json"
+    analysis_protocol_filename = f"{analysis_protocol_id}_{analysis_protocol.version}.json"
 
     # Write to file
     with open(analysis_protocol_filename, 'w') as f:

@@ -2,8 +2,6 @@
 import argparse
 import json
 import os
-from csv import DictReader
-import re
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
 
@@ -47,45 +45,17 @@ class AnalysisFile():
     schema_type = SCHEMAS["ANALYSIS_FILE"]["schema_type"]
     schema_version = SCHEMAS["ANALYSIS_FILE"]["schema_version"]
 
-    def get_file_format(path, extension_to_format):
-        """Returns the file type of the file at the given path.
-
-        Args:
-            path (str): The path to the file.
-            extension_to_format (dict): dict mapping file extensions to file types.
-
-        Returns:
-            str: A string representing the format of the file, if not applicable, 'unknown' will be returned.
-        """
-
-        for ext in extension_to_format:
-            if re.search(ext, path):
-                file_format = extension_to_format[ext]
-                print('file_format: {0}'.format(file_format))
-                return file_format
-        print('Warning: no known format in the format_map matches file {}'.format(path))
-        return 'unknown'
-
-    def get_outputs(outputs_file):
-        with open(outputs_file) as f:
-            reader = DictReader(
-                f,
-                lineterminator='\n',
-                delimiter=' ',
-                fieldnames=['file_path', 'timestamp'],
-            )
-            outputs = [line for line in reader]
-        return outputs
-
-    def __init__(self, input_uuid, file_path, creation_time, outputs):
+    def __init__(self, input_uuid, outputs_file, pipeline_type, file_path, creation_time):
 
         # Get the file version and file extension from params
         file_extension = os.path.splitext(file_path)[1]
         file_version = format_map.convert_datetime(creation_time)
+        outputs = format_map.get_outputs(outputs_file)
 
         self.input_uuid = input_uuid
         self.file_extension = file_extension
         self.file_version = file_version
+        self.pipeline_type = pipeline_type
         self.analysis_outputs = [
             {
                 'provenance': {
@@ -96,7 +66,7 @@ class AnalysisFile():
                 },
                 'file_core': {
                     'file_name': output['file_path'].split('/')[-1],
-                    'format': self.get_file_format(output['file_path'], format_map.EXTENSION_TO_FORMAT),
+                    'format': format_map.get_file_format(output['file_path']),
                     'content_description': [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
                     if output['file_path'].endswith(".loom")
                     else [],
@@ -130,6 +100,24 @@ class AnalysisFile():
         return self.file_version
 
 
+# Entry point for unit tests
+def test_build_analysis_file(
+    input_uuid,
+    outputs_file,
+    pipeline_type,
+    file_path,
+        creation_time):
+
+    test_analysis_file = AnalysisFile(
+        input_uuid,
+        outputs_file,
+        pipeline_type,
+        file_path,
+        creation_time
+    )
+    return test_analysis_file.get_json()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)')
@@ -149,11 +137,15 @@ def main():
     args = parser.parse_args()
 
     analysis_file = AnalysisFile(
-        args.input_uuid, args.outputs_file
+        args.input_uuid,
+        args.outputs_file,
+        args.pipeline_type,
+        args.file_path,
+        args.creation_time
     )
 
     # Get the JSON content to be written
-    analysis_file_json = analysis_file.get_json
+    analysis_file_json = analysis_file.get_json()
 
     # Generate unique analysis file UUID based on input file's UUID and extension
     analysis_file_json_id = format_map.get_uuid5(

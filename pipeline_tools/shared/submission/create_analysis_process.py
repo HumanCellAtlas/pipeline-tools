@@ -2,10 +2,83 @@
 import argparse
 import json
 import os
+import arrow
+from pipeline_tools.shared.submission.create_analysis_protocol import AnalysisProtocol
 import uuid
 from csv import DictReader
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
+
+
+def format_timestamp(timestamp):
+    """ Standardize Cromwell timestamps to follow the date-time JSON format required by the analysis process schema.
+
+    Args:
+        timestamp (str): A datetime string in any format
+    Returns:
+        formatted_timestamp (str): A datetime string in the format 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+
+    """
+    if timestamp:
+        d = arrow.get(timestamp)
+        formatted_date = d.format('YYYY-MM-DDTHH:mm:ss.SSS')
+        return '{}Z'.format(formatted_date)
+
+
+# clean this up
+def get_workflow_metadata(metadata_file):
+    """Load workflow metadata from a JSON file.
+
+    Args:
+        metadata_file (str): Path to file containing metadata json for the workflow.
+
+    Returns:
+        metadata (dict): A dict consisting of Cromwell workflow metadata information.
+    """
+    with open(metadata_file) as f:
+        metadata = json.load(f)
+    return metadata
+
+
+# clean this up
+def get_workflow_tasks(workflow_metadata):
+    """Creates array of Cromwell workflow's task metadata for analysis_process.
+
+    Args:
+        workflow_metadata (dict): A dict representing the workflow metadata.
+
+    Returns:
+        sorted_output_tasks (list): Sorted array of dicts representing task metadata in the format required for
+                                    the analysis json.
+    """
+    calls = workflow_metadata['calls']
+
+    output_tasks = []
+    for long_task_name in calls:
+        task_name = long_task_name.split('.')[-1]
+        task = calls[long_task_name][0]
+
+        if task.get('subWorkflowMetadata'):
+            output_tasks.extend(
+                get_workflow_tasks(task['subWorkflowMetadata'])
+            )  # recursively parse tasks
+        else:
+            runtime = task['runtimeAttributes']
+            out_task = {
+                'task_name': task_name,
+                'cpus': int(runtime['cpu']),
+                'memory': runtime['memory'],
+                'disk_size': runtime['disks'],
+                'docker_image': runtime['docker'],
+                'zone': runtime['zones'],
+                'start_time': format_timestamp(task['start']),
+                'stop_time': format_timestamp(task['end']),
+                'log_out': task['stdout'],
+                'log_err': task['stderr'],
+            }
+            output_tasks.append(out_task)
+    sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
+    return sorted_output_tasks
 
 
 class AnalysisProcess():
@@ -70,103 +143,68 @@ class AnalysisProcess():
         "text": "analysis_protocol"
     }
 
-    # clean this up
-    def get_workflow_metadata(metadata_file):
-        """Load workflow metadata from a JSON file.
-
-        Args:
-            metadata_file (str): Path to file containing metadata json for the workflow.
-
-        Returns:
-            metadata (dict): A dict consisting of Cromwell workflow metadata information.
-        """
-        with open(metadata_file) as f:
-            metadata = json.load(f)
-        return metadata
-
-    # clean this up
-    def get_workflow_tasks(workflow_metadata):
-        """Creates array of Cromwell workflow's task metadata for analysis_process.
-
-        Args:
-            workflow_metadata (dict): A dict representing the workflow metadata.
-
-        Returns:
-            sorted_output_tasks (list): Sorted array of dicts representing task metadata in the format required for
-                                        the analysis json.
-        """
-        calls = workflow_metadata['calls']
-
-        output_tasks = []
-        for long_task_name in calls:
-            task_name = long_task_name.split('.')[-1]
-            task = calls[long_task_name][0]
-
-            if task.get('subWorkflowMetadata'):
-                output_tasks.extend(
-                    get_workflow_tasks(task['subWorkflowMetadata'])
-                )  # recursively parse tasks
-            else:
-                runtime = task['runtimeAttributes']
-                out_task = {
-                    'task_name': task_name,
-                    'cpus': int(runtime['cpu']),
-                    'memory': runtime['memory'],
-                    'disk_size': runtime['disks'],
-                    'docker_image': runtime['docker'],
-                    'zone': runtime['zones'],
-                    'start_time': format_map.format_timestamp(task['start']),
-                    'stop_time': format_map.format_timestamp(task['end']),
-                    'log_out': task['stdout'],
-                    'log_err': task['stderr'],
-                }
-                output_tasks.append(out_task)
-        sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
-        return sorted_output_tasks
-
-    def __init(self, file_path, creation_time, run_type, inputs, process_version, provenance_version, references, metadata_file):
+    def __init__(
+            self,
+            input_uuid,
+            file_path,
+            creation_time,
+            run_type,
+            inputs,
+            pipeline_version,
+            version,
+            references,
+            metadata_file,
+            pipeline_type):
 
         # Get the file version and file extension from params
         file_extension = os.path.splitext(file_path)[1]
         file_version = format_map.convert_datetime(creation_time)
 
-        workflow_metadata = self.get_workflow_metadata(metadata_file)
-        workflow_tasks = self.get_workflow_tasks(workflow_metadata)
-        timestamp_start_utc: format_map.format_timestamp(workflow_metadata.get('start'))
-        timestamp_stop_utc: format_map.format_timestamp(workflow_metadata.get('end'))
+        workflow_metadata = get_workflow_metadata(metadata_file)
+        workflow_tasks = get_workflow_tasks(workflow_metadata)
+        timestamp_start_utc = format_timestamp(workflow_metadata.get('start'))
+        timestamp_stop_utc = format_timestamp(workflow_metadata.get('end'))
 
+        string_to_hash = json.dumps(self, sort_keys=True)
+        entity_id = str(uuid.uuid5(format_map.NAMESPACE, string_to_hash)).lower()
+
+        provenance = {
+            "document_id": entity_id,
+            "submission_date": version,
+            "update_date": version
+        }
+        process_core = {"process_id": pipeline_version}
+        type = {
+            "text": run_type
+        }
+
+        self.input_uuid = input_uuid
         self.file_extension = file_extension
         self.file_version = file_version
         self.analysis_run_type = run_type
         self.inputs = inputs
-        self.process_core = {
-            "process_id": process_version  # might need to do something to this input...
-        }
-        string_to_hash = json.dumps(self, sort_keys=True)
-        entity_id = str(uuid.uuid5(format_map.NAMESPACE, string_to_hash)).lower()
-        self.provenance = {
-            "document_id": entity_id,
-            "submission_date": provenance_version,
-            "update_date": provenance_version
-        }
+        self.process_core = process_core
+        self.provenance = provenance
         self.reference_files = references
         self.tasks = workflow_tasks
         self.timestamp_start_utc = timestamp_start_utc
         self.timestamp_stop_utc = timestamp_stop_utc
-        
+        self.type = type
+        self.pipeline_type = pipeline_type
+
     def __analysis_process__(self):
         return {
-            'analysis_run_type': self.analysis_run_type,
-            'describedBy': self.describedBy,
-            'inputs': self.inputs,
-            'process_core': self.process_core,
-            'provenance': self.provenance,
-            'reference_files': self.reference_files,
-            'schema_type': self.schema_type,
-            'tasks': self.tasks,
-            'timestamp_start_utc': self.timestamp_start_utc,
-            'timestamp_stop_utc': self.timestamp_stop_utc,
-            'type': self.type
+            "analysis_run_type" : self.analysis_run_type,
+            "describedBy" : self.describedBy,
+            "inputs" : self.inputs,
+            "process_core" : self.process_core,
+            "provenance" : self.provenance,
+            "reference_files" : self.reference_files,
+            "schema_type" : self.schema_type,
+            "tasks" : self.tasks,
+            "timestamp_start_utc" : self.timestamp_start_utc,
+            "timestamp_stop_utc" : self.timestamp_stop_utc,
+            "type": self.type
         }
 
     def get_json(self):
@@ -175,7 +213,7 @@ class AnalysisProcess():
     @property
     def uuid(self):
         return self.input_uuid
-        
+
     @property
     def extension(self):
         return self.file_extension
@@ -183,6 +221,35 @@ class AnalysisProcess():
     @property
     def version(self):
         return self.file_version
+
+
+# Entry point for unit tests
+def test_build_analysis_process(
+    input_uuid,
+    file_path,
+    creation_time,
+    run_type,
+    inputs,
+    pipeline_version,
+    version,
+    references,
+    metadata_file,
+        pipeline_type):
+
+    test_analysis_process = AnalysisProcess(
+        input_uuid,
+        file_path,
+        creation_time,
+        run_type,
+        inputs,
+        pipeline_version,
+        version,
+        references,
+        metadata_file,
+        pipeline_type
+    )
+    return test_analysis_process.get_json()
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -221,10 +288,11 @@ def main():
         'within an individual workspace.',
     )
     parser.add_argument(
-        '--metadata_json',
+        '--metadata_file',
         required=True,
         help='Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.',
     )
+    parser.add_argument('--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)')
 
     args = argparse.parse_args()
 
@@ -249,13 +317,22 @@ def main():
             inputs = [line for line in reader]
         return inputs
 
-    # Get metadata for inputs and outputs
-    inputs = get_inputs(args.inputs_file)
-    with open(args.metadata_json) as f:
-        inputs_json = json.load(f)['inputs']
+        # Get metadata for inputs and outputs
+        inputs = get_inputs(args.inputs_file)
+        with open(args.metadata_file) as f:
+            inputs_json = json.load(f)['inputs']
 
     analysis_process = AnalysisProcess(
-        args.input_uuid, args.inputs, args.references, args.pipeline_version, args.version, args.metadata_json
+        args.input_uuid,
+        args.inputs,
+        args.references,
+        args.pipeline_version,
+        args.version,
+        args.metadata_file,
+        args.run_type,
+        args.file_path,
+        args.creation_time,
+        args.pipeline_type
     )
 
     # Get the JSON content to be written

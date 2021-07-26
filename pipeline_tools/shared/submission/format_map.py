@@ -1,5 +1,6 @@
 import uuid
 import re
+from csv import DictReader
 
 
 EXTENSION_TO_FORMAT = {
@@ -68,3 +69,15 @@ def get_file_format(path):
 
     print('Warning: no known format in the format_map matches file {}'.format(path))
     return 'unknown'
+
+
+def get_outputs(outputs_file):
+    with open(outputs_file) as f:
+        reader = DictReader(
+            f,
+            lineterminator='\n',
+            delimiter=' ',
+            fieldnames=['sha256', 'file_path', 'timestamp'],
+        )
+        outputs = [line for line in reader]
+    return outputs
