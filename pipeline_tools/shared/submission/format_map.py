@@ -30,6 +30,7 @@ EXTENSION_TO_FORMAT = {
 MIME_FORMATS = [
     ('application/vnd.loom', '.loom'),
     ('application/octet-stream', '.bam'),
+    ('application/octet-stream', '.bai'),
     ('application/octet-stream', '.fa'),
     ('application/octet-stream', '.fasta')]
 
@@ -53,7 +54,7 @@ def get_entity_type(path):
 
     if(format == "fasta"):
         return "reference_file"
-    elif(format == "bam" or format == "loom"):
+    elif(format == "bam" or format == "loom" or format == "bai"):
         return "analysis_file"
     return "unknown"
 
