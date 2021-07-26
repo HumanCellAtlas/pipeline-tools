@@ -66,9 +66,12 @@ class Descriptor():
 
         # Generate unique file UUID5 by hashing twice
         # This is deterministic and should always produce the same output given the same input
-        # file_name_id is used to save the descriptor file - {file_name_id}_{workspace_verison}.json
-        file_save_id = format_map.get_uuid5(f"{input_uuid}{entity_type}{file_extension}")
-        file_id = format_map.get_uuid5(file_save_id)
+        #
+        # file_entity_id is the ID for the bam/loom/bai/fa being processed
+        #
+        # file_id is the ID for the descriptor file being created
+        file_entity_id = format_map.get_uuid5(f"{input_uuid}{entity_type}{file_extension}")
+        file_id = format_map.get_uuid5(file_entity_id)
 
         self.size = size
         self.crc32c = crc32c
@@ -78,12 +81,12 @@ class Descriptor():
         self.file_name = file_name
         self.input_uuid = input_uuid
         self.entity_type = entity_type
-        self.file_save_id = file_save_id
         self.file_version = file_version
         self.content_type = content_type
         self.creation_time = creation_time
         self.pipeline_type = pipeline_type
         self.file_extension = file_extension
+        self.file_entity_id = file_entity_id
         self.workspace_version = workspace_version
 
     def __descriptor__(self):
@@ -122,8 +125,8 @@ class Descriptor():
         return self.entity_type
 
     @property
-    def save_id(self):
-        return self.file_save_id
+    def entity_id(self):
+        return self.file_entity_id
 
 
 # Entry point for unit tests
@@ -178,7 +181,7 @@ def main():
     descriptor_json = file_descriptor.get_json()
 
     # Generate filename based on UUID and version
-    descriptor_json_filename = f"{file_descriptor.save_id}_{file_descriptor.work_version}.json"
+    descriptor_json_filename = f"{file_descriptor.entity_id}_{file_descriptor.work_version}.json"
 
     with open(descriptor_json_filename, 'w') as f:
         json.dump(descriptor_json, f, indent=2, sort_keys=True)

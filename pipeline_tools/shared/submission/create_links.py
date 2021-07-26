@@ -4,165 +4,190 @@ import json
 import os
 import uuid
 
-from pipeline_tools.shared.submission.format_map import NAMESPACE
+from pipeline_tools.shared.submission import format_map
+from pipeline_tools.shared.schema_utils import SCHEMAS
 
 
-def build_links(
-    analysis_protocol_path,
-    analysis_process_path,
-    input_uuids,
-    outputs_file_path,
-    raw_schema_url,
-    links_schema_version,
-):
-    """Create the submission envelope in Ingest service.
+class LinksFile():
+    """LinksFile class implements the creation of a json file that contains the linked metadata for a given run of optimus or ss2
 
-    Args:
-        analysis_protocol_path (str): Path to the analysis_protocol json file.
-        analysis_process_path (str): Path to the analysis_process json file.
-        input_uuids (List[str]): List of UUIDs for the input files.
-        outputs_file_path (str): Path to the outputs json file.
-        raw_schema_url (str): URL prefix for retrieving HCA metadata schemas.
-        links_schema_version (str): Version of the metadata schema that the links.json conforms to.
+    The json file created should have the following form:
+
+    {
+        "describedBy": "https://schema.humancellatlas.org/system/2.1.1/links",
+        "links": [
+            {
+                "inputs": [
+                    {
+                        "input_id": "heart_1k_test_v2_S1_L001_R1_001.fastq.gz",
+                        "input_type": "sequence_file"
+                    },
+                    {
+                        "input_id": "heart_1k_test_v2_S1_L001_R2_001.fastq.gz",
+                        "input_type": "sequence_file"
+                    }
+                ],
+                "link_type": "process_link",
+                "outputs": [
+                    {
+                        "output_id": "87795ce9-03ce-51f3-b8d8-4ad6f8931fe0",
+                        "output_type": "analysis_file"
+                    },
+                    {
+                        "output_id": "d649938b-be5f-58cf-be04-0c1e6381eb9e",
+                        "output_type": "analysis_file"
+                    }
+                ],
+                "process_id": "151fe264-c670-4c77-a47c-530ff6b3127b",
+                "process_type": "analysis_process",
+                "protocols": [
+                    {
+                        "protocol_id": "f2cdb4e5-b439-5cdf-ac41-161ff39d5790",
+                        "protocol_type": "analysis_protocol"
+                    }
+                ]
+            }
+        ],
+        "schema_type": "links",
+        "schema_version": "2.1.1"
+    }
+
+    See https://schema.humancellatlas.org/system/2.1.1/links for full spec
     """
 
-    SCHEMA_TYPE = 'links'
+    # All links  files will share these schema attributes
+    describedBy = SCHEMAS["LINKS"]["describedBy"]
+    schema_type = SCHEMAS["LINKS"]["schema_type"]
+    schema_version = SCHEMAS["LINKS"]["schema_version"]
 
-    with open(analysis_protocol_path) as f:
-        analysis_protocol_dict = json.load(f)
+    def __init__(
+        self,
+        input_id,
+        project_id,
+        input_uuids,
+        output_file_path,
+        workspace_version,
+        analysis_process_path,
+        analysis_protocol_path,
+            project_stratum_string):
 
-    with open(analysis_process_path) as f:
-        analysis_process_dict = json.load(f)
+        # Create UUID to save the file as
+        file_prehash = f"{project_stratum_string}{input_id}"
+        subgraph_uuid = format_map.uuid5(file_prehash)
 
-    process_link = create_process_link(
-        protocol_dict=analysis_protocol_dict,
-        process_dict=analysis_process_dict,
-        input_uuids=input_uuids,
-        outputs_file_path=outputs_file_path,
-    )
+        # Load the analysis_process json into memory
+        with open(analysis_process_path) as f:
+            analysis_process_dict = json.load(f)
 
-    links = {
-        'describedBy': get_links_described_by(
-            schema_url=raw_schema_url, schema_version=links_schema_version
-        ),
-        'schema_version': links_schema_version,
-        'schema_type': SCHEMA_TYPE,
-        'links': [process_link],
-    }
+        # Load the analysis_protocol json into memory
+        with open(analysis_protocol_path) as f:
+            analysis_protocol_dict = json.load(f)
 
-    return links
+        # Load the outputs file json into memory
+        with open(output_file_path) as f:
+            outputs_dict = json.load(f)
 
+        self.input_id = input_id
+        self.outputs = outputs_dict
+        self.project_id = project_id
+        self.input_uuids = input_uuids
+        self.link_type = "process_link"
+        self.process_type = "analysis_file"
+        self.subgraph_uuid = subgraph_uuid
+        self.workspace_version = workspace_version
+        self.analysis_process = analysis_process_dict
+        self.analysis_protocol = analysis_protocol_dict
+        self.project_stratum_string = project_stratum_string
+        self.process_id = analysis_process_dict['process_core']['process_id']
 
-def get_links_described_by(schema_url, schema_version):
-    return f'{schema_url}/system/{schema_version}/links'
+    def __links_file__(self):
+        return {
+            "describedBy" : self.describedBy,
+            "schema_type" : self.schema_type,
+            "schema_version" : self.schema_version,
+            "links" : [
+                {
+                    "process_type" : self.process_type,
+                    "process_id" : self.process_id,
+                    "link_type" : self.link_type,
+                    "inputs" : self.__inputs__(),
+                    "outputs" : self.__outputs__(),
+                    "protocols" : self.__protocols__()
+                }
+            ]
+        }
 
+    def __inputs__(self):
+        """Add all sequence file inputs to an array and return"""
+        inputs = []
 
-def create_process_link(protocol_dict, process_dict, input_uuids, outputs_file_path):
-    LINK_TYPE = 'process_link'
+        for input_uuid in self.input_uuids:
+            inputs.append({'input_type': "sequence_file", 'input_id': input_uuid})
 
-    process_link = {
-        'process_type': process_dict['describedBy'].split('/')[-1],
-        'process_id': process_dict['process_core']['process_id'],
-        'inputs': create_process_link_inputs(input_uuids),
-        'outputs': create_process_link_outputs(outputs_file_path),
-        'protocols': create_process_link_protocol(protocol_dict),
-        'link_type': LINK_TYPE,
-    }
+        return inputs
 
-    return process_link
+    def __outputs__(self):
+        """Add all analysis file outputs to an array and return"""
+        outputs = []
 
+        for output in self.outputs:
+            output_type = output['describedBy'].split('/')[-1]
+            output_id = output['provenance']['document_id']
 
-def create_process_link_inputs(input_uuids):
-    SEQUENCING_INPUT_TYPE = 'sequence_file'
-    inputs = []
+            outputs.append({'output_type': output_type, 'output_id': output_id})
 
-    for input_uuid in input_uuids:
-        inputs.append({'input_type': SEQUENCING_INPUT_TYPE, 'input_id': input_uuid})
+        return outputs
 
-    return inputs
+    def __protocols__(self):
+        """Add analysis protocol to an array and return"""
 
+        return [
+            {
+                "protocol_type" : self.analysis_protocol['type']['text'],
+                "protocol_id" : self.analysis_protocol['provenance']['document_id']
+            }
+        ]
 
-def create_process_link_outputs(outputs_file_path):
-    outputs = []
+    def get_json(self):
+        return self.__links_file__()
 
-    with open(outputs_file_path) as f:
-        outputs_dict = json.load(f)
+    @property
+    def version(self):
+        return self.workspace_version
 
-    for file_ref in outputs_dict:
-        output_type = file_ref['describedBy'].split('/')[-1]
-        output_id = file_ref['provenance']['document_id']
+    @property
+    def uuid(self):
+        return self.subgraph_uuid
 
-        outputs.append({'output_type': output_type, 'output_id': output_id})
-
-    return outputs
-
-
-def create_process_link_protocol(protocol_dict):
-    protocols = []
-
-    protocol_type = protocol_dict['type']['text']
-    protocol_id = protocol_dict['provenance']['document_id']
-
-    protocols.append({'protocol_type': protocol_type, 'protocol_id': protocol_id})
-
-    return protocols
+    @property
+    def project(self):
+        return self.project_id
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--analysis_process_path',
-        required=True,
-        help='Path to the analysis_process.json file.',
-    )
-    parser.add_argument(
-        '--input_uuids', required=True, nargs='+', help='List of UUIDs.'
-    )
-    parser.add_argument(
-        '--outputs_file_path', required=True, help='Path to the outputs.json file.'
-    )
-    parser.add_argument(
-        '--analysis_protocol_path',
-        required=True,
-        help='Path to the analysis_protocol.json file.',
-    )
-    parser.add_argument(
-        '--schema_url', required=True, help='URL for retrieving HCA metadata schemas.'
-    )
-    parser.add_argument(
-        '--links_schema_version',
-        required=True,
-        help='The metadata schema version that the links files conform to.',
-    )
     parser.add_argument('--project_id', required=True, help='The project ID')
-    parser.add_argument(
-        '--input_id',
-        required=True,
-        help='A unique input ID to incorporate into the links UUID.',
-    )
-    parser.add_argument(
-        '--project_stratum_string',
-        required=True,
-        help="Concatenation of the project, library, species, and organ",
-    )
-    parser.add_argument(
-        '--version',
-        required=True,
-        help='A version (or timestamp) attribute shared across all workflows'
-        'within an individual workspace.',
-    )
+    parser.add_argument('--input_id', required=True, help='A unique input ID to incorporate into the links UUID.')
+    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the sequencing input files')
+    parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file.')
+    parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file.')
+    parser.add_argument('--project_stratum_string', required=True, help="Concatenation of the project, library, species, and organ")
+    parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows''within an individual workspace.')
+    parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files)')
     args = parser.parse_args()
 
-    schema_url = args.schema_url.strip('/')
-
-    links = build_links(
-        analysis_protocol_path=args.analysis_protocol_path,
-        analysis_process_path=args.analysis_process_path,
-        input_uuids=args.input_uuids,
-        outputs_file_path=args.outputs_file_path,
-        raw_schema_url=schema_url,
-        links_schema_version=args.links_schema_version,
+    links_file = LinksFile(
+        args.input_id,
+        args.project_id,
+        args.input_uuids,
+        args.output_file_path,
+        args.workspace_version,
+        args.analysis_process_path,
+        args.analysis_protocol_path,
+        args.project_stratum_string
     )
+
+    links_file_json = links_file.get_json()
 
     # Write links to file
     string_to_hash = f"{args.project_stratum_string}{args.input_id}"
@@ -171,8 +196,8 @@ def main():
     if not os.path.exists("links"):
         os.mkdir("links")
 
-    with open(f'links/{subgraph_uuid}_{args.version}_{args.project_id}.json', 'w') as f:
-        json.dump(links, f, indent=2, sort_keys=True)
+    with open(f'links/{links_file_json.uuid}_{links_file_json.version}_{links_file_json.project}.json', 'w') as f:
+        json.dump(links_file_json, f, indent=2, sort_keys=True)
 
 
 if __name__ == '__main__':
