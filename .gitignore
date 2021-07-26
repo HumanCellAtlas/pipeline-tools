@@ -30,3 +30,7 @@ wheels/
 # Development Artifacts
 *.ipynb_checkpoints/
 .idea/
+
+test-data/
+
+.vscode/
