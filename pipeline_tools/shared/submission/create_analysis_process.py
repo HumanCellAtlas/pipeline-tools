@@ -9,78 +9,6 @@ from csv import DictReader
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
 
-
-def format_timestamp(timestamp):
-    """ Standardize Cromwell timestamps to follow the date-time JSON format required by the analysis process schema.
-
-    Args:
-        timestamp (str): A datetime string in any format
-    Returns:
-        formatted_timestamp (str): A datetime string in the format 'YYYY-MM-DDTHH:mm:ss.SSSZ'
-
-    """
-    if timestamp:
-        d = arrow.get(timestamp)
-        formatted_date = d.format('YYYY-MM-DDTHH:mm:ss.SSS')
-        return '{}Z'.format(formatted_date)
-
-
-# clean this up
-def get_workflow_metadata(metadata_file):
-    """Load workflow metadata from a JSON file.
-
-    Args:
-        metadata_file (str): Path to file containing metadata json for the workflow.
-
-    Returns:
-        metadata (dict): A dict consisting of Cromwell workflow metadata information.
-    """
-    with open(metadata_file) as f:
-        metadata = json.load(f)
-    return metadata
-
-
-# clean this up
-def get_workflow_tasks(workflow_metadata):
-    """Creates array of Cromwell workflow's task metadata for analysis_process.
-
-    Args:
-        workflow_metadata (dict): A dict representing the workflow metadata.
-
-    Returns:
-        sorted_output_tasks (list): Sorted array of dicts representing task metadata in the format required for
-                                    the analysis json.
-    """
-    calls = workflow_metadata['calls']
-
-    output_tasks = []
-    for long_task_name in calls:
-        task_name = long_task_name.split('.')[-1]
-        task = calls[long_task_name][0]
-
-        if task.get('subWorkflowMetadata'):
-            output_tasks.extend(
-                get_workflow_tasks(task['subWorkflowMetadata'])
-            )  # recursively parse tasks
-        else:
-            runtime = task['runtimeAttributes']
-            out_task = {
-                'task_name': task_name,
-                'cpus': int(runtime['cpu']),
-                'memory': runtime['memory'],
-                'disk_size': runtime['disks'],
-                'docker_image': runtime['docker'],
-                'zone': runtime['zones'],
-                'start_time': format_timestamp(task['start']),
-                'stop_time': format_timestamp(task['end']),
-                'log_out': task['stdout'],
-                'log_err': task['stderr'],
-            }
-            output_tasks.append(out_task)
-    sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
-    return sorted_output_tasks
-
-
 class AnalysisProcess():
     """AnalysisProcess class implements the creation of a  json analysis process for Optimus and SS2 pipeline outputs
 
@@ -153,17 +81,17 @@ class AnalysisProcess():
             pipeline_version,
             version,
             references,
-            metadata_file,
+            metadata_json,
             pipeline_type):
 
         # Get the file version and file extension from params
         file_extension = os.path.splitext(file_path)[1]
         file_version = format_map.convert_datetime(creation_time)
 
-        workflow_metadata = get_workflow_metadata(metadata_file)
-        workflow_tasks = get_workflow_tasks(workflow_metadata)
-        timestamp_start_utc = format_timestamp(workflow_metadata.get('start'))
-        timestamp_stop_utc = format_timestamp(workflow_metadata.get('end'))
+        workflow_metadata = format_map.get_workflow_metadata(metadata_json)
+        workflow_tasks = format_map.get_workflow_tasks(workflow_metadata)
+        timestamp_start_utc = format_map.format_timestamp(workflow_metadata.get('start'))
+        timestamp_stop_utc = format_map.format_timestamp(workflow_metadata.get('end'))
 
         string_to_hash = json.dumps(self, sort_keys=True)
         entity_id = str(uuid.uuid5(format_map.NAMESPACE, string_to_hash)).lower()
@@ -233,7 +161,7 @@ def test_build_analysis_process(
     pipeline_version,
     version,
     references,
-    metadata_file,
+    metadata_json,
         pipeline_type):
 
     test_analysis_process = AnalysisProcess(
@@ -245,7 +173,7 @@ def test_build_analysis_process(
         pipeline_version,
         version,
         references,
-        metadata_file,
+        metadata_json,
         pipeline_type
     )
     return test_analysis_process.get_json()
@@ -288,39 +216,30 @@ def main():
         'within an individual workspace.',
     )
     parser.add_argument(
-        '--metadata_file',
+        '--metadata_json',
         required=True,
         help='Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.',
     )
     parser.add_argument('--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)')
+    parser.add_argument(
+        '--fastq1_input_files_tsv', help='',
+        required=False
+    )
+    parser.add_argument(
+        '--fastq2_input_files_tsv', help='',
+        required=False
+    )
+    parser.add_argument(
+        '--input_ids_tsv', help='',
+        required=False
+    )
 
     args = argparse.parse_args()
 
-    # i do not want this here
-    def get_inputs(inputs_file):
-        """Reads input parameter names and values from tsv file.
-
-        Args:
-            inputs_file (str): Path to tsv file of parameter names and values.
-
-        Returns:
-            inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
-        """
-        with open(inputs_file) as f:
-            f.readline()  # skip header
-            reader = DictReader(
-                f,
-                lineterminator='\n',
-                delimiter='\t',
-                fieldnames=['parameter_name', 'parameter_value'],
-            )
-            inputs = [line for line in reader]
-        return inputs
-
-        # Get metadata for inputs and outputs
-        inputs = get_inputs(args.inputs_file)
-        with open(args.metadata_file) as f:
-            inputs_json = json.load(f)['inputs']
+    # Get metadata for inputs and outputs
+    inputs = format_map.get_inputs(args.inputs_file)
+    if args.input_ids_tsv is not None and args.fastq1_input_files_tsv is not None:
+        inputs = format_map.get_inputs_ss2(inputs, args.input_ids_tsv, args.fastq1_input_files_tsv, args.fastq2_input_files_tsv)
 
     analysis_process = AnalysisProcess(
         args.input_uuid,
@@ -328,7 +247,7 @@ def main():
         args.references,
         args.pipeline_version,
         args.version,
-        args.metadata_file,
+        args.metadata_json,
         args.run_type,
         args.file_path,
         args.creation_time,

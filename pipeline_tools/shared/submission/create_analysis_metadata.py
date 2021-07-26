@@ -13,8 +13,7 @@ import arrow
 from pipeline_tools.shared.submission.format_map import (
     EXTENSION_TO_FORMAT,
     NAMESPACE,
-    get_uuid5,
-    convert_datetime,
+    get_uuid5
 )
 
 
@@ -160,6 +159,26 @@ def get_inputs(inputs_file):
     return inputs
 
 
+def get_inputs_ss2(inputs, input_ids_inputs, fastq1_inputs, fastq2_inputs=None):
+    with open(input_ids_inputs) as f:
+        input_ids = [id for id in f]
+    input_id_inputs_dict = {'parameter_name': 'input_ids', 'parameter_value': input_ids}
+    inputs.append(input_id_inputs_dict)
+
+    with open(fastq1_inputs) as f:
+        fastq1_files = [id for id in f]
+    fastq1_inputs_dict = {'parameter_name': 'fastq1_input_files', 'parameter_value': fastq1_files}
+    inputs.append(fastq1_inputs_dict)
+
+    if fastq2_inputs is not None:
+        with open(fastq2_inputs) as f:
+            fastq2_files = [id for id in f]
+        fastq2_inputs_dict = {'parameter_name': 'fastq2_input_files', 'parameter_value': fastq2_files}
+        inputs.append(fastq2_inputs_dict)
+
+    return inputs
+
+
 def get_outputs(outputs_file):
     with open(outputs_file) as f:
         reader = DictReader(
@@ -178,8 +197,13 @@ def get_relative_file_location(file_url):
 
 
 def create_analysis_files(
-    output_urls, input_uuid, extension_to_format, schema_url, analysis_file_version
-):
+    output_urls,
+    input_uuid,
+    extension_to_format,
+    schema_url,
+    analysis_file_version,
+        version):
+
     """Creates outputs metadata array for analysis json.
 
     TODO: Implement the dataclass in "https://github.com/HumanCellAtlas/metadata-api/blob/1b7192cecbef43b5befecc4153bf
@@ -197,6 +221,7 @@ def create_analysis_files(
         outputs (List[dict]): Array of dicts representing outputs metadata in the format required for the analysis json
                               file
     """
+    ANALYSIS_FILE_ENTITY_TYPE = "analysis_file"
 
     analysis_outputs = [
         {
@@ -206,9 +231,9 @@ def create_analysis_files(
             'schema_type': 'file',
             'provenance': {
                 'document_id': get_uuid5(
-                    f"{str(input_uuid)}{os.path.splitext(output['file_path'])[1]}"
+                    f"{str(input_uuid)}{ANALYSIS_FILE_ENTITY_TYPE}{os.path.splitext(output['file_path'])[1]}"
                 ),
-                'submission_date': convert_datetime(output['timestamp']),
+                'submission_date': version,
             },
             'file_core': {
                 'file_name': output['file_path'].split('/')[-1],
@@ -233,7 +258,7 @@ def get_input_urls(inputs):
         (List[str]): list of gs urls
     """
     return [
-        i['parameter_value'] for i in inputs if i['parameter_value'].startswith('gs://')
+        i['parameter_value'] for i in inputs if type(i['parameter_value']) == str and i['parameter_value'].startswith('gs://')
     ]
 
 
@@ -252,7 +277,7 @@ def add_md5s_to_inputs(inputs, input_url_to_md5):
     inputs_with_md5 = []
     for i in inputs:
         value = i['parameter_value']
-        if value.startswith('gs://'):
+        if type(value) == str and value.startswith('gs://'):
             input_with_md5 = deepcopy(i)
             input_with_md5['checksum'] = input_url_to_md5[value]
             inputs_with_md5.append(input_with_md5)
@@ -573,12 +598,27 @@ def main():
     parser.add_argument(
         '--add_md5s', help='Set to "true" to add md5 checksums to file metadata'
     )
+    parser.add_argument(
+        '--fastq1_input_files_tsv', help='',
+        required=False
+    )
+    parser.add_argument(
+        '--fastq2_input_files_tsv', help='',
+        required=False
+    )
+    parser.add_argument(
+        '--input_ids_tsv', help='',
+        required=False
+    )
     args = parser.parse_args()
 
     schema_url = args.schema_url.strip('/')
 
     # Get metadata for inputs and outputs
     inputs = get_inputs(args.inputs_file)
+    if args.input_ids_tsv is not None and args.fastq1_input_files_tsv is not None:
+        inputs = get_inputs_ss2(inputs, args.input_ids_tsv, args.fastq1_input_files_tsv, args.fastq2_input_files_tsv)
+
     with open(args.metadata_json) as f:
         inputs_json = json.load(f)['inputs']
 
@@ -594,6 +634,7 @@ def main():
         extension_to_format=EXTENSION_TO_FORMAT,
         schema_url=schema_url,
         analysis_file_version=args.analysis_file_version,
+        version=args.version
     )
 
     # Add md5 checksums to input and output metadata if needed

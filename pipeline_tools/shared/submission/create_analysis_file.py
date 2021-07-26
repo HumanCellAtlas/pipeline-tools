@@ -45,7 +45,13 @@ class AnalysisFile():
     schema_type = SCHEMAS["ANALYSIS_FILE"]["schema_type"]
     schema_version = SCHEMAS["ANALYSIS_FILE"]["schema_version"]
 
-    def __init__(self, input_uuid, outputs_file, pipeline_type, file_path, creation_time):
+    def __init__(
+        self,
+        input_uuid,
+        outputs_file,
+        pipeline_type,
+        file_path,
+            creation_time):
 
         # Get the file version and file extension from params
         file_extension = os.path.splitext(file_path)[1]

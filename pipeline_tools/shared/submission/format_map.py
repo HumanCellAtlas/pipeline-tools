@@ -1,5 +1,6 @@
 import uuid
 import re
+import json
 from csv import DictReader
 
 
@@ -73,6 +74,21 @@ def get_file_format(path):
     return 'unknown'
 
 
+def format_timestamp(timestamp):
+    """ Standardize Cromwell timestamps to follow the date-time JSON format required by the analysis process schema.
+
+    Args:
+        timestamp (str): A datetime string in any format
+    Returns:
+        formatted_timestamp (str): A datetime string in the format 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+
+    """
+    if timestamp:
+        d = arrow.get(timestamp)
+        formatted_date = d.format('YYYY-MM-DDTHH:mm:ss.SSS')
+        return '{}Z'.format(formatted_date)
+
+
 def get_outputs(outputs_file):
     with open(outputs_file) as f:
         reader = DictReader(
@@ -83,3 +99,98 @@ def get_outputs(outputs_file):
         )
         outputs = [line for line in reader]
     return outputs
+
+
+def get_inputs_ss2(inputs, input_ids_inputs, fastq1_inputs, fastq2_inputs=None):
+    with open(input_ids_inputs) as f:
+        input_ids = [id for id in f]
+    input_id_inputs_dict = {'parameter_name': 'input_ids', 'parameter_value': input_ids}
+    inputs.append(input_id_inputs_dict)
+
+    with open(fastq1_inputs) as f:
+        fastq1_files = [id for id in f]
+    fastq1_inputs_dict = {'parameter_name': 'fastq1_input_files', 'parameter_value': fastq1_files}
+    inputs.append(fastq1_inputs_dict)
+
+    if fastq2_inputs is not None:
+        with open(fastq2_inputs) as f:
+            fastq2_files = [id for id in f]
+        fastq2_inputs_dict = {'parameter_name': 'fastq2_input_files', 'parameter_value': fastq2_files}
+        inputs.append(fastq2_inputs_dict)
+
+    return inputs
+
+
+def get_inputs(inputs_file):
+    """Reads input parameter names and values from tsv file.
+
+    Args:
+        inputs_file (str): Path to tsv file of parameter names and values.
+
+    Returns:
+        inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
+    """
+    with open(inputs_file) as f:
+        f.readline()  # skip header
+        reader = DictReader(
+            f,
+            lineterminator='\n',
+            delimiter='\t',
+            fieldnames=['parameter_name', 'parameter_value'],
+        )
+        inputs = [line for line in reader]
+    return inputs
+
+
+def get_workflow_metadata(metadata_json):
+    """Load workflow metadata from a JSON file.
+
+    Args:
+        metadata_json (str): Path to file containing metadata json for the workflow.
+
+    Returns:
+        metadata (dict): A dict consisting of Cromwell workflow metadata information.
+    """
+    with open(metadata_json) as f:
+        metadata = json.load(f)
+    return metadata
+
+
+def get_workflow_tasks(workflow_metadata):
+    """Creates array of Cromwell workflow's task metadata for analysis_process.
+
+    Args:
+        workflow_metadata (dict): A dict representing the workflow metadata.
+
+    Returns:
+        sorted_output_tasks (list): Sorted array of dicts representing task metadata in the format required for
+                                    the analysis json.
+    """
+    calls = workflow_metadata['calls']
+
+    output_tasks = []
+    for long_task_name in calls:
+        task_name = long_task_name.split('.')[-1]
+        task = calls[long_task_name][0]
+
+        if task.get('subWorkflowMetadata'):
+            output_tasks.extend(
+                get_workflow_tasks(task['subWorkflowMetadata'])
+            )  # recursively parse tasks
+        else:
+            runtime = task['runtimeAttributes']
+            out_task = {
+                'task_name': task_name,
+                'cpus': int(runtime['cpu']),
+                'memory': runtime['memory'],
+                'disk_size': runtime['disks'],
+                'docker_image': runtime['docker'],
+                'zone': runtime['zones'],
+                'start_time': format_timestamp(task['start']),
+                'stop_time': format_timestamp(task['end']),
+                'log_out': task['stdout'],
+                'log_err': task['stderr'],
+            }
+            output_tasks.append(out_task)
+    sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
+    return sorted_output_tasks

@@ -18,6 +18,7 @@ def test_data():
         pipeline_type = 'optimus'
         file_path = '/fake/file/path.fasta'
         creation_time = '2021-07-14T13:00:00Z'
+        workspace_version = '2021-01-13T17:53:12.000000Z'
 
     return Data
 
@@ -39,7 +40,8 @@ class TestCreateAnalysisFile(object):
             outputs_file=test_data.outputs_file,
             pipeline_type=test_data.pipeline_type,
             file_path=test_data.file_path,
-            creation_time=test_data.creation_time
+            creation_time=test_data.creation_time,
+            workspace_version=test_data.workspace_version
         )
 
         assert (
@@ -56,3 +58,4 @@ class TestCreateAnalysisFile(object):
             'file_name': '/fake/file/path.fasta',
             'format': 'bam'
         }
+        assert analysis_file.get('workspace_version') == '2021-01-13T17:53:12.000000Z'
