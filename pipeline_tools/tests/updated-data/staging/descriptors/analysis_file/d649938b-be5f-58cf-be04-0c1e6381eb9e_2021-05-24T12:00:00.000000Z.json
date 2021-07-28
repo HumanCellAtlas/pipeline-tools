@@ -1,0 +1,12 @@
+{
+  "content_type": "application/octet-stream",
+  "crc32c": "0ca08f27",
+  "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
+  "file_id": "369bb2ef-ed7c-5bf3-ac34-142a7a2beb5a",
+  "file_name": "heart_1k_test_v2_S1_L001.bam",
+  "file_version": "2021-07-08T17:10:40.000000Z",
+  "schema_type": "file_descriptor",
+  "schema_version": "2.0.0",
+  "sha256": "b69ae9c3a683843a27a8930b099543dde6c839bf227903f648e5dba68296a0ec",
+  "size": 1096414
+}

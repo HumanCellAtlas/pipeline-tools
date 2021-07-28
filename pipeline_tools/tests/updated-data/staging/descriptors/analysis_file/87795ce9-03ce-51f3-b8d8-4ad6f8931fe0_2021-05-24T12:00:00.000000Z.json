@@ -1,0 +1,12 @@
+{
+  "content_type": "application/vnd.loom",
+  "crc32c": "e598a0f6",
+  "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
+  "file_id": "317a2bfc-ea58-50ae-b64e-4c58d0c01a74",
+  "file_name": "heart_1k_test_v2_S1_L001.loom",
+  "file_version": "2021-07-08T17:22:45.000000Z",
+  "schema_type": "file_descriptor",
+  "schema_version": "2.0.0",
+  "sha256": "c12d50051a5b8820124f596529c6cbdc0280b71883acbde08e30311cdb30edfa",
+  "size": 21806469
+}

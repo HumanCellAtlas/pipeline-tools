@@ -1,0 +1,967 @@
+{
+  "calls": {
+    "Optimus.MergeGeneMetrics": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeGeneMetrics/stdout",
+        "shardIndex": -1,
+        "outputs": {
+          "gene_metrics": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeGeneMetrics/merged-gene-metrics.csv.gz"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 20 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "3.759765625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "machine_mem_mb": 3850,
+          "disk": 20,
+          "metric_files": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CalculateGeneMetrics/shard-0/gene-metrics.csv.gz"
+          ],
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "cpu": 1
+        },
+        "end": "2021-07-08T17:15:01.646Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeGeneMetrics/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:11:04.180Z"
+      }
+    ],
+    "Optimus.checkOptimusInput": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-checkOptimusInput/stdout",
+        "shardIndex": -1,
+        "outputs": {},
+        "runtimeAttributes": {
+          "preemptible": "0",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 1 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "ubuntu:18.04",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "1 GB"
+        },
+        "inputs": {
+          "counting_mode": "sc_rna",
+          "machine_mem_mb": 1,
+          "disk": 1,
+          "chemistry": "tenX_v2",
+          "cpu": 1,
+          "force_no_check": false
+        },
+        "end": "2021-07-08T16:08:16.649Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-checkOptimusInput/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T16:08:09.160Z"
+      }
+    ],
+    "Optimus.PreMergeSort": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreMergeSort/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "bam_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreMergeSort/shard-0/sorted.bam",
+          "bam_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreMergeSort/shard-0/sorted.bai"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 201 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "8.056640625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CorrectUMItools/shard-0/output.bam",
+          "machine_mem_mb": 8250,
+          "disk": null,
+          "__disk": 201,
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "command_mem_mb": null,
+          "__command_mem_mb": 7750,
+          "cpu": 1,
+          "sort_order": "coordinate",
+          "machine_overhead_mb": 500
+        },
+        "end": "2021-07-08T17:08:31.643Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreMergeSort/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:05:32.680Z"
+      }
+    ],
+    "Optimus.OptimusLoomGeneration": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-OptimusLoomGeneration/stdout",
+        "shardIndex": -1,
+        "outputs": {
+          "loom_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-OptimusLoomGeneration/heart_1k_test_v2_S1_L001.loom"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 200 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-1",
+          "maxRetries": "0",
+          "cpu": "4",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "18 GB"
+        },
+        "inputs": {
+          "cell_metrics": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCellMetrics/merged-cell-metrics.csv.gz",
+          "counting_mode": "sc_rna",
+          "annotation_file": "gs://hca-dcp-mint-test-data/yanc-test/gencode.vM21.annotation.gtf.gz",
+          "preemptible": 3,
+          "machine_mem_mb": 18,
+          "disk": 200,
+          "pipeline_version": "Optimus_v4.2.3",
+          "input_id_metadata_field": null,
+          "gene_id": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts_col_index.npy",
+          "input_name": null,
+          "cell_id": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts_row_index.npy",
+          "input_name_metadata_field": null,
+          "gene_metrics": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeGeneMetrics/merged-gene-metrics.csv.gz",
+          "docker": "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-1",
+          "cpu": 4,
+          "empty_drops_result": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-RunEmptyDrops/empty_drops_result.csv",
+          "input_id": "heart_1k_test_v2_S1_L001",
+          "sparse_count_matrix": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts.npz"
+        },
+        "end": "2021-07-08T17:23:55.643Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-OptimusLoomGeneration/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:20:18.030Z"
+      }
+    ],
+    "Optimus.PreCountSort": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreCountSort/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "bam_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreCountSort/shard-0/sorted.bam"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 201 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "8.056640625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CorrectUMItools/shard-0/output.bam",
+          "machine_mem_mb": 8250,
+          "disk": 201,
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "command_mem_mb": 7750,
+          "cpu": 1,
+          "sort_order": "queryname",
+          "machine_overhead_mb": 500
+        },
+        "end": "2021-07-08T17:08:22.645Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreCountSort/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:05:32.680Z"
+      }
+    ],
+    "Optimus.TagGenes": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-TagGenes/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "bam_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-TagGenes/shard-0/bam_with_gene_exon.bam",
+          "log": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-TagGenes/shard-0/gene_exon_tag_summary.log"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 21 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-dropseqtools:v0.2.2-1.13",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "8.056640625 GB"
+        },
+        "inputs": {
+          "annotations_gtf": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-ModifyGtf/gene_id_as_gene_name.gtf.gz",
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-StarAlign/shard-0/Aligned.out.bam",
+          "machine_mem_mb": 8250,
+          "disk": null,
+          "__disk": 21,
+          "docker": "quay.io/humancellatlas/secondary-analysis-dropseqtools:v0.2.2-1.13",
+          "cpu": 1
+        },
+        "end": "2021-07-08T16:59:40.646Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-TagGenes/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T16:55:32.920Z"
+      }
+    ],
+    "Optimus.CalculateCellMetrics": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CalculateCellMetrics/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "cell_metrics": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CalculateCellMetrics/shard-0/cell-metrics.csv.gz"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 1 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "43.9453125 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CellSortBam/shard-0/cell-sorted.bam",
+          "machine_mem_mb": 45000,
+          "disk": null,
+          "__disk": 1,
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "cpu": 1,
+          "original_gtf": "gs://hca-dcp-mint-test-data/yanc-test/gencode.vM21.annotation.gtf.gz"
+        },
+        "end": "2021-07-08T17:11:46.643Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CalculateCellMetrics/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:08:08.740Z"
+      }
+    ],
+    "Optimus.MergeSorted": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeSorted/stdout",
+        "shardIndex": -1,
+        "outputs": {
+          "output_bam": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeSorted/heart_1k_test_v2_S1_L001.bam"
+        },
+        "runtimeAttributes": {
+          "preemptible": "0",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 500 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.3.3-1513176735",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "17.724609375 GB"
+        },
+        "inputs": {
+          "preemptible": 0,
+          "machine_mem_mb": 18150,
+          "disk": 500,
+          "docker": "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.3.3-1513176735",
+          "command_mem_mb": 17650,
+          "compression_level": 5,
+          "bam_inputs": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreMergeSort/shard-0/sorted.bam"
+          ],
+          "cpu": 1,
+          "output_bam_filename": "heart_1k_test_v2_S1_L001.bam",
+          "sort_order": "coordinate"
+        },
+        "end": "2021-07-08T17:12:07.645Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeSorted/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:08:34.240Z"
+      }
+    ],
+    "Optimus.CellSortBam": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CellSortBam/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "bam_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CellSortBam/shard-0/cell-sorted.bam"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 1 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "maxRetries": "0",
+          "cpu": "2",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "97.65625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CorrectUMItools/shard-0/output.bam",
+          "machine_mem_mb": 100000,
+          "disk": null,
+          "__disk": 1,
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "cpu": 2
+        },
+        "end": "2021-07-08T17:08:07.644Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CellSortBam/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:05:32.680Z"
+      }
+    ],
+    "Optimus.FastqProcessing": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-FastqProcessing/stdout",
+        "shardIndex": -1,
+        "outputs": {
+          "bam_output_array": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-FastqProcessing/glob-2496751d95ef6047200ff5712e1b8665/subfile_0.bam"
+          ]
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 501 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.12",
+          "maxRetries": "0",
+          "cpu": "16",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "39.0625 GB"
+        },
+        "inputs": {
+          "r2_fastq": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/heart_1k_test_v2_S1_L001_R2_001.fastq.gz"
+          ],
+          "preemptible": 3,
+          "i1_fastq": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/heart_1k_test_v2_S1_L001_I1_001.fastq.gz"
+          ],
+          "machine_mem_mb": 40000,
+          "disk": null,
+          "sample_id": "heart_1k_test_v2_S1_L001",
+          "chemistry": "tenX_v2",
+          "__disk": 501,
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.12",
+          "cpu": 16,
+          "whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
+          "r1_fastq": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/heart_1k_test_v2_S1_L001_R1_001.fastq.gz"
+          ]
+        },
+        "end": "2021-07-08T16:12:40.645Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-FastqProcessing/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T16:08:09.160Z"
+      }
+    ],
+    "Optimus.RunEmptyDrops": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-RunEmptyDrops/stdout",
+        "shardIndex": -1,
+        "outputs": {
+          "empty_drops_result": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-RunEmptyDrops/empty_drops_result.csv"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "20",
+          "disks": "local-disk 20 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.4",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "15.625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "machine_mem_mb": 16000,
+          "row_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts_row_index.npy",
+          "disk": 20,
+          "fdr_cutoff": 0.01,
+          "niters": 10000.0,
+          "docker": "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.4",
+          "emptydrops_lower": 1,
+          "cpu": 1,
+          "min_molecules": 100,
+          "col_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts_col_index.npy",
+          "sparse_count_matrix": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts.npz"
+        },
+        "end": "2021-07-08T17:20:16.646Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-RunEmptyDrops/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:16:33.630Z"
+      }
+    ],
+    "Optimus.PreUMISort": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreUMISort/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "bam_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreUMISort/shard-0/sorted.bam",
+          "bam_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreUMISort/shard-0/sorted.bai"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 201 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "8.056640625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-TagGenes/shard-0/bam_with_gene_exon.bam",
+          "machine_mem_mb": 8250,
+          "disk": null,
+          "__disk": 201,
+          "docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+          "command_mem_mb": null,
+          "__command_mem_mb": 7750,
+          "cpu": 1,
+          "sort_order": "coordinate",
+          "machine_overhead_mb": 500
+        },
+        "end": "2021-07-08T17:02:10.646Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreUMISort/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T16:59:42.819Z"
+      }
+    ],
+    "Optimus.GeneSortBam": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-GeneSortBam/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "bam_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-GeneSortBam/shard-0/gene-sorted.bam"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 1 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "maxRetries": "0",
+          "cpu": "2",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "97.65625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CorrectUMItools/shard-0/output.bam",
+          "machine_mem_mb": 100000,
+          "disk": null,
+          "__disk": 1,
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "cpu": 2
+        },
+        "end": "2021-07-08T17:08:40.644Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-GeneSortBam/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:05:32.680Z"
+      }
+    ],
+    "Optimus.MergeCellMetrics": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCellMetrics/stdout",
+        "shardIndex": -1,
+        "outputs": {
+          "cell_metrics": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCellMetrics/merged-cell-metrics.csv.gz"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 20 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "3.759765625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "machine_mem_mb": 3850,
+          "disk": 20,
+          "metric_files": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CalculateCellMetrics/shard-0/cell-metrics.csv.gz"
+          ],
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "cpu": 1
+        },
+        "end": "2021-07-08T17:16:31.643Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCellMetrics/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:11:49.060Z"
+      }
+    ],
+    "Optimus.CreateSparseCountMatrix": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CreateSparseCountMatrix/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "col_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CreateSparseCountMatrix/shard-0/sparse_counts_col_index.npy",
+          "sparse_count_matrix": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CreateSparseCountMatrix/shard-0/sparse_counts.npz",
+          "row_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CreateSparseCountMatrix/shard-0/sparse_counts_row_index.npy"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 14 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "8.056640625 GB"
+        },
+        "inputs": {
+          "gtf_file": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-ModifyGtf/gene_id_as_gene_name.gtf.gz",
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreCountSort/shard-0/sorted.bam",
+          "machine_mem_mb": 8250,
+          "disk": null,
+          "__disk": 14,
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "cpu": 1
+        },
+        "end": "2021-07-08T17:12:46.644Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CreateSparseCountMatrix/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:08:24.039Z"
+      }
+    ],
+    "Optimus.CalculateGeneMetrics": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CalculateGeneMetrics/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "gene_metrics": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CalculateGeneMetrics/shard-0/gene-metrics.csv.gz"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 1 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "29.296875 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-GeneSortBam/shard-0/gene-sorted.bam",
+          "machine_mem_mb": 30000,
+          "disk": null,
+          "__disk": 1,
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "cpu": 1
+        },
+        "end": "2021-07-08T17:11:01.648Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CalculateGeneMetrics/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:08:42.399Z"
+      }
+    ],
+    "Optimus.ModifyGtf": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-ModifyGtf/stdout",
+        "shardIndex": -1,
+        "outputs": {
+          "modified_gtf": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-ModifyGtf/gene_id_as_gene_name.gtf.gz"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 11 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/modify-gtf:0.1.0",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "8.056640625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "machine_mem_mb": 8250,
+          "disk": null,
+          "__disk": 11,
+          "modified_gtf_location": "gene_id_as_gene_name.gtf.gz",
+          "docker": "quay.io/humancellatlas/modify-gtf:0.1.0",
+          "cpu": 1,
+          "original_gtf": "gs://hca-dcp-mint-test-data/yanc-test/gencode.vM21.annotation.gtf.gz"
+        },
+        "end": "2021-07-08T16:13:31.643Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-ModifyGtf/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T16:08:09.160Z"
+      }
+    ],
+    "Optimus.MergeCountFiles": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/stdout",
+        "shardIndex": -1,
+        "outputs": {
+          "col_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts_col_index.npy",
+          "sparse_count_matrix": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts.npz",
+          "row_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts_row_index.npy"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 20 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "8.056640625 GB"
+        },
+        "inputs": {
+          "col_indices": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CreateSparseCountMatrix/shard-0/sparse_counts_col_index.npy"
+          ],
+          "sparse_count_matrices": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CreateSparseCountMatrix/shard-0/sparse_counts.npz"
+          ],
+          "preemptible": 3,
+          "machine_mem_mb": 8250,
+          "disk": 20,
+          "docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+          "cpu": 1,
+          "row_indices": [
+            "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CreateSparseCountMatrix/shard-0/sparse_counts_row_index.npy"
+          ]
+        },
+        "end": "2021-07-08T17:16:31.643Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:12:49.239Z"
+      }
+    ],
+    "Optimus.StarAlign": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-StarAlign/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "bam_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-StarAlign/shard-0/Aligned.out.bam",
+          "alignment_log": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-StarAlign/shard-0/Log.final.out"
+        },
+        "runtimeAttributes": {
+          "preemptible": "0",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 63 SSD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-40ead6e",
+          "maxRetries": "0",
+          "cpu": "16",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "33.30078125 GB"
+        },
+        "inputs": {
+          "preemptible": 0,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-FastqProcessing/glob-2496751d95ef6047200ff5712e1b8665/subfile_0.bam",
+          "machine_mem_mb": null,
+          "disk": null,
+          "__disk": 63,
+          "tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar",
+          "docker": "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-40ead6e",
+          "cpu": 16,
+          "__machine_mem_mb": 34100
+        },
+        "end": "2021-07-08T16:55:31.644Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-StarAlign/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T16:12:44.570Z"
+      }
+    ],
+    "Optimus.CorrectUMItools": [
+      {
+        "stdout": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CorrectUMItools/shard-0/stdout",
+        "shardIndex": 0,
+        "outputs": {
+          "bam_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CorrectUMItools/shard-0/output.bam",
+          "group_output": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CorrectUMItools/shard-0/groupout.tsv"
+        },
+        "runtimeAttributes": {
+          "preemptible": "3",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 51 HDD",
+          "continueOnReturnCode": "0",
+          "docker": "quay.io/humancellatlas/secondary-analysis-umitools:0.0.1",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-a,us-central1-b,us-central1-c,us-central1-f",
+          "memoryMin": "2 GB",
+          "memory": "15.625 GB"
+        },
+        "inputs": {
+          "preemptible": 3,
+          "bam_input": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreUMISort/shard-0/sorted.bam",
+          "machine_mem_mb": 16000,
+          "disk": null,
+          "__disk": 51,
+          "bam_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-PreUMISort/shard-0/sorted.bai",
+          "docker": "quay.io/humancellatlas/secondary-analysis-umitools:0.0.1",
+          "groupout_filename": "groupout.tsv",
+          "cpu": 1,
+          "output_bam_filename": "output.bam"
+        },
+        "end": "2021-07-08T17:05:31.646Z",
+        "stderr": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-CorrectUMItools/shard-0/stderr",
+        "attempt": 1,
+        "start": "2021-07-08T17:02:11.739Z"
+      }
+    ]
+  },
+  "outputs": {
+    "Optimus.cell_metrics": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCellMetrics/merged-cell-metrics.csv.gz",
+    "Optimus.loom_output_file": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-OptimusLoomGeneration/heart_1k_test_v2_S1_L001.loom",
+    "Optimus.gene_metrics": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeGeneMetrics/merged-gene-metrics.csv.gz",
+    "Optimus.cell_calls": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-RunEmptyDrops/empty_drops_result.csv",
+    "Optimus.matrix_row_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts_row_index.npy",
+    "Optimus.pipeline_version_out": "4.2.3",
+    "Optimus.matrix": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts.npz",
+    "Optimus.bam": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeSorted/heart_1k_test_v2_S1_L001.bam",
+    "Optimus.matrix_col_index": "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/fa1c9233-78ee-4077-b401-c97685106c64/Optimus/151fe264-c670-4c77-a47c-530ff6b3127b/call-MergeCountFiles/sparse_counts_col_index.npy"
+  },
+  "id": "151fe264-c670-4c77-a47c-530ff6b3127b",
+  "inputs": {
+    "Optimus.CellSortBam.preemptible": 3,
+    "r2_fastq": [
+      "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/heart_1k_test_v2_S1_L001_R2_001.fastq.gz"
+    ],
+    "Optimus.PreMergeSort.machine_mem_mb": 8250,
+    "annotations_gtf": "gs://hca-dcp-mint-test-data/yanc-test/gencode.vM21.annotation.gtf.gz",
+    "Optimus.CalculateGeneMetrics.machine_mem_mb": 30000,
+    "Optimus.FastqProcessing.preemptible": 3,
+    "Optimus.CorrectUMItools.cpu": 1,
+    "Optimus.CellSortBam.cpu": 2,
+    "Optimus.ModifyGtf.disk": null,
+    "Optimus.CalculateGeneMetrics.disk": null,
+    "Optimus.MergeSorted.disk": 500,
+    "Optimus.PreCountSort.docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+    "Optimus.PreMergeSort.docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+    "Optimus.PreCountSort.cpu": 1,
+    "counting_mode": "sc_rna",
+    "Optimus.FastqProcessing.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.12",
+    "Optimus.MergeSorted.compression_level": 5,
+    "Optimus.OptimusLoomGeneration.disk": 200,
+    "Optimus.TagGenes.preemptible": 3,
+    "i1_fastq": [
+      "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/heart_1k_test_v2_S1_L001_I1_001.fastq.gz"
+    ],
+    "Optimus.OptimusLoomGeneration.machine_mem_mb": 18,
+    "Optimus.CreateSparseCountMatrix.machine_mem_mb": 8250,
+    "Optimus.PreUMISort.sort_order": "coordinate",
+    "Optimus.GeneSortBam.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+    "Optimus.MergeSorted.preemptible": 0,
+    "Optimus.TagGenes.cpu": 1,
+    "Optimus.MergeSorted.cpu": 1,
+    "Optimus.ModifyGtf.cpu": 1,
+    "Optimus.CorrectUMItools.disk": null,
+    "output_bam_basename": null,
+    "Optimus.ModifyGtf.docker": "quay.io/humancellatlas/modify-gtf:0.1.0",
+    "Optimus.OptimusLoomGeneration.preemptible": 3,
+    "Optimus.CalculateGeneMetrics.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+    "Optimus.MergeGeneMetrics.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+    "input_id_metadata_field": null,
+    "Optimus.CellSortBam.disk": null,
+    "Optimus.RunEmptyDrops.machine_mem_mb": 16000,
+    "Optimus.PreMergeSort.cpu": 1,
+    "Optimus.MergeGeneMetrics.machine_mem_mb": 3850,
+    "Optimus.PreMergeSort.disk": null,
+    "Optimus.CalculateGeneMetrics.cpu": 1,
+    "Optimus.MergeSorted.docker": "us.gcr.io/broad-gotc-prod/genomes-in-the-cloud:2.3.3-1513176735",
+    "Optimus.StarAlign.preemptible": 0,
+    "Optimus.CellSortBam.machine_mem_mb": 100000,
+    "Optimus.checkOptimusInput.machine_mem_mb": 1,
+    "Optimus.StarAlign.disk": null,
+    "input_name": null,
+    "Optimus.GeneSortBam.machine_mem_mb": 100000,
+    "Optimus.CorrectUMItools.preemptible": 3,
+    "Optimus.CalculateCellMetrics.machine_mem_mb": 45000,
+    "Optimus.PreUMISort.machine_mem_mb": 8250,
+    "Optimus.RunEmptyDrops.disk": 20,
+    "chemistry": "tenX_v2",
+    "Optimus.ModifyGtf.machine_mem_mb": 8250,
+    "Optimus.FastqProcessing.cpu": 16,
+    "Optimus.checkOptimusInput.disk": 1,
+    "Optimus.TagGeneFunction.cpu": 1,
+    "Optimus.GeneSortBam.preemptible": 3,
+    "Optimus.CreateSparseCountMatrix.preemptible": 3,
+    "Optimus.RunEmptyDrops.niters": 10000.0,
+    "Optimus.PreMergeSort.command_mem_mb": null,
+    "input_name_metadata_field": null,
+    "tar_star_reference": "gs://hca-dcp-mint-test-data/20190507-PipelinesSurge/mouse_reference/star_primary_gencode_mouse_vM21.tar",
+    "Optimus.MergeCellMetrics.preemptible": 3,
+    "Optimus.RunEmptyDrops.docker": "quay.io/humancellatlas/secondary-analysis-dropletutils:0.1.4",
+    "Optimus.TagGeneFunction.disk": null,
+    "Optimus.MergeCountFiles.preemptible": 3,
+    "Optimus.MergeCellMetrics.machine_mem_mb": 3850,
+    "Optimus.PreUMISort.command_mem_mb": null,
+    "Optimus.PreUMISort.machine_overhead_mb": 500,
+    "emptydrops_lower": 1,
+    "Optimus.FastqProcessing.machine_mem_mb": 40000,
+    "Optimus.TagGenes.docker": "quay.io/humancellatlas/secondary-analysis-dropseqtools:v0.2.2-1.13",
+    "Optimus.CorrectUMItools.docker": "quay.io/humancellatlas/secondary-analysis-umitools:0.0.1",
+    "Optimus.PreCountSort.machine_mem_mb": 8250,
+    "Optimus.CreateSparseCountMatrix.disk": null,
+    "Optimus.CorrectUMItools.groupout_filename": "groupout.tsv",
+    "Optimus.CorrectUMItools.machine_mem_mb": 16000,
+    "Optimus.StarAlign.machine_mem_mb": null,
+    "Optimus.RunEmptyDrops.preemptible": 3,
+    "Optimus.PreCountSort.machine_overhead_mb": 500,
+    "Optimus.RunEmptyDrops.min_molecules": 100,
+    "Optimus.TagGenes.disk": null,
+    "Optimus.MergeSorted.machine_mem_mb": 18150,
+    "Optimus.PreMergeSort.machine_overhead_mb": 500,
+    "Optimus.MergeCountFiles.cpu": 1,
+    "Optimus.RunEmptyDrops.fdr_cutoff": 0.01,
+    "Optimus.MergeCellMetrics.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+    "Optimus.ModifyGtf.preemptible": 3,
+    "Optimus.PreUMISort.preemptible": 3,
+    "Optimus.CalculateCellMetrics.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+    "Optimus.CorrectUMItools.output_bam_filename": "output.bam",
+    "Optimus.StarAlign.docker": "quay.io/humancellatlas/secondary-analysis-star:v0.2.2-2.5.3a-40ead6e",
+    "Optimus.GeneSortBam.disk": null,
+    "use_strand_info": "false",
+    "Optimus.CalculateGeneMetrics.preemptible": 3,
+    "Optimus.MergeCountFiles.disk": 20,
+    "Optimus.checkOptimusInput.cpu": 1,
+    "Optimus.PreMergeSort.preemptible": 3,
+    "Optimus.PreUMISort.docker": "quay.io/humancellatlas/secondary-analysis-picard:v0.2.2-2.10.10",
+    "Optimus.RunEmptyDrops.cpu": 1,
+    "force_no_check": false,
+    "whitelist": "gs://hca-dcp-sc-pipelines-test-data/whitelists/737K-august-2016.txt",
+    "Optimus.PreCountSort.preemptible": 3,
+    "Optimus.PreUMISort.disk": null,
+    "ref_genome_fasta": "gs://hca-dcp-mint-test-data/yanc-test/GRCm38.primary_assembly.genome.fa",
+    "Optimus.CalculateCellMetrics.cpu": 1,
+    "Optimus.StarAlign.cpu": 16,
+    "Optimus.CellSortBam.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+    "Optimus.MergeGeneMetrics.preemptible": 3,
+    "Optimus.MergeGeneMetrics.disk": 20,
+    "Optimus.CalculateCellMetrics.disk": null,
+    "Optimus.OptimusLoomGeneration.docker": "quay.io/humancellatlas/secondary-analysis-loom-output:0.0.6-1",
+    "Optimus.MergeGeneMetrics.cpu": 1,
+    "r1_fastq": [
+      "gs://fc-04191d93-a91a-4fb2-adeb-b3f1296ec1c5/heart_1k_test_v2_S1_L001_R1_001.fastq.gz"
+    ],
+    "Optimus.CreateSparseCountMatrix.cpu": 1,
+    "Optimus.CreateSparseCountMatrix.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+    "Optimus.TagGeneFunction.preemptible": 3,
+    "input_id": "heart_1k_test_v2_S1_L001",
+    "Optimus.PreUMISort.cpu": 1,
+    "Optimus.MergeCountFiles.machine_mem_mb": 8250,
+    "Optimus.MergeCountFiles.docker": "quay.io/humancellatlas/secondary-analysis-sctools:v0.3.11",
+    "Optimus.TagGeneFunction.docker": "quay.io/humancellatlas/secondary-analysis-dropseqtools:2.3.0",
+    "Optimus.ModifyGtf.modified_gtf_location": "gene_id_as_gene_name.gtf.gz",
+    "Optimus.OptimusLoomGeneration.cpu": 4,
+    "Optimus.CalculateCellMetrics.preemptible": 3,
+    "Optimus.MergeCellMetrics.disk": 20,
+    "Optimus.FastqProcessing.disk": null,
+    "Optimus.TagGeneFunction.machine_mem_mb": 8250,
+    "Optimus.TagGenes.machine_mem_mb": 8250,
+    "Optimus.PreMergeSort.sort_order": "coordinate",
+    "Optimus.GeneSortBam.cpu": 2,
+    "Optimus.MergeCellMetrics.cpu": 1
+  },
+  "end": "2021-07-08T17:23:57.332Z",
+  "start": "2021-07-08T16:08:06.619Z"
+}
