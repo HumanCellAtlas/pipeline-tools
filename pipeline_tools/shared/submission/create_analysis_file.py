@@ -52,16 +52,11 @@ class AnalysisFile():
         pipeline_type,
             workspace_version):
 
-        # Get the file version and file extension from params
-        file_extension = 'TBD'
-        file_version = 'TBD'
         metadata_json = format_map.get_outputs(metadata_json)
         outputs = metadata_json['outputs']
         timestamp = format_map.convert_datetime(metadata_json['start'])
 
         self.input_uuid = input_uuid
-        self.file_extension = file_extension
-        self.file_version = file_version
         self.pipeline_type = pipeline_type
         self.workspace_version = workspace_version
         for output in outputs:
@@ -121,14 +116,6 @@ class AnalysisFile():
     @property
     def uuid(self):
         return self.input_uuid
-        
-    @property
-    def extension(self):
-        return self.file_extension
-
-    @property
-    def version(self):
-        return self.file_version
 
 
 # Entry point for unit tests
