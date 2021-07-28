@@ -4,7 +4,7 @@ python:
   - '3.6'
 
 # Get latest setuptools below because metadata-api installation fails without at least 40.1.0
-install: "pip install -U setuptools && pip install -r requirements.txt -r test-requirements.txt"
+install: "pip install -U setuptools && pip install -r requirements.txt"
 
 jobs:
   include:
