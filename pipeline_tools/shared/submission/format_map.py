@@ -90,7 +90,7 @@ def format_timestamp(timestamp):
         return '{}Z'.format(formatted_date)
 
 
-def get_outputs(metadata_json):
+def get_metadata(metadata_json):
     f = open(metadata_json)
     data = json.load(f)
     return data
@@ -113,27 +113,6 @@ def get_inputs_ss2(inputs, input_ids_inputs, fastq1_inputs, fastq2_inputs=None):
         fastq2_inputs_dict = {'parameter_name': 'fastq2_input_files', 'parameter_value': fastq2_files}
         inputs.append(fastq2_inputs_dict)
 
-    return inputs
-
-
-def get_inputs(inputs_file):
-    """Reads input parameter names and values from tsv file.
-
-    Args:
-        inputs_file (str): Path to tsv file of parameter names and values.
-
-    Returns:
-        inputs (List[dict]): A list of dicts, where each dict gives the name and value of a single parameter.
-    """
-    with open(inputs_file) as f:
-        f.readline()  # skip header
-        reader = DictReader(
-            f,
-            lineterminator='\n',
-            delimiter='\t',
-            fieldnames=['parameter_name', 'parameter_value'],
-        )
-        inputs = [line for line in reader]
     return inputs
 
 

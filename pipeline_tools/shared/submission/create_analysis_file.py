@@ -52,7 +52,7 @@ class AnalysisFile():
         pipeline_type,
             workspace_version):
 
-        metadata_json = format_map.get_outputs(metadata_json)
+        metadata_json = format_map.get_metadata(metadata_json)
         outputs = metadata_json['outputs']
         timestamp = format_map.convert_datetime(metadata_json['start'])
 
