@@ -9,15 +9,8 @@ from pathlib import Path
 def test_data():
     class Data:
         input_uuid = 0
-        outputs_file = [
-            {
-                'file_path': 'fake/path/to/file',
-                'timestamp': '2021-07-26T14:48:29Z'
-            }
-        ]
+        metadata_json = 'path/to/file'
         pipeline_type = 'optimus'
-        file_path = '/fake/file/path.fasta'
-        creation_time = '2021-07-14T13:00:00Z'
         workspace_version = '2021-01-13T17:53:12.000000Z'
 
     return Data
@@ -37,10 +30,8 @@ class TestCreateAnalysisFile(object):
     def test_build_analysis_file(self, test_data):
         analysis_file = caf.test_build_analysis_file(
             input_uuid=test_data.input_uuid,
-            outputs_file=test_data.outputs_file,
+            metadata_json=test_data.metadata_json,
             pipeline_type=test_data.pipeline_type,
-            file_path=test_data.file_path,
-            creation_time=test_data.creation_time,
             workspace_version=test_data.workspace_version
         )
 

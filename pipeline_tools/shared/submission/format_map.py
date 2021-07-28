@@ -1,3 +1,4 @@
+import arrow
 import uuid
 import re
 import json
@@ -89,16 +90,10 @@ def format_timestamp(timestamp):
         return '{}Z'.format(formatted_date)
 
 
-def get_outputs(outputs_file):
-    with open(outputs_file) as f:
-        reader = DictReader(
-            f,
-            lineterminator='\n',
-            delimiter=' ',
-            fieldnames=['sha256', 'file_path', 'timestamp'],
-        )
-        outputs = [line for line in reader]
-    return outputs
+def get_outputs(metadata_json):
+    f = open(metadata_json)
+    data = json.load(f)
+    return data
 
 
 def get_inputs_ss2(inputs, input_ids_inputs, fastq1_inputs, fastq2_inputs=None):

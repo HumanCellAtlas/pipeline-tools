@@ -48,50 +48,75 @@ class AnalysisFile():
     def __init__(
         self,
         input_uuid,
-        outputs_file,
+        metadata_json,
         pipeline_type,
-        file_path,
-            creation_time):
+            workspace_version):
 
         # Get the file version and file extension from params
-        file_extension = os.path.splitext(file_path)[1]
-        file_version = format_map.convert_datetime(creation_time)
-        outputs = format_map.get_outputs(outputs_file)
+        file_extension = 'TBD'
+        file_version = 'TBD'
+        metadata_json = format_map.get_outputs(metadata_json)
+        outputs = metadata_json['outputs']
+        timestamp = format_map.convert_datetime(metadata_json['start'])
 
         self.input_uuid = input_uuid
         self.file_extension = file_extension
         self.file_version = file_version
         self.pipeline_type = pipeline_type
-        self.analysis_outputs = [
-            {
-                'provenance': {
-                    'document_id': format_map.get_uuid5(
-                        f"{str(self.input_uuid)}{os.path.splitext(output['file_path'])[1]}"
-                    ),
-                    'submission_date': format_map.convert_datetime(output['timestamp']),
-                },
-                'file_core': {
-                    'file_name': output['file_path'].split('/')[-1],
-                    'format': format_map.get_file_format(output['file_path']),
-                    'content_description': [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
-                    if output['file_path'].endswith(".loom")
-                    else [],
-                },
+        self.workspace_version = workspace_version
+        for output in outputs:
+            if '.loom' in output:
+                self.loom_output = {
+                    'provenance': {
+                        'document_id': format_map.get_uuid5(
+                            f"{str(self.input_uuid)}{os.path.splitext(outputs[output])[1]}"
+                        ),
+                        'submission_date': timestamp
+                    },
+                    'file_core': {
+                        'file_name': outputs[output].split('/')[-1],
+                        'format': format_map.get_file_format(outputs[output]),
+                        'content_description': []
+                    }
+                }
+            elif '.bam' in output:
+                self.bam_output = {
+                    'provenance': {
+                        'document_id': format_map.get_uuid5(
+                            f"{str(self.input_uuid)}{os.path.splitext(outputs[output])[1]}"
+                        ),
+                        'submission_date': timestamp
+                    },
+                    'file_core': {
+                        'file_name': outputs[output].split('/')[-1],
+                        'format': format_map.get_file_format(outputs[output]),
+                        'content_description': [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
+                    }
+                }
+
+    def __analysis_file__(self, file_type):
+        if 'bam' == file_type:
+            return {
+                'describedBy': self.describedBy,
+                'file_core': self.bam_output['file_core'],
+                'provenance': self.bam_output['provenance'],
+                'schema_type': self.schema_type
             }
-            for output in outputs
-        ]
-        return self.analysis_outputs
+        elif 'loom' == file_type:
+            return {
+                'describedBy': self.describedBy,
+                'file_core': self.loom_output['file_core'],
+                'provenance': self.loom_output['provenance'],
+                'schema_type': self.schema_type
+            }
+        else:
+            return {}
 
-    def __analysis_file__(self):
-        return {
-            'describedBy': self.describedBy,
-            'file_core': self.analysis_outputs['file_core'],
-            'provenance': self.analysis_outputs['provenance'],
-            'schema_type': self.schema_type
-        }
+    def get_json(self, file_type):
+        return self.__analysis_file__(file_type)
 
-    def get_json(self):
-        return self.__analysis_file__()
+    def get_outputs_json(self):
+        return [self.get_json('bam'), self.get_json('loom')]
 
     @property
     def uuid(self):
@@ -109,17 +134,15 @@ class AnalysisFile():
 # Entry point for unit tests
 def test_build_analysis_file(
     input_uuid,
-    outputs_file,
+    metadata_json,
     pipeline_type,
-    file_path,
-        creation_time):
+        workspace_version):
 
     test_analysis_file = AnalysisFile(
         input_uuid,
-        outputs_file,
+        metadata_json,
         pipeline_type,
-        file_path,
-        creation_time
+        workspace_version
     )
     return test_analysis_file.get_json()
 
@@ -129,40 +152,38 @@ def main():
     parser.add_argument('--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)')
     parser.add_argument('--input_uuid', required=True, help='Input file UUID from the HCA Data Browser')
     parser.add_argument(
-        '--outputs_file',
+        '--metadata_json',
         required=True,
-        help='Path to tsv file containing info about outputs.'
+        help='Path to json file containing metadata.'
     )
-    parser.add_argument('--file_path', required=True, help='Path to the loom/bam file to describe.')
-    parser.add_argument(
-        '--creation_time',
-        required=True,
-        help='Time of file creation, as reported by "gsutil ls -l"',
-    )
+    parser.add_argument('--workspace_version', required=True, help='Workspace version value i.e. timestamp for workspace')
 
     args = parser.parse_args()
 
     analysis_file = AnalysisFile(
         args.input_uuid,
-        args.outputs_file,
+        args.metadata_json,
         args.pipeline_type,
-        args.file_path,
-        args.creation_time
+        args.workspace_version
     )
 
     # Get the JSON content to be written
-    analysis_file_json = analysis_file.get_json()
+    analysis_file_json = analysis_file.get_outputs_json()
 
-    # Generate unique analysis file UUID based on input file's UUID and extension
-    analysis_file_json_id = format_map.get_uuid5(
-        f"{analysis_file.input_uuid}{analysis_file.extension}")
-
-    # Generate filename based on UUID and version
-    analysis_file_json_filename = f"{analysis_file_json_id}_{analysis_file.version}.json"
-
-    # Write to file
-    with open(analysis_file_json_filename, 'w') as f:
+    # Write outputs to file
+    print('Writing outputs.json to disk...')
+    with open('outputs.json', 'w') as f:
         json.dump(analysis_file_json, f, indent=2, sort_keys=True)
+
+    print('Writing analysis_file output(s) json to disk...')
+    if not os.path.exists("analysis_files"):
+        os.mkdir("analysis_files")
+
+    for output in analysis_file_json:
+        entity_id = output['provenance']['document_id']
+        version = output['provenance']['submission_date']
+        with open(f'analysis_files/{entity_id}_{version}.json', 'w') as f:
+            json.dump(output, f, indent=2, sort_keys=True)
 
 
 if __name__ == '__main__':
