@@ -179,7 +179,7 @@ def test_build_analysis_file(
         pipeline_type,
         workspace_version
     )
-    return test_analysis_file.get_json()
+    return test_analysis_file.get_json('loom')
 
 
 def main():

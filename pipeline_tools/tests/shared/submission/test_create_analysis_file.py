@@ -8,10 +8,10 @@ from pathlib import Path
 @pytest.fixture(scope='module')
 def test_data():
     class Data:
-        input_uuid = 0
+        input_uuid = 'heart_1k_test_v2_S1_L001'
         metadata_json = 'pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json'
         pipeline_type = 'optimus'
-        workspace_version = '2021-01-13T17:53:12.000000Z'
+        workspace_version = '2021-05-24T12:00:00.000000Z'
 
     return Data
 
@@ -41,12 +41,17 @@ class TestCreateAnalysisFile(object):
         )
         assert analysis_file.get('schema_type') == 'file'
         assert analysis_file.get('provenance') == {
-            'document_id': '12345abcde',
-            'submission_date': '2021-07-26T14:48:29Z'
+            'document_id': '87795ce9-03ce-51f3-b8d8-4ad6f8931fe0',
+            'submission_date': '2021-05-24T12:00:00.000000Z'
         }
         assert analysis_file.get('file_core') == {
-            'content_description': [],
-            'file_name': '/fake/file/path.fasta',
-            'format': 'bam'
+            'content_description': [
+                {
+                    "ontology": "data:3917",
+                    "ontology_label": "Count Matrix",
+                    "text": "DCP/2-generated matrix"
+                }
+            ],
+            'file_name': 'heart_1k_test_v2_S1_L001.loom',
+            'format': 'loom'
         }
-        assert analysis_file.get('workspace_version') == '2021-01-13T17:53:12.000000Z'
