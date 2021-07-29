@@ -9,9 +9,9 @@ from pathlib import Path
 def test_data():
     class Data:
         input_uuid = 0
-        pipeline_type = 'optimus',
-        method = 'foo_method',
-        pipeline_version = 'optimus_v4.2.3',
+        pipeline_type = 'optimus'
+        method = 'https://dockstore.org/workflows/github.com/broadinstitute/warp/Optimus:Optimus_v4.2.3'
+        pipeline_version = 'optimus_v4.2.3'
         workspace_version = '2021-05-24T12:00:00.000000Z'
 
     return Data
@@ -53,7 +53,7 @@ class TestCreateAnalysisProtocol(object):
             'protocol_id': 'optimus_v4.2.3'
         }
         assert analysis_protocol.get('provenance') == {
-            'document_id': 'optimus_v4.2.3',
+            'document_id': '4c1bd31f-6213-5d74-880b-c3525b99e295',
             'submission_date': '2021-05-24T12:00:00.000000Z',
             'update_date': '2021-05-24T12:00:00.000000Z'
         }

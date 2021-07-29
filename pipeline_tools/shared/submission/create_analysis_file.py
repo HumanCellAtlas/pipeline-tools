@@ -121,7 +121,6 @@ class AnalysisFile():
             if '.loom' in output:
                 # Generate loom output
                 loom_file_details = self.get_file_details(outputs[output])
-                print(loom_file_details)
                 self.loom_output = {
                     'provenance': {
                         'document_id': loom_file_details['file_save_id'],
@@ -136,7 +135,6 @@ class AnalysisFile():
             elif '.bam' in output:
                 # Generate bam output
                 bam_file_details = self.get_file_details(outputs[output])
-                print(bam_file_details)
                 self.bam_output = {
                     'provenance': {
                         'document_id': bam_file_details['file_save_id'],
@@ -156,14 +154,6 @@ class AnalysisFile():
     @property
     def work_version(self):
         return self.workspace_version
-
-    @property
-    def entity(self):
-        return self.entity_type
-
-    @property
-    def save_id(self):
-        return self.file_save_id
 
 
 # Entry point for unit tests
