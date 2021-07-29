@@ -42,10 +42,10 @@ def get_uuid5(sha256):
     return str(uuid.uuid5(NAMESPACE, sha256))
 
 
-def convert_datetime(creation_time):
-    if creation_time.endswith('.000000Z'):
-        return creation_time
-    return creation_time.replace('Z', '.000000Z')
+def convert_datetime(timestamp):
+    if timestamp.endswith('.000000Z'):
+        return timestamp
+    return timestamp.replace('Z', '.000000Z')
 
 
 def get_entity_type(path):
@@ -109,6 +109,14 @@ def get_inputs_ss2(inputs, input_ids_inputs, fastq1_inputs, fastq2_inputs=None):
 
 
 def get_workflow_inputs(inputs, input_fields):
+    """Load workflow inputs from a JSON file.
+
+    Args:
+        metadata_json (str): Path to file containing metadata json for the workflow.
+
+    Returns:
+        return_inputs (dict): A dict consisting of workflow inputs information.
+    """
     return_inputs = []
     for input in inputs:
         if input in input_fields:

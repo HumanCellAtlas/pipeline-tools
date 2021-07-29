@@ -148,7 +148,7 @@ def main():
     # Get the JSON content to be written
     analysis_protocol_json = analysis_protocol.get_json()
 
-    # Generate filename based on entity id and workspace version
+    # Determine file name
     analysis_protocol_filename = f"{analysis_protocol.entity_id}_{analysis_protocol.workspace_version}.json"
 
     # Write analysis_protocol to file

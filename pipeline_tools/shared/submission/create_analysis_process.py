@@ -64,11 +64,9 @@ class AnalysisProcess():
     describedBy = SCHEMAS["ANALYSIS_PROCESS"]["describedBy"]
     schema_type = SCHEMAS["ANALYSIS_PROCESS"]["schema_type"]
     schema_version = SCHEMAS["ANALYSIS_PROCESS"]["schema_version"]
+    
+    # Input fields to retrieve from metadata.json
     input_fields = SCHEMAS["ANALYSIS_PROCESS"]["input_fields"]
-    type = {
-        "text": "analysis"
-    }
-    analysis_run_type = "run"
 
     def __init__(
             self,
@@ -78,16 +76,22 @@ class AnalysisProcess():
             pipeline_type,
             workspace_version):
 
+        # Retrieve inputs and tasks from metatdata_json
         workflow_metadata = format_map.get_workflow_metadata(metadata_json)
         all_inputs = workflow_metadata["inputs"]
         process_inputs = format_map.get_workflow_inputs(all_inputs, self.input_fields)
         process_id = workflow_metadata["id"]
         workflow_tasks = format_map.get_workflow_tasks(workflow_metadata)
+
+        # Retrieve timestamps from workflow_metadata
         timestamp_start_utc = format_map.format_timestamp(workflow_metadata.get("start"))
         timestamp_stop_utc = format_map.format_timestamp(workflow_metadata.get("end"))
 
+        # Determind analysis_run_type from file path
         if "cacheCopy" in str(metadata_json):
             self.analysis_run_type = "copy-forward"
+        else:
+            self.analysis_run_type = "run"
 
         provenance = {
             "document_id": process_id,
@@ -109,8 +113,8 @@ class AnalysisProcess():
         self.tasks = workflow_tasks
         self.timestamp_start_utc = timestamp_start_utc
         self.timestamp_stop_utc = timestamp_stop_utc
-        self.type = type
         self.pipeline_type = pipeline_type
+        self.type = type
 
     def __analysis_process__(self):
         return {
@@ -131,12 +135,12 @@ class AnalysisProcess():
         return self.__analysis_process__()
 
     @property
-    def uuid(self):
-        return self.input_uuid
-
-    @property
     def process_id(self):
         return self.provenance["document_id"]
+
+    @property
+    def uuid(self):
+        return self.input_uuid
 
     @property
     def version(self):
@@ -164,6 +168,8 @@ def test_build_analysis_process(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
+    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
+    parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument(
         "--references",
         help="List of UUIDs for the reference genome",
@@ -175,8 +181,6 @@ def main():
         required=True,
         help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.",
     )
-    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
-    parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
 
     args = parser.parse_args()
 
@@ -191,6 +195,7 @@ def main():
     # Get the JSON content to be written
     analysis_process_json = analysis_process.get_json()
 
+    # Determine file name
     analysis_process_filename = (
         f"{analysis_process.process_id}"
         f"_{analysis_process.workspace_version}"

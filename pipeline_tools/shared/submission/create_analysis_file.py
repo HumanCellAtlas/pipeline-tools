@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import argparse
-import json
 import os
+import json
+import argparse
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
 
@@ -35,11 +35,7 @@ class AnalysisFile():
     """
 
     # Content description for bam files
-    DCP2_MATRIX_CONTENT_DESCRIPTION = {
-        "text": "DCP/2-generated matrix",
-        "ontology": "data:3917",
-        "ontology_label": "Count Matrix",
-    }
+    DCP2_MATRIX_CONTENT_DESCRIPTION = SCHEMAS["ANALYSIS_FILE"]["loom_content_description"]
 
     # All analysis files will share these attributes
     describedBy = SCHEMAS["ANALYSIS_FILE"]["describedBy"]
@@ -176,12 +172,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
+    parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument(
         "--metadata_json",
         required=True,
         help="Path to json file containing metadata."
     )
-    parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
 
     args = parser.parse_args()
 
@@ -200,6 +196,7 @@ def main():
     with open("outputs.json", "w") as f:
         json.dump(analysis_file_json, f, indent=2, sort_keys=True)
 
+    # Write analysis file for each file type
     print("Writing analysis_file output(s) json to disk...")
     if not os.path.exists("analysis_files"):
         os.mkdir("analysis_files")

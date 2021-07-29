@@ -7,7 +7,12 @@ SCHEMAS = {
     "ANALYSIS_FILE" : {
         "describedBy" : "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
         "schema_type" : "file",
-        "schema_version" : "6.2.0"
+        "schema_version" : "6.2.0",
+        "loom_content_description": {
+            "text": "DCP/2-generated matrix",
+            "ontology": "data:3917",
+            "ontology_label": "Count Matrix"
+        }
     },
     "ANALYSIS_PROCESS" : {
         "describedBy" : "https://schema.humancellatlas.org/type/process/analysis/12.0.0/analysis_process",
