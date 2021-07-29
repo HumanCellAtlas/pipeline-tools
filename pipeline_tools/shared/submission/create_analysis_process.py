@@ -86,6 +86,9 @@ class AnalysisProcess():
         timestamp_start_utc = format_map.format_timestamp(workflow_metadata.get("start"))
         timestamp_stop_utc = format_map.format_timestamp(workflow_metadata.get("end"))
 
+        if "cacheCopy" in str(metadata_json):
+            self.analysis_run_type = "copy-forward"
+
         provenance = {
             "document_id": process_id,
             "submission_date": workspace_version

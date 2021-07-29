@@ -47,15 +47,15 @@ class AnalysisProtocol():
 
     def __init__(
         self,
-        method,
         input_uuid,
         pipeline_type,
         pipeline_version,
             workspace_version):
 
-        self.computational_method = method
         self.input_uuid = input_uuid
-        self.pipeline_type = pipeline_type
+        self.pipeline_type = pipeline_type.capitalize()
+        self.pipeline_version = pipeline_version.capitalize()
+        self.computational_method = f"https://dockstore.org/workflows/github.com/broadinstitute/warp/{self.pipeline_type}:{self.pipeline_version}"
         self.protocol_core = {
             "protocol_id": pipeline_version
         }
@@ -130,12 +130,6 @@ def main():
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument(
-        "--method",
-        required=True,
-        help="Supposed to be method store url, for now can be url for wdl in skylab, or the name of"
-        " the analysis workflow.",
-    )
-    parser.add_argument(
         "--pipeline_version",
         required=True,
         help="The version of the pipeline, currently provided by the label of the adapter workflow"
@@ -145,7 +139,6 @@ def main():
     args = parser.parse_args()
 
     analysis_protocol = AnalysisProtocol(
-        args.method,
         args.input_uuid,
         args.pipeline_type,
         args.pipeline_version,
