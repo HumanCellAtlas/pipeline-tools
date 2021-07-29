@@ -9,7 +9,7 @@ from pathlib import Path
 def test_data():
     class Data:
         input_uuid = 0
-        metadata_json = 'path/to/file'
+        metadata_json = 'pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json'
         pipeline_type = 'optimus'
         workspace_version = '2021-01-13T17:53:12.000000Z'
 

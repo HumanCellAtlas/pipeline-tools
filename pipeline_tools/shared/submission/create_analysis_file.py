@@ -34,6 +34,7 @@ class AnalysisFile():
     See https://schema.humancellatlas.org/type/file/6.2.0/analysis_file for full spec
     """
 
+    # Content description for bam files
     DCP2_MATRIX_CONTENT_DESCRIPTION = {
         "text": "DCP/2-generated matrix",
         "ontology": "data:3917",
@@ -52,43 +53,18 @@ class AnalysisFile():
         pipeline_type,
             workspace_version):
 
-        metadata_json = format_map.get_metadata(metadata_json)
+        # use metadata.json file to retrieve outputs
+        metadata_json = format_map.get_workflow_metadata(metadata_json)
         outputs = metadata_json['outputs']
-        timestamp = format_map.convert_datetime(metadata_json['start'])
 
         self.input_uuid = input_uuid
         self.pipeline_type = pipeline_type
         self.workspace_version = workspace_version
-        for output in outputs:
-            if '.loom' in output:
-                self.loom_output = {
-                    'provenance': {
-                        'document_id': format_map.get_uuid5(
-                            f"{str(self.input_uuid)}{os.path.splitext(outputs[output])[1]}"
-                        ),
-                        'submission_date': timestamp
-                    },
-                    'file_core': {
-                        'file_name': outputs[output].split('/')[-1],
-                        'format': format_map.get_file_format(outputs[output]),
-                        'content_description': []
-                    }
-                }
-            elif '.bam' in output:
-                self.bam_output = {
-                    'provenance': {
-                        'document_id': format_map.get_uuid5(
-                            f"{str(self.input_uuid)}{os.path.splitext(outputs[output])[1]}"
-                        ),
-                        'submission_date': timestamp
-                    },
-                    'file_core': {
-                        'file_name': outputs[output].split('/')[-1],
-                        'format': format_map.get_file_format(outputs[output]),
-                        'content_description': [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
-                    }
-                }
 
+        # get content for each file type
+        self.__get_outputs_by_type(outputs)
+
+    # create analysis file based on file type
     def __analysis_file__(self, file_type):
         if 'bam' == file_type:
             return {
@@ -107,15 +83,85 @@ class AnalysisFile():
         else:
             return {}
 
+    # get analysis file json based on file type
     def get_json(self, file_type):
         return self.__analysis_file__(file_type)
 
+    # get output json for both types of analysis file
     def get_outputs_json(self):
         return [self.get_json('bam'), self.get_json('loom')]
+
+    # get file details by file name
+    def get_file_details(self, file_name):
+        # Get the type of file currently being processed
+        entity_type = format_map.get_entity_type(file_name)
+
+        # Grab the extension of the file thats been submitted
+        file_extension = os.path.splitext(file_name)[1]
+
+        # Grab the raw name of the file thats been submitted
+        file_name = file_name.rsplit("/")[-1]
+
+        # Generate unique file UUID5 by hashing twice
+        # This is deterministic and should always produce the same output given the same input
+        # file_name_id is used to save the analysis file - {file_name_id}_{workspace_verison}.json
+        file_save_id = format_map.get_uuid5(f"{self.input_uuid}{entity_type}{file_extension}")
+        file_id = format_map.get_uuid5(file_save_id)
+        return {
+            'entity_type': entity_type,
+            'file_extension': file_extension,
+            'file_name': file_name,
+            'file_save_id': file_save_id,
+            'file_id': file_id
+        }
+
+    # generate content for each file type
+    def __get_outputs_by_type(self, outputs):
+        for output in outputs:
+            if '.loom' in output:
+                # Generate loom output
+                loom_file_details = self.get_file_details(outputs[output])
+                self.loom_output = {
+                    'provenance': {
+                        'document_id': loom_file_details['file_id'],
+                        'submission_date': self.workspace_version
+                    },
+                    'file_core': {
+                        'file_name': outputs[output].split('/')[-1],
+                        'format': format_map.get_file_format(outputs[output]),
+                        'content_description': [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
+                    }
+                }
+            elif '.bam' in output:
+                # Generate bam output
+                bam_file_details = self.get_file_details(outputs[output])
+                self.bam_output = {
+                    'provenance': {
+                        'document_id': bam_file_details['file_id'],
+                        'submission_date': self.workspace_version
+                    },
+                    'file_core': {
+                        'file_name': outputs[output].split('/')[-1],
+                        'format': format_map.get_file_format(outputs[output]),
+                        'content_description': []
+                    }
+                }
 
     @property
     def uuid(self):
         return self.input_uuid
+
+    @property
+    def work_version(self):
+        return self.workspace_version
+
+    @property
+    def entity(self):
+        return self.entity_type
+
+    @property
+    def save_id(self):
+        return self.file_save_id
 
 
 # Entry point for unit tests
@@ -167,9 +213,8 @@ def main():
         os.mkdir("analysis_files")
 
     for output in analysis_file_json:
-        entity_id = output['provenance']['document_id']
-        version = output['provenance']['submission_date']
-        with open(f'analysis_files/{entity_id}_{version}.json', 'w') as f:
+        file_save_id = output['provenance']['document_id']
+        with open(f'analysis_files/{file_save_id}_{analysis_file.work_version}.json', 'w') as f:
             json.dump(output, f, indent=2, sort_keys=True)
 
 

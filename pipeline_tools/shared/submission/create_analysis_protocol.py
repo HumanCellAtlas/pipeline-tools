@@ -51,26 +51,18 @@ class AnalysisProtocol():
         input_uuid,
         method,
         pipeline_version,
-        version,
         pipeline_type,
-        file_path,
-            creation_time):
-
-        # Get the file version and file extension from params
-        file_extension = os.path.splitext(file_path)[1]
-        file_version = format_map.convert_datetime(creation_time)
+            workspace_version):
 
         self.input_uuid = input_uuid
-        self.file_extension = file_extension
-        self.file_version = file_version
         self.computational_method = method
         self.protocol_core = {
-            "protocol_id": pipeline_version  # might need to do something to this input...
+            "protocol_id": pipeline_version
         }
         self.pipeline_type = pipeline_type
         self.provenance = {
-            "submission_date": version,
-            "update_date": version
+            "submission_date": workspace_version,
+            "update_date": workspace_version
         }
 
         string_to_hash = json.dumps(self.get_json())
@@ -95,33 +87,21 @@ class AnalysisProtocol():
     def uuid(self):
         return self.input_uuid
 
-    @property
-    def extension(self):
-        return self.file_extension
-
-    @property
-    def version(self):
-        return self.file_version
-
 
 # Entry point for unit tests
 def test_build_analysis_protocol(
     input_uuid,
-    file_path,
-    creation_time,
     method,
     pipeline_version,
-    version,
-        pipeline_type):
+    pipeline_type,
+        workspace_version):
 
     test_analysis_protocol = AnalysisProtocol(
         input_uuid,
-        file_path,
-        creation_time,
         method,
         pipeline_version,
-        version,
-        pipeline_type
+        pipeline_type,
+        workspace_version
     )
     return test_analysis_protocol.get_json()
 
@@ -141,19 +121,8 @@ def main():
         help='The version of the pipeline, currently provided by the label of the adapter workflow'
         ' around the analysis workflow.',
     )
-    parser.add_argument(
-        '--version',
-        required=True,
-        help='A version (or timestamp) attribute shared across all workflows'
-        'within an individual workspace.',
-    )
-    parser.add_argument('--file_path', required=True, help='Path to the loom/bam file to describe.')
-    parser.add_argument(
-        '--creation_time',
-        required=True,
-        help='Time of file creation, as reported by "gsutil ls -l"',
-    )
     parser.add_argument('--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)')
+    parser.add_argument('--workspace_version', required=True, help='Workspace version value i.e. timestamp for workspace')
 
     args = parser.parse_args()
 
@@ -161,24 +130,22 @@ def main():
         args.input_uuid,
         args.method,
         args.pipeline_version,
-        args.version,
         args.pipeline_type,
-        args.file_path,
-        args.creation_time
+        args.workspace_version
     )
 
     # Get the JSON content to be written
     analysis_protocol_json = analysis_protocol.get_json()
 
-    # Generate unique analysis protocol UUID based on input file's UUID and extension
-    analysis_protocol_id = format_map.get_uuid5(
-        f"{analysis_protocol.input_uuid}{analysis_protocol.extension}")
-
     # Generate filename based on UUID and version
-    analysis_protocol_filename = f"{analysis_protocol_id}_{analysis_protocol.version}.json"
+    analysis_protocol_filename = f"{analysis_protocol_json['provenance']['document_id']}_{analysis_protocol_json['provenance']['submission_date']}.json"
 
-    # Write to file
-    with open(analysis_protocol_filename, 'w') as f:
+    # Write analysis_protocol to file
+    print('Writing analysis_protocol.json to disk...')
+    if not os.path.exists("analysis_protocol"):
+        os.mkdir("analysis_protocol")
+
+    with open(f'analysis_protocol/{analysis_protocol_filename}', 'w') as f:
         json.dump(analysis_protocol_json, f, indent=2, sort_keys=True)
 
 

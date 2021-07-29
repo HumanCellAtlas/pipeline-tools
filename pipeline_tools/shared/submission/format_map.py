@@ -90,12 +90,6 @@ def format_timestamp(timestamp):
         return '{}Z'.format(formatted_date)
 
 
-def get_metadata(metadata_json):
-    f = open(metadata_json)
-    data = json.load(f)
-    return data
-
-
 def get_inputs_ss2(inputs, input_ids_inputs, fastq1_inputs, fastq2_inputs=None):
     with open(input_ids_inputs) as f:
         input_ids = [id for id in f]

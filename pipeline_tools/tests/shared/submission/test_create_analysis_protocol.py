@@ -12,9 +12,7 @@ def test_data():
         pipeline_type = 'optimus',
         method = 'foo_method',
         pipeline_version = 'optimus_v4.2.3',
-        version = '2021-05-24T12:00:00.000000Z',
-        file_path = '/fake/file/path.fasta'
-        creation_time = '2021-07-14T13:00:00Z'
+        workspace_version = '2021-05-24T12:00:00.000000Z'
 
     return Data
 
@@ -33,12 +31,10 @@ class TestCreateAnalysisProtocol(object):
     def test_build_analysis_protocol(self, test_data):
         analysis_protocol = cap.test_build_analysis_protocol(
             input_uuid=test_data.input_uuid,
-            file_path=test_data.file_path,
-            creation_time=test_data.creation_time,
             method=test_data.method,
             pipeline_version=test_data.pipeline_version,
-            version=test_data.version,
             pipeline_type=test_data.pipeline_type,
+            workspace_version=test_data.workspace_version
         )
 
         assert (
