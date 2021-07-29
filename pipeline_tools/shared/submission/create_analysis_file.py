@@ -104,15 +104,15 @@ class AnalysisFile():
 
         # Generate unique file UUID5 by hashing twice
         # This is deterministic and should always produce the same output given the same input
-        # file_name_id is used to save the analysis file - {file_name_id}_{workspace_verison}.json
+        # file_save_id is used to save the analysis file - {file_save_id}_{workspace_verison}.json
         file_save_id = format_map.get_uuid5(f"{self.input_uuid}{entity_type}{file_extension}")
-        file_id = format_map.get_uuid5(file_save_id)
+
         return {
+            'uuid': self.input_uuid,
             'entity_type': entity_type,
             'file_extension': file_extension,
             'file_name': file_name,
-            'file_save_id': file_save_id,
-            'file_id': file_id
+            'file_save_id': file_save_id
         }
 
     # generate content for each file type
@@ -121,9 +121,10 @@ class AnalysisFile():
             if '.loom' in output:
                 # Generate loom output
                 loom_file_details = self.get_file_details(outputs[output])
+                print(loom_file_details)
                 self.loom_output = {
                     'provenance': {
-                        'document_id': loom_file_details['file_id'],
+                        'document_id': loom_file_details['file_save_id'],
                         'submission_date': self.workspace_version
                     },
                     'file_core': {
@@ -135,9 +136,10 @@ class AnalysisFile():
             elif '.bam' in output:
                 # Generate bam output
                 bam_file_details = self.get_file_details(outputs[output])
+                print(bam_file_details)
                 self.bam_output = {
                     'provenance': {
-                        'document_id': bam_file_details['file_id'],
+                        'document_id': bam_file_details['file_save_id'],
                         'submission_date': self.workspace_version
                     },
                     'file_core': {
