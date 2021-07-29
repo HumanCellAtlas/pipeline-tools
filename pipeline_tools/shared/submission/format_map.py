@@ -2,8 +2,6 @@ import arrow
 import uuid
 import re
 import json
-from csv import DictReader
-
 
 EXTENSION_TO_FORMAT = {
     "[.]bam$": "bam",
@@ -108,6 +106,14 @@ def get_inputs_ss2(inputs, input_ids_inputs, fastq1_inputs, fastq2_inputs=None):
         inputs.append(fastq2_inputs_dict)
 
     return inputs
+
+
+def get_workflow_inputs(inputs, input_fields):
+    return_inputs = []
+    for input in inputs:
+        if input in input_fields:
+            return_inputs.append({"parameter_name": input, "parameter_value": str(inputs[input])})
+    return return_inputs
 
 
 def get_workflow_metadata(metadata_json):

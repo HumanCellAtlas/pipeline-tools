@@ -55,7 +55,7 @@ class AnalysisFile():
 
         # use metadata.json file to retrieve outputs
         metadata_json = format_map.get_workflow_metadata(metadata_json)
-        outputs = metadata_json['outputs']
+        outputs = metadata_json["outputs"]
 
         self.input_uuid = input_uuid
         self.pipeline_type = pipeline_type
@@ -66,19 +66,19 @@ class AnalysisFile():
 
     # create analysis file based on file type
     def __analysis_file__(self, file_type):
-        if 'bam' == file_type:
+        if "bam" == file_type:
             return {
-                'describedBy': self.describedBy,
-                'file_core': self.bam_output['file_core'],
-                'provenance': self.bam_output['provenance'],
-                'schema_type': self.schema_type
+                "describedBy": self.describedBy,
+                "file_core": self.bam_output["file_core"],
+                "provenance": self.bam_output["provenance"],
+                "schema_type": self.schema_type
             }
-        elif 'loom' == file_type:
+        elif "loom" == file_type:
             return {
-                'describedBy': self.describedBy,
-                'file_core': self.loom_output['file_core'],
-                'provenance': self.loom_output['provenance'],
-                'schema_type': self.schema_type
+                "describedBy": self.describedBy,
+                "file_core": self.loom_output["file_core"],
+                "provenance": self.loom_output["provenance"],
+                "schema_type": self.schema_type
             }
         else:
             return {}
@@ -89,7 +89,7 @@ class AnalysisFile():
 
     # get output json for both types of analysis file
     def get_outputs_json(self):
-        return [self.get_json('bam'), self.get_json('loom')]
+        return [self.get_json("bam"), self.get_json("loom")]
 
     # get file details by file name
     def get_file_details(self, file_name):
@@ -108,42 +108,42 @@ class AnalysisFile():
         file_save_id = format_map.get_uuid5(f"{self.input_uuid}{entity_type}{file_extension}")
 
         return {
-            'uuid': self.input_uuid,
-            'entity_type': entity_type,
-            'file_extension': file_extension,
-            'file_name': file_name,
-            'file_save_id': file_save_id
+            "uuid": self.input_uuid,
+            "entity_type": entity_type,
+            "file_extension": file_extension,
+            "file_name": file_name,
+            "file_save_id": file_save_id
         }
 
     # generate content for each file type
     def __get_outputs_by_type(self, outputs):
         for output in outputs:
-            if '.loom' in output:
+            if ".loom" in output:
                 # Generate loom output
                 loom_file_details = self.get_file_details(outputs[output])
                 self.loom_output = {
-                    'provenance': {
-                        'document_id': loom_file_details['file_save_id'],
-                        'submission_date': self.workspace_version
+                    "provenance": {
+                        "document_id": loom_file_details["file_save_id"],
+                        "submission_date": self.workspace_version
                     },
-                    'file_core': {
-                        'file_name': outputs[output].split('/')[-1],
-                        'format': format_map.get_file_format(outputs[output]),
-                        'content_description': [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
+                    "file_core": {
+                        "file_name": outputs[output].split("/")[-1],
+                        "format": format_map.get_file_format(outputs[output]),
+                        "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
                     }
                 }
-            elif '.bam' in output:
+            elif ".bam" in output:
                 # Generate bam output
                 bam_file_details = self.get_file_details(outputs[output])
                 self.bam_output = {
-                    'provenance': {
-                        'document_id': bam_file_details['file_save_id'],
-                        'submission_date': self.workspace_version
+                    "provenance": {
+                        "document_id": bam_file_details["file_save_id"],
+                        "submission_date": self.workspace_version
                     },
-                    'file_core': {
-                        'file_name': outputs[output].split('/')[-1],
-                        'format': format_map.get_file_format(outputs[output]),
-                        'content_description': []
+                    "file_core": {
+                        "file_name": outputs[output].split("/")[-1],
+                        "format": format_map.get_file_format(outputs[output]),
+                        "content_description": []
                     }
                 }
 
@@ -169,19 +169,19 @@ def test_build_analysis_file(
         pipeline_type,
         workspace_version
     )
-    return test_analysis_file.get_json('loom')
+    return test_analysis_file.get_json("loom")
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)')
-    parser.add_argument('--input_uuid', required=True, help='Input file UUID from the HCA Data Browser')
+    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
+    parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument(
-        '--metadata_json',
+        "--metadata_json",
         required=True,
-        help='Path to json file containing metadata.'
+        help="Path to json file containing metadata."
     )
-    parser.add_argument('--workspace_version', required=True, help='Workspace version value i.e. timestamp for workspace')
+    parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
 
     args = parser.parse_args()
 
@@ -196,19 +196,19 @@ def main():
     analysis_file_json = analysis_file.get_outputs_json()
 
     # Write outputs to file
-    print('Writing outputs.json to disk...')
-    with open('outputs.json', 'w') as f:
+    print("Writing outputs.json to disk...")
+    with open("outputs.json", "w") as f:
         json.dump(analysis_file_json, f, indent=2, sort_keys=True)
 
-    print('Writing analysis_file output(s) json to disk...')
+    print("Writing analysis_file output(s) json to disk...")
     if not os.path.exists("analysis_files"):
         os.mkdir("analysis_files")
 
     for output in analysis_file_json:
-        file_save_id = output['provenance']['document_id']
-        with open(f'analysis_files/{file_save_id}_{analysis_file.work_version}.json', 'w') as f:
+        file_save_id = output["provenance"]["document_id"]
+        with open(f"analysis_files/{file_save_id}_{analysis_file.work_version}.json", "w") as f:
             json.dump(output, f, indent=2, sort_keys=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

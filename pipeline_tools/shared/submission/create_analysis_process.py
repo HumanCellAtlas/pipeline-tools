@@ -2,12 +2,9 @@
 import argparse
 import json
 import os
-import arrow
-from pipeline_tools.shared.submission.create_analysis_protocol import AnalysisProtocol
-import uuid
-from csv import DictReader
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
+
 
 class AnalysisProcess():
     """AnalysisProcess class implements the creation of a  json analysis process for Optimus and SS2 pipeline outputs
@@ -67,50 +64,42 @@ class AnalysisProcess():
     describedBy = SCHEMAS["ANALYSIS_PROCESS"]["describedBy"]
     schema_type = SCHEMAS["ANALYSIS_PROCESS"]["schema_type"]
     schema_version = SCHEMAS["ANALYSIS_PROCESS"]["schema_version"]
+    input_fields = SCHEMAS["ANALYSIS_PROCESS"]["input_fields"]
     type = {
-        "text": "analysis_protocol"
+        "text": "analysis"
     }
+    analysis_run_type = "run"
 
     def __init__(
             self,
             input_uuid,
-            file_path,
-            creation_time,
-            run_type,
-            inputs,
-            pipeline_version,
-            version,
             references,
             metadata_json,
-            pipeline_type):
-
-        # Get the file version and file extension from params
-        file_extension = os.path.splitext(file_path)[1]
-        file_version = format_map.convert_datetime(creation_time)
+            pipeline_type,
+            workspace_version):
 
         workflow_metadata = format_map.get_workflow_metadata(metadata_json)
+        all_inputs = workflow_metadata["inputs"]
+        process_inputs = format_map.get_workflow_inputs(all_inputs, self.input_fields)
+        process_id = workflow_metadata["id"]
         workflow_tasks = format_map.get_workflow_tasks(workflow_metadata)
-        timestamp_start_utc = format_map.format_timestamp(workflow_metadata.get('start'))
-        timestamp_stop_utc = format_map.format_timestamp(workflow_metadata.get('end'))
-
-        string_to_hash = json.dumps(self, sort_keys=True)
-        entity_id = str(uuid.uuid5(format_map.NAMESPACE, string_to_hash)).lower()
+        timestamp_start_utc = format_map.format_timestamp(workflow_metadata.get("start"))
+        timestamp_stop_utc = format_map.format_timestamp(workflow_metadata.get("end"))
 
         provenance = {
-            "document_id": entity_id,
-            "submission_date": version,
-            "update_date": version
+            "document_id": process_id,
+            "submission_date": workspace_version
         }
-        process_core = {"process_id": pipeline_version}
+        process_core = {
+            "process_id": process_id
+        }
         type = {
-            "text": run_type
+            "text": "analysis"
         }
 
         self.input_uuid = input_uuid
-        self.file_extension = file_extension
-        self.file_version = file_version
-        self.analysis_run_type = run_type
-        self.inputs = inputs
+        self.workspace_version = workspace_version
+        self.inputs = process_inputs
         self.process_core = process_core
         self.provenance = provenance
         self.reference_files = references
@@ -143,131 +132,76 @@ class AnalysisProcess():
         return self.input_uuid
 
     @property
-    def extension(self):
-        return self.file_extension
+    def process_id(self):
+        return self.provenance["document_id"]
 
     @property
     def version(self):
-        return self.file_version
+        return self.workspace_version
 
 
 # Entry point for unit tests
 def test_build_analysis_process(
     input_uuid,
-    file_path,
-    creation_time,
-    run_type,
-    inputs,
-    pipeline_version,
-    version,
     references,
     metadata_json,
-        pipeline_type):
+    pipeline_type,
+        workspace_version):
 
     test_analysis_process = AnalysisProcess(
         input_uuid,
-        file_path,
-        creation_time,
-        run_type,
-        inputs,
-        pipeline_version,
-        version,
         references,
         metadata_json,
-        pipeline_type
+        pipeline_type,
+        workspace_version
     )
     return test_analysis_process.get_json()
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument(
-        '--run_type',
+        "--references",
+        help="List of UUIDs for the reference genome",
         required=True,
-        help='Should always be "run" for now, may be "copy-forward" in some cases in future',
+        nargs="+",
     )
-    parser.add_argument('--file_path', required=True, help='Path to the loom/bam file to describe.')
     parser.add_argument(
-        '--creation_time',
+        "--metadata_json",
         required=True,
-        help='Time of file creation, as reported by "gsutil ls -l"',
+        help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.",
     )
-    parser.add_argument(
-        '--inputs_file',
-        required=True,
-        help='Path to tsv file containing info about inputs.',
-    )
-    parser.add_argument(
-        '--references',
-        help='List of UUIDs for the reference genome',
-        required=True,
-        nargs='+',
-    )
-    parser.add_argument(
-        '--pipeline_version',
-        required=True,
-        help='The version of the pipeline, currently provided by the label of the adapter workflow'
-        ' around the analysis workflow.',
-    )
-    parser.add_argument(
-        '--version',
-        required=True,
-        help='A version (or timestamp) attribute shared across all workflows'
-        'within an individual workspace.',
-    )
-    parser.add_argument(
-        '--metadata_json',
-        required=True,
-        help='Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.',
-    )
-    parser.add_argument('--pipeline_type', required=True, help='Type of pipeline(SS2 or Optimus)')
-    parser.add_argument(
-        '--fastq1_input_files_tsv', help='',
-        required=False
-    )
-    parser.add_argument(
-        '--fastq2_input_files_tsv', help='',
-        required=False
-    )
-    parser.add_argument(
-        '--input_ids_tsv', help='',
-        required=False
-    )
+    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
+    parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
 
-    args = argparse.parse_args()
-
-    # Get metadata for inputs and outputs
-    inputs = format_map.get_inputs(args.inputs_file)
-    if args.input_ids_tsv is not None and args.fastq1_input_files_tsv is not None:
-        inputs = format_map.get_inputs_ss2(inputs, args.input_ids_tsv, args.fastq1_input_files_tsv, args.fastq2_input_files_tsv)
+    args = parser.parse_args()
 
     analysis_process = AnalysisProcess(
         args.input_uuid,
-        args.inputs,
         args.references,
-        args.pipeline_version,
-        args.version,
         args.metadata_json,
-        args.run_type,
-        args.file_path,
-        args.creation_time,
-        args.pipeline_type
+        args.pipeline_type,
+        args.workspace_version
     )
 
     # Get the JSON content to be written
     analysis_process_json = analysis_process.get_json()
 
-    # Generate unique analysis process UUID based on input file's UUID and extension
-    analysis_process_id = format_map.get_uuid5(
-        f"{analysis_process.input_uuid}{analysis_process.extension}")
+    analysis_process_filename = (
+        f"{analysis_process.process_id}"
+        f"_{analysis_process.workspace_version}"
+        f".json"
+    )
 
-    # Generate filename based on UUID and version
-    analysis_process_filename = f"{analysis_process_json}_{analysis_process.version}.json"
+    # Write analysis_process to file
+    print('Writing analysis_process.json to disk...')
+    if not os.path.exists("analysis_process"):
+        os.mkdir("analysis_process")
 
-    # Write to file
-    with open(analysis_process_filename, 'w') as f:
+    with open(f'analysis_process/{analysis_process_filename}', 'w') as f:
         json.dump(analysis_process_json, f, indent=2, sort_keys=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

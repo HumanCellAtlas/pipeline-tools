@@ -12,7 +12,8 @@ SCHEMAS = {
     "ANALYSIS_PROCESS" : {
         "describedBy" : "https://schema.humancellatlas.org/type/process/analysis/12.0.0/analysis_process",
         "schema_type" : "process",
-        "schema_version" : "12.0.0"
+        "schema_version" : "12.0.0",
+        "input_fields": ["r1_fastq", "r2_fastq", "i1_fastq", "whitelist", "input_id", "tar_star_reference", "annotations_gtf", "ref_genome_fasta", "chemistry"]
     },
     "ANALYSIS_PROTOCOL" : {
         "describedBy" : "https://schema.humancellatlas.org/type/protocol/analysis/9.1.0/analysis_protocol",
