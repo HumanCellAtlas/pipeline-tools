@@ -79,15 +79,15 @@ class AnalysisFile():
         else:
             return {}
 
-    # get analysis file json based on file type
+    # Get analysis file json based on file type
     def get_json(self, file_type):
         return self.__analysis_file__(file_type)
 
-    # get output json for both types of analysis file
+    # Get output json for both types of analysis file
     def get_outputs_json(self):
         return [self.get_json("bam"), self.get_json("loom")]
 
-    # get file details by file name
+    # Get file details by file name
     def get_file_details(self, file_name):
         # Get the type of file currently being processed
         entity_type = format_map.get_entity_type(file_name)

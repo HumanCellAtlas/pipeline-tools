@@ -7,8 +7,8 @@ import pipeline_tools.shared.submission.create_analysis_process as cap
 def test_data():
     class Data:
         input_uuid = "heart_1k_test_v2_S1_L001"
-        pipeline_type = "optimus",
-        workspace_version = "2021-05-24T12:00:00.000000Z",
+        pipeline_type = "optimus"
+        workspace_version = "2021-05-24T12:00:00.000000Z"
         metadata_json = "pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json"
         references = "c11000b1-2e69-532b-8c72-03dd4c9617d5"
 

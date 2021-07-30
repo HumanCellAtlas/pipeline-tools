@@ -74,8 +74,9 @@ class AnalysisProtocol():
     def get_json(self):
         return self.__analysis_protocol__()
 
-    # Return json to hash for entity_id
     def __get_hash_input(self):
+        """Hashing analysis protocol object without provenance to be used in get_provenance"""
+
         return {
             "computational_method": self.computational_method,
             "describedBy": self.describedBy,
@@ -84,8 +85,9 @@ class AnalysisProtocol():
             "type": self.type
         }
 
-    # Generate provenance
     def __get_provenance(self):
+        """Using hashed object from get_hash_input to generate entity_id and complete provenance"""
+
         string_to_hash = json.dumps(self.__get_hash_input())
         entity_id = format_map.get_uuid5(string_to_hash)
 
@@ -108,14 +110,12 @@ class AnalysisProtocol():
 
 # Entry point for unit tests
 def test_build_analysis_protocol(
-    method,
     input_uuid,
     pipeline_type,
     pipeline_version,
         workspace_version):
 
     test_analysis_protocol = AnalysisProtocol(
-        method,
         input_uuid,
         pipeline_type,
         pipeline_version,
