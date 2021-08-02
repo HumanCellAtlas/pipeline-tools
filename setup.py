@@ -29,9 +29,11 @@ setup(
     entry_points={
         'console_scripts': [
             'get-analysis-workflow-metadata=pipeline_tools.shared.submission.get_analysis_workflow_metadata:main',
-            'create-analysis-metadata=pipeline_tools.shared.submission.create_analysis_metadata:main',
             'create-envelope=pipeline_tools.shared.submission.create_envelope:main',
             'create-file-descriptor=pipeline_tools.shared.submission.create_file_descriptor:main',
+            'create-analysis-file=pipeline_tools.shared.submission.create_analysis_file:main',
+            'create-analysis-protocol=pipeline_tools.shared.submission.create_analysis_protocol:main',
+            'create-analysis-process=pipeline_tools.shared.submission.create_analysis_process:main',
             'create-links=pipeline_tools.shared.submission.create_links:main',
             'create-reference-file=pipeline_tools.shared.submission.create_reference_file:main',
             'get-upload-urn=pipeline_tools.shared.submission.get_upload_urn:main',
