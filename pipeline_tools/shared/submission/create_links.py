@@ -61,17 +61,16 @@ class LinksFile():
 
     def __init__(
         self,
-        input_id,
         project_id,
         input_uuids,
+        file_name_string,
         output_file_path,
         workspace_version,
         analysis_process_path,
-        analysis_protocol_path,
-            project_stratum_string):
+            analysis_protocol_path):
 
         # Create UUID to save the file as
-        file_prehash = f"{project_stratum_string}{input_id}"
+        file_prehash = f"{file_name_string}"
         subgraph_uuid = format_map.get_uuid5(file_prehash)
 
         # Load the analysis_process json into memory
@@ -86,7 +85,7 @@ class LinksFile():
         with open(output_file_path) as f:
             outputs_dict = json.load(f)
 
-        self.input_id = input_id
+        self.file_name_string = file_name_string
         self.outputs = outputs_dict
         self.project_id = project_id
         self.input_uuids = input_uuids
@@ -96,7 +95,6 @@ class LinksFile():
         self.workspace_version = workspace_version
         self.analysis_process = analysis_process_dict
         self.analysis_protocol = analysis_protocol_dict
-        self.project_stratum_string = project_stratum_string
         self.process_id = analysis_process_dict['process_core']['process_id']
 
     def __links_file__(self):
@@ -165,24 +163,22 @@ class LinksFile():
 
 # Entry point for unit tests
 def test_build_links_file(
-    input_id,
     project_id,
     input_uuids,
+    file_name_string,
     output_file_path,
     workspace_version,
     analysis_process_path,
-    analysis_protocol_path,
-        project_stratum_string):
+        analysis_protocol_path):
 
     test_links_file = LinksFile(
-        input_id,
         project_id,
         input_uuids,
+        file_name_string,
         output_file_path,
         workspace_version,
         analysis_process_path,
-        analysis_protocol_path,
-        project_stratum_string)
+        analysis_protocol_path)
 
     return test_links_file.get_json()
 
@@ -190,24 +186,23 @@ def test_build_links_file(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--project_id', required=True, help='The project ID')
-    parser.add_argument('--input_id', required=True, help='A unique input ID to incorporate into the links UUID.')
     parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the sequencing input files')
     parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file.')
     parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file.')
-    parser.add_argument('--project_stratum_string', required=True, help="Concatenation of the project, library, species, and organ")
     parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows''within an individual workspace.')
-    parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files)')
+    parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files).')
+    parser.add_argument('--file_name_string', required=True, help='Input ID (a unique input ID to incorproate into the links UUID) OR project stratum string (concatenation of the project, library, species, and organ).')
+
     args = parser.parse_args()
 
     links_file = LinksFile(
-        args.input_id,
         args.project_id,
         args.input_uuids,
+        args.file_name_string,
         args.output_file_path,
         args.workspace_version,
         args.analysis_process_path,
-        args.analysis_protocol_path,
-        args.project_stratum_string
+        args.analysis_protocol_path
     )
 
     links_file_json = links_file.get_json()
