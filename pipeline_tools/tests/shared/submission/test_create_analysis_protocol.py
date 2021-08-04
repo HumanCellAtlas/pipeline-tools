@@ -9,8 +9,8 @@ from pathlib import Path
 def test_data():
     class Data:
         input_uuid = 0
-        pipeline_type = "optimus"
-        method = "https://dockstore.org/workflows/github.com/broadinstitute/warp/Optimus:Optimus_v4.2.3"
+        pipeline_type = "Optimus"
+        project_level_pipeline_type = "OptimusPostProcessing"
         pipeline_version = "optimus_v4.2.3"
         project_level_pipeline_version = "optimus_post_processing_v1.0.0"
         workspace_version = "2021-05-24T12:00:00.000000Z"
@@ -64,12 +64,12 @@ class TestCreateAnalysisProtocolProjectLevel(object):
         analysis_protocol = cap.test_build_analysis_protocol(
             input_uuid=test_data.input_uuid,
             pipeline_version=test_data.project_level_pipeline_version,
-            pipeline_type=test_data.pipeline_type,
+            pipeline_type=test_data.project_level_pipeline_type,
             workspace_version=test_data.workspace_version,
             project_level=True
         )
 
-        assert analysis_protocol.get("computational_method") == "optimus_post_processing_v1.0.0"
+        assert analysis_protocol.get("computational_method") == "https://dockstore.org/workflows/github.com/broadinstitute/warp/OptimusPostProcessing:Optimus_post_processing_v1.0.0"
         assert (
             analysis_protocol.get("describedBy")
             == "https://schema.humancellatlas.org/type/protocol/analysis/9.1.0/analysis_protocol"
@@ -81,8 +81,11 @@ class TestCreateAnalysisProtocolProjectLevel(object):
         assert analysis_protocol.get("protocol_core") == {
             "protocol_id": "optimus_post_processing_v1.0.0"
         }
+        # The document_id will not match test data because we are updating computational_method to be
+        # a docstore URL, instead of the pipeline version. This causes the hash used for the file name
+        # to be different.
         assert analysis_protocol.get("provenance") == {
-            "document_id": "432a7422-59b5-5c46-8983-a7953f196781",
+            "document_id": "1c03b7cd-b34c-532d-a696-1092740797c6",
             "submission_date": "2021-05-24T12:00:00.000000Z",
             "update_date": "2021-05-24T12:00:00.000000Z"
         }

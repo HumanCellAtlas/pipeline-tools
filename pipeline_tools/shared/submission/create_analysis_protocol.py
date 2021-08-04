@@ -50,23 +50,23 @@ class AnalysisProtocol():
         workspace_version,
             project_level=False):
 
-        self.input_uuid = input_uuid
-        self.pipeline_type = pipeline_type.capitalize()
-        self.pipeline_version = pipeline_version.capitalize()
-        self.protocol_core = {
-            "protocol_id": pipeline_version
-        }
-        self.work_version = workspace_version
         if project_level:
-            self.computational_method = pipeline_version
             self.type = {
                 "text": "analysis; merge matrices"
             }
         else:
-            self.computational_method = f"https://dockstore.org/workflows/github.com/broadinstitute/warp/{self.pipeline_type}:{self.pipeline_version}"
             self.type = {
                 "text": "analysis_protocol"
             }
+
+        self.input_uuid = input_uuid
+        self.pipeline_type = pipeline_type
+        self.work_version = workspace_version
+        self.pipeline_version = pipeline_version.capitalize()
+        self.computational_method = f"https://dockstore.org/workflows/github.com/broadinstitute/warp/{self.pipeline_type}:{self.pipeline_version}"
+        self.protocol_core = {
+            "protocol_id": pipeline_version
+        }
 
     def __analysis_protocol__(self):
         return {
@@ -135,7 +135,7 @@ def test_build_analysis_protocol(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
+    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline (SS2, Optimus or OptimusPostProcessing)")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument("--project_level", type=bool, required=False, help="Boolean representing project level vs intermediate level")
