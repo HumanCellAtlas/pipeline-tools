@@ -39,6 +39,8 @@ setup(
             'get-upload-urn=pipeline_tools.shared.submission.get_upload_urn:main',
             'get-files-to-upload=pipeline_tools.shared.submission.get_files_to_upload:main',
             'confirm-submission=pipeline_tools.shared.submission.confirm_submission:main',
+            'parse-metadata=pipeline_tools.shared.submission.parse_cromwell_metadata:main',
+            'get-reference-file-details=pipeline_tools.shared.submission.get_reference_details:main'
         ]
     },
     include_package_data=True,
