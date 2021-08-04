@@ -1,0 +1,19 @@
+{
+  "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
+  "file_core": {
+    "content_description": [
+      {
+        "ontology": "data:3917",
+        "ontology_label": "Count Matrix",
+        "text": "DCP/2-generated matrix"
+      }
+    ],
+    "file_name": "1fd499c5-f397-4bff-9af0-eb42c37d5fbe.loom",
+    "format": "loom"
+  },
+  "provenance": {
+    "document_id": "a49db5bb-e25e-5c41-8fc6-c69edfb4281e",
+    "submission_date": "2021-05-24T12:00:00.000000Z"
+  },
+  "schema_type": "file"
+}
