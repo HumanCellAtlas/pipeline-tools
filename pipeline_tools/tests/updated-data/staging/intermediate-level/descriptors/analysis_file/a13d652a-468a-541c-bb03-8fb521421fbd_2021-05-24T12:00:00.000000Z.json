@@ -1,0 +1,12 @@
+{
+  "content_type": "application/vnd.loom",
+  "crc32c": "6d18a32b",
+  "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
+  "file_id": "ed15b74e-7c24-5dc1-aada-334ecf4e0560",
+  "file_name": "hca_adapter_testing.loom",
+  "file_version": "2021-07-26T13:12:24.000000Z",
+  "schema_type": "file_descriptor",
+  "schema_version": "2.0.0",
+  "sha256": "55bc9fca6a256aa5ba5402b151c4cb551d994e0f0dd58739ef6f2e853788d8ae",
+  "size": 175128657
+}

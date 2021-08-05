@@ -41,25 +41,32 @@ class AnalysisProtocol():
     describedBy = SCHEMAS["ANALYSIS_PROTOCOL"]["describedBy"]
     schema_type = SCHEMAS["ANALYSIS_PROTOCOL"]["schema_type"]
     schema_version = SCHEMAS["ANALYSIS_PROTOCOL"]["schema_version"]
-    type = {
-        "text": "analysis_protocol"
-    }
 
     def __init__(
         self,
         input_uuid,
         pipeline_type,
         pipeline_version,
-            workspace_version):
+        workspace_version,
+            project_level=False):
+
+        if project_level:
+            self.type = {
+                "text": "analysis; merge matrices"
+            }
+        else:
+            self.type = {
+                "text": "analysis_protocol"
+            }
 
         self.input_uuid = input_uuid
-        self.pipeline_type = pipeline_type.capitalize()
+        self.pipeline_type = pipeline_type
+        self.work_version = workspace_version
         self.pipeline_version = pipeline_version.capitalize()
         self.computational_method = f"https://dockstore.org/workflows/github.com/broadinstitute/warp/{self.pipeline_type}:{self.pipeline_version}"
         self.protocol_core = {
             "protocol_id": pipeline_version
         }
-        self.work_version = workspace_version
 
     def __analysis_protocol__(self):
         return {
@@ -113,22 +120,25 @@ def test_build_analysis_protocol(
     input_uuid,
     pipeline_type,
     pipeline_version,
-        workspace_version):
+    workspace_version,
+        project_level=False):
 
     test_analysis_protocol = AnalysisProtocol(
         input_uuid,
         pipeline_type,
         pipeline_version,
-        workspace_version
+        workspace_version,
+        project_level
     )
     return test_analysis_protocol.get_json()
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
+    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline (SS2, Optimus or OptimusPostProcessing)")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
+    parser.add_argument("--project_level", type=bool, required=False, help="Boolean representing project level vs intermediate level")
     parser.add_argument(
         "--pipeline_version",
         required=True,
@@ -142,7 +152,8 @@ def main():
         args.input_uuid,
         args.pipeline_type,
         args.pipeline_version,
-        args.workspace_version
+        args.workspace_version,
+        args.project_level
     )
 
     # Get the JSON content to be written

@@ -1,0 +1,12 @@
+{
+  "content_type": "application/octet-stream",
+  "crc32c": "d8826f84",
+  "describedBy": "https://schema.humancellatlas.org/system/2.0.0/file_descriptor",
+  "file_id": "28846140-e56e-5740-82d7-e9f6542653c8",
+  "file_name": "GRCh38.primary_assembly.genome.fa",
+  "file_version": "2019-02-12T21:06:15.000000Z",
+  "schema_type": "file_descriptor",
+  "schema_version": "2.0.0",
+  "sha256": "e49b92b3e4f321bf254c042f25b726d9931c4d74c7523e8b6bb530e63b0cfd4b",
+  "size": 3151417447
+}
