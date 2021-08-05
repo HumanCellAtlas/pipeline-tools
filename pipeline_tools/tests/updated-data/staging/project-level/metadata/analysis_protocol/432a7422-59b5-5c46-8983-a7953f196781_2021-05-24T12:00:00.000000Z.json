@@ -1,0 +1,16 @@
+{
+  "computational_method": "optimus_post_processing_v1.0.0",
+  "describedBy": "https://schema.humancellatlas.org/type/protocol/analysis/9.1.0/analysis_protocol",
+  "protocol_core": {
+    "protocol_id": "optimus_post_processing_v1.0.0"
+  },
+  "provenance": {
+    "document_id": "432a7422-59b5-5c46-8983-a7953f196781",
+    "submission_date": "2021-05-24T12:00:00.000000Z",
+    "update_date": "2021-05-24T12:00:00.000000Z"
+  },
+  "schema_type": "protocol",
+  "type": {
+    "text": "analysis; merge matrices"
+  }
+}
