@@ -57,6 +57,7 @@ class AnalysisFile():
 
         if self.project_level:
             outputs = [input_file]
+            self.input_uuid = format_map.get_uuid5(self.input_uuid)
         else:
             # use metadata.json file to retrieve outputs
             metadata_json = format_map.get_workflow_metadata(input_file)
@@ -98,7 +99,10 @@ class AnalysisFile():
         entity_type = format_map.get_entity_type(file_name)
 
         # Grab the extension of the file thats been submitted
-        file_extension = os.path.splitext(file_name)[1]
+        if self.project_level: 
+            file_extension = format_map.get_file_format(file_name)
+        else:
+            file_extension = os.path.splitext(file_name)[1]
 
         # Grab the raw name of the file thats been submitted
         file_name = file_name.rsplit("/")[-1]
