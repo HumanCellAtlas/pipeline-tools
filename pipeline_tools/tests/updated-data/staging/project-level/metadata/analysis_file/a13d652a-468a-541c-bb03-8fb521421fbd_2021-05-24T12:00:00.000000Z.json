@@ -8,7 +8,7 @@
         "text": "DCP/2-generated matrix"
       }
     ],
-    "file_name": "hca_adapter_testing.loom", // input (name of workspace), add .loom to end of input string
+    "file_name": "hca_adapter_testing.loom",
     "format": "loom"
   },
   "provenance": {

@@ -45,17 +45,23 @@ class AnalysisFile():
     def __init__(
         self,
         input_uuid,
-        metadata_json,
+        input_file,
         pipeline_type,
-            workspace_version):
-
-        # use metadata.json file to retrieve outputs
-        metadata_json = format_map.get_workflow_metadata(metadata_json)
-        outputs = metadata_json["outputs"]
+        workspace_version,
+            project_level=False):
 
         self.input_uuid = input_uuid
+        self.project_level = project_level
         self.pipeline_type = pipeline_type
         self.workspace_version = workspace_version
+
+        if self.project_level:
+            outputs = [input_file]
+            self.input_uuid = format_map.get_uuid5(self.input_uuid)
+        else:
+            # use metadata.json file to retrieve outputs
+            metadata_json = format_map.get_workflow_metadata(input_file)
+            outputs = metadata_json["outputs"]
 
         # get content for each file type
         self.__get_outputs_by_type(outputs)
@@ -93,7 +99,10 @@ class AnalysisFile():
         entity_type = format_map.get_entity_type(file_name)
 
         # Grab the extension of the file thats been submitted
-        file_extension = os.path.splitext(file_name)[1]
+        if self.project_level: 
+            file_extension = format_map.get_file_format(file_name)
+        else:
+            file_extension = os.path.splitext(file_name)[1]
 
         # Grab the raw name of the file thats been submitted
         file_name = file_name.rsplit("/")[-1]
@@ -115,19 +124,36 @@ class AnalysisFile():
     def __get_outputs_by_type(self, outputs):
         for output in outputs:
             if ".loom" in output:
-                # Generate loom output
-                loom_file_details = self.get_file_details(outputs[output])
-                self.loom_output = {
-                    "provenance": {
-                        "document_id": loom_file_details["file_save_id"],
-                        "submission_date": self.workspace_version
-                    },
-                    "file_core": {
-                        "file_name": outputs[output].split("/")[-1],
-                        "format": format_map.get_file_format(outputs[output]),
-                        "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
+                if self.project_level:
+                    # Generate loom output
+                    loom_file_details = self.get_file_details(output)
+                    self.loom_output = {
+                        "provenance": {
+                            "document_id": loom_file_details["file_save_id"],
+                            "submission_date": self.workspace_version,
+                            "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707"
+                        },
+                        "file_core": {
+                            "file_name": loom_file_details["file_name"],
+                            "format": format_map.get_file_format(output),
+                            "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
+                        }
                     }
-                }
+                else:
+                    # Generate loom output
+                    loom_file_details = self.get_file_details(outputs[output])
+                    self.loom_output = {
+                        "provenance": {
+                            "document_id": loom_file_details["file_save_id"],
+                            "submission_date": self.workspace_version
+                        },
+                        "file_core": {
+                            "file_name": outputs[output].split("/")[-1],
+                            "format": format_map.get_file_format(outputs[output]),
+                            "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
+                        }
+                    }
+
             elif ".bam" in output:
                 # Generate bam output
                 bam_file_details = self.get_file_details(outputs[output])
@@ -155,15 +181,17 @@ class AnalysisFile():
 # Entry point for unit tests
 def test_build_analysis_file(
     input_uuid,
-    metadata_json,
+    input_file,
     pipeline_type,
-        workspace_version):
+    workspace_version,
+        project_level=False):
 
     test_analysis_file = AnalysisFile(
         input_uuid,
-        metadata_json,
+        input_file,
         pipeline_type,
-        workspace_version
+        workspace_version,
+        project_level
     )
     return test_analysis_file.get_json("loom")
 
@@ -173,38 +201,47 @@ def main():
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
+    parser.add_argument("--project_level", type=bool, required=False, help="Boolean representing project level vs intermediate level")
     parser.add_argument(
-        "--metadata_json",
+        "--input_file",
         required=True,
-        help="Path to json file containing metadata."
+        help="Path to json file containing metadata for intermediate level, path to intermediate bam analysis file for project level"
     )
 
     args = parser.parse_args()
 
     analysis_file = AnalysisFile(
         args.input_uuid,
-        args.metadata_json,
+        args.input_file,
         args.pipeline_type,
-        args.workspace_version
+        args.workspace_version,
+        args.project_level
     )
-
-    # Get the JSON content to be written
-    analysis_file_json = analysis_file.get_outputs_json()
-
-    # Write outputs to file
-    print("Writing outputs.json to disk...")
-    with open("outputs.json", "w") as f:
-        json.dump(analysis_file_json, f, indent=2, sort_keys=True)
 
     # Write analysis file for each file type
     print("Writing analysis_file output(s) json to disk...")
     if not os.path.exists("analysis_files"):
         os.mkdir("analysis_files")
 
-    for output in analysis_file_json:
-        file_save_id = output["provenance"]["document_id"]
+    if args.project_level:
+        # Get the project level JSON content to be written
+        analysis_file_json = analysis_file.get_json("loom")
+        file_save_id = analysis_file_json["provenance"]["document_id"]
         with open(f"analysis_files/{file_save_id}_{analysis_file.work_version}.json", "w") as f:
-            json.dump(output, f, indent=2, sort_keys=True)
+            json.dump(analysis_file_json, f, indent=2, sort_keys=True)
+    else:
+        # Get the intermediate level JSON content to be written
+        analysis_file_json = analysis_file.get_outputs_json()
+
+        # Write outputs to file
+        print("Writing outputs.json to disk...")
+        with open("outputs.json", "w") as f:
+            json.dump(analysis_file_json, f, indent=2, sort_keys=True)
+
+        for output in analysis_file_json:
+            file_save_id = output["provenance"]["document_id"]
+            with open(f"analysis_files/{file_save_id}_{analysis_file.work_version}.json", "w") as f:
+                json.dump(output, f, indent=2, sort_keys=True)
 
 
 if __name__ == "__main__":
