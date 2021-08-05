@@ -38,14 +38,31 @@ MIME_FORMATS = [
 NAMESPACE = uuid.UUID('c6591d1d-27bc-4c94-bd54-1b51f8a2456c')
 
 
-def get_uuid5(sha256):
-    return str(uuid.uuid5(NAMESPACE, sha256))
+def get_uuid5(value_to_hash):
+    return str(uuid.uuid5(NAMESPACE, value_to_hash))
 
 
 def convert_datetime(timestamp):
     if timestamp.endswith('.000000Z'):
         return timestamp
     return timestamp.replace('Z', '.000000Z')
+
+
+def get_analysis_workflow_id(analysis_output_path):
+    """Parse the analysis workflow id from one of its output paths, and write the id to a file so that it is available
+    outside of the get_analysis task.
+    Args:
+        analysis_output_path (str): path to workflow output file.
+    Returns:
+        workflow_id (str): string giving Cromwell UUID of the workflow.
+    """
+    # Get the last match for UUID prior to the file name (in case the file is
+    # named with a UUID) to ensure it is the subworkflow id
+    url = analysis_output_path.rsplit('/', 1)[0]
+    uuid_regex = r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
+    workflow_id = re.findall(uuid_regex, url)[-1]
+    print('Got analysis workflow UUID: {0}'.format(workflow_id))
+    return workflow_id
 
 
 def get_entity_type(path):
