@@ -10,7 +10,7 @@ def test_data():
     class Data:
         input_uuid = 'heart_1k_test_v2_S1_L001'
         project_level_input_uuid = "project=16ed4ad8-7319-46b2-8859-6fe1c1d73a82;library=10X 3' v2 sequencing;species=Homo sapiens;organ=kidney"
-        input_file = 'pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json'
+        input_file = 'pipeline_tools/tests/data/updated-data/staging/metadata/metadata.json'
         project_level_input_file = 'hca_adapter_testing/hca_adapter_test/hca_adapter_testing.loom'
         pipeline_type = 'optimus'
         project_level_pipeline_type = 'OptimusPostProcessing'

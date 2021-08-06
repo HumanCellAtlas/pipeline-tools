@@ -91,7 +91,7 @@ class AnalysisFile():
 
     # Get output json for both types of analysis file
     def get_outputs_json(self):
-        return [self.get_json("bam"), self.get_json("loom")]
+        return [self.get_json("loom"), self.get_json("bam")]
 
     # Get file details by file name
     def get_file_details(self, file_name):
