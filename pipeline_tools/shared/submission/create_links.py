@@ -132,10 +132,12 @@ class LinksFile():
         inputs = []
 
         if self.project_level:
+            # inputs are taken from input_metadata.json for project level links file
             for input_uuid in self.input_uuids:
                 inputs.append({'input_type': input_uuid['input_type'], 'input_id': input_uuid['input_id']})
         else:
             for input_uuid in self.input_uuids:
+                # inputs are generated from input_uuids for intermediate level links file
                 inputs.append({'input_type': "sequence_file", 'input_id': input_uuid})
 
         return inputs
