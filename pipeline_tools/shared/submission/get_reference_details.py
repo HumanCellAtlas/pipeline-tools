@@ -5,10 +5,10 @@ HUMAN = "Homo Sapiens"
 MOUSE = "Mus musculus"
 
 def check_reference_and_species(reference_file_path, species):
-    refernce_filename = os.path.basename(reference_file_path)
-    if "grch" in refernce_filename.lower() and species != HUMAN:
+    reference_filename = os.path.basename(reference_file_path)
+    if "grch" in reference_filename.lower() and species != HUMAN:
         raise UnknownReferenceError('Reference file must match the species. {} is not a known reference for {}.'.format(reference_file_path, species))
-    elif ("grcm" in refernce_filename.lower() or "mm10" in refernce_filename.lower())and species != MOUSE:
+    elif ("grcm" in reference_filename.lower() or "mm10" in reference_filename.lower())and species != MOUSE:
         raise UnknownReferenceError('Reference file must match the species. {} is not a known reference for {}.'.format(reference_file_path, species))
 
 def get_taxon_id(species):
