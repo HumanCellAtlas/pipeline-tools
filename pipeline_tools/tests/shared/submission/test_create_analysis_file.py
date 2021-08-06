@@ -9,7 +9,7 @@ from pathlib import Path
 def test_data():
     class Data:
         input_uuid = 'heart_1k_test_v2_S1_L001'
-        project_level_input_uuid = '1fd499c5-f397-4bff-9af0-eb42c37d5fbe'
+        project_level_input_uuid = "project=16ed4ad8-7319-46b2-8859-6fe1c1d73a82;library=10X 3' v2 sequencing;species=Homo sapiens;organ=kidney"
         input_file = 'pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json'
         project_level_input_file = 'hca_adapter_testing/hca_adapter_test/hca_adapter_testing.loom'
         pipeline_type = 'optimus'
@@ -76,10 +76,8 @@ class TestCreateProjectLevelAnalysisFile(object):
             == 'https://schema.humancellatlas.org/type/file/6.2.0/analysis_file'
         )
         assert analysis_file.get('schema_type') == 'file'
-        # TODO document_id being generated is not correct, fix this part of the unit test
-        # should be a13d652a-468a-541c-bb03-8fb521421fbd according to test data
         assert analysis_file.get('provenance') == {
-            'document_id': 'a49db5bb-e25e-5c41-8fc6-c69edfb4281e',
+            'document_id': 'a13d652a-468a-541c-bb03-8fb521421fbd',
             'submission_date': '2021-05-24T12:00:00.000000Z',
             'submitter_id': 'e67aaabe-93ea-564a-aa66-31bc0857b707'
         }

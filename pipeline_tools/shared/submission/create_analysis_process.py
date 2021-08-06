@@ -111,7 +111,7 @@ class AnalysisProcess():
             self.inputs = process_inputs
             self.reference_files = references
 
-        # Determind analysis_run_type from file path
+        # Determine analysis_run_type from file path
         if "cacheCopy" in str(input_file):
             self.analysis_run_type = "copy-forward"
         else:
