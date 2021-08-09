@@ -4,8 +4,7 @@ import os
 HUMAN = "Homo Sapiens"
 MOUSE = "Mus musculus"
 
-def check_reference_and_species(reference_file_path, species):
-    reference_filename = os.path.basename(reference_file_path)
+def check_reference_and_species(reference_filename, species):
     if "grch" in reference_filename.lower() and species != HUMAN:
         raise UnknownReferenceError('Reference file must match the species. {} is not a known reference for {}.'.format(reference_file_path, species))
     elif ("grcm" in reference_filename.lower() or "mm10" in reference_filename.lower())and species != MOUSE:
@@ -19,12 +18,39 @@ def get_taxon_id(species):
     else:
         raise UnknownReferenceError('Species must be either mouse ("Mus musculus") or human ("Homo sapiens")')
 
-def get_assembly_type(reference_file):
-    return "primary assembly"
+def get_assembly_type(reference_filename):
+    """
+    :param reference_filename:
+    :return: the assembly type for the specified file
+
+    This field is an enu with the following possiblle values:
+    'primary assembly',
+    'complete assembly',
+    'patch assembly'
+    """
+    if "primary_assembly" in reference_filename:
+        return "primary assembly"
+    else:
+        raise UnknownReferenceError('Reference with unknown "assembly type"')
 
 
-def get_reference_type(reference_file):
-    return "genome sequeence"
+def get_reference_type(reference_filename):
+    """
+    :param reference_filename:
+    :return: the referecne type for the specified file
+
+    This field is an enu with the following possiblle values:
+    'genome sequence',
+    'transcriptome sequence',
+    'annotation reference',
+    'transcriptome index',
+    'genome sequence index'
+    """
+    if "genome" in reference_filename:
+        return "genome sequeence"
+    else:
+        raise UnknownReferenceError('Reference with unknown "reference type"')
+
 
 
 def main():
@@ -45,13 +71,13 @@ def main():
     reference_file = args.reference_file
     species = args.species
 
-    check_reference_and_species(reference_file, species)
+    reference_filename = os.path.basename(reference_file)
+
+    check_reference_and_species(reference_filename, species)
 
     ncbi_taxon_id = get_taxon_id(species)
-
-    assembly_type = get_assembly_type(reference_file)
-
-    reference_type = get_reference_type(reference_file)
+    assembly_type = get_assembly_type(reference_filename)
+    reference_type = get_reference_type(reference_filename)
 
 
     with open('ncbi_taxon_id.txt', 'w') as f:
