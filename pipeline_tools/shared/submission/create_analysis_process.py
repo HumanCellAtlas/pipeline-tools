@@ -95,7 +95,7 @@ class AnalysisProcess():
 
         provenance = {
             "document_id": process_id,
-            "submission_date": workspace_version
+            "submission_date": workspace_version  # TODO: check this too
         }
         process_core = {
             "process_id": process_id
