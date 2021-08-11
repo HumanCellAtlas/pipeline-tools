@@ -11,7 +11,7 @@ def test_data():
         input_uuid = "heart_1k_test_v2_S1_L001"
         loom_timestamp = "2021-07-26T13:12:24.000000Z"
         workspace_version = "2021-05-24T12:00:00.000000Z"
-        references = "c11000b1-2e69-532b-8c72-03dd4c9617d5"
+        references = "/fake/file/path.fasta"
         project_level_pipeline_type = "OptimusPostProcessing"
         project_level_input_uuid = "1fd499c5-f397-4bff-9af0-eb42c37d5fbe"
         input_file = "pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json"
@@ -35,7 +35,7 @@ class TestCreateAnalysisProcess(object):
         assert analysis_process.get("timestamp_stop_utc") == "2021-07-08T17:23:57.332Z"
         assert analysis_process.get("schema_type") == "process"
         assert analysis_process.get("analysis_run_type") == "run"
-        assert analysis_process.get("reference_files") == "c11000b1-2e69-532b-8c72-03dd4c9617d5"
+        assert analysis_process.get("reference_files") == "74384acf-938e-555f-b069-5d10ccd7d04c"
         assert (
             analysis_process.get("describedBy")
             == "https://schema.humancellatlas.org/type/process/analysis/12.0.0/analysis_process"

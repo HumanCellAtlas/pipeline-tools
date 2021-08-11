@@ -70,7 +70,7 @@ class Descriptor():
         # file_entity_id is the ID for the bam/loom/bai/fa being processed
         #
         # file_id is the ID for the descriptor file being created
-        file_entity_id = format_map.get_uuid5(f"{input_uuid}{entity_type}{file_extension}")
+        file_entity_id = format_map.get_file_entity_id(input_uuid, entity_type, file_extension)
         file_id = format_map.get_uuid5(file_entity_id)
 
         self.size = size

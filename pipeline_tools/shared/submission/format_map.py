@@ -193,3 +193,7 @@ def get_workflow_tasks(workflow_metadata):
             output_tasks.append(out_task)
     sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
     return sorted_output_tasks
+
+def get_file_entity_id (input_uuid, entity_type, file_extension):
+    return get_uuid5(f"{input_uuid}{entity_type}{file_extension}")
+

@@ -84,7 +84,6 @@ class AnalysisProcess():
             }
             self.tasks = []
             self.inputs = []
-            self.reference_files = []
 
             # Retrieve process id from input_file
             process_id = format_map.get_analysis_workflow_id(str(input_file))
@@ -109,7 +108,9 @@ class AnalysisProcess():
             }
             self.tasks = workflow_tasks
             self.inputs = process_inputs
-            self.reference_files = references
+
+        reference_ids = [format_map.get_file_entity_id(r, format_map.get_entity_type(r), os.path.splitext(r)[1]) for r in references]
+        self.reference_files = reference_ids
 
         # Determine analysis_run_type from file path
         if "cacheCopy" in str(input_file):
@@ -195,7 +196,7 @@ def main():
     parser.add_argument("--project_level", type=bool, required=False, help="Boolean representing project level vs intermediate level")
     parser.add_argument(
         "--references",
-        help="List of UUIDs for the reference genome",
+        help="List of fasta files for the reference genome",
         required=False,
         nargs="+",
     )
