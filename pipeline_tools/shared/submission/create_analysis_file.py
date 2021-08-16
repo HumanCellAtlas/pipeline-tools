@@ -50,21 +50,15 @@ class AnalysisFile():
         workspace_version,
             project_level=False):
 
+        self.input_file = input_file
         self.input_uuid = input_uuid
         self.project_level = project_level
         self.pipeline_type = pipeline_type
         self.workspace_version = workspace_version
+        self.outputs = self.__outputs__()
 
-        if self.project_level:
-            outputs = [input_file]
-            self.input_uuid = format_map.get_uuid5(self.input_uuid)
-        else:
-            # use metadata.json file to retrieve outputs
-            metadata_json = format_map.get_workflow_metadata(input_file)
-            outputs = metadata_json["outputs"]
-
-        # get content for each file type
-        self.__get_outputs_by_type(outputs)
+        # Get content based on file type (loom or bam)
+        self.__get_content_by_type__()
 
     # create analysis file based on file type
     def __analysis_file__(self, file_type):
@@ -89,7 +83,7 @@ class AnalysisFile():
     def get_json(self, file_type):
         return self.__analysis_file__(file_type)
 
-    # Get output json for both types of analysis file
+    # Get output.json for both types of analysis file
     def get_outputs_json(self):
         return [self.get_json("loom"), self.get_json("bam")]
 
@@ -120,40 +114,26 @@ class AnalysisFile():
             "file_save_id": file_save_id
         }
 
-    # generate content for each file type
-    def __get_outputs_by_type(self, outputs):
-        for output in outputs:
-            if ".loom" in output:
-                if self.project_level:
-                    # Generate loom output
-                    loom_file_details = self.get_file_details(output)
-                    self.loom_output = {
-                        "provenance": {
-                            "document_id": loom_file_details["file_save_id"],
-                            "submission_date": self.workspace_version,
-                            "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707"
-                        },
-                        "file_core": {
-                            "file_name": loom_file_details["file_name"],
-                            "format": format_map.get_file_format(output),
-                            "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
-                        }
-                    }
-                else:
-                    # Generate loom output
-                    loom_file_details = self.get_file_details(outputs[output])
-                    self.loom_output = {
-                        "provenance": {
-                            "document_id": loom_file_details["file_save_id"],
-                            "submission_date": self.workspace_version
-                        },
-                        "file_core": {
-                            "file_name": outputs[output].split("/")[-1],
-                            "format": format_map.get_file_format(outputs[output]),
-                            "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
-                        }
-                    }
+    def __get_content_by_type__(self):
+        """Get the necessary JSON for the bam and loom files"""
+        outputs = self.outputs
 
+        for output in self.outputs:
+            if ".loom" in output:
+                # Generate loom output
+                loom_file_details = self.get_file_details(outputs[output])
+                self.loom_output = {
+                    "provenance": {
+                        "document_id": loom_file_details["file_save_id"],
+                        "submission_date": self.workspace_version,
+                        "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707" if self.project_level else None
+                    },
+                    "file_core": {
+                        "file_name": outputs[output].split("/")[-1],
+                        "format": format_map.get_file_format(outputs[output]),
+                        "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
+                    }
+                }
             elif ".bam" in output:
                 # Generate bam output
                 bam_file_details = self.get_file_details(outputs[output])
@@ -168,6 +148,20 @@ class AnalysisFile():
                         "content_description": []
                     }
                 }
+
+    def __outputs__(self):
+        """Return dict of outputs for the pipeline
+
+        Returns:
+            project_loom_file wrapped in dict (Project run)
+            metadata.json["outputs"] (Intermediate run)
+        """
+
+        if self.project_level:
+            return {"project_level" : self.input_file}
+
+        metadata_json = format_map.get_workflow_metadata(self.input_file)
+        return metadata_json["outputs"]
 
     @property
     def uuid(self):
@@ -202,11 +196,8 @@ def main():
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument("--project_level", type=bool, required=False, help="Boolean representing project level vs intermediate level")
-    parser.add_argument(
-        "--input_file",
-        required=True,
-        help="Path to json file containing metadata for intermediate level, path to intermediate bam analysis file for project level"
-    )
+    parser.add_argument("--input_file", required=True,
+                        help="Path to json file containing metadata for intermediate level, path to intermediate bam analysis file for project level")
 
     args = parser.parse_args()
 
