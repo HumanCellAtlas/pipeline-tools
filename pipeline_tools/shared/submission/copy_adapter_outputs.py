@@ -21,16 +21,11 @@ def main():
                         dest='analysis_protocol_jsons',
                         nargs="+",
                         help="Paths to analysis protocol jsons")
-    parser.add_argument('--loom_analysis_files_descriptors_jsons',
-                        dest='loom_analysis_files_descriptors_jsons',
+    parser.add_argument('--analysis_files_descriptors_jsons',
+                        dest='analysis_files_descriptors_jsons',
                         required=True,
                         nargs="+",
-                        help="Paths to loom analysis files descriptors jsons")
-    parser.add_argument('--bam_analysis_files_descriptors_jsons',
-                        dest='bam_analysis_files_descriptors_jsons',
-                        required=True,
-                        nargs="+",
-                        help="Paths to bam analysis files descriptors jsons")
+                        help="Paths to analysis files descriptors jsons")
     parser.add_argument('--links_jsons',
                         dest='links_jsons',
                         required=True,
@@ -50,8 +45,7 @@ def main():
     analysis_files_metadata_jsons = args.analysis_files_metadata_jsons
     analysis_process_jsons = args.analysis_process_jsons
     analysis_protocol_jsons = args.analysis_protocol_jsons
-    loom_analysis_files_descriptors_jsons = args.loom_analysis_files_descriptors_jsons
-    bam_analysis_files_descriptors_jsons = args.bam_analysis_files_descriptors_jsons
+    analysis_files_descriptors_jsons = args.analysis_files_descriptors_jsons
     links_jsons = args.links_jsons
     data_files = args.data_files
     staging_bucket = args.staging_bucket
@@ -65,10 +59,7 @@ def main():
     for file in analysis_protocol_jsons:
         subprocess.run('gsutil cp {0} {1}metadata/analysis_protocol/'.format(file, staging_bucket),
                        shell=True)
-    for file in loom_analysis_files_descriptors_jsons:
-        subprocess.run('gsutil cp {0} {1}descriptors/analysis_file/'.format(file, staging_bucket),
-                       shell=True)
-    for file in bam_analysis_files_descriptors_jsons:
+    for file in analysis_files_descriptors_jsons:
         subprocess.run('gsutil cp {0} {1}descriptors/analysis_file/'.format(file, staging_bucket),
                        shell=True)
     for file in links_jsons:
