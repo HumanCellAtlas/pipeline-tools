@@ -152,9 +152,9 @@ class AnalysisFile():
         """
 
         if self.project_level:
-            print("foo")
             return {"project_level.loom" : self.input_file}
 
+        # If intermediate then get the bam/loom outputs from metadata.json
         metadata_json = format_map.get_workflow_metadata(self.input_file)
         return metadata_json["outputs"]
 

@@ -121,7 +121,7 @@ class LinksFile():
         inputs = []
         for input_uuid in self.input_uuids:
             inputs.append({'input_type': "analysis_file" if self.project_level else "sequence_file",
-                          'input_id': input_uuid['input_id']})
+                          'input_id': input_uuid})
         return inputs
 
     def __outputs__(self):
@@ -188,7 +188,7 @@ def test_build_links_file(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--project_id', required=True, help='The project ID')
-    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the input files')
+    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the input files (fastq for intermedia/looms for project)')
     parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file.')
     parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file.')
     parser.add_argument('--project_level', type=bool, default=False, required=False, help='Boolean representing project level vs intermediate level.')
