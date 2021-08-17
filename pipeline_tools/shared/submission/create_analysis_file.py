@@ -55,7 +55,7 @@ class AnalysisFile():
         self.project_level = project_level
         self.pipeline_type = pipeline_type
         self.workspace_version = workspace_version
-        self.outputs = self.__outputs__()
+        self.outputs = self.__pipeline_outputs__()
 
         # Get content based on file type (loom or bam)
         self.__get_content_by_type__()
@@ -83,50 +83,46 @@ class AnalysisFile():
     def get_json(self, file_type):
         return self.__analysis_file__(file_type)
 
-    # Get output.json for both types of analysis file
     def get_outputs_json(self):
+        """Get the outputs.json array based on the project level. If project level then only return loom
+
+        Returns:
+            outputs(array): array of /metadata/analysis_file/*
+        """
+
+        if self.project_level:
+            return [self.get_json("loom")]
         return [self.get_json("loom"), self.get_json("bam")]
 
     # Get file details by file name
-    def get_file_details(self, file_name):
+    def __get_file_save_id__(self, file_name):
         # Get the type of file currently being processed
         entity_type = format_map.get_entity_type(file_name)
 
         # Grab the extension of the file thats been submitted
-        if self.project_level: 
-            file_extension = format_map.get_file_format(file_name)
-        else:
-            file_extension = os.path.splitext(file_name)[1]
+        file_extension = format_map.get_file_format(file_name)
 
         # Grab the raw name of the file thats been submitted
         file_name = file_name.rsplit("/")[-1]
 
-        # Generate unique file UUID5 by hashing twice
+        # Generate unique file UUID5 by hashing
         # This is deterministic and should always produce the same output given the same input
         # file_save_id is used to save the analysis file - {file_save_id}_{workspace_verison}.json
-        file_save_id = format_map.get_uuid5(f"{self.input_uuid}{entity_type}{file_extension}")
+        self.file_save_id = format_map.get_uuid5(f"{self.input_uuid}{entity_type}{file_extension}")
 
-        return {
-            "uuid": self.input_uuid,
-            "entity_type": entity_type,
-            "file_extension": file_extension,
-            "file_name": file_name,
-            "file_save_id": file_save_id
-        }
+        return self.file_save_id
 
     def __get_content_by_type__(self):
-        """Get the necessary JSON for the bam and loom files"""
+        """Get JSON info for bam and loom analysis files and save"""
         outputs = self.outputs
-
         for output in self.outputs:
             if ".loom" in output:
                 # Generate loom output
-                loom_file_details = self.get_file_details(outputs[output])
                 self.loom_output = {
                     "provenance": {
-                        "document_id": loom_file_details["file_save_id"],
+                        "document_id": self.__get_file_save_id__(outputs[output]),
                         "submission_date": self.workspace_version,
-                        "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707" if self.project_level else None
+                        "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707" if self.project_level else ""
                     },
                     "file_core": {
                         "file_name": outputs[output].split("/")[-1],
@@ -136,10 +132,9 @@ class AnalysisFile():
                 }
             elif ".bam" in output:
                 # Generate bam output
-                bam_file_details = self.get_file_details(outputs[output])
                 self.bam_output = {
                     "provenance": {
-                        "document_id": bam_file_details["file_save_id"],
+                        "document_id": self.__get_file_save_id__(outputs[output]),
                         "submission_date": self.workspace_version
                     },
                     "file_core": {
@@ -149,16 +144,15 @@ class AnalysisFile():
                     }
                 }
 
-    def __outputs__(self):
-        """Return dict of outputs for the pipeline
+    def __pipeline_outputs__(self):
+        """Return dict of the outputs that were produced by the pipeline (single loom for project, metadata.json for intermediate)
 
         Returns:
-            project_loom_file wrapped in dict (Project run)
-            metadata.json["outputs"] (Intermediate run)
+            outputs(dict): output produced by the pipeline run
         """
 
         if self.project_level:
-            return {"project_level" : self.input_file}
+            return {"project_level.loom" : self.input_file}
 
         metadata_json = format_map.get_workflow_metadata(self.input_file)
         return metadata_json["outputs"]
@@ -195,9 +189,8 @@ def main():
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
-    parser.add_argument("--project_level", type=bool, required=False, help="Boolean representing project level vs intermediate level")
-    parser.add_argument("--input_file", required=True,
-                        help="Path to json file containing metadata for intermediate level, path to intermediate bam analysis file for project level")
+    parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
+    parser.add_argument("--input_file", required=True, help="Path to json file containing metadata for intermediate level, path to intermediate bam analysis file for project level")
 
     args = parser.parse_args()
 
@@ -210,29 +203,19 @@ def main():
     )
 
     # Write analysis file for each file type
-    print("Writing analysis_file output(s) json to disk...")
     if not os.path.exists("analysis_files"):
         os.mkdir("analysis_files")
 
-    if args.project_level:
-        # Get the project level JSON content to be written
-        analysis_file_json = analysis_file.get_json("loom")
-        file_save_id = analysis_file_json["provenance"]["document_id"]
+    print("Writing outputs.json to disk...")
+    analysis_file_json = analysis_file.get_outputs_json()
+    with open("outputs.json", "w") as f:
+        json.dump(analysis_file_json, f, indent=2, sort_keys=True)
+
+    print("Writing analysis_file output(s) to disk...")
+    for output in analysis_file_json:
+        file_save_id = output["provenance"]["document_id"]
         with open(f"analysis_files/{file_save_id}_{analysis_file.work_version}.json", "w") as f:
-            json.dump(analysis_file_json, f, indent=2, sort_keys=True)
-    else:
-        # Get the intermediate level JSON content to be written
-        analysis_file_json = analysis_file.get_outputs_json()
-
-        # Write outputs to file
-        print("Writing outputs.json to disk...")
-        with open("outputs.json", "w") as f:
-            json.dump(analysis_file_json, f, indent=2, sort_keys=True)
-
-        for output in analysis_file_json:
-            file_save_id = output["provenance"]["document_id"]
-            with open(f"analysis_files/{file_save_id}_{analysis_file.work_version}.json", "w") as f:
-                json.dump(output, f, indent=2, sort_keys=True)
+            json.dump(output, f, indent=2, sort_keys=True)
 
 
 if __name__ == "__main__":
