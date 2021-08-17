@@ -8,12 +8,13 @@
         "text": "DCP/2-generated matrix"
       }
     ],
-    "file_name": "1fd499c5-f397-4bff-9af0-eb42c37d5fbe.loom",
+    "file_name": "hca_adapter_testing.loom",
     "format": "loom"
   },
   "provenance": {
-    "document_id": "a49db5bb-e25e-5c41-8fc6-c69edfb4281e",
-    "submission_date": "2021-05-24T12:00:00.000000Z"
+    "document_id": "ca252dae-fcd4-5f9c-9e19-81a450280aae",
+    "submission_date": "2021-05-24T12:00:00.000000Z",
+    "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707"
   },
   "schema_type": "file"
 }

@@ -152,6 +152,7 @@ class AnalysisFile():
         """
 
         if self.project_level:
+            print("foo")
             return {"project_level.loom" : self.input_file}
 
         metadata_json = format_map.get_workflow_metadata(self.input_file)
@@ -181,7 +182,7 @@ def test_build_analysis_file(
         workspace_version,
         project_level
     )
-    return test_analysis_file.get_json("loom")
+    return test_analysis_file.get_outputs_json()
 
 
 def main():

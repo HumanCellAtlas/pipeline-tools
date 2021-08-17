@@ -1,4 +1,5 @@
 import os
+import json
 import pytest
 
 import pipeline_tools.shared.submission.create_analysis_file as caf
@@ -8,13 +9,13 @@ from pathlib import Path
 @pytest.fixture(scope='module')
 def test_data():
     class Data:
-        input_uuid = 'heart_1k_test_v2_S1_L001'
-        project_level_input_uuid = "project=16ed4ad8-7319-46b2-8859-6fe1c1d73a82;library=10X 3' v2 sequencing;species=Homo sapiens;organ=kidney"
-        input_file = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/updated-data/staging/metadata/metadata.json'
+        project_level_input_uuid = "project=16ed4ad8-7319-46b2-8859-6fe1c1d73a82;library=10X 3 v2 sequencing;species=Homo sapiens;organ=kidney"
+        input_file = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/updated-data/staging/intermediate-level/metadata.json'
         project_level_input_file = 'hca_adapter_testing/hca_adapter_test/hca_adapter_testing.loom'
-        pipeline_type = 'optimus'
         project_level_pipeline_type = 'OptimusPostProcessing'
         workspace_version = '2021-05-24T12:00:00.000000Z'
+        input_uuid = 'heart_1k_test_v2_S1_L001'
+        pipeline_type = 'optimus'
         project_level = True
 
     return Data
@@ -32,38 +33,24 @@ def data_file():
 
 class TestCreateAnalysisFile(object):
     def test_build_analysis_file(self, test_data):
-        analysis_file = caf.test_build_analysis_file(
+        analysis_file_json = caf.test_build_analysis_file(
             input_uuid=test_data.input_uuid,
             input_file=test_data.input_file,
             pipeline_type=test_data.pipeline_type,
             workspace_version=test_data.workspace_version
         )
 
-        assert (
-            analysis_file.get('describedBy')
-            == 'https://schema.humancellatlas.org/type/file/6.2.0/analysis_file'
-        )
-        assert analysis_file.get('schema_type') == 'file'
-        assert analysis_file.get('provenance') == {
-            'document_id': '87795ce9-03ce-51f3-b8d8-4ad6f8931fe0',
-            'submission_date': '2021-05-24T12:00:00.000000Z'
-        }
-        assert analysis_file.get('file_core') == {
-            'content_description': [
-                {
-                    "ontology": "data:3917",
-                    "ontology_label": "Count Matrix",
-                    "text": "DCP/2-generated matrix"
-                }
-            ],
-            'file_name': 'heart_1k_test_v2_S1_L001.loom',
-            'format': 'loom'
-        }
+        desired_output_path = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/updated-data/staging/intermediate-level/outputs.json'
+
+        with open(desired_output_path) as f:
+            desired_output = json.load(f)
+
+        assert analysis_file_json == desired_output
 
 
 class TestCreateProjectLevelAnalysisFile(object):
     def test_build_analysis_file(self, test_data):
-        analysis_file = caf.test_build_analysis_file(
+        analysis_file_json = caf.test_build_analysis_file(
             input_uuid=test_data.project_level_input_uuid,
             input_file=test_data.project_level_input_file,
             pipeline_type=test_data.project_level_pipeline_type,
@@ -71,24 +58,9 @@ class TestCreateProjectLevelAnalysisFile(object):
             project_level=test_data.project_level
         )
 
-        assert (
-            analysis_file.get('describedBy')
-            == 'https://schema.humancellatlas.org/type/file/6.2.0/analysis_file'
-        )
-        assert analysis_file.get('schema_type') == 'file'
-        assert analysis_file.get('provenance') == {
-            'document_id': 'a13d652a-468a-541c-bb03-8fb521421fbd',
-            'submission_date': '2021-05-24T12:00:00.000000Z',
-            'submitter_id': 'e67aaabe-93ea-564a-aa66-31bc0857b707'
-        }
-        assert analysis_file.get('file_core') == {
-            'content_description': [
-                {
-                    "ontology": "data:3917",
-                    "ontology_label": "Count Matrix",
-                    "text": "DCP/2-generated matrix"
-                }
-            ],
-            'file_name': 'hca_adapter_testing.loom',
-            'format': 'loom'
-        }
+        desired_output_path = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/updated-data/staging/project-level/outputs.json'
+
+        with open(desired_output_path) as f:
+            desired_output = json.load(f)
+
+        assert analysis_file_json == desired_output

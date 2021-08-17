@@ -86,17 +86,6 @@ class LinksFile():
         with open(output_file_path) as f:
             outputs_dict = json.load(f)
 
-        # If project level, output file will be one analysis_file
-        # Use file_name_string to get inputs
-        if project_level:
-            outputs_dict = [outputs_dict]
-
-            # input_uuids is a list, project level will be one file
-            # open first object in the array
-            with open(input_uuids[0]) as f:
-                inputs_file = json.load(f)
-                input_uuids = inputs_file['inputs']
-
         self.file_name_string = file_name_string
         self.outputs = outputs_dict
         self.project_id = project_id
@@ -128,18 +117,11 @@ class LinksFile():
         }
 
     def __inputs__(self):
-        """Add all sequence file inputs to an array and return"""
+        """Add all input files to an array and return"""
         inputs = []
-
-        if self.project_level:
-            # inputs are taken from input_metadata.json for project level links file
-            for input_uuid in self.input_uuids:
-                inputs.append({'input_type': input_uuid['input_type'], 'input_id': input_uuid['input_id']})
-        else:
-            for input_uuid in self.input_uuids:
-                # inputs are generated from input_uuids for intermediate level links file
-                inputs.append({'input_type': "sequence_file", 'input_id': input_uuid})
-
+        for input_uuid in self.input_uuids:
+            inputs.append({'input_type': "analysis_file" if self.project_level else "sequence_file",
+                          'input_id': input_uuid['input_id']})
         return inputs
 
     def __outputs__(self):
@@ -149,7 +131,6 @@ class LinksFile():
         for output in self.outputs:
             output_type = output['describedBy'].split('/')[-1]
             output_id = output['provenance']['document_id']
-
             outputs.append({'output_type': output_type, 'output_id': output_id})
 
         return outputs
@@ -207,7 +188,7 @@ def test_build_links_file(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--project_id', required=True, help='The project ID')
-    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the sequencing input files')
+    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the input files')
     parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file.')
     parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file.')
     parser.add_argument('--project_level', type=bool, default=False, required=False, help='Boolean representing project level vs intermediate level.')
