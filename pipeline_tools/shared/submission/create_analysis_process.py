@@ -64,31 +64,55 @@ class AnalysisProcess():
     describedBy = SCHEMAS["ANALYSIS_PROCESS"]["describedBy"]
     schema_type = SCHEMAS["ANALYSIS_PROCESS"]["schema_type"]
     schema_version = SCHEMAS["ANALYSIS_PROCESS"]["schema_version"]
-    
+
     # Input fields to retrieve from metadata.json
     input_fields = SCHEMAS["ANALYSIS_PROCESS"]["input_fields"]
 
     def __init__(
-            self,
-            input_uuid,
-            references,
-            metadata_json,
-            pipeline_type,
-            workspace_version):
+        self,
+        input_uuid,
+        input_file,
+        pipeline_type,
+        workspace_version,
+        references=[],
+        project_level=False,
+            loom_timestamp=""):
 
-        # Retrieve inputs and tasks from metatdata_json
-        workflow_metadata = format_map.get_workflow_metadata(metadata_json)
-        all_inputs = workflow_metadata["inputs"]
-        process_inputs = format_map.get_workflow_inputs(all_inputs, self.input_fields)
-        process_id = workflow_metadata["id"]
-        workflow_tasks = format_map.get_workflow_tasks(workflow_metadata)
+        if project_level:
+            self.type = {
+                "text": "analysis; merge matrices"
+            }
+            self.tasks = []
+            self.inputs = []
+            self.reference_files = []
 
-        # Retrieve timestamps from workflow_metadata
-        timestamp_start_utc = format_map.format_timestamp(workflow_metadata.get("start"))
-        timestamp_stop_utc = format_map.format_timestamp(workflow_metadata.get("end"))
+            # Retrieve process id from input_file
+            process_id = format_map.get_analysis_workflow_id(str(input_file))
 
-        # Determind analysis_run_type from file path
-        if "cacheCopy" in str(metadata_json):
+            # Retrieve timestamps from loom_timestamp
+            timestamp_start_utc = loom_timestamp
+            timestamp_stop_utc = loom_timestamp
+        else:
+            # Retrieve inputs and tasks from metatdata_json
+            workflow_metadata = format_map.get_workflow_metadata(input_file)
+            all_inputs = workflow_metadata["inputs"]
+            process_inputs = format_map.get_workflow_inputs(all_inputs, self.input_fields)
+            process_id = workflow_metadata["id"]
+            workflow_tasks = format_map.get_workflow_tasks(workflow_metadata)
+
+            # Retrieve timestamps from workflow_metadata
+            timestamp_start_utc = format_map.format_timestamp(workflow_metadata.get("start"))
+            timestamp_stop_utc = format_map.format_timestamp(workflow_metadata.get("end"))
+
+            self.type = {
+                "text": "analysis"
+            }
+            self.tasks = workflow_tasks
+            self.inputs = process_inputs
+            self.reference_files = references
+
+        # Determine analysis_run_type from file path
+        if "cacheCopy" in str(input_file):
             self.analysis_run_type = "copy-forward"
         else:
             self.analysis_run_type = "run"
@@ -100,21 +124,14 @@ class AnalysisProcess():
         process_core = {
             "process_id": process_id
         }
-        type = {
-            "text": "analysis"
-        }
 
         self.input_uuid = input_uuid
         self.workspace_version = workspace_version
-        self.inputs = process_inputs
         self.process_core = process_core
         self.provenance = provenance
-        self.reference_files = references
-        self.tasks = workflow_tasks
         self.timestamp_start_utc = timestamp_start_utc
         self.timestamp_stop_utc = timestamp_stop_utc
         self.pipeline_type = pipeline_type
-        self.type = type
 
     def __analysis_process__(self):
         return {
@@ -150,17 +167,21 @@ class AnalysisProcess():
 # Entry point for unit tests
 def test_build_analysis_process(
     input_uuid,
-    references,
-    metadata_json,
+    input_file,
     pipeline_type,
-        workspace_version):
+    workspace_version,
+    references=[],
+    project_level=False,
+        loom_timestamp=""):
 
     test_analysis_process = AnalysisProcess(
         input_uuid,
-        references,
-        metadata_json,
+        input_file,
         pipeline_type,
-        workspace_version
+        workspace_version,
+        references,
+        project_level,
+        loom_timestamp
     )
     return test_analysis_process.get_json()
 
@@ -170,14 +191,16 @@ def main():
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
+    parser.add_argument("--loom_timestamp", required=False, help="The timestamp for the stratified project matrix loom file")
+    parser.add_argument("--project_level", type=bool, required=False, help="Boolean representing project level vs intermediate level")
     parser.add_argument(
         "--references",
         help="List of UUIDs for the reference genome",
-        required=True,
+        required=False,
         nargs="+",
     )
     parser.add_argument(
-        "--metadata_json",
+        "--input_file",
         required=True,
         help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.",
     )
@@ -186,10 +209,12 @@ def main():
 
     analysis_process = AnalysisProcess(
         args.input_uuid,
-        args.references,
-        args.metadata_json,
+        args.input_file,
         args.pipeline_type,
-        args.workspace_version
+        args.workspace_version,
+        args.references,
+        args.project_level,
+        args.loom_timestamp
     )
 
     # Get the JSON content to be written

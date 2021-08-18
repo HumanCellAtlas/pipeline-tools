@@ -1,0 +1,20 @@
+{
+  "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
+  "file_core": {
+    "content_description": [
+      {
+        "ontology": "data:3917",
+        "ontology_label": "Count Matrix",
+        "text": "DCP/2-generated matrix"
+      }
+    ],
+    "file_name": "hca_adapter_testing.loom",
+    "format": "loom"
+  },
+  "provenance": {
+    "document_id": "a13d652a-468a-541c-bb03-8fb521421fbd",
+    "submission_date": "2021-05-24T12:00:00.000000Z",
+    "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707"
+  },
+  "schema_type": "file"
+}

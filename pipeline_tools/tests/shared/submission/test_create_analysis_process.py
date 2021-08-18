@@ -6,11 +6,16 @@ import pipeline_tools.shared.submission.create_analysis_process as cap
 @pytest.fixture(scope="module")
 def test_data():
     class Data:
-        input_uuid = "heart_1k_test_v2_S1_L001"
+        project_level = True
         pipeline_type = "optimus"
+        input_uuid = "heart_1k_test_v2_S1_L001"
+        loom_timestamp = "2021-07-26T13:12:24.000000Z"
         workspace_version = "2021-05-24T12:00:00.000000Z"
-        metadata_json = "pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json"
         references = "c11000b1-2e69-532b-8c72-03dd4c9617d5"
+        project_level_pipeline_type = "OptimusPostProcessing"
+        project_level_input_uuid = "1fd499c5-f397-4bff-9af0-eb42c37d5fbe"
+        input_file = "pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json"
+        project_level_input_file = "/cromwell_root/fc-c307d7b3-8386-40a1-b32c-73b9e16e0103/28bf5862-3220-4133-92ce-c829f9dcd708/TestHcaAdapter/c4b9a3c3-861e-4e3f-b393-da1b24354ee1/call-target_OptimusPostProcessing/OptimusPostProcessing/7f6c3249-2d24-407d-966f-411d84fbeba8/call-MergeLooms/hca_adapter_testing.loom"
 
     return Data
 
@@ -18,11 +23,11 @@ def test_data():
 class TestCreateAnalysisProcess(object):
     def test_build_analysis_process(self, test_data):
         analysis_process = cap.test_build_analysis_process(
-            test_data.input_uuid,
-            test_data.references,
-            test_data.metadata_json,
-            test_data.pipeline_type,
-            test_data.workspace_version
+            input_uuid=test_data.input_uuid,
+            input_file=test_data.input_file,
+            pipeline_type=test_data.pipeline_type,
+            workspace_version=test_data.workspace_version,
+            references=test_data.references
         )
 
         assert analysis_process.get("analysis_run_type") == "run"
@@ -325,3 +330,38 @@ class TestCreateAnalysisProcess(object):
                 "zone": "us-central1-a,us-central1-b,us-central1-c,us-central1-f"
             }
         ]
+
+
+class TestCreateProjectLevelAnalysisProcess(object):
+    def test_build_analysis_process(self, test_data):
+        analysis_process = cap.test_build_analysis_process(
+            input_uuid=test_data.project_level_input_uuid,
+            input_file=test_data.project_level_input_file,
+            pipeline_type=test_data.pipeline_type,
+            workspace_version=test_data.workspace_version,
+            project_level=test_data.project_level,
+            loom_timestamp=test_data.loom_timestamp
+        )
+
+        assert analysis_process.get("analysis_run_type") == "run"
+        assert analysis_process.get("timestamp_start_utc") == "2021-07-26T13:12:24.000000Z"
+        assert analysis_process.get("timestamp_stop_utc") == "2021-07-26T13:12:24.000000Z"
+        assert analysis_process.get("schema_type") == "process"
+        assert analysis_process.get("analysis_run_type") == "run"
+        assert analysis_process.get("reference_files") == []
+        assert (
+            analysis_process.get("describedBy")
+            == "https://schema.humancellatlas.org/type/process/analysis/12.0.0/analysis_process"
+        )
+        assert analysis_process.get("type") == {
+            "text": "analysis; merge matrices"
+        }
+        assert analysis_process.get("process_core") == {
+            "process_id": "7f6c3249-2d24-407d-966f-411d84fbeba8"
+        }
+        assert analysis_process.get("provenance") == {
+            "document_id": "7f6c3249-2d24-407d-966f-411d84fbeba8",
+            "submission_date": "2021-05-24T12:00:00.000000Z"
+        }
+        assert analysis_process.get("inputs") == []
+        assert analysis_process.get("tasks") == []

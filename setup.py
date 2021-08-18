@@ -42,6 +42,7 @@ setup(
             'parse-metadata=pipeline_tools.shared.submission.parse_cromwell_metadata:main',
             'get-reference-file-details=pipeline_tools.shared.submission.get_reference_details:main',
             'get-process-input-ids=pipeline_tools.shared.submission.get_process_input_ids:main'
+            'copy-adapter-outputs=pipeline_tools.shared.submission.copy_adapter_outputs:main'
         ]
     },
     include_package_data=True,
