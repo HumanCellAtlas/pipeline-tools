@@ -100,8 +100,8 @@ class AnalysisProtocol():
 
         return {
             "document_id": entity_id,
-            "submission_date": self.workspace_version,
-            "update_date": self.workspace_version
+            "submission_date": self.workspace_version, # TODO: check if this matches how we previously set this
+            "update_date": self.workspace_version    # TODO: remove the update date
         }
 
     @property
