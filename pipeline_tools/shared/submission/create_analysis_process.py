@@ -216,7 +216,7 @@ def main():
     parser.add_argument("--loom_timestamp", required=False, help="The timestamp for the stratified project matrix loom file")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser (project stratum string for project level)")
     parser.add_argument("--input_file", required=True, help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.")
-    parser.add_argument("--references", required=False, nargs="+", help="List of UUIDs for the reference genome (UUID for reference is the file name)",)
+    parser.add_argument("--references", required=False, nargs="+", help="File path for the reference genome fasta",)
     parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
 
     args = parser.parse_args()
