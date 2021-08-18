@@ -99,7 +99,7 @@ class AnalysisFile():
 
         file_name = file_name.rsplit("/")[-1]
         entity_type = format_map.get_entity_type(file_name)
-        file_extension = format_map.get_file_format(file_name)
+        file_extension = os.path.splitext(file_name)[1]
 
         # Generate unique file UUID5 by hashing
         # This is deterministic and should always produce the same output given the same input
