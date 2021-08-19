@@ -1,4 +1,6 @@
+import os
 import pytest
+from pathlib import Path
 
 import pipeline_tools.shared.submission.create_analysis_process as cap
 
@@ -14,8 +16,8 @@ def test_data():
         references = "c11000b1-2e69-532b-8c72-03dd4c9617d5"
         project_level_pipeline_type = "OptimusPostProcessing"
         project_level_input_uuid = "1fd499c5-f397-4bff-9af0-eb42c37d5fbe"
-        input_file = "pipeline_tools/tests/data/updated-data/staging/metdata/metadata.json"
-        project_level_input_file = "/cromwell_root/fc-c307d7b3-8386-40a1-b32c-73b9e16e0103/28bf5862-3220-4133-92ce-c829f9dcd708/TestHcaAdapter/c4b9a3c3-861e-4e3f-b393-da1b24354ee1/call-target_OptimusPostProcessing/OptimusPostProcessing/7f6c3249-2d24-407d-966f-411d84fbeba8/call-MergeLooms/hca_adapter_testing.loom"
+        input_file = f'{Path(os.path.split(__file__)[0]).absolute().parents[1]}/updated-data/staging/metadata/metadata.json'
+        project_level_input_file = "/cromwell_root/fc-c307d7b3-8386-40a1-b32c-73b9e16e0103/pipeline_to28bf5862-3220-4133-92ce-c829f9dcd708/TestHcaAdapter/c4b9a3c3-861e-4e3f-b393-da1b24354ee1/call-target_OptimusPostProcessing/OptimusPostProcessing/7f6c3249-2d24-407d-966f-411d84fbeba8/call-MergeLooms/hca_adapter_testing.loom"
 
     return Data
 

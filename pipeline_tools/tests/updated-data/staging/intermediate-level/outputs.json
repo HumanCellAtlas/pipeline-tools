@@ -1,0 +1,35 @@
+[
+  {
+    "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
+    "file_core": {
+      "content_description": [
+        {
+          "ontology": "data:3917",
+          "ontology_label": "Count Matrix",
+          "text": "DCP/2-generated matrix"
+        }
+      ],
+      "file_name": "heart_1k_test_v2_S1_L001.loom",
+      "format": "loom"
+    },
+    "provenance": {
+      "document_id": "24174c3a-dd57-5bf2-b963-93e9d321cd98",
+      "submission_date": "2021-05-24T12:00:00.000000Z",
+      "submitter_id": ""
+    },
+    "schema_type": "file"
+  },
+  {
+    "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
+    "file_core": {
+      "content_description": [],
+      "file_name": "heart_1k_test_v2_S1_L001.bam",
+      "format": "bam"
+    },
+    "provenance": {
+      "document_id": "58e02f7d-4c2c-5817-86fc-65bfd42f655f",
+      "submission_date": "2021-05-24T12:00:00.000000Z"
+    },
+    "schema_type": "file"
+  }
+]

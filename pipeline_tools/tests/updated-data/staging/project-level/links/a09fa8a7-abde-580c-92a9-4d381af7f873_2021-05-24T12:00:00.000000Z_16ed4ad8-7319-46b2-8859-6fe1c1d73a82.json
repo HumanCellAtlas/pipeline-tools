@@ -1,0 +1,30 @@
+{
+  "describedBy": "https://schema.humancellatlas.org/system/2.1.1/links",
+  "links": [
+    {
+      "inputs": [
+        {
+          "input_id": "a49db5bb-e25e-5c41-8fc6-c69edfb4281e",
+          "input_type": "analysis_file"
+        }
+      ],
+      "link_type": "process_link",
+      "outputs": [
+        {
+          "output_id": "a13d652a-468a-541c-bb03-8fb521421fbd",
+          "output_type": "analysis_file"
+        }
+      ],
+      "process_id": "7f6c3249-2d24-407d-966f-411d84fbeba8",
+      "process_type": "analysis_process",
+      "protocols": [
+        {
+          "protocol_id": "432a7422-59b5-5c46-8983-a7953f196781",
+          "protocol_type": "analysis_protocol"
+        }
+      ]
+    }
+  ],
+  "schema_type": "links",
+  "schema_version": "2.1.1"
+}

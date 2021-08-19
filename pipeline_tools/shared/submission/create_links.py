@@ -63,11 +63,12 @@ class LinksFile():
         self,
         project_id,
         input_uuids,
-        file_name_string,
         output_file_path,
+        file_name_string,
         workspace_version,
         analysis_process_path,
-            analysis_protocol_path):
+        analysis_protocol_path,
+            project_level=False):
 
         # Create UUID to save the file as
         file_prehash = f"{file_name_string}"
@@ -90,6 +91,7 @@ class LinksFile():
         self.project_id = project_id
         self.input_uuids = input_uuids
         self.link_type = "process_link"
+        self.project_level = project_level
         self.process_type = "analysis_process"
         self.subgraph_uuid = subgraph_uuid
         self.workspace_version = workspace_version
@@ -115,12 +117,11 @@ class LinksFile():
         }
 
     def __inputs__(self):
-        """Add all sequence file inputs to an array and return"""
+        """Add all input files to an array and return"""
         inputs = []
-
         for input_uuid in self.input_uuids:
-            inputs.append({'input_type': "sequence_file", 'input_id': input_uuid})
-
+            inputs.append({'input_type': "analysis_file" if self.project_level else "sequence_file",
+                          'input_id': input_uuid})
         return inputs
 
     def __outputs__(self):
@@ -130,7 +131,6 @@ class LinksFile():
         for output in self.outputs:
             output_type = output['describedBy'].split('/')[-1]
             output_id = output['provenance']['document_id']
-
             outputs.append({'output_type': output_type, 'output_id': output_id})
 
         return outputs
@@ -140,7 +140,7 @@ class LinksFile():
 
         return [
             {
-                "protocol_type" : self.analysis_protocol['type']['text'],
+                "protocol_type" : "analysis_protocol",
                 "protocol_id" : self.analysis_protocol['provenance']['document_id']
             }
         ]
@@ -165,20 +165,22 @@ class LinksFile():
 def test_build_links_file(
     project_id,
     input_uuids,
-    file_name_string,
     output_file_path,
+    file_name_string,
     workspace_version,
     analysis_process_path,
-        analysis_protocol_path):
+    analysis_protocol_path,
+        project_level=False):
 
     test_links_file = LinksFile(
         project_id,
         input_uuids,
-        file_name_string,
         output_file_path,
+        file_name_string,
         workspace_version,
         analysis_process_path,
-        analysis_protocol_path)
+        analysis_protocol_path,
+        project_level)
 
     return test_links_file.get_json()
 
@@ -186,11 +188,12 @@ def test_build_links_file(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--project_id', required=True, help='The project ID')
-    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the sequencing input files')
+    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the input files (fastq for intermedia/looms for project)')
     parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file.')
     parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file.')
+    parser.add_argument('--project_level', type=bool, default=False, required=False, help='Boolean representing project level vs intermediate level.')
     parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows''within an individual workspace.')
-    parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files).')
+    parser.add_argument('--output_file_path', required=False, help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files).')
     parser.add_argument('--file_name_string', required=True, help='Input ID (a unique input ID to incorproate into the links UUID) OR project stratum string (concatenation of the project, library, species, and organ).')
 
     args = parser.parse_args()
@@ -198,11 +201,12 @@ def main():
     links_file = LinksFile(
         args.project_id,
         args.input_uuids,
-        args.file_name_string,
         args.output_file_path,
+        args.file_name_string,
         args.workspace_version,
         args.analysis_process_path,
-        args.analysis_protocol_path
+        args.analysis_protocol_path,
+        args.project_level
     )
 
     links_file_json = links_file.get_json()

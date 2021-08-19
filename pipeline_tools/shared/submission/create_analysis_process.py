@@ -188,22 +188,13 @@ def test_build_analysis_process(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
+    parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
+    parser.add_argument("--references", required=False, nargs="+", help="List of UUIDs for the reference genome",)
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument("--loom_timestamp", required=False, help="The timestamp for the stratified project matrix loom file")
-    parser.add_argument("--project_level", type=bool, required=False, help="Boolean representing project level vs intermediate level")
-    parser.add_argument(
-        "--references",
-        help="List of UUIDs for the reference genome",
-        required=False,
-        nargs="+",
-    )
-    parser.add_argument(
-        "--input_file",
-        required=True,
-        help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.",
-    )
+    parser.add_argument("--input_file", required=True, help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.")
+    parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
 
     args = parser.parse_args()
 
