@@ -48,6 +48,10 @@ def convert_datetime(timestamp):
     return timestamp.replace('Z', '.000000Z')
 
 
+def get_file_entity_id(input_uuid, entity_type, file_extension):
+    return get_uuid5(f"{input_uuid}{entity_type}{file_extension}")
+
+
 def get_analysis_workflow_id(analysis_output_path):
     """Parse the analysis workflow id from one of its output paths, and write the id to a file so that it is available
     outside of the get_analysis task.
