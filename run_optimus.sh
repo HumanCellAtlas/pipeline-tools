@@ -25,6 +25,7 @@ OUTPUT_FILE_PATH="$(pwd)/outputs.json"
 OUTPUT_FILE_PATH_RENAME="$(pwd)/outputs-intermediate.json"
 
 PROCESS_ID_INTERMEDIATE="151fe264-c670-4c77-a47c-530ff6b3127b"
+PROCESS_ID_PROJECT="16ed4ad8-7319-46b2-8859-6fe1c1d73a82"
 
 INTERMEDIATE_RUN_OUTPUT_FILES=(heart_1k_test_v2_S1_L001.bam heart_1k_test_v2_S1_L001.loom)
 REFERENCE_FASTA="gs://hca-dcp-mint-test-data/yanc-test/GRCm38.primary_assembly.genome.fa"
@@ -34,6 +35,9 @@ LINKS_INPUTS_INTERMEDIATE="heart_1k_test_v2_S1_L001_R1_001.fastq.gz heart_1k_tes
 METADATA_JSON_INTERMEDIATE="$(pwd)/pipeline_tools//tests/updated-data/staging/intermediate-level/metadata.json"
 
 PROJECT_LEVEL_LOOM="dummy-project-level.loom"
+
+
+# INTERMEDIATE_LEVEL
 
 # Create intermediate analysis file
 python3 pipeline_tools/shared/submission/create_analysis_file.py \
@@ -108,3 +112,59 @@ python3 pipeline_tools/shared/submission/create_file_descriptor.py \
 # Rename the output file so we don't overwrite on project run
 mv $OUTPUT_FILE_PATH $OUTPUT_FILE_PATH_RENAME
 
+mv $(pwd)/analysis_files/ $(pwd)/analysis_file-intermediate/
+mv $(pwd)/analysis_protocol/ $(pwd)/analysis_protocol-intermediate/
+mv $(pwd)/analysis_process/ $(pwd)/analysis_process-intermediate/
+mv $(pwd)/links/ $(pwd)/links-intermediate/
+
+
+
+
+# PROJECT_LEVEL 
+
+# Create project analysis file
+python3 pipeline_tools/shared/submission/create_analysis_file.py \
+  --project_level true \
+  --input_uuid "$PROJECT_INPUT_UUID" \
+  --pipeline_type "Optimus" \
+  --workspace_version $WORKSPACE_VERSION \
+  --input_file $PROJECT_LEVEL_LOOM
+
+# Create project process file
+python3 pipeline_tools/shared/submission/create_analysis_process.py \
+  --project_level true \
+  --input_uuid "$PROJECT_INPUT_UUID" \
+  --pipeline_type "Optimus" \
+  --workspace_version $WORKSPACE_VERSION \
+  --input_file $METADATA_JSON_PROJECT \
+  --references $REFERENCE_FASTA
+
+# Create project protocol file
+python3 pipeline_tools/shared/submission/create_analysis_protocol.py \
+  --project_level true \
+  --input_uuid "$PROJECT_INPUT_UUID" \
+  --pipeline_type "Optimus" \
+  --workspace_version $WORKSPACE_VERSION \
+  --pipeline_version $PIPELINE_VERSION
+
+# Create project file descriptor 
+python3 pipeline_tools/shared/submission/create_file_descriptor.py \
+    --size $SIZE \
+    --sha256 $SHA256 \
+    --crc32c $CRC32C \
+    --pipeline_type "Optimus" \
+    --file_path $PROJECT_LEVEL_LOOM \
+    --input_uuid "$PROJECT_INPUT_UUID" \
+    --creation_time $CREATION_TIME \
+    --workspace_version $WORKSPACE_VERSION
+
+# Create intermediate links file
+python3 pipeline_tools/shared/submission/create_links.py \
+  --project_level true \
+  --project_id $PROCESS_ID_PROJECT \
+  --input_uuids "heart_1k_test_v2_S1_L001.loom" \
+  --analysis_process_path $ANALYSIS_PROCESS_PATH \
+  --analysis_protocol_path $ANALYSIS_PROTOCOL_PATH \
+  --workspace_version $WORKSPACE_VERSION \
+  --output_file_path $OUTPUT_FILE_PATH \
+  --file_name_string "$PROJECT_INPUT_UUID" # We should change the naming here, its confusing
