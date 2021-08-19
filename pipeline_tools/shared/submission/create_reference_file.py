@@ -176,6 +176,7 @@ def main():
     # Create filename based on file id and version
     reference_json_filename = f'{reference_file.id}_{reference_file.work_version}.json'
 
+    print("Writing reference file metadata to disk...")
     # Write the reference_file metadata
     with open(reference_json_filename, 'w') as f:
         json.dump(reference_json, f, indent=2, sort_keys=True)
