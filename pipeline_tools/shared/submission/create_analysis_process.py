@@ -78,82 +78,105 @@ class AnalysisProcess():
         project_level=False,
             loom_timestamp=""):
 
-        if project_level:
-            self.type = {
-                "text": "analysis; merge matrices"
-            }
-            self.tasks = []
-            self.inputs = []
-            self.reference_files = []
-
-            # Retrieve process id from input_file
-            process_id = format_map.get_analysis_workflow_id(str(input_file))
-
-            # Retrieve timestamps from loom_timestamp
-            timestamp_start_utc = loom_timestamp
-            timestamp_stop_utc = loom_timestamp
-        else:
-            # Retrieve inputs and tasks from metatdata_json
-            workflow_metadata = format_map.get_workflow_metadata(input_file)
-            all_inputs = workflow_metadata["inputs"]
-            process_inputs = format_map.get_workflow_inputs(all_inputs, self.input_fields)
-            process_id = workflow_metadata["id"]
-            workflow_tasks = format_map.get_workflow_tasks(workflow_metadata)
-
-            # Retrieve timestamps from workflow_metadata
-            timestamp_start_utc = format_map.format_timestamp(workflow_metadata.get("start"))
-            timestamp_stop_utc = format_map.format_timestamp(workflow_metadata.get("end"))
-
-            self.type = {
-                "text": "analysis"
-            }
-            self.tasks = workflow_tasks
-            self.inputs = process_inputs
-            self.reference_files = references
-
-        # Determine analysis_run_type from file path
-        if "cacheCopy" in str(input_file):
-            self.analysis_run_type = "copy-forward"
-        else:
-            self.analysis_run_type = "run"
-
-        provenance = {
-            "document_id": process_id,
-            "submission_date": workspace_version  # TODO: check this too
-        }
-        process_core = {
-            "process_id": process_id
-        }
-
         self.input_uuid = input_uuid
-        self.workspace_version = workspace_version
-        self.process_core = process_core
-        self.provenance = provenance
-        self.timestamp_start_utc = timestamp_start_utc
-        self.timestamp_stop_utc = timestamp_stop_utc
+        self.input_file = input_file
+        self.reference_files = references
         self.pipeline_type = pipeline_type
+        self.project_level = project_level
+        self.loom_timestamp = loom_timestamp
+        self.workspace_version = workspace_version
 
     def __analysis_process__(self):
         return {
-            "analysis_run_type" : self.analysis_run_type,
+            "analysis_run_type" : self.__run_type__(),
             "describedBy" : self.describedBy,
-            "inputs" : self.inputs,
-            "process_core" : self.process_core,
-            "provenance" : self.provenance,
-            "reference_files" : self.reference_files,
+            "inputs" : self.__inputs__(),
+            "process_core" : self.__process_core__(),
+            "provenance" : self.__provenance__(),
+            "reference_files" : self.__references_files__(),
             "schema_type" : self.schema_type,
-            "tasks" : self.tasks,
-            "timestamp_start_utc" : self.timestamp_start_utc,
-            "timestamp_stop_utc" : self.timestamp_stop_utc,
-            "type": self.type
+            "tasks" : self.__tasks__(),
+            "timestamp_start_utc" : self.__timestamp__()[0],
+            "timestamp_stop_utc" : self.__timestamp__()[1],
+            "type": self.__type__()
         }
 
     def get_json(self):
         return self.__analysis_process__()
 
+    def __type__(self):
+        """Return type of process being completed based on project or intermediate"""
+
+        if self.project_level:
+            return {"text": "analysis; merge matrices"}
+
+        return {"text": "analysis"}
+
+    def __tasks__(self):
+        """Return the tasks of the pipeline run based on project or intermediate"""
+
+        if self.project_level:
+            return []
+
+        workflow_metadata = self.__metadata__()
+        return format_map.get_workflow_tasks(workflow_metadata)
+
+    def __references_files__(self):
+        """Return the hashed representation of the reference fasta file path"""
+
+        return [format_map.get_file_entity_id(r,
+                format_map.get_entity_type(r),
+                os.path.splitext(r)[1])
+                for r in self.reference_files]
+
+    def __inputs__(self):
+        """Return the inputs to the pipeline based on project or intermediate"""
+
+        if self.project_level:
+            return []
+
+        workflow_metadata = self.__metadata__()
+        all_inputs = workflow_metadata["inputs"]
+
+        return format_map.get_workflow_inputs(all_inputs, self.input_fields)
+
+    def __metadata__(self):
+
+        return format_map.get_workflow_metadata(self.input_file)
+
+    def __process_id__(self):
+
+        workflow_metadata = self.__metadata__()
+
+        return workflow_metadata["id"]
+
+    def __timestamp__(self):
+
+        workflow_metadata = self.__metadata__()
+        start, end = format_map.format_timestamp(workflow_metadata["start"]), format_map.format_timestamp(workflow_metadata["end"])
+
+        return [start, end]
+
+    def __provenance__(self):
+
+        return {
+            "document_id": self.__process_id__(),
+            "submission_date": self.workspace_version
+        }
+
+    def __process_core__(self):
+
+        return {
+            "process_id": self.__process_id__()
+        }
+
+    def __run_type__(self):
+
+        return "copy-forward" if "cacheCopy" in self.input_file else "run"
+
     @property
     def process_id(self):
-        return self.provenance["document_id"]
+        return self.__process_id__()
 
     @property
     def uuid(self):
@@ -193,7 +216,13 @@ def main():
     parser.add_argument("--references", required=False, nargs="+", help="List of UUIDs for the reference genome",)
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument("--loom_timestamp", required=False, help="The timestamp for the stratified project matrix loom file")
+<<<<<<< HEAD
     parser.add_argument("--input_file", required=True, help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.")
+=======
+    parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser (project stratum string for project level)")
+    parser.add_argument("--input_file", required=True, help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.")
+    parser.add_argument("--references", required=False, nargs="+", help="File path for the reference genome fasta",)
+>>>>>>> wd_analysis_process
     parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
 
     args = parser.parse_args()

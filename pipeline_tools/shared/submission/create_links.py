@@ -127,7 +127,6 @@ class LinksFile():
     def __outputs__(self):
         """Add all analysis file outputs to an array and return"""
         outputs = []
-
         for output in self.outputs:
             output_type = output['describedBy'].split('/')[-1]
             output_id = output['provenance']['document_id']
@@ -137,7 +136,6 @@ class LinksFile():
 
     def __protocols__(self):
         """Add analysis protocol to an array and return"""
-
         return [
             {
                 "protocol_type" : "analysis_protocol",
