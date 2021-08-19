@@ -85,7 +85,6 @@ class AnalysisFile():
 
     def get_outputs_json(self):
         """Get the outputs.json array based on the project level. If project level then only return loom
-<<<<<<< HEAD
 
         Returns:
             outputs(array): array of /metadata/analysis_file/*
@@ -97,24 +96,6 @@ class AnalysisFile():
 
     # Get file details by file name
     def __get_file_save_id__(self, file_name):
-        # Get the type of file currently being processed
-        entity_type = format_map.get_entity_type(file_name)
-
-        # Grab the extension of the file thats been submitted
-        file_extension = format_map.get_file_format(file_name)
-=======
-
-        Returns:
-            outputs(array): array of /metadata/analysis_file/*
-        """
-
-        if self.project_level:
-            return [self.get_json("loom")]
-        return [self.get_json("loom"), self.get_json("bam")]
-
-    # Get file details by file name
-    def __get_file_save_id__(self, file_name):
->>>>>>> wd_analysis_process
 
         file_name = file_name.rsplit("/")[-1]
         entity_type = format_map.get_entity_type(file_name)
@@ -124,15 +105,9 @@ class AnalysisFile():
         # This is deterministic and should always produce the same output given the same input
         # file_save_id is used to save the analysis file - {file_save_id}_{workspace_verison}.json
         self.file_save_id = format_map.get_uuid5(f"{self.input_uuid}{entity_type}{file_extension}")
-<<<<<<< HEAD
 
         return self.file_save_id
 
-=======
-
-        return self.file_save_id
-
->>>>>>> wd_analysis_process
     def __get_content_by_type__(self):
         """Get JSON info for bam and loom analysis files and save"""
         outputs = self.outputs
@@ -212,11 +187,7 @@ def main():
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
-<<<<<<< HEAD
-    parser.add_argument("--input_file", required=True, help="Path to json file containing metadata for intermediate level, path to intermediate bam analysis file for project level")
-=======
     parser.add_argument("--input_file", required=True, help="Path to metadata.json for intermediate level, path to merged loom file for project level")
->>>>>>> wd_analysis_process
 
     args = parser.parse_args()
 
