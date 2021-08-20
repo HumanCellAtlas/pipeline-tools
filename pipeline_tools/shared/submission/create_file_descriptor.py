@@ -183,6 +183,7 @@ def main():
     # Generate filename based on UUID and version
     descriptor_json_filename = f"{file_descriptor.entity_id}_{file_descriptor.work_version}.json"
 
+    print(f"Writing {file_descriptor.extension} descriptor file to disk...")
     with open(descriptor_json_filename, 'w') as f:
         json.dump(descriptor_json, f, indent=2, sort_keys=True)
 
