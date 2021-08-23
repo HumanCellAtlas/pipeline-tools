@@ -118,7 +118,6 @@ class AnalysisFile():
                     "provenance": {
                         "document_id": self.__get_file_save_id__(outputs[output]),
                         "submission_date": self.workspace_version,
-                        "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707" if self.project_level else ""
                     },
                     "file_core": {
                         "file_name": outputs[output].split("/")[-1],
@@ -126,6 +125,8 @@ class AnalysisFile():
                         "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
                     }
                 }
+                if self.project_level:
+                    self.loom_output["provenance"]["submitter_id"] = "e67aaabe-93ea-564a-aa66-31bc0857b707"
             elif ".bam" in output:
                 # Generate bam output
                 self.bam_output = {
@@ -211,7 +212,7 @@ def main():
     print("Writing analysis_file output(s) to disk...")
     for output in analysis_file_json:
         file_save_id = output["provenance"]["document_id"]
-        with open(f"analysis_files/{file_save_id}_{analysis_file.work_version}.json", "w") as f:
+        with open(f"{file_save_id}_{analysis_file.work_version}.json", "w") as f:
             json.dump(output, f, indent=2, sort_keys=True)
 
 

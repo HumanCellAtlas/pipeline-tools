@@ -246,7 +246,7 @@ def main():
     if not os.path.exists("analysis_process"):
         os.mkdir("analysis_process")
 
-    with open(f'analysis_process/{analysis_process_filename}', 'w') as f:
+    with open(f'{analysis_process_filename}', 'w') as f:
         json.dump(analysis_process_json, f, indent=2, sort_keys=True)
 
 
