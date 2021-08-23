@@ -213,7 +213,7 @@ def main():
         os.mkdir("links")
 
     print("Writing links file to disk...")
-    with open(f'links/{links_file.uuid}_{links_file.version}_{links_file.project}.json', 'w') as f:
+    with open(f'{links_file.uuid}_{links_file.version}_{links_file.project}.json', 'w') as f:
         json.dump(links_file_json, f, indent=2, sort_keys=True)
 
 
