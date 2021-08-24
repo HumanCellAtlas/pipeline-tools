@@ -176,9 +176,6 @@ def main():
     # Create filename based on file id and version
     reference_json_filename = f'{reference_file.id}_{reference_file.work_version}.json'
 
-    if not os.path.exists("reference_metadata"):
-        os.mkdir("reference_metadata")
-
     print("Writing reference file metadata to disk...")
     # Write the reference_file metadata
 

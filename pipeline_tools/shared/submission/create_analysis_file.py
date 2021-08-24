@@ -201,9 +201,6 @@ def main():
     )
 
     # Write analysis file for each file type
-    if not os.path.exists("analysis_files"):
-        os.mkdir("analysis_files")
-
     print("Writing outputs.json to disk...")
     analysis_file_json = analysis_file.get_outputs_json()
     with open("outputs.json", "w") as f:
