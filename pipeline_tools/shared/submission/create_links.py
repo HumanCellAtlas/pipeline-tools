@@ -214,9 +214,7 @@ def main():
 
     links_file_json = links_file.get_json()
 
-    if not os.path.exists("links"):
-        os.mkdir("links")
-
+    # Write links to file
     print("Writing links file to disk...")
     with open(f'{links_file.uuid}_{links_file.version}_{links_file.project}.json', 'w') as f:
         json.dump(links_file_json, f, indent=2, sort_keys=True)

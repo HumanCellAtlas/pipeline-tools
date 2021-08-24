@@ -160,9 +160,6 @@ def main():
 
     # Write analysis_protocol to file
     print("Writing analysis_protocol.json to disk...")
-    if not os.path.exists("analysis_protocol"):
-        os.mkdir("analysis_protocol")
-
     with open(f"{analysis_protocol_filename}", "w") as f:
         json.dump(analysis_protocol_json, f, indent=2, sort_keys=True)
 

@@ -244,10 +244,6 @@ def main():
 
     # Write analysis_process to file
     print('Writing analysis_process.json to disk...')
-    if not os.path.exists("analysis_process"):
-        os.mkdir("analysis_process")
-    print(analysis_process_filename)
-    print(analysis_process_json)
     with open(f'{analysis_process_filename}', 'w') as f:
         json.dump(analysis_process_json, f, indent=2, sort_keys=True)
 
