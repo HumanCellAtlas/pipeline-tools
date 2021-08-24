@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import json
-import os
+
 
 from pipeline_tools.shared.submission import format_map
 from pipeline_tools.shared.schema_utils import SCHEMAS
