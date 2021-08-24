@@ -4,6 +4,7 @@ import json
 import os
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
+from distutils.util import strtobool
 
 
 class AnalysisProtocol():
@@ -138,7 +139,7 @@ def main():
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline (SS2, Optimus or OptimusPostProcessing)")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
-    parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
+    parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
     parser.add_argument("--pipeline_version", required=True, help="The version of the pipeline, currently provided by the label of the adapter workflow around the analysis workflow.")
 
     args = parser.parse_args()

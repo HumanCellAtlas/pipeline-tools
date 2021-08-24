@@ -5,6 +5,7 @@ import os
 
 from pipeline_tools.shared.submission import format_map
 from pipeline_tools.shared.schema_utils import SCHEMAS
+from distutils.util import strtobool
 
 
 class LinksFile():
@@ -189,9 +190,9 @@ def main():
     parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the input files (fastq for intermedia/looms for project)')
     parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file.')
     parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file.')
-    parser.add_argument('--project_level', type=bool, default=False, required=False, help='Boolean representing project level vs intermediate level.')
+    parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
     parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows''within an individual workspace.')
-    parser.add_argument('--output_file_path', required=False, nargs='+', help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files).')
+    parser.add_argument('--output_file_path', required=True, nargs='+', help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files).')
     parser.add_argument('--file_name_string', required=True, help='Input ID (a unique input ID to incorproate into the links UUID) OR project stratum string (concatenation of the project, library, species, and organ).')
 
     args = parser.parse_args()

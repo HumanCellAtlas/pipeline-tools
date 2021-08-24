@@ -181,11 +181,7 @@ def main():
 
     print("Writing reference file metadata to disk...")
     # Write the reference_file metadata
-<<<<<<< HEAD
-    with open(f"reference_metadata/{reference_json_filename}", 'w') as f:
-=======
     with open(f"{reference_json_filename}", 'w') as f:
->>>>>>> baad8e1a3986d7f791e3869e57937a5b57e9c3a8
         json.dump(reference_json, f, indent=2, sort_keys=True)
 
     # Write the reference_file id to a file

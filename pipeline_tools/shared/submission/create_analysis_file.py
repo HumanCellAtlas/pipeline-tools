@@ -4,6 +4,7 @@ import json
 import argparse
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
+from distutils.util import strtobool
 
 
 class AnalysisFile():
@@ -149,6 +150,7 @@ class AnalysisFile():
         """
 
         if self.project_level:
+            print("Using project-level outputs....")
             return {"project_level.loom" : self.input_file}
 
         # If intermediate then get the bam/loom outputs from metadata.json
@@ -187,7 +189,7 @@ def main():
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
-    parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
+    parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
     parser.add_argument("--input_file", required=True, help="Path to metadata.json for intermediate level, path to merged loom file for project level")
 
     args = parser.parse_args()
