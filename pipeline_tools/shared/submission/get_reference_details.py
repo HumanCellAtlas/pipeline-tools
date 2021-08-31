@@ -42,7 +42,7 @@ def get_reference_type(reference_filename):
     :param reference_filename:
     :return: the referecne type for the specified file
 
-    This field is an enu with the following possiblle values:
+    This field is an enu with the following possible values:
     'genome sequence',
     'transcriptome sequence',
     'annotation reference',
@@ -50,7 +50,7 @@ def get_reference_type(reference_filename):
     'genome sequence index'
     """
     if "genome" in reference_filename:
-        return "genome sequeence"
+        return "genome sequence"
     else:
         raise UnknownReferenceError('Reference with unknown "reference type"')
 
