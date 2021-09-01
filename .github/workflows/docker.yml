@@ -10,23 +10,7 @@ jobs:
         run: |
           echo "Authenticating docker to gcloud ..."
 
-          echo ${{ secrets.GCLOUD_SERVICE_KEY }} | python -m base64 -d >/tmp/key.json 
-          cat /tmp/key.json
-
-          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io then
-              echo "Logged in to google cloud ..."
-          else
-            echo "Docker login failed. Exiting ..."
-            exit 1
-          fi
-
-          BRANCH_NAME=${GITHUB_REF#refs/heads/}
-          REPOSITORY=us.gcr.io/broad-gotc-prod/pipeline_tools
-
-          docker build -t ${REPOSITORY}:${BRANCH_NAME} .
-          docker push ${REPOSITORY}:${BRANCH_NAME}
-
-          echo "Successfully pushed to ${REPOSITORY}:${BRANCH_NAME}"
+          docker build -t foo:temp .
 
   build-master:
     runs-on: ubuntu-20.04
@@ -42,7 +26,7 @@ jobs:
             exit 1
           fi
 
-          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io then
+          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io; then
               echo "Logged in to google cloud ..."
           else
             echo "Docker login failed. Exiting ..."
