@@ -42,8 +42,8 @@ jobs:
         export TIMESTAMP=$(date +"%s")
 
         echo "Building ${IMAGE}:latest"
-        
-        docker build -t "${IMAGE}:latest"
+
+        docker build -t "${IMAGE}:latest" .
         docker tag "${IMAGE}:latest" "${IMAGE}:master_${TIMESTAMP}"
 
         echo "Pushing ${IMAGE}:latest"
