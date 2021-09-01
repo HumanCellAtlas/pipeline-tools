@@ -52,12 +52,16 @@ class AnalysisFile():
         input_file,
         pipeline_type,
         workspace_version,
-            project_level=False):
+        project_level=False,
+        ss2_bam_file="",
+            ss2_bai_file=""):
 
         self.input_file = input_file
         self.input_uuid = input_uuid
         self.project_level = project_level
         self.pipeline_type = pipeline_type
+        self.ss2_bam_file = ss2_bam_file
+        self.ss2_bai_file = ss2_bai_file
         self.workspace_version = workspace_version
         self.outputs = self.__pipeline_outputs__()
 
@@ -135,7 +139,7 @@ class AnalysisFile():
         """Get JSON info for bam and loom analysis files and save"""
         outputs = self.outputs
         for output in self.outputs:
-            if ".loom" in output:
+            if output.endswith(".loom"):
                 # Generate loom output
                 self.loom_output = {
                     "provenance": {
@@ -150,7 +154,7 @@ class AnalysisFile():
                 }
                 if self.project_level:
                     self.loom_output["provenance"]["submitter_id"] = "e67aaabe-93ea-564a-aa66-31bc0857b707"
-            elif ".bam" in output:
+            elif output.endswith(".bam"):
                 # Generate bam output
                 self.bam_output = {
                     "provenance": {
@@ -163,7 +167,8 @@ class AnalysisFile():
                         "content_description": []
                     }
                 }
-            elif ".bai" in output:
+            elif output.endswith(".bai"):
+                # Generate bai output
                 self.bai_output = {
                     "provenance": {
                         "document_id": self.__get_file_save_id__(outputs[output]),
@@ -179,6 +184,8 @@ class AnalysisFile():
     def __pipeline_outputs__(self):
         """Return dict of the outputs that were produced by the pipeline (single loom for project, metadata.json for intermediate)
 
+        If pipeline is ss2 then we use localized intermediate level bai and bam file
+
         Returns:
             outputs(dict): output produced by the pipeline run
         """
@@ -187,9 +194,14 @@ class AnalysisFile():
             print("Using project-level outputs....")
             return {"project_level.loom" : self.input_file}
 
-        # If intermediate then get the bam/loom/bai outputs from metadata.json
-        metadata_json = format_map.get_workflow_metadata(self.input_file)
-        return metadata_json["outputs"]
+        # If pipeline type is optimus then we can can get the intermediate outputs from metadata.json
+        if self.pipeline_type.lower == "optimus":
+            # If intermediate then get the bam/loom outputs from metadata.json
+            metadata_json = format_map.get_workflow_metadata(self.input_file)
+            return metadata_json["outputs"]
+
+        # If pipeline type is ss2 then create 'outputs' by adding the localized file to an object
+        return {"ss2_intermediate.bai": self.ss2_bai_file, "ss2_intermediate.bam": self.ss2_bam_file}
 
     @property
     def uuid(self):
@@ -224,7 +236,9 @@ def main():
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
-    parser.add_argument("--input_file", required=True, help="Path to metadata.json for intermediate level, path to merged loom file for project level")
+    parser.add_argument("--input_file", required=False, help="Path to metadata.json for intermediate level, path to merged loom file for project level")
+    parser.add_argument("--ss2_bam_file", required=False, help="Localized path to intermediate ss2 bam file")
+    parser.add_argument("--ss2_bai_file", required=False, help="Localized path to intermediate ss2 bai file")
 
     args = parser.parse_args()
 
@@ -233,7 +247,9 @@ def main():
         args.input_file,
         args.pipeline_type,
         args.workspace_version,
-        args.project_level
+        args.project_level,
+        args.ss2_bam_file,
+        args.ss2_bai_file
     )
 
     # Write analysis file for each file type
