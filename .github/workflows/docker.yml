@@ -18,7 +18,7 @@ jobs:
 
   build-master:
     runs-on: ubuntu-20.04
-    if: github.event_name == pull_request && contains ('refs/heads/master', github.ref)
+    if: github.event_name == 'pull_request' && contains ('refs/heads/master', github.ref)
     steps:
       - uses: actions/checkout@v2
       - name: Get time stamp
