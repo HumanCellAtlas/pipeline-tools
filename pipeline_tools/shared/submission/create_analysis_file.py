@@ -71,21 +71,24 @@ class AnalysisFile():
                 "describedBy": self.describedBy,
                 "file_core": self.bam_output["file_core"],
                 "provenance": self.bam_output["provenance"],
-                "schema_type": self.schema_type
+                "schema_type": self.schema_type,
+                "schema_version": self.schema_version
             }
         elif "loom" == file_type:
             return {
                 "describedBy": self.describedBy,
                 "file_core": self.loom_output["file_core"],
                 "provenance": self.loom_output["provenance"],
-                "schema_type": self.schema_type
+                "schema_type": self.schema_type,
+                "schema_version": self.schema_version
             }
         elif "bai" == file_type:
             return {
                 "describedBy": self.describedBy,
                 "file_core": self.bai_output["file_core"],
                 "provenance": self.bai_output["provenance"],
-                "schema_type": self.schema_type
+                "schema_type": self.schema_type,
+                "schema_version": self.schema_version
             }
         else:
             return {}
