@@ -1,5 +1,5 @@
 name: Build and Push to GCR
-on: [pull_request, push]
+on: [push]
 env:
   IMAGE: us.gcr.io/broad-gotc-prod/pipeline-tools
 
@@ -37,7 +37,7 @@ jobs:
         
     # Build image for merge to master
     - name: Build/Push master
-      if: github.event_name == 'pull_request' && contains ('refs/heads/master', github.ref)
+      if: contains ('refs/heads/master', github.ref)
       run: |
         export TIMESTAMP=$(date "%s")
         
