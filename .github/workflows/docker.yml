@@ -7,14 +7,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Get branch name
-        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
         with:
           gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
           registry: gcr.io
           project_id: broad-gotc-prod
           image_name: pipeline-tools
-          image_tag: ${BRANCH_NAME}
+          image_tag: ${ env.BRANCH_NAME }
 
   build-master:
     runs-on: ubuntu-20.04
@@ -22,7 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Get time stamp
-        run: echo "::set-env name=TIMESTAMP::$(echo $(date +"%s")"
+        run: |
+          echo "TIME_STAMP=$(date +"%s")" >> $GITHUB_ENV
       - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
         with:
           gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
@@ -36,4 +38,4 @@ jobs:
           registry: gcr.io
           project_id: broad-gotc-prod
           image_name: pipeline-tools
-          image_tag: master_${TIMESTAMP}
+          image_tag: master_${ env.TIMESTAMP }
