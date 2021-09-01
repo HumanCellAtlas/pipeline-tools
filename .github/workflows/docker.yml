@@ -20,7 +20,7 @@ jobs:
       
     # Configure docker to use gcloud command-line
     - run: |
-        gcloud auth configure docker
+        gcloud auth configure-docker
     
     # Build image for each branch push
     - name: Build/Push all
