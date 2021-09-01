@@ -11,8 +11,9 @@ jobs:
           echo "Authenticating docker to gcloud ..."
 
           echo ${{ secrets.GCLOUD_SERVICE_KEY }} | python -m base64 -d > /tmp/key.json 
+          cat /tmp/key.json
 
-          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io; then
+          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io then
               echo "Logged in to google cloud ..."
           else
             echo "Docker login failed. Exiting ..."
@@ -41,7 +42,7 @@ jobs:
             exit 1
           fi
 
-          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io; then
+          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io then
               echo "Logged in to google cloud ..."
           else
             echo "Docker login failed. Exiting ..."
