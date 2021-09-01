@@ -10,10 +10,7 @@ jobs:
         run: |
           echo "Authenticating docker to gcloud ..."
 
-          if ! echo ${{ secrets.GCLOUD_SERVICE_KEY }} | python -m base64 -d > /tmp/key.json 2>/dev/null; then
-            echo "Failed to decode gcloud_service_key -- did you forget to encode it using 'python -m base64 -e < yourkey.json'?"
-            exit 1
-          fi
+          echo ${{ secrets.GCLOUD_SERVICE_KEY }} | python -m base64 -d > /tmp/key.json 
 
           if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io; then
               echo "Logged in to google cloud ..."
