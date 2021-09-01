@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import argparse
 import json
-import os
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
 from distutils.util import strtobool
@@ -75,6 +74,7 @@ class AnalysisProtocol():
             "protocol_core": self.protocol_core,
             "provenance": self.__get_provenance(),
             "schema_type": self.schema_type,
+            "schema_version" : self.schema_version,
             "type": self.type
         }
 

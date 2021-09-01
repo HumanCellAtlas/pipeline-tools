@@ -93,6 +93,7 @@ class Descriptor():
         return {
             "describedBy" : self.describedBy,
             "schema_type" : self.schema_type,
+            "schema_version" : self.schema_version,
             "content_type" : self.content_type,
             "size" : self.size,
             "sha256" : self.sha256,

@@ -96,6 +96,7 @@ class AnalysisProcess():
             "provenance" : self.__provenance__(),
             "reference_files" : self.__references_files__(),
             "schema_type" : self.schema_type,
+            "schema_version" : self.schema_version,
             "tasks" : self.__tasks__(),
             "timestamp_start_utc" : self.__timestamp__()[0],
             "timestamp_stop_utc" : self.__timestamp__()[1],
