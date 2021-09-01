@@ -39,7 +39,7 @@ jobs:
     - name: Build/Push master
       if: contains ('refs/heads/master', github.ref)
       run: |
-        export TIMESTAMP=$(date "%s")
+        export TIMESTAMP=$(date +"%s")
         
         echo "Tagging ${IMAGE}:latest"
         echo "Tagging ${IMAGE}:master_${TIMESTAMP}"
