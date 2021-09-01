@@ -32,7 +32,9 @@ jobs:
         docker build -t "${IMAGE}:${BRANCH}" .
 
         echo "Pushing ${IMAGE}:${BRANCH}"
-      
+        
+        docker push "${IMAGE}:${BRANCH}"
+        
     # Build image for merge to master
     - name: Build/Push master
       if: github.event_name == 'pull_request' && contains ('refs/heads/master', github.ref)
