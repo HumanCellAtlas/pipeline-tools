@@ -40,12 +40,11 @@ jobs:
       if: contains ('refs/heads/master', github.ref)
       run: |
         export TIMESTAMP=$(date +"%s")
-        
-        echo "Tagging ${IMAGE}:latest"
-        echo "Tagging ${IMAGE}:master_${TIMESTAMP}"
 
-        docker tag "${IMAGE}:${BRANCH}" "${IMAGE}:latest"
-        docker tag "${IMAGE}:${BRANCH}" "${IMAGE}:master_${TIMESTAMP}"
+        echo "Building ${IMAGE}:latest"
+        
+        docker build -t "${IMAGE}:latest"
+        docker tag "${IMAGE}:latest" "${IMAGE}:master_${TIMESTAMP}"
 
         echo "Pushing ${IMAGE}:latest"
         echo "Pushing ${IMAGE}:master_${TIMESTAMP}"
