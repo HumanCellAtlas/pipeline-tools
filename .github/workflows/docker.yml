@@ -1,45 +1,62 @@
 name: Build and Push to GCR
 on: [pull_request, push]
+env:
+  IMAGE: us.gcr.io/broad-gotc-prod/pipeline-tools
+
 jobs: 
-  build-all:
-    runs-on: ubuntu-20.04
-    if: github.event_name != 'pull_request'
+  build-push:
+    name: Build and Push
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Get branch name
-        run: |
-          echo "Authenticating docker to gcloud ..."
 
-          docker build -t foo:temp .
+    - name: Checkout
+      uses: actions/checkout@v2
 
-  build-master:
-    runs-on: ubuntu-20.04
-    if: github.event_name == 'pull_request' && contains ('refs/heads/master', github.ref)
-    steps:
-      - uses: actions/checkout@v2
-      - name: Get time stamp
-        run: |
-          echo "Authenticating docker to gcloud ..."
+    # Setup gcloud CLI
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_keys: ${{ secrets.GCLOUD_SERVICE_KEY }}
+      
+    # Configure docker to use gcloud command-line
+    - run: |
+        gcloud auth configure docker
+    
+    # Build image for each branch push
+    - name: Build/Push all
+      run: |
+        export BRANCH=${GITHUB_REF#refs/heads/}
 
-          if ! echo ${{ secrets.GCLOUD_SERVICE_KEY }} | python -m base64 -d >/ tmp/key.json 2>/dev/null; then
-            echo "Failed to decode gcloud_service_key -- did you forget to encode it using 'python -m base64 -e < yourkey.json'?"
-            exit 1
-          fi
+        echo "Building ${IMAGE}:${BRANCH}"
 
-          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io; then
-              echo "Logged in to google cloud ..."
-          else
-            echo "Docker login failed. Exiting ..."
-            exit 1
-          fi
+        docker build -t "${IMAGE}:${BRANCH}" .
 
-          REPOSITORY=us.gcr.io/broad-gotc-prod/pipeline_tools
-          TIMESTAMP=$(date +"%s")
+        echo "Pushing ${IMAGE}:${BRANCH}"
+      
+    # Build image for merge to master
+    - name: Build/Push master
+      if: github.event_name == 'pull_request' && contains ('refs/heads/master', github.ref)
+      run: |
+        export TIMESTAMP=$(date "%s")
+        
+        echo "Tagging ${IMAGE}:latest"
+        echo "Tagging ${IMAGE}:master_${TIMESTAMP}"
 
-          docker build -t ${REPOSITORY}:latest .
-          docker push ${REPOSITORY}:latest
+        docker tag "${IMAGE}:${BRANCH}" "${IMAGE}:latest"
+        docker tag "${IMAGE}:${BRANCH}" "${IMAGE}:master_${TIMESTAMP}"
 
-          docker tag ${REPOSITORY}:latest ${REPOSITORY}:master_${TIMESTAMP}
-          docker push ${REPOSITORY}:master_${TIMESTAMP}
+        echo "Pushing ${IMAGE}:latest"
+        echo "Pushing ${IMAGE}:master_${TIMESTAMP}"
 
-          echo "Successfully pushed to ${REPOSITORY}:${BRANCH_NAME}"
+        docker push "${IMAGE}:latest"
+        docker push "${IMAGE}:master_${TIMESTAMP}"
+
+    - run: |
+        echo "Successfully completed"
+
+        
+        
+
+
+        
+    
