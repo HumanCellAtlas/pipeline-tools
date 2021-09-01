@@ -1,0 +1,39 @@
+name: Build and Push to GCR
+on: [pull_request, push]
+jobs: 
+  build-all:
+    runs-on: ubuntu-20.04
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get branch name
+        run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+      - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
+        with:
+          gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
+          registry: gcr.io
+          project_id: broad-gotc-prod
+          image_name: pipeline-tools
+          image_tag: ${BRANCH_NAME}
+
+  build-master:
+    runs-on: ubuntu-20.04
+    if: github.event_name == pull_request && contains ('refs/heads/master', github.ref)
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get time stamp
+        run: echo "::set-env name=TIMESTAMP::$(echo $(date +"%s")"
+      - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
+        with:
+          gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
+          registry: gcr.io
+          project_id: broad-gotc-prod
+          image_name: pipeline-tools
+          image_tag: latest
+      - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
+        with:
+          gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
+          registry: gcr.io
+          project_id: broad-gotc-prod
+          image_name: pipeline-tools
+          image_tag: master_${TIMESTAMP}
