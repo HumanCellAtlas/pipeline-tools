@@ -10,7 +10,7 @@ jobs:
         run: |
           echo "Authenticating docker to gcloud ..."
 
-          echo ${{ secrets.GCLOUD_SERVICE_KEY }} | python -m base64 -d > /tmp/key.json 
+          echo ${{ secrets.GCLOUD_SERVICE_KEY }} | python -m base64 -d >/tmp/key.json 
           cat /tmp/key.json
 
           if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io then
