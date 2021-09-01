@@ -8,14 +8,27 @@ jobs:
       - uses: actions/checkout@v2
       - name: Get branch name
         run: |
-          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-      - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
-        with:
-          gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          registry: us.gcr.io
-          project_id: broad-gotc-prod
-          image_name: pipeline-tools
-          image_tag: ${ env.BRANCH_NAME }
+          echo "Authenticating docker to gcloud ..."
+
+          if ! echo ${{secrets.GCLOUD_SERVICE_KEY}} | python -m base64 -d >/tmp/key.json 2>/dev/null; then
+            echo "Failed to decode gcloud_service_key -- did you forget to encode it using 'python -m base64 -e < yourkey.json'?"
+            exit 1
+          fi
+
+          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io; then
+              echo "Logged in to google cloud ..."
+          else
+            echo "Docker login failed. Exiting ..."
+            exit 1
+          fi
+
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          REPOSITORY=us.gcr.io/broad-gotc-prod/pipeline_tools
+
+          docker build -t ${REPOSITORY}:${BRANCH_NAME} .
+          docker push ${REPOSITORY}:${BRANCH_NAME}
+
+          echo "Successfully pushed to ${REPOSITORY}:${BRANCH_NAME}"
 
   build-master:
     runs-on: ubuntu-20.04
@@ -24,18 +37,27 @@ jobs:
       - uses: actions/checkout@v2
       - name: Get time stamp
         run: |
-          echo "TIME_STAMP=$(date +"%s")" >> $GITHUB_ENV
-      - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
-        with:
-          gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          registry: gcr.io
-          project_id: broad-gotc-prod
-          image_name: pipeline-tools
-          image_tag: latest
-      - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
-        with:
-          gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          registry: us.gcr.io
-          project_id: broad-gotc-prod
-          image_name: pipeline-tools
-          image_tag: master_${ env.TIMESTAMP }
+          echo "Authenticating docker to gcloud ..."
+
+          if ! echo ${{secrets.GCLOUD_SERVICE_KEY}} | python -m base64 -d >/tmp/key.json 2>/dev/null; then
+            echo "Failed to decode gcloud_service_key -- did you forget to encode it using 'python -m base64 -e < yourkey.json'?"
+            exit 1
+          fi
+
+          if cat /tmp/key.json | docker login -u _json_key --password-stdin https://us.gcr.io; then
+              echo "Logged in to google cloud ..."
+          else
+            echo "Docker login failed. Exiting ..."
+            exit 1
+          fi
+
+          REPOSITORY=us.gcr.io/broad-gotc-prod/pipeline_tools
+          TIMESTAMP=$(date +"%s")
+
+          docker build -t ${REPOSITORY}:latest .
+          docker push ${REPOSITORY}:latest
+
+          docker tag ${REPOSITORY}:latest ${REPOSITORY}:master_${TIMESTAMP}
+          docker push ${REPOSITORY}:master_${TIMESTAMP}
+
+          echo "Successfully pushed to ${REPOSITORY}:${BRANCH_NAME}"
