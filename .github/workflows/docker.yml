@@ -12,7 +12,7 @@ jobs:
       - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
         with:
           gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          registry: gcr.io
+          registry: us.gcr.io
           project_id: broad-gotc-prod
           image_name: pipeline-tools
           image_tag: ${ env.BRANCH_NAME }
@@ -35,7 +35,7 @@ jobs:
       - uses: RafikFarhad/push-to-gcr-github-action@v3.0.2
         with:
           gcloud_service_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          registry: gcr.io
+          registry: us.gcr.io
           project_id: broad-gotc-prod
           image_name: pipeline-tools
           image_tag: master_${ env.TIMESTAMP }
