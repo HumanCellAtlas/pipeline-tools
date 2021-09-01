@@ -4,6 +4,9 @@ import json
 import argparse
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
+from pipeline_tools.shared.exceptions import (
+    UnsupportedPipelineType
+)
 from distutils.util import strtobool
 
 
@@ -77,6 +80,13 @@ class AnalysisFile():
                 "provenance": self.loom_output["provenance"],
                 "schema_type": self.schema_type
             }
+        elif "bai" == file_type:
+            return {
+                "describedBy": self.describedBy,
+                "file_core": self.bai_output["file_core"],
+                "provenance": self.bai_output["provenance"],
+                "schema_type": self.schema_type
+            }
         else:
             return {}
 
@@ -85,7 +95,7 @@ class AnalysisFile():
         return self.__analysis_file__(file_type)
 
     def get_outputs_json(self):
-        """Get the outputs.json array based on the project level. If project level then only return loom
+        """Get the outputs.json array based on the project level and pipeline type. If project level then only return loom
 
         Returns:
             outputs(array): array of /metadata/analysis_file/*
@@ -93,7 +103,16 @@ class AnalysisFile():
 
         if self.project_level:
             return [self.get_json("loom")]
-        return [self.get_json("loom"), self.get_json("bam")]
+
+        pipeline_type = self.pipeline_type.lower()
+
+        if pipeline_type == "optimus":
+            return [self.get_json("loom"), self.get_json("bam")]
+        elif pipeline_type == "ss2":
+            return [self.get_json("bam"), self.get_json("bai")]
+        else:
+            raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
+            return {}
 
     # Get file details by file name
     def __get_file_save_id__(self, file_name):
@@ -141,6 +160,18 @@ class AnalysisFile():
                         "content_description": []
                     }
                 }
+            elif ".bai" in output:
+                self.bai_output = {
+                    "provenance": {
+                        "document_id": self.__get_file_save_id__(outputs[output]),
+                        "submission_date": self.workspace_version
+                    },
+                    "file_core": {
+                        "file_name": outputs[output].split("/")[-1],
+                        "format": format_map.get_file_format(outputs[output]),
+                        "content_description": []
+                    }
+                }
 
     def __pipeline_outputs__(self):
         """Return dict of the outputs that were produced by the pipeline (single loom for project, metadata.json for intermediate)
@@ -153,7 +184,7 @@ class AnalysisFile():
             print("Using project-level outputs....")
             return {"project_level.loom" : self.input_file}
 
-        # If intermediate then get the bam/loom outputs from metadata.json
+        # If intermediate then get the bam/loom/bai outputs from metadata.json
         metadata_json = format_map.get_workflow_metadata(self.input_file)
         return metadata_json["outputs"]
 

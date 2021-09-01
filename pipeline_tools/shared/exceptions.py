@@ -8,3 +8,7 @@ class UnsupportedLibraryPrepException(Exception):
 
 class SubmissionError(Exception):
     pass
+
+
+class UnsupportedPipelineType(Exception):
+    pass
