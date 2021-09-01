@@ -32,11 +32,7 @@ REFERENCE_FASTA="gs://hca-dcp-mint-test-data/yanc-test/GRCm38.primary_assembly.g
 
 METADATA_JSON_PROJECT="$(pwd)/pipeline_tools/tests/updated-data/staging/project-level/metadata.json"
 LINKS_INPUTS_INTERMEDIATE="heart_1k_test_v2_S1_L001_R1_001.fastq.gz heart_1k_test_v2_S1_L001_R2_001.fastq.gz"
-<<<<<<< HEAD
-METADATA_JSON_INTERMEDIATE="$(pwd)/pipeline_tools//tests/updated-data/staging/intermediate-level/metadata.json"
-=======
 METADATA_JSON_INTERMEDIATE="$(pwd)/pipeline_tools/tests/updated-data/staging/intermediate-level/metadata.json"
->>>>>>> baad8e1a3986d7f791e3869e57937a5b57e9c3a8
 
 PROJECT_LEVEL_LOOM="dummy-project-level.loom"
 

@@ -26,7 +26,6 @@ class AnalysisProtocol():
         "provenance": {
             "document_id": "f2cdb4e5-b439-5cdf-ac41-161ff39d5790",
             "submission_date": "2021-05-24T12:00:00.000000Z",
-            "update_date": "2021-05-24T12:00:00.000000Z"
         },
         "schema_type": "protocol",
         "type": {
@@ -101,8 +100,7 @@ class AnalysisProtocol():
 
         return {
             "document_id": entity_id,
-            "submission_date": self.workspace_version, # TODO: check if this matches how we previously set this
-            "update_date": self.workspace_version    # TODO: remove the update date
+            "submission_date": self.workspace_version,
         }
 
     @property
