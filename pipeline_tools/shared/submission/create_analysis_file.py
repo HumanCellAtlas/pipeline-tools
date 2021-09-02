@@ -4,7 +4,14 @@ import json
 import argparse
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
+<<<<<<< HEAD
 from pipeline_tools.shared.exceptions import UnsupportedPipelineType
+=======
+from pipeline_tools.shared.exceptions import (
+    UnsupportedPipelineType
+)
+from distutils.util import strtobool
+>>>>>>> cg_update-parse-ss2-metadata
 
 
 class AnalysisFile():
@@ -49,12 +56,16 @@ class AnalysisFile():
         input_file,
         pipeline_type,
         workspace_version,
-            project_level=False):
+        project_level=False,
+        ss2_bam_file="",
+            ss2_bai_file=""):
 
         self.input_file = input_file
         self.input_uuid = input_uuid
         self.project_level = project_level
         self.pipeline_type = pipeline_type
+        self.ss2_bam_file = ss2_bam_file
+        self.ss2_bai_file = ss2_bai_file
         self.workspace_version = workspace_version
         self.outputs = self.__pipeline_outputs__()
 
@@ -68,14 +79,24 @@ class AnalysisFile():
                 "describedBy": self.describedBy,
                 "file_core": self.bam_output["file_core"],
                 "provenance": self.bam_output["provenance"],
-                "schema_type": self.schema_type
+                "schema_type": self.schema_type,
+                "schema_version": self.schema_version
             }
         elif "loom" == file_type:
             return {
                 "describedBy": self.describedBy,
                 "file_core": self.loom_output["file_core"],
                 "provenance": self.loom_output["provenance"],
-                "schema_type": self.schema_type
+                "schema_type": self.schema_type,
+                "schema_version": self.schema_version
+            }
+        elif "bai" == file_type:
+            return {
+                "describedBy": self.describedBy,
+                "file_core": self.bai_output["file_core"],
+                "provenance": self.bai_output["provenance"],
+                "schema_type": self.schema_type,
+                "schema_version": self.schema_version
             }
         else:
             return {}
@@ -85,7 +106,7 @@ class AnalysisFile():
         return self.__analysis_file__(file_type)
 
     def get_outputs_json(self):
-        """Get the outputs.json array based on the project level. If project level then only return loom
+        """Get the outputs.json array based on the project level and pipeline type. If project level then only return loom
 
         Returns:
             outputs(array): array of /metadata/analysis_file/*
@@ -93,7 +114,16 @@ class AnalysisFile():
 
         if self.project_level:
             return [self.get_json("loom")]
-        return [self.get_json("loom"), self.get_json("bam")]
+
+        pipeline_type = self.pipeline_type.lower()
+
+        if pipeline_type == "optimus":
+            return [self.get_json("loom"), self.get_json("bam")]
+        elif pipeline_type == "ss2":
+            return [self.get_json("bam"), self.get_json("bai")]
+        else:
+            raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
+            return {}
 
     # Get file details by file name
     def __get_file_save_id__(self, file_name):
@@ -113,13 +143,12 @@ class AnalysisFile():
         """Get JSON info for bam and loom analysis files and save"""
         outputs = self.outputs
         for output in self.outputs:
-            if ".loom" in output:
+            if output.endswith(".loom"):
                 # Generate loom output
                 self.loom_output = {
                     "provenance": {
                         "document_id": self.__get_file_save_id__(outputs[output]),
                         "submission_date": self.workspace_version,
-                        "submitter_id": "e67aaabe-93ea-564a-aa66-31bc0857b707" if self.project_level else ""
                     },
                     "file_core": {
                         "file_name": outputs[output].split("/")[-1],
@@ -127,9 +156,24 @@ class AnalysisFile():
                         "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
                     }
                 }
-            elif ".bam" in output:
+                if self.project_level:
+                    self.loom_output["provenance"]["submitter_id"] = "e67aaabe-93ea-564a-aa66-31bc0857b707"
+            elif output.endswith(".bam"):
                 # Generate bam output
                 self.bam_output = {
+                    "provenance": {
+                        "document_id": self.__get_file_save_id__(outputs[output]),
+                        "submission_date": self.workspace_version
+                    },
+                    "file_core": {
+                        "file_name": outputs[output].split("/")[-1],
+                        "format": format_map.get_file_format(outputs[output]),
+                        "content_description": []
+                    }
+                }
+            elif output.endswith(".bai"):
+                # Generate bai output
+                self.bai_output = {
                     "provenance": {
                         "document_id": self.__get_file_save_id__(outputs[output]),
                         "submission_date": self.workspace_version
@@ -144,11 +188,14 @@ class AnalysisFile():
     def __pipeline_outputs__(self):
         """Return dict of the outputs that were produced by the pipeline (single loom for project, metadata.json for intermediate)
 
+        If pipeline is ss2 then we use localized intermediate level bai and bam file
+
         Returns:
             outputs(dict): output produced by the pipeline run
         """
 
         if self.project_level:
+            print("Using project-level outputs....")
             return {"project_level.loom" : self.input_file}
 
         # If pipeline type is optimus then we can can get the intermediate outputs from metadata.json
@@ -195,8 +242,15 @@ def main():
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
+<<<<<<< HEAD
     parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
     parser.add_argument("--input_file", required=True, help="Path to metadata.json for intermediate level, path to merged loom file for project level")
+=======
+    parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
+    parser.add_argument("--input_file", required=False, help="Path to metadata.json for intermediate level, path to merged loom file for project level")
+    parser.add_argument("--ss2_bam_file", required=False, help="Localized path to intermediate ss2 bam file")
+    parser.add_argument("--ss2_bai_file", required=False, help="Localized path to intermediate ss2 bai file")
+>>>>>>> cg_update-parse-ss2-metadata
 
     args = parser.parse_args()
 
@@ -205,13 +259,12 @@ def main():
         args.input_file,
         args.pipeline_type,
         args.workspace_version,
-        args.project_level
+        args.project_level,
+        args.ss2_bam_file,
+        args.ss2_bai_file
     )
 
     # Write analysis file for each file type
-    if not os.path.exists("analysis_files"):
-        os.mkdir("analysis_files")
-
     print("Writing outputs.json to disk...")
     analysis_file_json = analysis_file.get_outputs_json()
     with open("outputs.json", "w") as f:
@@ -220,7 +273,7 @@ def main():
     print("Writing analysis_file output(s) to disk...")
     for output in analysis_file_json:
         file_save_id = output["provenance"]["document_id"]
-        with open(f"analysis_files/{file_save_id}_{analysis_file.work_version}.json", "w") as f:
+        with open(f"{file_save_id}_{analysis_file.work_version}.json", "w") as f:
             json.dump(output, f, indent=2, sort_keys=True)
 
 

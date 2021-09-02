@@ -93,6 +93,7 @@ class Descriptor():
         return {
             "describedBy" : self.describedBy,
             "schema_type" : self.schema_type,
+            "schema_version" : self.schema_version,
             "content_type" : self.content_type,
             "size" : self.size,
             "sha256" : self.sha256,
@@ -183,6 +184,7 @@ def main():
     # Generate filename based on UUID and version
     descriptor_json_filename = f"{file_descriptor.entity_id}_{file_descriptor.work_version}.json"
 
+    print(f"Writing {file_descriptor.extension} descriptor file to disk...")
     with open(descriptor_json_filename, 'w') as f:
         json.dump(descriptor_json, f, indent=2, sort_keys=True)
 

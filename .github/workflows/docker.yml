@@ -1,0 +1,63 @@
+name: Build and Push to GCR
+on: [push]
+env:
+  IMAGE: us.gcr.io/broad-gotc-prod/pipeline-tools
+
+jobs: 
+  build-push:
+    name: Build and Push
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Setup gcloud CLI
+    - uses: google-github-actions/setup-gcloud@master
+      with:
+        version: '270.0.0'
+        service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
+      
+    # Configure docker to use gcloud command-line
+    - run: |
+        gcloud auth configure-docker
+    
+    # Build image for each branch push
+    - name: Build/Push all
+      run: |
+        export BRANCH=${GITHUB_REF#refs/heads/}
+
+        echo "Building ${IMAGE}:${BRANCH}"
+
+        docker build -t "${IMAGE}:${BRANCH}" .
+
+        echo "Pushing ${IMAGE}:${BRANCH}"
+        
+        docker push "${IMAGE}:${BRANCH}"
+        
+    # Build image for merge to master
+    - name: Build/Push master
+      if: contains ('refs/heads/master', github.ref)
+      run: |
+        export TIMESTAMP=$(date +"%s")
+
+        echo "Building ${IMAGE}:latest"
+
+        docker build -t "${IMAGE}:latest" .
+        docker tag "${IMAGE}:latest" "${IMAGE}:master_${TIMESTAMP}"
+
+        echo "Pushing ${IMAGE}:latest"
+        echo "Pushing ${IMAGE}:master_${TIMESTAMP}"
+
+        docker push "${IMAGE}:latest"
+        docker push "${IMAGE}:master_${TIMESTAMP}"
+
+    - run: |
+        echo "Successfully completed"
+
+        
+        
+
+
+        
+    

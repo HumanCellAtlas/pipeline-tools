@@ -4,7 +4,10 @@ import json
 import os
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
+<<<<<<< HEAD
 from pipeline_tools.shared.exceptions import UnsupportedPipelineType
+=======
+>>>>>>> cg_update-parse-ss2-metadata
 from distutils.util import strtobool
 
 
@@ -100,6 +103,7 @@ class AnalysisProcess():
             "provenance" : self.__provenance__(),
             "reference_files" : self.__references_files__(),
             "schema_type" : self.schema_type,
+            "schema_version" : self.schema_version,
             "tasks" : self.__tasks__(),
             "timestamp_start_utc" : self.__timestamp__()[0],
             "timestamp_stop_utc" : self.__timestamp__()[1],
@@ -233,8 +237,6 @@ def test_build_analysis_process(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
-    parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
-    parser.add_argument("--references", required=False, nargs="+", help="List of UUIDs for the reference genome",)
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
     parser.add_argument("--loom_timestamp", required=False, help="The timestamp for the stratified project matrix loom file")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser (project stratum string for project level)")
@@ -268,10 +270,7 @@ def main():
 
     # Write analysis_process to file
     print('Writing analysis_process.json to disk...')
-    if not os.path.exists("analysis_process"):
-        os.mkdir("analysis_process")
-
-    with open(f'analysis_process/{analysis_process_filename}', 'w') as f:
+    with open(f'{analysis_process_filename}', 'w') as f:
         json.dump(analysis_process_json, f, indent=2, sort_keys=True)
 
 

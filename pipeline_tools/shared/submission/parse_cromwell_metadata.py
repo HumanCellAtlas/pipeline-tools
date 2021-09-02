@@ -13,8 +13,8 @@ def parse_optimus_metadata(metadata_json):
 def parse_SS2_metadata(metadata_json):
     with open(metadata_json, 'r') as f:
         metadata = json.load(f)
-    ref_fasta_path = "SS2 still needs to be parsed"
-    pipeline_version = "SS2 still needs to be parsed"
+    ref_fasta_path = metadata['inputs']['genome_ref_fasta']
+    pipeline_version = metadata['calls']['MultiSampleSmartSeq2.AggregateLoom'][0]['inputs']['pipeline_version']
     return ref_fasta_path, pipeline_version
 
 
