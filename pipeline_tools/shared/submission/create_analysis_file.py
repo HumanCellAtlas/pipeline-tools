@@ -4,14 +4,8 @@ import json
 import argparse
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
-<<<<<<< HEAD
 from pipeline_tools.shared.exceptions import UnsupportedPipelineType
-=======
-from pipeline_tools.shared.exceptions import (
-    UnsupportedPipelineType
-)
 from distutils.util import strtobool
->>>>>>> cg_update-parse-ss2-metadata
 
 
 class AnalysisFile():
@@ -242,15 +236,10 @@ def main():
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
-<<<<<<< HEAD
-    parser.add_argument("--project_level", type=bool, default=False, required=False, help="Boolean representing project level vs intermediate level")
-    parser.add_argument("--input_file", required=True, help="Path to metadata.json for intermediate level, path to merged loom file for project level")
-=======
     parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
     parser.add_argument("--input_file", required=False, help="Path to metadata.json for intermediate level, path to merged loom file for project level")
     parser.add_argument("--ss2_bam_file", required=False, help="Localized path to intermediate ss2 bam file")
     parser.add_argument("--ss2_bai_file", required=False, help="Localized path to intermediate ss2 bai file")
->>>>>>> cg_update-parse-ss2-metadata
 
     args = parser.parse_args()
 

@@ -4,10 +4,7 @@ import json
 import os
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
-<<<<<<< HEAD
 from pipeline_tools.shared.exceptions import UnsupportedPipelineType
-=======
->>>>>>> cg_update-parse-ss2-metadata
 from distutils.util import strtobool
 
 
