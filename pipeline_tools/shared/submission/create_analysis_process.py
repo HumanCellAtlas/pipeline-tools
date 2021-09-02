@@ -82,7 +82,7 @@ class AnalysisProcess():
         loom_timestamp="",
             ss2_index=0):
 
-        self.ss2_index = ss2_index
+        self.ss2_index = int(ss2_index)
         self.input_uuid = input_uuid
         self.input_file = input_file
         self.reference_files = references
@@ -160,6 +160,7 @@ class AnalysisProcess():
             if not self.project_level:
                 return metadata["calls"]["MultiSampleSmartSeq2.sc_pe"][self.ss2_index]
             return metadata["calls"]["MultiSampleSmartSeq2.AggregateLoom"][0]
+
 
         raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
@@ -247,7 +248,7 @@ def main():
     parser.add_argument("--input_file", required=True, help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.")
     parser.add_argument("--references", required=False, nargs="+", help="File path for the reference genome fasta",)
     parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
-    parser.add_argument("--ss2_index", required=False, help="The index of the ss2 scatter task, need to grab intermediate run data from metadata.json")
+    parser.add_argument("--ss2_index", required=False, type=int, help="The index of the ss2 scatter task, need to grab intermediate run data from metadata.json")
 
     args = parser.parse_args()
 
