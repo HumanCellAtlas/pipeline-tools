@@ -4,9 +4,7 @@ import json
 import argparse
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
-from pipeline_tools.shared.exceptions import (
-    UnsupportedPipelineType
-)
+from pipeline_tools.shared.exceptions import UnsupportedPipelineType
 from distutils.util import strtobool
 
 
@@ -195,13 +193,16 @@ class AnalysisFile():
             return {"project_level.loom" : self.input_file}
 
         # If pipeline type is optimus then we can can get the intermediate outputs from metadata.json
-        if self.pipeline_type.lower == "optimus":
+        if self.pipeline_type.lower() == "optimus":
             # If intermediate then get the bam/loom outputs from metadata.json
             metadata_json = format_map.get_workflow_metadata(self.input_file)
             return metadata_json["outputs"]
 
         # If pipeline type is ss2 then create 'outputs' by adding the localized file to an object
-        return {"ss2_intermediate.bai": self.ss2_bai_file, "ss2_intermediate.bam": self.ss2_bam_file}
+        elif self.pipeline_type.lower() == "ss2":
+            return {"ss2_intermediate.bai": self.ss2_bai_file, "ss2_intermediate.bam": self.ss2_bam_file}
+
+        raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
     @property
     def uuid(self):

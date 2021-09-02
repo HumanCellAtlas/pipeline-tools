@@ -4,6 +4,7 @@ import json
 import os
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
+from pipeline_tools.shared.exceptions import UnsupportedPipelineType
 from distutils.util import strtobool
 
 
@@ -67,7 +68,8 @@ class AnalysisProcess():
     schema_version = SCHEMAS["ANALYSIS_PROCESS"]["schema_version"]
 
     # Input fields to retrieve from metadata.json
-    input_fields = SCHEMAS["ANALYSIS_PROCESS"]["input_fields"]
+    optimus_input_fields = SCHEMAS["ANALYSIS_PROCESS"]["optimus_input_fields"]
+    ss2_input_fields = SCHEMAS["ANALYSIS_PROCESS"]["ss2_input_fields"]
 
     def __init__(
         self,
@@ -77,8 +79,10 @@ class AnalysisProcess():
         workspace_version,
         references=[],
         project_level=False,
-            loom_timestamp=""):
+        loom_timestamp="",
+            ss2_index=0):
 
+        self.ss2_index = ss2_index
         self.input_uuid = input_uuid
         self.input_file = input_file
         self.reference_files = references
@@ -117,7 +121,7 @@ class AnalysisProcess():
     def __tasks__(self):
         """Return the tasks of the pipeline run based on project or intermediate"""
 
-        if self.project_level:
+        if self.project_level or self.pipeline_type.lower() == "ss2":
             return []
 
         workflow_metadata = self.__metadata__()
@@ -138,25 +142,41 @@ class AnalysisProcess():
             return []
 
         workflow_metadata = self.__metadata__()
-        all_inputs = workflow_metadata["inputs"]
+        input_fields = self.optimus_input_fields if self.pipeline_type.lower() == "optimus" else self.ss2_input_fields
 
-        return format_map.get_workflow_inputs(all_inputs, self.input_fields)
+        return format_map.get_workflow_inputs(workflow_metadata["inputs"], input_fields)
 
     def __metadata__(self):
 
-        return format_map.get_workflow_metadata(self.input_file)
+        metadata = format_map.get_workflow_metadata(self.input_file)
+
+        # Return the unique metadata.json for optimus
+        if self.pipeline_type.lower() == "optimus":
+            return metadata
+
+        # SS2 only has one metadata.json, if intermediate run then return the subworkflow task
+        if self.pipeline_type.lower() == "ss2" and not self.project_level:
+            return metadata["calls"]["MultiSampleSmartSeq2.sc_pe"][self.ss2_index]
+
+        raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
     def __process_id__(self):
 
         workflow_metadata = self.__metadata__()
 
-        return workflow_metadata["id"]
+        if self.pipeline_type.lower() == "optimus":
+            return workflow_metadata["id"]
+
+        if self.pipeline_type.lower() == "ss2" and not self.project_level:
+            return workflow_metadata["subWorkflowId"]
+
+        raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
     def __timestamp__(self):
 
         workflow_metadata = self.__metadata__()
-        start, end = format_map.format_timestamp(workflow_metadata["start"]), format_map.format_timestamp(workflow_metadata["end"])
 
+        start, end = format_map.format_timestamp(workflow_metadata["start"]), format_map.format_timestamp(workflow_metadata["end"])
         return [start, end]
 
     def __provenance__(self):
@@ -220,6 +240,7 @@ def main():
     parser.add_argument("--input_file", required=True, help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.")
     parser.add_argument("--references", required=False, nargs="+", help="File path for the reference genome fasta",)
     parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
+    parser.add_argument("--ss2_index", required=False, help="The index of the ss2 scatter task, need to grab intermediate run data from metadata.json")
 
     args = parser.parse_args()
 
@@ -230,7 +251,8 @@ def main():
         args.workspace_version,
         args.references,
         args.project_level,
-        args.loom_timestamp
+        args.loom_timestamp,
+        args.ss2_index
     )
 
     # Get the JSON content to be written
