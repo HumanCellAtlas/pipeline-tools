@@ -45,13 +45,13 @@ class AnalysisFile():
     schema_version = SCHEMAS["ANALYSIS_FILE"]["schema_version"]
 
     def __init__(
-            self,
-            input_uuid,
-            input_file,
-            pipeline_type,
-            workspace_version,
-            project_level=False,
-            ss2_bam_file="",
+        self,
+        input_uuid,
+        input_file,
+        pipeline_type,
+        workspace_version,
+        project_level=False,
+        ss2_bam_file="",
             ss2_bai_file=""):
 
         self.input_file = input_file
@@ -215,10 +215,10 @@ class AnalysisFile():
 
 # Entry point for unit tests
 def test_build_analysis_file(
-        input_uuid,
-        input_file,
-        pipeline_type,
-        workspace_version,
+    input_uuid,
+    input_file,
+    pipeline_type,
+    workspace_version,
         project_level=False):
 
     test_analysis_file = AnalysisFile(
