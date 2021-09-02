@@ -45,13 +45,13 @@ class AnalysisFile():
     schema_version = SCHEMAS["ANALYSIS_FILE"]["schema_version"]
 
     def __init__(
-        self,
-        input_uuid,
-        input_file,
-        pipeline_type,
-        workspace_version,
-        project_level=False,
-        ss2_bam_file="",
+            self,
+            input_uuid,
+            input_file,
+            pipeline_type,
+            workspace_version,
+            project_level=False,
+            ss2_bam_file="",
             ss2_bai_file=""):
 
         self.input_file = input_file
@@ -137,7 +137,7 @@ class AnalysisFile():
         """Get JSON info for bam and loom analysis files and save"""
         outputs = self.outputs
         for output in self.outputs:
-            if output.endswith(".loom"):
+            if outputs[output].endswith(".loom"):
                 # Generate loom output
                 self.loom_output = {
                     "provenance": {
@@ -152,7 +152,7 @@ class AnalysisFile():
                 }
                 if self.project_level:
                     self.loom_output["provenance"]["submitter_id"] = "e67aaabe-93ea-564a-aa66-31bc0857b707"
-            elif output.endswith(".bam"):
+            elif outputs[output].endswith(".bam"):
                 # Generate bam output
                 self.bam_output = {
                     "provenance": {
@@ -165,7 +165,7 @@ class AnalysisFile():
                         "content_description": []
                     }
                 }
-            elif output.endswith(".bai"):
+            elif outputs[output].endswith(".bai"):
                 # Generate bai output
                 self.bai_output = {
                     "provenance": {
@@ -215,10 +215,10 @@ class AnalysisFile():
 
 # Entry point for unit tests
 def test_build_analysis_file(
-    input_uuid,
-    input_file,
-    pipeline_type,
-    workspace_version,
+        input_uuid,
+        input_file,
+        pipeline_type,
+        workspace_version,
         project_level=False):
 
     test_analysis_file = AnalysisFile(
