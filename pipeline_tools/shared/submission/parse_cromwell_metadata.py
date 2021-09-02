@@ -2,13 +2,13 @@ import argparse
 import json
 
 
-
 def parse_optimus_metadata(metadata_json):
     with open(metadata_json, 'r') as f:
         metadata = json.load(f)
     ref_fasta_path = metadata['inputs']['ref_genome_fasta']
     pipeline_version = metadata['calls']['Optimus.OptimusLoomGeneration'][0]['inputs']['pipeline_version']
     return ref_fasta_path, pipeline_version
+
 
 def parse_SS2_metadata(metadata_json):
     with open(metadata_json, 'r') as f:
@@ -48,7 +48,6 @@ def main():
 
     with open('ref_fasta.txt', 'w') as f:
         f.write(ref_fasta_path)
-
 
 
 if __name__ == '__main__':
