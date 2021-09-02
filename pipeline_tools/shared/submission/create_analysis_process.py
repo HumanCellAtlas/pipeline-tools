@@ -155,8 +155,12 @@ class AnalysisProcess():
             return metadata
 
         # SS2 only has one metadata.json, if intermediate run then return the subworkflow task
-        if self.pipeline_type.lower() == "ss2" and not self.project_level:
-            return metadata["calls"]["MultiSampleSmartSeq2.sc_pe"][self.ss2_index]
+        # If project level run then return AggregateLoom metadata
+        if self.pipeline_type.lower() == "ss2":
+            if not self.project_level:
+                return metadata["calls"]["MultiSampleSmartSeq2.sc_pe"][self.ss2_index]
+            return metadata["calls"]["MultiSampleSmartSeq2.AggregateLoom"][0]
+
 
         raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
@@ -167,8 +171,12 @@ class AnalysisProcess():
         if self.pipeline_type.lower() == "optimus":
             return workflow_metadata["id"]
 
-        if self.pipeline_type.lower() == "ss2" and not self.project_level:
-            return workflow_metadata["subWorkflowId"]
+        # Grab the process id for the subworkflow for intermediate level ss2
+        # Otherwise get the process ID for the Aggregate loom tasks
+        if self.pipeline_type.lower() == "ss2":
+            if not self.project_level:
+                return workflow_metadata["subWorkflowId"]
+            return workflow_metadata["labels"]["cromwell-workflow-id"].split("cromwell-",1)[1]
 
         raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
