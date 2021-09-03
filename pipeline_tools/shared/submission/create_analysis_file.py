@@ -152,7 +152,7 @@ class AnalysisFile():
                 }
                 if self.project_level:
                     self.loom_output["provenance"]["submitter_id"] = "e67aaabe-93ea-564a-aa66-31bc0857b707"
-            elif output.endswith(".bam"):
+            elif outputs[output].endswith(".bam"):
                 # Generate bam output
                 self.bam_output = {
                     "provenance": {
@@ -165,7 +165,7 @@ class AnalysisFile():
                         "content_description": []
                     }
                 }
-            elif output.endswith(".bai"):
+            elif outputs[output].endswith(".bai"):
                 # Generate bai output
                 self.bai_output = {
                     "provenance": {

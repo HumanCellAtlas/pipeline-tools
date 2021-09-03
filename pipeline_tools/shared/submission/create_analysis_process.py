@@ -82,7 +82,7 @@ class AnalysisProcess():
         loom_timestamp="",
             ss2_index=0):
 
-        self.ss2_index = int(ss2_index)
+        self.ss2_index = ss2_index
         self.input_uuid = input_uuid
         self.input_file = input_file
         self.reference_files = references
@@ -175,7 +175,7 @@ class AnalysisProcess():
         if self.pipeline_type.lower() == "ss2":
             if not self.project_level:
                 return workflow_metadata["subWorkflowId"]
-            return workflow_metadata["labels"]["cromwell-workflow-id"].split("cromwell-",1)[1]
+            return workflow_metadata["labels"]["cromwell-workflow-id"].split("cromwell-", 1)[1]
 
         raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
