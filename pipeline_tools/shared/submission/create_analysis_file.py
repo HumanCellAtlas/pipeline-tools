@@ -122,7 +122,6 @@ class AnalysisFile():
     # Get file details by file name
     def __get_file_save_id__(self, file_name):
 
-        file_name = file_name.rsplit("/")[-1]
         entity_type = format_map.get_entity_type(file_name)
         file_extension = os.path.splitext(file_name)[1]
 

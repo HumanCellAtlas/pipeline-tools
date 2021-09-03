@@ -130,6 +130,9 @@ class AnalysisProcess():
     def __references_files__(self):
         """Return the hashed representation of the reference fasta file path"""
 
+        if self.project_level:
+            return []
+
         return [format_map.get_file_entity_id(r,
                 format_map.get_entity_type(r),
                 os.path.splitext(r)[1])
