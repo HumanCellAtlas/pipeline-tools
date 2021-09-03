@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 import argparse
 import json
+import os
 
 
 from pipeline_tools.shared.submission import format_map
 from pipeline_tools.shared.schema_utils import SCHEMAS
+from pipeline_tools.shared.exceptions import UnsupportedPipelineType
 from distutils.util import strtobool
 
 
@@ -64,11 +66,16 @@ class LinksFile():
         self,
         project_id,
         input_uuids,
-        output_file_path,
+        pipeline_type,
         file_name_string,
         workspace_version,
         analysis_process_path,
         analysis_protocol_path,
+        output_file_path,
+        ss2_bam=[],
+        ss2_bai=[],
+        ss2_fastq1=[],
+        ss2_fastq2=[],
             project_level=False):
 
         # Create UUID to save the file as
@@ -83,19 +90,24 @@ class LinksFile():
         with open(analysis_protocol_path) as f:
             analysis_protocol_dict = json.load(f)
 
-        # Load the outputs file json into memory
+        # Load outputs.json into memory
         with open(output_file_path) as f:
             outputs_dict = json.load(f)
 
         self.file_name_string = file_name_string
         self.outputs = outputs_dict
         self.project_id = project_id
+        self.pipeline_type = pipeline_type
         self.input_uuids = input_uuids
         self.link_type = "process_link"
         self.project_level = project_level
         self.process_type = "analysis_process"
         self.subgraph_uuid = subgraph_uuid
         self.workspace_version = workspace_version
+        self.ss2_bam = ss2_bam
+        self.ss2_bai = ss2_bai
+        self.ss2_fastq1 = ss2_fastq1
+        self.ss2_fastq2 = ss2_fastq2
         self.analysis_process = analysis_process_dict
         self.analysis_protocol = analysis_protocol_dict
         self.process_id = analysis_process_dict['process_core']['process_id']
@@ -118,15 +130,84 @@ class LinksFile():
         }
 
     def __inputs__(self):
-        """Add all input files to an array and return"""
+        """Add all input file objects to an array and return"""
+
+        if self.pipeline_type.lower() == "optimus":
+            return self.__optimus_inputs__()
+
+        if self.pipeline_type.lower() == "ss2":
+            return self.__ss2_inputs__()
+
+        raise UnsupportedPipelineType()
+
+    def __optimus_inputs__(self):
+        """Add all input files based off the supplied UUIDs, Optimus input object are non-nested
+            inputs for intermediate are the fastq hashes, inputs for project are intermediate loom hashes
+        """
+
         inputs = []
         for input_uuid in self.input_uuids:
             inputs.append({'input_type': "analysis_file" if self.project_level else "sequence_file",
                           'input_id': input_uuid})
         return inputs
 
+    def __ss2_inputs__(self):
+        """Get all of inputs for each intermediate run, including the bam/bai and their corresponding fastq files"""
+
+        [bam_hashes, bai_hashes] = self.__hashes__()
+
+        inputs = []
+
+        for index in range(len(self.input_uuids)):
+            input_element = {
+                "bam_file" : {
+                    "input_id": bam_hashes[index],
+                    "input_type": "analysis_file"
+                },
+                "bai_file" : {
+                    "input_id": bai_hashes[index],
+                    "input_type": "analysis_file"
+                },
+                "fastq1" : {
+                    "input_id": self.ss2_fastq1[index],
+                    "input_type": "sequence_file"
+                },
+                "fastq2" : {
+                    "input_id": self.ss2_fastq2[index],
+                    "input_type": "sequence_file"
+                }
+            }
+            inputs.append(input_element)
+
+        return input
+
+    def __hashes__(self):
+        """For SS2 convert bam and bai file name to their correct hashes and return"""
+
+        bam_hashes = []
+        bai_hashes = []
+
+        for index in range(len(self.input_uuids)):
+            uuid = self.input_uuids[index]
+            bam_file = self.ss2_bam[index]
+            bai_file = self.ss2_bai[index]
+
+            bam_hash = format_map.get_file_entity_id(uuid, format_map.get_entity_type(bam_file), os.path.splitext(bam_file)[1])
+            bai_hash = format_map.get_file_entity_id(uuid, format_map.get_entity_type(bai_file), os.path.splitext(bai_file)[1])
+
+            bam_hashes.append(bam_hash)
+            bai_hashes.append(bai_hash)
+
+        return [bam_hashes, bai_hashes]
+
+    def __ss2_metadata__(self):
+        return format_map.get_workflow_metadata(self.input_file)
+
     def __outputs__(self):
-        """Add all analysis file outputs to an array and return"""
+        """Add the outputs from outputs.json to an array and return
+            For project level runs the output should just be a single loom file
+        """
+
         outputs = []
         for output in self.outputs:
             output_type = output['describedBy'].split('/')[-1]
@@ -187,24 +268,34 @@ def test_build_links_file(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--project_id', required=True, help='The project ID')
-    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the input files (fastq for intermedia/looms for project)')
+    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
+    parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the input files Optimus(fastq for intermediate/looms for project) SS2(uuids for each run to build the file hashes)')
     parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file.')
     parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file.')
     parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
-    parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows''within an individual workspace.')
-    parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files).')
+    parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows within an individual workspace.')
+    parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file for Optimus, path to project level loom for ss2')
     parser.add_argument('--file_name_string', required=True, help='Input ID (a unique input ID to incorproate into the links UUID) OR project stratum string (concatenation of the project, library, species, and organ).')
+    parser.add_argument('--ss2_bam', required=False, help="Array of bam files for the ss2 runs, used to build the file hashes")
+    parser.add_argument('--ss2_bai', required=False, help="Array of bai files for the ss2 runs, used to build the file hashes")
+    parser.add_argument('--ss2_fastq1', required=False, help="Array of fastq1 UUIDS for ss2 runs")
+    parser.add_argument('--ss2_fastq2', required=False, help="Array of fastq2 UUIDSfor ss2 runs")
 
     args = parser.parse_args()
 
     links_file = LinksFile(
         args.project_id,
         args.input_uuids,
-        args.output_file_path,
+        args.pipeline_type,
         args.file_name_string,
         args.workspace_version,
         args.analysis_process_path,
         args.analysis_protocol_path,
+        args.output_file_path,
+        args.ss2_bam,
+        args.ss2_bai,
+        args.ss2_fastq1,
+        args.ss2_fastq2,
         args.project_level
     )
 
