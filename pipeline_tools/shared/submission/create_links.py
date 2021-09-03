@@ -5,6 +5,7 @@ import json
 
 from pipeline_tools.shared.submission import format_map
 from pipeline_tools.shared.schema_utils import SCHEMAS
+from pipeline_tools.shared.exceptions import UnsupportedPipelineType
 from distutils.util import strtobool
 
 
@@ -64,11 +65,12 @@ class LinksFile():
         self,
         project_id,
         input_uuids,
-        output_file_path,
+        pipeline_type,
         file_name_string,
         workspace_version,
         analysis_process_path,
         analysis_protocol_path,
+        output_file_path,
             project_level=False):
 
         # Create UUID to save the file as
@@ -83,13 +85,14 @@ class LinksFile():
         with open(analysis_protocol_path) as f:
             analysis_protocol_dict = json.load(f)
 
-        # Load the outputs file json into memory
+        # Load outputs.json into memory
         with open(output_file_path) as f:
             outputs_dict = json.load(f)
 
         self.file_name_string = file_name_string
         self.outputs = outputs_dict
         self.project_id = project_id
+        self.pipeline_type = pipeline_type
         self.input_uuids = input_uuids
         self.link_type = "process_link"
         self.project_level = project_level
@@ -119,6 +122,16 @@ class LinksFile():
 
     def __inputs__(self):
         """Add all input files to an array and return"""
+        if self.pipeline_type.lower() == "optimus":
+            return self.__optimus_inputs__()
+
+        if self.pipeline_type.lower() == "ss2":
+            return self.__ss2_inputs__()
+
+        raise UnsupportedPipelineType()
+
+    def __optimus_inputs__(self):
+        """Add all input files based off the supplied UUIDs, Optimus input object are non-nested"""
         inputs = []
         for input_uuid in self.input_uuids:
             inputs.append({'input_type': "analysis_file" if self.project_level else "sequence_file",
@@ -126,7 +139,8 @@ class LinksFile():
         return inputs
 
     def __outputs__(self):
-        """Add all analysis file outputs to an array and return"""
+        """Add the outputs from outputs.json to an array and return"""
+
         outputs = []
         for output in self.outputs:
             output_type = output['describedBy'].split('/')[-1]
@@ -187,12 +201,13 @@ def test_build_links_file(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--project_id', required=True, help='The project ID')
+    parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument('--input_uuids', required=True, nargs='+', help='List of UUIDs for the input files (fastq for intermedia/looms for project)')
     parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file.')
     parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file.')
     parser.add_argument("--project_level", required=True, type=lambda x: bool(strtobool(x)), help="Boolean representing project level vs intermediate level")
     parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows''within an individual workspace.')
-    parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file (This is just a json list of the /metadata/analysis_file/*.json files).')
+    parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file for Optimus, path to project level loom for ss2')
     parser.add_argument('--file_name_string', required=True, help='Input ID (a unique input ID to incorproate into the links UUID) OR project stratum string (concatenation of the project, library, species, and organ).')
 
     args = parser.parse_args()
@@ -200,11 +215,12 @@ def main():
     links_file = LinksFile(
         args.project_id,
         args.input_uuids,
-        args.output_file_path,
+        args.pipeline_type,
         args.file_name_string,
         args.workspace_version,
         args.analysis_process_path,
         args.analysis_protocol_path,
+        args.output_file_path,
         args.project_level
     )
 

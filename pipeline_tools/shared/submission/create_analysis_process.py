@@ -161,7 +161,6 @@ class AnalysisProcess():
                 return metadata["calls"]["MultiSampleSmartSeq2.sc_pe"][self.ss2_index]
             return metadata["calls"]["MultiSampleSmartSeq2.AggregateLoom"][0]
 
-
         raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
     def __process_id__(self):

@@ -137,7 +137,7 @@ class AnalysisFile():
         """Get JSON info for bam and loom analysis files and save"""
         outputs = self.outputs
         for output in self.outputs:
-            if output.endswith(".loom"):
+            if outputs[output].endswith(".loom"):
                 # Generate loom output
                 self.loom_output = {
                     "provenance": {
