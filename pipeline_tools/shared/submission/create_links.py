@@ -303,7 +303,6 @@ def main():
 
     # Write links to file
     print("Writing links file to disk...")
-    print(links_file_json)
     with open(f'{links_file.uuid}_{links_file.version}_{links_file.project}.json', 'w') as f:
         json.dump(links_file_json, f, indent=2, sort_keys=True)
 
