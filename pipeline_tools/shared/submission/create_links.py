@@ -71,6 +71,10 @@ class LinksFile():
         analysis_process_path,
         analysis_protocol_path,
         output_file_path,
+        ss2_bam=[],
+        ss2_bai=[],
+        ss2_fastq1=[],
+        ss2_fastq2=[],
             project_level=False):
 
         # Create UUID to save the file as
@@ -99,6 +103,10 @@ class LinksFile():
         self.process_type = "analysis_process"
         self.subgraph_uuid = subgraph_uuid
         self.workspace_version = workspace_version
+        self.ss2_bam = ss2_bam
+        self.ss2_bai = ss2_bai
+        self.ss2_fastq1 = ss2_fastq1
+        self.ss2_fastq2 = ss2_fastq2
         self.analysis_process = analysis_process_dict
         self.analysis_protocol = analysis_protocol_dict
         self.process_id = analysis_process_dict['process_core']['process_id']
@@ -121,7 +129,8 @@ class LinksFile():
         }
 
     def __inputs__(self):
-        """Add all input files to an array and return"""
+        """Add all input file objects to an array and return"""
+
         if self.pipeline_type.lower() == "optimus":
             return self.__optimus_inputs__()
 
@@ -131,15 +140,29 @@ class LinksFile():
         raise UnsupportedPipelineType()
 
     def __optimus_inputs__(self):
-        """Add all input files based off the supplied UUIDs, Optimus input object are non-nested"""
+        """Add all input files based off the supplied UUIDs, Optimus input object are non-nested
+            inputs for intermediate are the fastq hashes, inputs for project are intermediate loom hashes
+        """
+
         inputs = []
         for input_uuid in self.input_uuids:
             inputs.append({'input_type': "analysis_file" if self.project_level else "sequence_file",
                           'input_id': input_uuid})
         return inputs
 
+    def __ss2_inputs__(self):
+        """Get all of inputs for each intermediate run, including the bam/bai and their corresponding fastq files"""
+
+
+
+    def __ss2_metadata__(self):
+    
+        return format_map.get_workflow_metadata(self.input_file)
+
     def __outputs__(self):
-        """Add the outputs from outputs.json to an array and return"""
+        """Add the outputs from outputs.json to an array and return
+            For project level runs the output should just be a single loom file
+        """
 
         outputs = []
         for output in self.outputs:
@@ -209,6 +232,10 @@ def main():
     parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows''within an individual workspace.')
     parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file for Optimus, path to project level loom for ss2')
     parser.add_argument('--file_name_string', required=True, help='Input ID (a unique input ID to incorproate into the links UUID) OR project stratum string (concatenation of the project, library, species, and organ).')
+    parser.add_argument('ss2_bam', required=False)
+    parser.add_argument('ss2_bai', required=False)
+    parser.add_argument('ss2_fastq1', required=False)
+    parser.add_argument('ss2_fastq2', required=False)
 
     args = parser.parse_args()
 
@@ -221,6 +248,10 @@ def main():
         args.analysis_process_path,
         args.analysis_protocol_path,
         args.output_file_path,
+        args.ss2_bam,
+        args.ss2_bai,
+        args.ss2_fastq1,
+        args.ss2_fastq2,
         args.project_level
     )
 

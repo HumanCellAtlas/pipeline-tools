@@ -129,7 +129,7 @@ class AnalysisFile():
         # Generate unique file UUID5 by hashing
         # This is deterministic and should always produce the same output given the same input
         # file_save_id is used to save the analysis file - {file_save_id}_{workspace_verison}.json
-        self.file_save_id = format_map.get_uuid5(f"{self.input_uuid}{entity_type}{file_extension}")
+        self.file_save_id = format_map.get_file_entity_id(f"{self.input_uuid}{entity_type}{file_extension}")
 
         return self.file_save_id
 
