@@ -55,9 +55,9 @@ def main():
     with open('pipeline_version.txt', 'w') as f:
         f.write(pipeline_version)
 
-    # only write to file if single sample pipeline version is stored
-    if (single_sample_pipeline_version):
-        with open('single_sample_pipeline_version.txt', 'w') as f:
+    with open('single_sample_pipeline_version.txt', 'w') as f:
+        # only write to file if single sample pipeline version is stored
+        if (single_sample_pipeline_version):
             f.write(single_sample_pipeline_version)
 
     with open('ref_fasta.txt', 'w') as f:
