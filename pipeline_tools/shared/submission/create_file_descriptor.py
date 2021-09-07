@@ -73,7 +73,7 @@ class Descriptor():
         file_entity_id = format_map.get_uuid5(f"{input_uuid}{entity_type}{file_extension}")
         file_id = format_map.get_uuid5(file_entity_id)
 
-        self.size = int(size)
+        self.size = size
         self.crc32c = crc32c
         self.sha256 = sha256
         self.file_id = file_id
@@ -156,7 +156,7 @@ def test_build_file_descriptor(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--size", required=True, help="size of the file in Mb")
+    parser.add_argument("--size", required=True, type=int, help="size of the file in Mb")
     parser.add_argument('--sha256', required=True, help='sha256 of the file.')
     parser.add_argument('--crc32c', required=True, help='crc32c of the file.')
     parser.add_argument('--pipeline_type', required=True, help='Type of pipeline (SS2 or Optimus)')
