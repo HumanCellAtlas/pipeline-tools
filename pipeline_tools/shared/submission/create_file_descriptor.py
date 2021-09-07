@@ -73,7 +73,7 @@ class Descriptor():
         file_entity_id = format_map.get_uuid5(f"{input_uuid}{entity_type}{file_extension}")
         file_id = format_map.get_uuid5(file_entity_id)
 
-        self.size = size
+        self.size = int(size)
         self.crc32c = crc32c
         self.sha256 = sha256
         self.file_id = file_id
