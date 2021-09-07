@@ -19,12 +19,12 @@ def parse_SS2_metadata(metadata_json):
 
     # find pipeline version in metadata.json
     # project level run should be the version of the MultiSampleSmartSeq2 pipeline
-    pipeline_version = metadata['calls']['MultiSampleSmartSeq2.AggregateLoom'][0]['inputs']['pipeline_version']
+    multi_sample_pipeline_version = metadata['calls']['MultiSampleSmartSeq2.AggregateLoom'][0]['inputs']['pipeline_version']
     # intermediate level run should be the version of the SmartSeq2SingleCell pipeline
     # version number stored in metadata.json, so the prefix needs to be added
     single_sample_pipeline_version = "SmartSeq2SingleSample_v" + metadata['calls']['MultiSampleSmartSeq2.sc_pe'][0]['outputs']['pipeline_version_out']
 
-    return ref_fasta_path, pipeline_version, single_sample_pipeline_version
+    return ref_fasta_path, multi_sample_pipeline_version, single_sample_pipeline_version
 
 
 def main():
