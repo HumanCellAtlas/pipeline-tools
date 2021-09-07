@@ -61,10 +61,10 @@ class AnalysisProtocol():
         self.input_uuid = input_uuid
         self.pipeline_type = pipeline_type
         self.work_version = workspace_version
-        self.pipeline_version = pipeline_version.capitalize()
+        self.pipeline_version = pipeline_version
         self.computational_method = f"https://dockstore.org/workflows/github.com/broadinstitute/warp/{self.pipeline_type}:{self.pipeline_version}"
         self.protocol_core = {
-            "protocol_id": pipeline_version
+            "protocol_id": self.pipeline_version
         }
 
     def __analysis_protocol__(self):
