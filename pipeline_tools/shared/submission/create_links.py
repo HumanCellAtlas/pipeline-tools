@@ -276,10 +276,10 @@ def main():
     parser.add_argument('--workspace_version', required=True, help='A version (or timestamp) attribute shared across all workflows within an individual workspace.')
     parser.add_argument('--output_file_path', required=True, help='Path to the outputs.json file for Optimus, path to project level loom for ss2')
     parser.add_argument('--file_name_string', required=True, help='Input ID (a unique input ID to incorproate into the links UUID) OR project stratum string (concatenation of the project, library, species, and organ).')
-    parser.add_argument('--ss2_bam', required=False, nargs='+', help="Array of bam files for the ss2 runs, used to build the file hashes")
-    parser.add_argument('--ss2_bai', required=False, nargs='+', help="Array of bai files for the ss2 runs, used to build the file hashes")
-    parser.add_argument('--ss2_fastq1', required=False, nargs='+', help="Array of fastq1 UUIDS for ss2 runs")
-    parser.add_argument('--ss2_fastq2', required=False, nargs='+', help="Array of fastq2 UUIDSfor ss2 runs")
+    parser.add_argument('--ss2_bam', required=False, nargs='*', help="Array of bam files for the ss2 runs, used to build the file hashes")
+    parser.add_argument('--ss2_bai', required=False, nargs='*', help="Array of bai files for the ss2 runs, used to build the file hashes")
+    parser.add_argument('--ss2_fastq1', required=False, nargs='*', help="Array of fastq1 UUIDS for ss2 runs")
+    parser.add_argument('--ss2_fastq2', required=False, nargs='*', help="Array of fastq2 UUIDSfor ss2 runs")
 
     args = parser.parse_args()
 
