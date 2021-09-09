@@ -19,7 +19,7 @@ SCHEMAS = {
         "schema_type" : "process",
         "schema_version" : "12.0.0",
         "optimus_input_fields": ["r1_fastq", "r2_fastq", "i1_fastq", "whitelist", "input_id", "tar_star_reference", "annotations_gtf", "ref_genome_fasta", "chemistry"],
-        "ss2_input_fields": ["fastq1", "fastq2", "gene_ref_flat", "genome_ref_fasta", "hisat2_ref_index", "hisat2_ref_name", "hisat2_ref_trans_name", "rrna_intervals", "rsem_ref_index", "stranded"]
+        "ss2_input_fields": ["fastq1", "fastq2", "gene_ref_flat", "genome_ref_fasta", "hisat2_ref_index", "hisat2_ref_name", "hisat2_ref_trans_name", "rrna_intervals", "rsem_ref_index", "stranded", "output_name"]
     },
     "ANALYSIS_PROTOCOL" : {
         "describedBy" : "https://schema.humancellatlas.org/type/protocol/analysis/9.1.0/analysis_protocol",
