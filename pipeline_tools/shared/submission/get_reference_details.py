@@ -1,14 +1,14 @@
 import argparse
 import os
 
-HUMAN = "Homo Sapiens"
-MOUSE = "Mus musculus"
+HUMAN = "homo sapiens"
+MOUSE = "mus musculus"
 
 
 def check_reference_and_species(reference_filename, species):
-    if "grch" in reference_filename.lower() and species != HUMAN:
+    if "grch" in reference_filename.lower() and species.lower() != HUMAN:
         raise UnknownReferenceError('Reference file must match the species. {} is not a known reference for {}.'.format(reference_filename, species))
-    elif ("grcm" in reference_filename.lower() or "mm10" in reference_filename.lower()) and species != MOUSE:
+    elif ("grcm" in reference_filename.lower() or "mm10" in reference_filename.lower()) and species.lower() != MOUSE:
         raise UnknownReferenceError('Reference file must match the species. {} is not a known reference for {}.'.format(reference_filename, species))
 
 
