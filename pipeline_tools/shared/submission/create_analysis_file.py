@@ -36,13 +36,16 @@ class AnalysisFile():
     See https://schema.humancellatlas.org/type/file/6.2.0/analysis_file for full spec
     """
 
-    # Content description for bam files
-    DCP2_MATRIX_CONTENT_DESCRIPTION = SCHEMAS["ANALYSIS_FILE"]["loom_content_description"]
+    # Content description for analysis files
+    LOOM_CONTENT_DESCRIPTION = SCHEMAS["ANALYSIS_FILE"]["loom_content_description"]
+    BAM_CONTENT_DESCRIPTION = SCHEMAS["ANALYSIS_FILE"]["bam_content_description"]
+    BAI_CONTENT_DESCRIPTION = SCHEMAS["ANALYSIS_FILE"]["bai_content_description"]
 
     # All analysis files will share these attributes
     describedBy = SCHEMAS["ANALYSIS_FILE"]["describedBy"]
     schema_type = SCHEMAS["ANALYSIS_FILE"]["schema_type"]
     schema_version = SCHEMAS["ANALYSIS_FILE"]["schema_version"]
+    file_source = SCHEMAS["ANALYSIS_FILE"]["file_source"]
 
     def __init__(
         self,
@@ -145,8 +148,9 @@ class AnalysisFile():
                     },
                     "file_core": {
                         "file_name": outputs[output].split("/")[-1],
+                        "file_source": self.file_source,
                         "format": format_map.get_file_format(outputs[output]),
-                        "content_description": [self.DCP2_MATRIX_CONTENT_DESCRIPTION]
+                        "content_description": [self.LOOM_CONTENT_DESCRIPTION]
                     }
                 }
                 if self.project_level:
@@ -160,8 +164,9 @@ class AnalysisFile():
                     },
                     "file_core": {
                         "file_name": outputs[output].split("/")[-1],
+                        "file_source": self.file_source,
                         "format": format_map.get_file_format(outputs[output]),
-                        "content_description": []
+                        "content_description": [self.BAM_CONTENT_DESCRIPTION]
                     }
                 }
             elif outputs[output].endswith(".bai"):
@@ -173,8 +178,9 @@ class AnalysisFile():
                     },
                     "file_core": {
                         "file_name": outputs[output].split("/")[-1],
+                        "file_source": self.file_source,
                         "format": format_map.get_file_format(outputs[output]),
-                        "content_description": []
+                        "content_description": [self.BAI_CONTENT_DESCRIPTION]
                     }
                 }
 

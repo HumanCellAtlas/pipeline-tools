@@ -8,11 +8,22 @@ SCHEMAS = {
         "describedBy" : "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
         "schema_type" : "file",
         "schema_version" : "6.2.0",
+        "file_source" : "DCP/2 Analysis",
         "loom_content_description": {
             "text": "DCP/2-generated matrix",
             "ontology": "data:3917",
             "ontology_label": "Count Matrix"
-        }
+        },
+        "bam_content_description" : {
+            "text" : "DCP/2-sequence alignment",
+            "ontology" : "data:1383",
+            "ontology_label" : "Nucleic acid sequence alignment"
+        },
+        "bai_content_description" : {
+            "text" : "DCP/2-sequence alignment index",
+            "ontology" : "data:3210",
+            "ontology_label" : "An index of a genome sequence"
+        },
     },
     "ANALYSIS_PROCESS" : {
         "describedBy" : "https://schema.humancellatlas.org/type/process/analysis/12.0.0/analysis_process",
