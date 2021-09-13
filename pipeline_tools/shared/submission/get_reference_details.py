@@ -13,9 +13,9 @@ def check_reference_and_species(reference_filename, species):
 
 
 def get_taxon_id_and_ref_version(species):
-    if species == HUMAN:
+    if species.lower() == HUMAN:
         return ("9606", "GencodeV27")
-    elif species == MOUSE:
+    elif species.lower() == MOUSE:
         return ("10090", "GencodeM21")
     else:
         raise UnknownReferenceError('Species must be either mouse ("Mus musculus") or human ("Homo sapiens")')
