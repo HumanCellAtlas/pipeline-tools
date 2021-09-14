@@ -1,5 +1,6 @@
 import argparse
 import json
+from pipeline_tools.shared.submission import format_map
 
 
 def parse_optimus_metadata(metadata_json):
@@ -23,11 +24,7 @@ def parse_SS2_metadata(metadata_json):
 
     # intermediate level run should be the version of the SmartSeq2SingleCell pipeline
     # version number stored in metadata.json, so the prefix needs to be added
-    # check if paired end, else expect single end
-    if (metadata.get('calls').get('MultiSampleSmartSeq2.sc_pe')):
-        single_sample_pipeline_version = "SmartSeq2SingleSample_v" + metadata['calls']['MultiSampleSmartSeq2.sc_pe'][0]['outputs']['pipeline_version_out']
-    else:
-        single_sample_pipeline_version = "SmartSeq2SingleSample_v" + metadata['calls']['MultiSampleSmartSeq2.sc_se'][0]['outputs']['pipeline_version_out']
+    single_sample_pipeline_version = "SmartSeq2SingleSample_v" + metadata['calls'][format_map.get_call_type(metadata)][0]['outputs']['pipeline_version_out']
 
     return ref_fasta_path, multi_sample_pipeline_version, single_sample_pipeline_version
 
