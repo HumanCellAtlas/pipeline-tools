@@ -20,9 +20,14 @@ def parse_SS2_metadata(metadata_json):
     # find pipeline version in metadata.json
     # project level run should be the version of the MultiSampleSmartSeq2 pipeline
     multi_sample_pipeline_version = metadata['calls']['MultiSampleSmartSeq2.AggregateLoom'][0]['inputs']['pipeline_version']
+
     # intermediate level run should be the version of the SmartSeq2SingleCell pipeline
     # version number stored in metadata.json, so the prefix needs to be added
-    single_sample_pipeline_version = "SmartSeq2SingleSample_v" + metadata['calls']['MultiSampleSmartSeq2.sc_pe'][0]['outputs']['pipeline_version_out']
+    # check if paired end, else expect single end
+    if (metadata.get('calls').get('MultiSampleSmartSeq2.sc_pe')):
+        single_sample_pipeline_version = "SmartSeq2SingleSample_v" + metadata['calls']['MultiSampleSmartSeq2.sc_pe'][0]['outputs']['pipeline_version_out']
+    else:
+        single_sample_pipeline_version = "SmartSeq2SingleSample_v" + metadata['calls']['MultiSampleSmartSeq2.sc_se'][0]['outputs']['pipeline_version_out']
 
     return ref_fasta_path, multi_sample_pipeline_version, single_sample_pipeline_version
 
@@ -45,9 +50,9 @@ def main():
     pipeline_type = args.pipeline_type
     metadata = args.cromwell_metadata
 
-    if pipeline_type == "Optimus":
+    if pipeline_type.lower() == "optimus":
         ref_fasta_path, pipeline_version = parse_optimus_metadata(metadata)
-    elif pipeline_type == "SS2":
+    elif pipeline_type.lower() == "ss2":
         ref_fasta_path, pipeline_version, single_sample_pipeline_version = parse_SS2_metadata(metadata)
     else:
         raise RuntimeError('pipeline-type must be Optimus or SS2')
