@@ -181,11 +181,8 @@ class AnalysisProcess():
             if not self.project_level:
                 return workflow_metadata["subWorkflowId"]
             else:
-                # If there is a cache hit then get the ID from cache, otherwise get it from labels
-                if workflow_metadata['callCaching']['hit']:
-                    return re.findall(uuid_regex, workflow_metadata['callCaching']['hit']['result'])[-1]
-
-                return re.findall(uuid_regex, workflow_metadata['labels']['cromwell-workflow-id'])[-1]
+                # Get the ID from the gs:// path
+                return re.findall(uuid_regex, workflow_metadata['stdout'])[-1]
 
         raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
