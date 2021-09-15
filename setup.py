@@ -37,7 +37,7 @@ setup(
             'create-links=pipeline_tools.shared.submission.create_links:main',
             'create-reference-file=pipeline_tools.shared.submission.create_reference_file:main',
             'get-upload-urn=pipeline_tools.shared.submission.get_upload_urn:main',
-            'get-bucket-date=pipeline_tools.shared.submission.get_bucket_date:main'
+            'get-bucket-date=pipeline_tools.shared.submission.get_bucket_date:main',
             'get-files-to-upload=pipeline_tools.shared.submission.get_files_to_upload:main',
             'confirm-submission=pipeline_tools.shared.submission.confirm_submission:main',
             'parse-metadata=pipeline_tools.shared.submission.parse_cromwell_metadata:main',
