@@ -175,7 +175,7 @@ class LinksFile():
                 "fastq2" : {
                     "input_id": self.ss2_fastq2[index],
                     "input_type": "sequence_file"
-                }
+                } if self.ss2_fastq2 else {}
             }
             inputs.append(input_element)
 
