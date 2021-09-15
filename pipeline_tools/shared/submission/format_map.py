@@ -197,3 +197,17 @@ def get_workflow_tasks(workflow_metadata):
             output_tasks.append(out_task)
     sorted_output_tasks = sorted(output_tasks, key=lambda k: k['task_name'])
     return sorted_output_tasks
+
+
+def get_call_type(workflow_metadata):
+    """Finds run type of Cromwell workflow's task metadata, single end or paired end.
+
+    Args:
+        workflow_metadata (dict): A dict representing the workflow metadata.
+
+    Returns:
+        call_type (string): String to represent which type of call was run for MultiSample SS2
+    """
+    call_type = 'MultiSampleSmartSeq2.sc_pe' if workflow_metadata.get('calls').get('MultiSampleSmartSeq2.sc_pe') else 'MultiSampleSmartSeq2.sc_se'
+
+    return call_type

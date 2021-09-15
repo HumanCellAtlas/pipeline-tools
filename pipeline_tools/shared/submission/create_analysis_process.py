@@ -161,7 +161,7 @@ class AnalysisProcess():
         # If project level run then return AggregateLoom metadata
         if self.pipeline_type.lower() == "ss2":
             if not self.project_level:
-                return metadata["calls"]["MultiSampleSmartSeq2.sc_pe"][self.ss2_index]
+                return metadata["calls"][format_map.get_call_type(metadata)][self.ss2_index]
             return metadata["calls"]["MultiSampleSmartSeq2.AggregateLoom"][0]
 
         raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
