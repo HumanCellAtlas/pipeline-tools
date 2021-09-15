@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import re
 from pipeline_tools.shared.schema_utils import SCHEMAS
 from pipeline_tools.shared.submission import format_map
 from pipeline_tools.shared.exceptions import UnsupportedPipelineType
@@ -169,6 +170,7 @@ class AnalysisProcess():
     def __process_id__(self):
 
         workflow_metadata = self.__metadata__()
+        uuid_regex = r"([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})"
 
         if self.pipeline_type.lower() == "optimus":
             return workflow_metadata["id"]
@@ -178,7 +180,12 @@ class AnalysisProcess():
         if self.pipeline_type.lower() == "ss2":
             if not self.project_level:
                 return workflow_metadata["subWorkflowId"]
-            return workflow_metadata["labels"]["cromwell-workflow-id"].split("cromwell-", 1)[1]
+            else:
+                # If there is a cache hit then get the ID from cache, otherwise get it from labels
+                if workflow_metadata['callCaching']['hit']:
+                    return re.findall(uuid_regex, workflow_metadata['callCaching']['hit']['result'])[-1]
+
+                return re.findall(uuid_regex, workflow_metadata['labels']['cromwell-workflow-id'])[-1]
 
         raise UnsupportedPipelineType("Pipeline must be optimus or ss2")
 
