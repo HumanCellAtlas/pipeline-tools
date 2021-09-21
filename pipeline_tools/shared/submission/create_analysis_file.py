@@ -19,10 +19,11 @@ class AnalysisFile():
 
 
         {
-        "describedBy": "https://schema.humancellatlas.org/type/file/6.2.0/analysis_file",
+        "describedBy": "https://schema.humancellatlas.org/type/file/6.3.0/analysis_file",
         "file_core": {
             "content_description": [],
             "file_name": "heart_1k_test_v2_S1_L001.bam",
+            "file_source" : "DCP/2 Analysis
             "format": "bam"
         },
         "provenance": {
@@ -33,7 +34,7 @@ class AnalysisFile():
         }
 
 
-    See https://schema.humancellatlas.org/type/file/6.2.0/analysis_file for full spec
+    See https://schema.humancellatlas.org/type/file/6.3.0/analysis_file for full spec
     """
 
     # Content description for analysis files
