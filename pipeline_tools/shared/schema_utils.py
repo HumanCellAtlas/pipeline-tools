@@ -7,7 +7,7 @@ SCHEMAS = {
     "ANALYSIS_FILE" : {
         "describedBy" : "https://schema.humancellatlas.org/type/file/6.3.0/analysis_file",
         "schema_type" : "file",
-        "schema_version" : "6.2.0",
+        "schema_version" : "6.3.0",
         "file_source" : "DCP/2 Analysis",
         "loom_content_description": {
             "text": "DCP/2-generated matrix",
