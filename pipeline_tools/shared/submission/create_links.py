@@ -132,10 +132,9 @@ class LinksFile():
             with open(analysis_protocol_list_path) as f:
                 self.analysis_protocol_list_path = json.load(f)
 
-            # If paired end run then load paths
-            if ss2_fastq2:
-                with open(ss2_fastq2) as f:
-                    self.ss2_fastq2 = json.load(f)
+            # If single end read then this will load an empty array
+            with open(ss2_fastq2) as f:
+                self.ss2_fastq2 = json.load(f)
 
     def __links_file_optimus__(self):
         """Links file json for Optimus, will contain only a single 'links' object in the list"""
@@ -195,19 +194,25 @@ class LinksFile():
         return links
 
     def __ss2_project_link__(self):
-        """Gets the project level link for an SS2 run where the input are the intermediate bam files and output is project loom"""
+        """Gets the project level link for an SS2 run where the inputs are the intermediate bam/bai files and output is project loom"""
 
-        bam_hashes, _ = self.__hashes__()
-        project_inputs = list(map(lambda x : {
+        bam_hashes, bai_hashes = self.__hashes__()
+
+        bam_inputs = list(map(lambda x : {
             "input_id" : x,
             "input_type" : "analysis_file"
         }, bam_hashes))
+
+        bai_inputs = list(map(lambda x : {
+            "input_id" : x,
+            "input_type" : "analysis_file"
+        }, bai_hashes))
 
         return {
             "process_type" : self.process_type,
             "link_type" : self.link_type,
             "process_id": self.__process_id__(),
-            "inputs" : project_inputs,
+            "inputs" : [*bam_inputs, *bai_inputs],
             "outputs" : self.__outputs__(),
             "protocol" : self.__protocols__()
         }
