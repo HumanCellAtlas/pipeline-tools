@@ -10,7 +10,7 @@ WORKDIR /tools
 
 COPY . .
 
-RUN apt-get install jq
+RUN apt-get update && apt-get -y install jq
 
 # Get latest setuptools because metadata-api installation fails without at least 40.1.0
 RUN pip install -U setuptools
