@@ -116,8 +116,9 @@ class LinksFile():
         self.analysis_process_path_list = analysis_process_path_list
         self.analysis_protocol_path_list = analysis_protocol_path_list
 
-    # Optimus, whether project or intermediate level, only produces a single 'links' object
     def __links_file_optimus__(self):
+        """Links file json for Optimus, will contain only a single 'links' object in the list"""
+
         return {
             "describedBy" : self.describedBy,
             "schema_type" : self.schema_type,
@@ -134,8 +135,9 @@ class LinksFile():
             ]
         }
 
-    # SS2 creates 'links' objects for every intermediate step of SS2 
     def __links_file_ss2__(self):
+        """Links file json for SS2, will contain multiple 'links' object in the list"""
+        
         return {
             "describedBy" : self.describedBy,
             "schema_type" : self.schema_type,
@@ -144,6 +146,12 @@ class LinksFile():
         }
 
     def __ss2_links__(self):
+        """Create the list of links object for a run of SS2
+        First gets all links for intermediate runs
+        Finally appends the project level link
+
+        Returns:
+            links (array[object]) : List of links object for SS2 run"""
 
         links = []
 
@@ -166,6 +174,7 @@ class LinksFile():
         return links
 
     def __ss2_project_link__(self):
+        """Gets the project level link for an SS2 run where the input are the intermediate bam files and output is project loom"""
 
         bam_hashes, _ = self.__hashes__()
         project_inputs = list(map(lambda x : {
