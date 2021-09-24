@@ -214,7 +214,7 @@ class LinksFile():
             "process_id": self.__process_id__(),
             "inputs" : [*bam_inputs, *bai_inputs],
             "outputs" : self.__outputs__(),
-            "protocol" : self.__protocols__()
+            "protocols" : self.__protocols__()
         }
 
     def __optimus_inputs__(self):
@@ -343,7 +343,8 @@ class LinksFile():
         return re.findall(self.uuid_regex, self.analysis_process_list_path[index])[-1]
 
     def get_json(self):
-        if self.pipeline_type.lower == "optimus":
+
+        if self.pipeline_type.lower() == "optimus":
             return self.__links_file_optimus__()
 
         return self.__links_file_ss2__()
