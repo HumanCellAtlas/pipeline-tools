@@ -214,7 +214,7 @@ class LinksFile():
             "process_id": self.__process_id__(),
             "inputs" : [*bam_inputs, *bai_inputs],
             "outputs" : self.__outputs__(),
-            "protocol" : self.__protocols__()
+            "protocols" : self.__protocols__()
         }
 
     def __optimus_inputs__(self):
