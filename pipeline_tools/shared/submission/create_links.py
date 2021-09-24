@@ -337,13 +337,15 @@ class LinksFile():
         Returns:
             process_id (string): process id in the form 151fe264-c670-4c77-a47c-530ff6b3127b"""
 
+
         if index == "" :
             return re.findall(self.uuid_regex, self.analysis_process_path)[-1]
 
         return re.findall(self.uuid_regex, self.analysis_process_list_path[index])[-1]
 
     def get_json(self):
-        if self.pipeline_type.lower == "optimus":
+        if self.pipeline_type.lower() == "optimus":
+            print("here")
             return self.__links_file_optimus__()
 
         return self.__links_file_ss2__()
