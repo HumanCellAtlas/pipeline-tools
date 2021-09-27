@@ -396,7 +396,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--project_id', required=True, help='The project ID')
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
-    parser.add_argument('--input_uuids', required=False, nargs='+', help='List of UUIDs for the input files Optimus(fastq for intermediate/looms for project) SS2 (uuids for each run to build the file hashes)')
+    parser.add_argument('--input_uuids', required=False, nargs='+', help='List of UUIDs for the Optimus inputs (fastq for intermediate runs, intermediate looms for project runs)')
     parser.add_argument('--input_uuids_path', required=False, help='Localized path to the list of input uuids for SS2')
     parser.add_argument('--analysis_process_path', required=True, help='Path to the /metadata/analysis_process.json file for Optimus (both levels) and SS2 project-level')
     parser.add_argument('--analysis_protocol_path', required=True, help='Path to the /metadata/analysis_protocol.json file for Optimus (both levels) and SS2 project-level')
