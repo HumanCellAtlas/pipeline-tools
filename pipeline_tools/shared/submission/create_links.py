@@ -84,9 +84,6 @@ class LinksFile():
         ss2_fastq2="",
             project_level=False):
 
-        print(input_uuids)
-        print(pipeline_type)
-
         # Create UUID to save the file as
         file_prehash = f"{file_name_string}"
         subgraph_uuid = format_map.get_uuid5(file_prehash)
@@ -225,8 +222,6 @@ class LinksFile():
         """Add all input files based off the supplied UUIDs, Optimus input object are non-nested
             inputs for intermediate are the fastq hashes, inputs for project are intermediate loom hashes
         """
-
-        print(f'input-{self.input_uuids}')
 
         inputs = []
         for input_uuid in self.input_uuids:
