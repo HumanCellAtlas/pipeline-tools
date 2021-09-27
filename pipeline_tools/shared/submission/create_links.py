@@ -111,6 +111,7 @@ class LinksFile():
         # If pipelinetype is optimus then input uuids come from a list
         # If pipeline type is SS2 then read the list from a file
         if pipeline_type.lower() == "optimus":
+            print("pipeline is optimus")
             self.input_uuids = input_uuids
         else:
             with open(input_uuids_path) as f:
@@ -224,6 +225,8 @@ class LinksFile():
         """Add all input files based off the supplied UUIDs, Optimus input object are non-nested
             inputs for intermediate are the fastq hashes, inputs for project are intermediate loom hashes
         """
+
+        print(f'input-{self.input_uuids}')
 
         inputs = []
         for input_uuid in self.input_uuids:
