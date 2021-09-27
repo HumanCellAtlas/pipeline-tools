@@ -68,11 +68,11 @@ class LinksFile():
     def __init__(
         self,
         project_id,
-        input_uuids,
         pipeline_type,
         file_name_string,
         workspace_version,
         output_file_path,
+        input_uuids=[],
         analysis_process_path="",
         analysis_protocol_path="",
         input_uuids_path="",
@@ -83,6 +83,9 @@ class LinksFile():
         ss2_fastq1="",
         ss2_fastq2="",
             project_level=False):
+
+        print(input_uuids)
+        print(pipeline_type)
 
         # Create UUID to save the file as
         file_prehash = f"{file_name_string}"
@@ -409,11 +412,11 @@ def main():
 
     links_file = LinksFile(
         args.project_id,
-        args.input_uuids,
         args.pipeline_type,
         args.file_name_string,
         args.workspace_version,
         args.output_file_path,
+        args.input_uuids,
         args.analysis_process_path,
         args.analysis_protocol_path,
         args.input_uuids_path,
