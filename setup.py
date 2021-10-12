@@ -18,6 +18,7 @@ setup(
         'google-auth>=1.6.1,<2',
         'google-cloud-storage>=1.10.0,<2',
         'hca>=7.0.0,<8',
+        'loompy==3.0.6',
         'mock>=2.0.0,<3',
         'requests>=2.20.0,<3',
         'requests-mock>=1.5.2,<2',
