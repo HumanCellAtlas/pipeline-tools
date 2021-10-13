@@ -80,7 +80,6 @@ class AnalysisProcess():
         workspace_version,
         references=[],
         project_level=False,
-        loom_timestamp="",
             ss2_index=0):
 
         self.ss2_index = ss2_index
@@ -89,7 +88,6 @@ class AnalysisProcess():
         self.reference_files = references
         self.pipeline_type = pipeline_type
         self.project_level = project_level
-        self.loom_timestamp = loom_timestamp
         self.workspace_version = workspace_version
 
     def __analysis_process__(self):
@@ -230,8 +228,7 @@ def test_build_analysis_process(
     pipeline_type,
     workspace_version,
     references=[],
-    project_level=False,
-        loom_timestamp=""):
+        project_level=False):
 
     test_analysis_process = AnalysisProcess(
         input_uuid,
@@ -239,8 +236,7 @@ def test_build_analysis_process(
         pipeline_type,
         workspace_version,
         references,
-        project_level,
-        loom_timestamp
+        project_level
     )
     return test_analysis_process.get_json()
 
@@ -249,7 +245,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pipeline_type", required=True, help="Type of pipeline(SS2 or Optimus)")
     parser.add_argument("--workspace_version", required=True, help="Workspace version value i.e. timestamp for workspace")
-    parser.add_argument("--loom_timestamp", required=False, help="The timestamp for the stratified project matrix loom file")
     parser.add_argument("--input_uuid", required=True, help="Input file UUID from the HCA Data Browser (project stratum string for project level)")
     parser.add_argument("--input_file", required=True, help="Path to the JSON obtained from calling Cromwell /metadata for analysis workflow UUID.")
     parser.add_argument("--references", required=False, nargs="+", help="File path for the reference genome fasta")
@@ -265,7 +260,6 @@ def main():
         args.workspace_version,
         args.references,
         args.project_level,
-        args.loom_timestamp,
         args.ss2_index
     )
 
