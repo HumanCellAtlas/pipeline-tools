@@ -11,7 +11,6 @@ def test_data():
         project_level = True
         pipeline_type = "optimus"
         input_uuid = "heart_1k_test_v2_S1_L001"
-        loom_timestamp = "2021-07-26T13:12:24.000000Z"
         workspace_version = "2021-05-24T12:00:00.000000Z"
         references = "c11000b1-2e69-532b-8c72-03dd4c9617d5"
         project_level_pipeline_type = "OptimusPostProcessing"
@@ -341,8 +340,7 @@ class TestCreateProjectLevelAnalysisProcess(object):
             input_file=test_data.project_level_input_file,
             pipeline_type=test_data.pipeline_type,
             workspace_version=test_data.workspace_version,
-            project_level=test_data.project_level,
-            loom_timestamp=test_data.loom_timestamp
+            project_level=test_data.project_level
         )
 
         assert analysis_process.get("analysis_run_type") == "run"
