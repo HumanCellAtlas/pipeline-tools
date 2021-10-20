@@ -1,9 +1,12 @@
 # pipeline-tools
 
-
-
 This repository contains Python package for interacting with and running data processing pipelines in the Human Cell Atlas Data Coordination Platform (DCP). 
 They are used by the DCP Pipelines Execution Service (Secondary Analysis).
+
+#### NOTE
+
+**This repo should be considered 'legacy', code pertaining to the HCA adapters has been moved to [https://github.com/broadinstitute/hca-adapter-tools](https://github.com/broadinstitute/hca-adapter-tools)**
+
 
 ## Development
 
