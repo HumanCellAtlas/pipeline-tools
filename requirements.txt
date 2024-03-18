@@ -1,6 +1,6 @@
 arrow>=0.12.1
 backports.tempfile==1.0
-black==19.3b0
+black==24.3.0
 flake8==3.7.7
 google-auth>=1.6.1,<2
 google-cloud-storage>=1.10.0,<2
